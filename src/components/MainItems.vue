@@ -17,6 +17,7 @@
     </template>
   </q-splitter>
 </template>
+
 <script>
 import { ref } from "vue";
 import MainItem from "@/components/MainItem.vue";
