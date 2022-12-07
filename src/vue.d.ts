@@ -2,11 +2,47 @@ import { ComponentCustomProperties } from "vue";
 import { Store } from "vuex"; // path to store file
 
 declare module "@vue/runtime-core" {
+  type Identifier = {
+    use: string;
+    system: string;
+    value: string;
+    period: {
+      start: string;
+      end: string;
+    };
+    type: {
+      coding: {
+        system: string;
+        version: string;
+        code: string;
+        display: string;
+        userSelected: boolean;
+      };
+      text: string;
+    };
+  };
+
   interface StoreType {
-    questionnaire: Object;
-    questionnaireImported: Object;
+    questionnaire: { item: object };
+    questionnaireImported: {
+      identifier: Identifier[];
+      url: string;
+      name: string;
+      version: string;
+      title: string;
+      status: "draft" | "active" | "retired" | "unknown";
+      publisher: string;
+      date: string;
+      approvalDate: string;
+      lastReviewDate: string;
+      experimental: Boolean;
+      item: object[];
+      resourceType: string;
+    };
     secondaryItemSelected: Object;
-    fileImported: Object;
+    fileImported: {
+      name: string;
+    };
     settings: {
       answers: {
         answersValueset: Boolean;
@@ -18,6 +54,5 @@ declare module "@vue/runtime-core" {
 
   interface ComponentCustomProperties {
     $store: Store<StoreType>;
-    i18n: any;
   }
 }

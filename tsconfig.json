@@ -1,47 +1,44 @@
 {
-  //"compilerOptions": {
-  //  "lib": ["dom", "es5", "es2015"],
-  //  "target": "es5",
-  //  "strict": true,
-  //  "module": "es2015",
-  //  "moduleResolution": "node",
-  //  "emitDecoratorMetadata": true,
-  //  "experimentalDecorators": true
-  //},
-  //"include": [
-  //  "src/**/*"
-  //]
-
-  // `baseUrl` must be placed on the extending configuration in devland, or paths won't be recognized
   "compilerOptions": {
-    "allowJs": true,
-    "baseUrl": ".",
-    "esModuleInterop": true,
+    "target": "esnext",
     "module": "esnext",
-    "moduleResolution": "node",
-    // Address https://github.com/quasarframework/app-extension-typescript/issues/36
-    "noEmit": true,
-    "resolveJsonModule": true,
-    // Avoid cross-os errors due to inconsistent file casing
-    "forceConsistentCasingInFileNames": true,
-    "sourceMap": true,
     "strict": true,
-    "target": "es6",
-    // Fix Volar issue https://github.com/johnsoncodehk/volar/issues/1153
     "jsx": "preserve",
-    // Quasar-defined webpack aliases
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "useDefineForClassFields": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "types": [
+      "webpack-env",
+      "mocha",
+      "chai"
+    ],
     "paths": {
-      "src/*": ["src/*"],
-      "app/*": ["*"],
-      "components/*": ["src/components/*"],
-      "layouts/*": ["src/layouts/*"],
-      "pages/*": ["src/pages/*"],
-      "assets/*": ["src/assets/*"],
-      "boot/*": ["src/boot/*"],
-      "stores/*": ["src/stores/*"]
-    }
+      "@/*": [
+        "src/*"
+      ]
+    },
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable",
+      "scripthost"
+    ]
   },
-  // Avoid files copied into 'dist' folder (eg. a `.d.ts` file inside `src-ssr` folder)
-  // to be evaluated by TS when their original files has been updated
-  "exclude": ["dist", ".quasar", "node_modules"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "tests/**/*.ts",
+    "tests/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

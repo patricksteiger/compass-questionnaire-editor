@@ -1,25 +1,29 @@
 import { createStore } from "vuex";
 
-export const StoreType = {
-  questionnaire: Object,
-  questionnaireImported: Object,
-  secondaryItemSelected: Object,
-  fileImported: Object,
-  settings: {
-    answers: {
-      answersValueset: Boolean,
-      openChoice: Boolean,
-      choice: Boolean,
-    },
-  },
-};
-
 const store = createStore({
   state: {
-    questionnaire: {},
-    questionnaireImported: {},
+    questionnaire: {
+      item: {},
+    },
+    questionnaireImported: {
+      identifier: [],
+      url: "",
+      name: "",
+      version: "",
+      title: "",
+      status: "unknown",
+      publisher: "",
+      date: "",
+      approvalDate: "",
+      lastReviewDate: "",
+      experimental: true,
+      item: [],
+      resourceType: "Questionnaire",
+    },
     secondaryItemSelected: {},
-    fileImported: {},
+    fileImported: {
+      name: "",
+    },
     settings: {
       answers: {
         answersValueset: false,
@@ -86,10 +90,26 @@ const store = createStore({
       state.fileImported = payload;
     },
     resetQuestionnaire(state) {
-      state.questionnaire = {};
-      state.questionnaireImported = {};
+      state.questionnaire = { item: {} };
+      state.questionnaireImported = {
+        identifier: [],
+        url: "",
+        name: "",
+        version: "",
+        title: "",
+        status: "unknown",
+        publisher: "",
+        date: "",
+        approvalDate: "",
+        lastReviewDate: "",
+        experimental: true,
+        item: [],
+        resourceType: "",
+      };
       state.secondaryItemSelected = {};
-      state.fileImported = {};
+      state.fileImported = {
+        name: "",
+      };
     },
   },
   actions: {
@@ -115,11 +135,21 @@ const store = createStore({
     getQuestionnaireImportedJSON(state) {
       if (!state.questionnaireImported) {
         state.questionnaireImported = {
+          identifier: [],
+          url: "",
+          name: "",
+          version: "",
+          title: "",
+          status: "unknown",
+          publisher: "",
+          date: "",
+          approvalDate: "",
+          lastReviewDate: "",
+          experimental: true,
           resourceType: "Questionnaire",
           item: [],
         };
-      }
-      if (!state.questionnaireImported.item) {
+      } else if (!state.questionnaireImported.item) {
         state.questionnaireImported.item = [];
       }
       return state.questionnaireImported;

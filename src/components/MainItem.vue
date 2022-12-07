@@ -81,7 +81,7 @@ class Item {
 }
 
 export default defineComponent({
-  name: 'MainItem',
+  name: "MainItem",
   props: {
     // item: Object,
     item: Array<Item>,

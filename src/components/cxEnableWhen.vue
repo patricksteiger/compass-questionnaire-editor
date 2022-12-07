@@ -181,9 +181,10 @@
 </template>
 <script>
 import { mapGetters } from "vuex";
-import { ref } from "vue";
+import { defineComponent, ref } from "vue";
 import { editorTools } from "../utils/editor.js";
-export default {
+
+export default defineComponent({
   props: {
     internalID: {
       type: String,
@@ -201,16 +202,25 @@ export default {
   data() {
     return {
       item: [],
-      questionaireGUI: {},
+      questionnaireGUI: {
+        item: [],
+      },
       selected: null,
-      selectedItem: {},
+      selectedItem: {
+        linkId: "",
+        type: "",
+        answerOption: [],
+        text: "",
+        definition: "",
+        answerValueSet: false,
+      },
     };
   },
   created() {
-    this.questionaireGUI = this.getQuestionnaireImportedJSON
+    this.questionnaireGUI = this.getQuestionnaireImportedJSON
       ? this.getQuestionnaireImportedJSON
       : {};
-    this.item = this.questionaireGUI.item ? this.questionaireGUI.item : [];
+    this.item = this.questionnaireGUI.item || [];
   },
   computed: {
     ...mapGetters(["getQuestionnaireImportedJSON"]),
@@ -218,7 +228,8 @@ export default {
   watch: {
     selected(val) {
       if (val === null) {
-        this.selectedItem = this.item;
+        //this.selectedItem = this.item;
+        this.selectedItem = null;
         return;
       }
       this.selectedItem = this.edtiorTools.getCurrentQuestionNodeByID(
@@ -244,5 +255,5 @@ export default {
       this.$emit("choiceQuestion", answerOption);
     },
   },
-};
+});
 </script>

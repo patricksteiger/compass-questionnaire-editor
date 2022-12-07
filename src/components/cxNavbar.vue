@@ -143,6 +143,8 @@ export default {
       alertWantToLeaveScreen: ref(false),
       alertError: ref(false),
       alert: ref(false),
+      alertMetadata: ref(false),
+      version: ref(""),
       FileSaver,
       useQuasar,
     };
@@ -172,6 +174,7 @@ export default {
       //resetear los objetos de las preguntas
     },
     async exporting() {
+      let blob = undefined;
       try {
         this.showLoading();
         const objToExport = this.getQuestionnaireImportedJSON;
@@ -185,7 +188,7 @@ export default {
           null,
           2,
         );
-        var blob = new Blob([objFinalToExport], {
+        blob = new Blob([objFinalToExport], {
           type: "application/json;charset=utf-8",
         });
         const opts = {
@@ -209,7 +212,7 @@ export default {
         this.hideLoading();
         this.alert = true;
       } catch (e) {
-        if (e.message !== "The user aborted a request.") {
+        if (e.message !== "The user aborted a request." && blob !== undefined) {
           this.messageError = this.$t("messagesErrors.fileNoExported");
           this.alertError = true;
           this.FileSaver.saveAs(blob, `${this.getNameofQuestionnaire}.json`);

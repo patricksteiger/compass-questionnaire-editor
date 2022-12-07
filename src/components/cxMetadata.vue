@@ -30,7 +30,7 @@
               padding
               class="rounded-borders"
               v-for="(id, index) in identifier"
-              :key="id"
+              :key="id.value"
             >
               <!-- Btn Remove Identifier -->
               <div class="row justify-end">
@@ -260,17 +260,15 @@
     </div>
   </div>
 </template>
-<script>
+<script lang="ts">
 import { mapGetters } from "vuex";
-import { ref } from "vue";
-import { i18n } from "../i18n.js";
+import { defineComponent, ref } from "vue";
 
-export default {
+export default defineComponent({
   setup() {
     return {
       expanded: ref(true),
       statusOptions: ["draft", "active", "retired", "unknown"],
-      i18n,
     };
   },
   computed: {
@@ -283,7 +281,7 @@ export default {
       get() {
         return this.$store.state.questionnaireImported.version;
       },
-      set(value) {
+      set(value: string) {
         this.$store.commit("setVersion", value);
       },
     },
@@ -291,7 +289,7 @@ export default {
       get() {
         return this.$store.state.questionnaireImported.identifier;
       },
-      set(value) {
+      set(value: string) {
         this.$store.commit("setIdentifier", value);
       },
     },
@@ -299,7 +297,7 @@ export default {
       get() {
         return this.$store.state.questionnaireImported.url;
       },
-      set(value) {
+      set(value: string) {
         this.$store.commit("setURL", value);
       },
     },
@@ -307,7 +305,7 @@ export default {
       get() {
         return this.$store.state.questionnaireImported.name;
       },
-      set(value) {
+      set(value: string) {
         this.$store.commit("setName", value);
       },
     },
@@ -315,7 +313,7 @@ export default {
       get() {
         return this.$store.state.questionnaireImported.title;
       },
-      set(value) {
+      set(value: string) {
         this.$store.commit("setTitle", value);
       },
     },
@@ -323,7 +321,7 @@ export default {
       get() {
         return this.$store.state.questionnaireImported.status;
       },
-      set(value) {
+      set(value: string) {
         this.$store.commit("setStatus", value);
       },
     },
@@ -331,7 +329,7 @@ export default {
       get() {
         return this.$store.state.questionnaireImported.publisher;
       },
-      set(value) {
+      set(value: string) {
         this.$store.commit("setPublisher", value);
       },
     },
@@ -339,7 +337,7 @@ export default {
       get() {
         return this.$store.state.questionnaireImported.date;
       },
-      set(value) {
+      set(value: string) {
         this.$store.commit("setDate", value);
       },
     },
@@ -347,7 +345,7 @@ export default {
       get() {
         return this.$store.state.questionnaireImported.approvalDate;
       },
-      set(value) {
+      set(value: string) {
         this.$store.commit("setApprovalDate", value);
       },
     },
@@ -355,7 +353,7 @@ export default {
       get() {
         return this.$store.state.questionnaireImported.lastReviewDate;
       },
-      set(value) {
+      set(value: string) {
         this.$store.commit("setLastReviewDate", value);
       },
     },
@@ -363,7 +361,7 @@ export default {
       get() {
         return this.$store.state.questionnaireImported.experimental;
       },
-      set(value) {
+      set(value: boolean) {
         this.$store.commit("setExperimental", value);
       },
     },
@@ -391,9 +389,9 @@ export default {
       };
       this.$store.state.questionnaireImported.identifier.push(newID);
     },
-    removeID(indexID) {
+    removeID(indexID: number) {
       this.$store.state.questionnaireImported.identifier.splice(indexID, 1);
     },
   },
-};
+});
 </script>
