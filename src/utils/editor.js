@@ -74,45 +74,48 @@ const editorTools = {
     let idCount = 0;
     let changedIdMap = new Map();
 
-    item.forEach((element) => {
-      if (element.__active) {
-        idCount++;
-        let oldLinkId = element.linkId;
-        let newLinkId = idCount + "";
-        changedIdMap.set(oldLinkId, newLinkId);
-        element.linkId = newLinkId;
-      } else {
-        changedIdMap.set(element.linkId, "");
-        element.linkId = "";
-      }
-      if (element.item) {
-        changedIdMap = new Map([
-          ...changedIdMap,
-          ...this.assingNewItemIDs(element),
-        ]);
-      }
-    });
-
+    if (item) {
+      item.forEach((element) => {
+        if (element.__active) {
+          idCount++;
+          let oldLinkId = element.linkId;
+          let newLinkId = idCount + "";
+          changedIdMap.set(oldLinkId, newLinkId);
+          element.linkId = newLinkId;
+        } else {
+          changedIdMap.set(element.linkId, "");
+          element.linkId = "";
+        }
+        if (element.item) {
+          changedIdMap = new Map([
+            ...changedIdMap,
+            ...this.assingNewItemIDs(element),
+          ]);
+        }
+      });
+    }
     return changedIdMap;
   },
 
   regenerateConditionWhenIds(item, changedIdMap) {
-    item.forEach((element) => {
-      if (element.type === "group") {
-        this.regenerateConditionWhenIds(element.item, changedIdMap);
-      }
+    if (item) {
+      item.forEach((element) => {
+        if (element.type === "group") {
+          this.regenerateConditionWhenIds(element.item, changedIdMap);
+        }
 
-      if (element.enableWhen != null) {
-        element.enableWhen.forEach((condition) => {
-          if (
-            condition.question != "" &&
-            changedIdMap.has(condition.question)
-          ) {
-            condition.question = changedIdMap.get(condition.question);
-          }
-        });
-      }
-    });
+        if (element.enableWhen != null) {
+          element.enableWhen.forEach((condition) => {
+            if (
+              condition.question !== "" &&
+              changedIdMap.has(condition.question)
+            ) {
+              condition.question = changedIdMap.get(condition.question);
+            }
+          });
+        }
+      });
+    }
   },
   isEnableWhenCondition(item, linkId) {
     // deactivated Questions
@@ -282,7 +285,7 @@ const editorTools = {
       item.__OldAnswerValueSet = item.answerValueSet = "";
       item.__answerValueSetCheck = false;
     }
-    if (typeQuestion === this.questionTypes.integer) {
+    if (item.type === this.questionTypes.integer) {
       item.extensions = [
         {
           url: "http://hl7.org/fhir/StructureDefinition/questionnaire-sliderStepValue",
@@ -385,7 +388,7 @@ const editorTools = {
   getItemNodeByInternalID(linkId, item = []) {
     let itemSearched;
 
-    let searchNodebyLinkId = function (linkId, item) {
+    let searchNodebyLinkId = (linkId, item) => {
       item.forEach((element) => {
         if (element.item) {
           searchNodebyLinkId(linkId, element.item);

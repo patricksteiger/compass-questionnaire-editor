@@ -2,7 +2,7 @@
   <div class="q-pa-md" style="width-min: 430px">
     <q-list class="rounded-borders">
       <q-expansion-item
-        v-for="firstLevel in mainQUestions"
+        v-for="firstLevel in mainQuestions"
         :key="firstLevel.linkId"
         expand-separator
         :label="firstLevel.text"
@@ -35,7 +35,7 @@
           v-for="secondLevel in firstLevel.item"
           :key="secondLevel.linkId"
           clickable
-          @click="clickSeconItem(secondLevel)"
+          @click="clickSecondItem(secondLevel)"
         >
           <!--  Question Text -->
           <q-item-section>
@@ -65,20 +65,39 @@
   </div>
 </template>
 
-<script>
-import { questionTypesIcons } from "../utils/constants.js";
+<script lang="ts">
+import { questionTypesIcons } from "../utils/constants";
 import { mapMutations } from "vuex";
-export default {
+import { defineComponent } from "vue";
+
+class Item {
+  __active: boolean = true;
+  __typeIcon: string = "";
+  __icon: string = "";
+  item: Item[] = [];
+  linkId: string = "";
+  text: string = "";
+  type: number = -1;
+}
+
+export default defineComponent({
+  name: 'MainItem',
   props: {
-    item: Object,
+    // item: Object,
+    item: Array<Item>,
   },
   methods: {
     ...mapMutations(["setSecondItemSelected"]),
-    clickSeconItem() {},
+    clickSecondItem(item: Item) {
+      console.log(`clickSecondItem: ${item}`);
+    },
   },
   computed: {
-    mainQUestions() {
-      return this.item.map((itemQ) => {
+    mainQuestions() {
+      if (!this.item) {
+        return [];
+      }
+      return this.item.map((itemQ: Item) => {
         itemQ.__typeIcon = questionTypesIcons[itemQ.type].icon;
         itemQ.item.map((itemS) => {
           itemS.__typeIcon = questionTypesIcons[itemS.type].icon;
@@ -90,5 +109,5 @@ export default {
       return questionTypesIcons["decimal"].icon;
     } */
   },
-};
+});
 </script>

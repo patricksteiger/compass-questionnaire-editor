@@ -1,5 +1,5 @@
-import i18n from "../i18n";
-import { answerType, questionType } from "./constants.js";
+import { i18n } from "../i18n";
+import { answerType, MAX_ALLOWED_LEVELS, questionType } from "./constants.js";
 import { v4 as uuidv4 } from "uuid";
 
 /* Error Exceptions obj */
@@ -131,7 +131,7 @@ const FHIRValidations = {
     this.itemNodeRequiredFields(item);
 
     //Error if there is more than 6 levels
-    if (item.linkId.split(".").length > 5) {
+    if (item.linkId.split(".").length > MAX_ALLOWED_LEVELS) {
       this.errorMessages.push(
         this.i18n.global.t("messagesErrors.FHIRValidations.moreThan5Levels", {
           linkId: item.linkId,
@@ -238,7 +238,10 @@ const FHIRValidations = {
         element.__linkId = item.linkId + "." + idCount;
         that.validateItem(element);
         //deep inside no more that 5 levels
-        if (element.item && element.__linkId.split(".").length <= 6) {
+        if (
+          element.item &&
+          element.__linkId.split(".").length <= MAX_ALLOWED_LEVELS
+        ) {
           that.validateItems(element);
         }
       });
@@ -292,15 +295,35 @@ const FHIRValidations = {
     if (item.type === "integer") {
       item.extension = item.extension || [];
       let extensionSet = [
-        {url: "http://hl7.org/fhir/StructureDefinition/questionnaire-sliderStepValue", targetIdx: 0, type: "Integer" },
-        {url: "http://hl7.org/fhir/StructureDefinition/minValue", targetIdx: 1, type: "Integer"},
-        {url: "https://num-compass.science/fhir/StructureDefinition/LowRangeLabel", targetIdx: 2, type: "String"},
-        {url: "http://hl7.org/fhir/StructureDefinition/maxValue", targetIdx: 3, type: "Integer"},
-        {url: "https://num-compass.science/fhir/StructureDefinition/HighRangeLabel", targetIdx: 4, type: "String"}
+        {
+          url: "http://hl7.org/fhir/StructureDefinition/questionnaire-sliderStepValue",
+          targetIdx: 0,
+          type: "Integer",
+        },
+        {
+          url: "http://hl7.org/fhir/StructureDefinition/minValue",
+          targetIdx: 1,
+          type: "Integer",
+        },
+        {
+          url: "https://num-compass.science/fhir/StructureDefinition/LowRangeLabel",
+          targetIdx: 2,
+          type: "String",
+        },
+        {
+          url: "http://hl7.org/fhir/StructureDefinition/maxValue",
+          targetIdx: 3,
+          type: "Integer",
+        },
+        {
+          url: "https://num-compass.science/fhir/StructureDefinition/HighRangeLabel",
+          targetIdx: 4,
+          type: "String",
+        },
       ];
 
-      for (let {url, targetIdx, type} of extensionSet) {
-        let index = item.extension.findIndex((e) => e.url === url)
+      for (let { url, targetIdx, type } of extensionSet) {
+        let index = item.extension.findIndex((e) => e.url === url);
         if (index === -1) {
           item.extension.splice(targetIdx, 0, {
             url,
@@ -312,7 +335,6 @@ const FHIRValidations = {
           item.extension.splice(targetIdx, 0, element);
         }
       }
-
     }
   },
   addPropertiesNeededtoGUIItemNode(item) {

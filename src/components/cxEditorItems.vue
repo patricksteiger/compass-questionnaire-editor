@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- Question Editor  -->
+    <!-- Question Editor -->
     <q-splitter
       v-model="splitterModel"
       :limits="limitsSpliter"
@@ -58,7 +58,7 @@
                     class="row items-center justify-end"
                     style="width: 190px; min-width: 190px"
                   >
-                    <!-- reverse original text question  -->
+                    <!-- reverse original text question -->
                     <div style="width: 30px">
                       <q-btn
                         :disable="!prop.node.__active"
@@ -81,7 +81,11 @@
                       label="GECCO"
                       color="red"
                       v-if="hasGeccoExtension(prop.node)"
-                    ><q-tooltip>This item will be mapped to the corresponding FHIR resource</q-tooltip></q-badge>
+                      ><q-tooltip
+                        >This item will be mapped to the corresponding FHIR
+                        resource</q-tooltip
+                      ></q-badge
+                    >
                     <div v-if="!prop.node.disabled">
                       <q-toggle
                         size="xs"
@@ -138,14 +142,14 @@
             </template>
           </q-tree>
 
-          <!-- Button new question first Item  -->
+          <!-- Button new question first Item -->
           <div
             v-if="
               selectedItem === undefined ||
               Object.keys(selectedItem).length === 0 ||
               (selectedItem &&
                 selectedItem.__active &&
-                selectedItem?.__icon === 'article')
+                selectedItem.type === 'group')
             "
           >
             <q-page-sticky position="bottom-left" :offset="[18, 18]">
@@ -182,12 +186,12 @@
         </div>
       </template>
 
-      <!-- Edtion question selected  -->
+      <!-- Edtion question selected -->
       <template v-slot:after>
         <q-tab-panels v-model="selected">
           <q-tab-panel :name="selected">
             <div>
-              <!--  back Las selected Item -->
+              <!-- back Las selected Item -->
               <q-btn
                 color="primary"
                 v-if="lastSelected"
@@ -800,7 +804,7 @@
                           dense
                           type="number"
                           @keypress="onlyNumber"
-                          v-model="selectedItem.extension[0].valueInteger"
+                          v-model="selectedItem.extensions[0].valueInteger"
                         ></q-input>
                       </q-card-section>
                     </q-item-section>
@@ -813,7 +817,7 @@
                           dense
                           type="number"
                           @keypress="onlyNumber"
-                          v-model="selectedItem.extension[1].valueInteger"
+                          v-model="selectedItem.extensions[1].valueInteger"
                         ></q-input>
                       </q-card-section>
                     </q-item-section>
@@ -824,7 +828,7 @@
                           :disable="!selectedItem.__active"
                           :label="$t('views.editor.lowRangeLabel')"
                           dense
-                          v-model="selectedItem.extension[2].valueString"
+                          v-model="selectedItem.extensions[2].valueString"
                         ></q-input>
                       </q-card-section>
                     </q-item-section>
@@ -837,7 +841,7 @@
                           dense
                           type="number"
                           @keypress="onlyNumber"
-                          v-model="selectedItem.extension[3].valueInteger"
+                          v-model="selectedItem.extensions[3].valueInteger"
                         ></q-input>
                       </q-card-section>
                     </q-item-section>
@@ -848,7 +852,7 @@
                           :disable="!selectedItem.__active"
                           :label="$t('views.editor.highRangeLabel')"
                           dense
-                          v-model="selectedItem.extension[4].valueString"
+                          v-model="selectedItem.extensions[4].valueString"
                         ></q-input>
                       </q-card-section>
                     </q-item-section>
@@ -929,6 +933,7 @@ import {
   answerType,
   answerTypeButton,
   COLORS,
+  MAX_ALLOWED_LEVELS,
 } from "../utils/constants.js";
 import { useQuasar } from "quasar";
 import { ref } from "vue";
@@ -1184,13 +1189,13 @@ export default {
         );
         numLevel++; //count parent
         let totalOfLevelts = itemTarget.linkId.split(".").length + numLevel;
-        if (totalOfLevelts > 5) {
+        if (totalOfLevelts > MAX_ALLOWED_LEVELS) {
           return;
         }
       }
 
       if (
-        itemTarget.linkId.split(".").length >= 4 &&
+        itemTarget.linkId.split(".").length >= MAX_ALLOWED_LEVELS &&
         itemToBeMoved.__icon === "article"
       ) {
         return; //no allow more than 5 levels of items
@@ -1259,22 +1264,22 @@ export default {
     },
     onAddQuestion(e) {
       //No Add Question on Items disabled
-      if (this.selectedItem) {
-        if (this.selectedItem.__active === false) {
-          return;
-        }
+      if (this.selectedItem?.__active === false) {
+        return;
       }
       //No allow add question more than 5 levels
       if (
-        this.selectedItem?.linkId?.split(".").length >= 4 &&
+        this.selectedItem?.linkId?.split(".").length >= MAX_ALLOWED_LEVELS &&
         e.name === this.questionTypes.group
-      )
+      ) {
         return;
+      }
       const item = this.editorTools.getTypeObjQuestion(e.name);
       item.text = this.$t("views.editor.newQuestion");
       if (this.selected !== null) {
         //only add questions in items type group
         if (this.selectedItem.__icon !== "article") return;
+        // if (this.selectedItem.type !== this.questionTypes.group) return;
         if (this.selectedItem.item) {
           const lastItem = this.selectedItem.item.slice(-1)[0];
           item.__linkId = this.editorTools.getNextID(lastItem.__linkId);
@@ -1289,7 +1294,7 @@ export default {
         item.__linkId = this.item.length + 1 + "";
         this.item.push(item);
       }
-      let changedIdMap = this.editorTools.regenerateLinkIds(this.item);
+      const changedIdMap = this.editorTools.regenerateLinkIds(this.item);
       this.editorTools.regenerateConditionWhenIds(this.item, changedIdMap);
     },
     onAddGECCOQuestion(e) {
@@ -1297,10 +1302,11 @@ export default {
       if (this.selectedItem && this.selectedItem.__active === false) return;
       //No allow add question more than 5 levels
       if (
-        this.selectedItem?.linkId?.split(".").length >= 4 &&
+        this.selectedItem?.linkId?.split(".").length >= MAX_ALLOWED_LEVELS &&
         e.name === this.questionTypes.group
-      )
+      ) {
         return;
+      }
       this.layout2 = true;
     },
     onClickAddAnswerOpenChiose(e) {
@@ -1444,11 +1450,15 @@ export default {
       return type;
     },
     enabledQuestionTypes: function () {
-      var result = questionTypesIcons.filter(
-        (x) =>
-          !(!this.getChoice && x.name == "choice") &&
-          !(!this.getOpenChoice && x.name == "open-choice"),
-      );
+      // const allowedQuestions = (q) =>
+      //   !(!this.getChoice && q.name == "choice") &&
+      //   !(!this.getOpenChoice && q.name == "open-choice");
+      const allowedQuestions = (q) =>
+        !(
+          (!this.getChoice && q.name === "choice") ||
+          (!this.getOpenChoice && q.name === "open-choice")
+        );
+      const result = questionTypesIcons.filter(allowedQuestions);
       return result;
     },
   },

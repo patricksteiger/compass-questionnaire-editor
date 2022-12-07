@@ -29,11 +29,13 @@
     </q-card-section>
   </q-card>
 </template>
-<script>
+<script lang="ts">
+import { defineComponent } from "vue";
 import { mapState } from "vuex";
-export default {
+export default defineComponent({
+  name: "SecondItem",
   computed: mapState({
-    secondaryItemSelected: (state) => state.secondaryItemSelected,
+    secondaryItemSelected: (state: any) => state.secondaryItemSelected,
   }),
-};
+});
 </script>

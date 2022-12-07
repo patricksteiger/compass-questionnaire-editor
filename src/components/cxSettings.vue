@@ -52,32 +52,53 @@
   </div>
 </template>
 <script>
-export default {
-  computed: {
+// import { I18n } from "vue-i18n";
+// import i18n from "./i18n";
+//import { useI18n } from "vue-i18n";
+import { computed, defineComponent } from "vue";
+import store from "../store";
+
+export default defineComponent({
+  setup() {
+    const answerValueset = computed({
+      get: () => store.state.settings.answers.answersValueset,
+      set: (value) => store.commit("setAnswerValueSet", value),
+    });
+    const openChoice = computed({
+      get: () => store.state.settings.answers.openChoice,
+      set: (value) => store.commit("setOpenChoice", value),
+    });
+    const choice = computed({
+      get: () => store.state.settings.answers.choice,
+      set: (value) => store.commit("setChoice", value),
+    });
+    return { answerValueset, openChoice, choice };
+  },
+  /*computed: {
     answerValueset: {
-      get() {
+      get: function () {
         return this.$store.state.settings.answers.answersValueset;
       },
-      set(value) {
+      set: function (value) {
         this.$store.commit("setAnswerValueSet", value);
       },
     },
     openChoice: {
-      get() {
+      get: function () {
         return this.$store.state.settings.answers.openChoice;
       },
-      set(value) {
+      set: function (value) {
         this.$store.commit("setOpenChoice", value);
       },
     },
     choice: {
-      get() {
+      get: function () {
         return this.$store.state.settings.answers.choice;
       },
-      set(value) {
+      set: function (value) {
         this.$store.commit("setChoice", value);
       },
     },
-  },
-};
+  },*/
+});
 </script>

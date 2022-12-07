@@ -1,5 +1,19 @@
 import { createStore } from "vuex";
 
+export const StoreType = {
+  questionnaire: Object,
+  questionnaireImported: Object,
+  secondaryItemSelected: Object,
+  fileImported: Object,
+  settings: {
+    answers: {
+      answersValueset: Boolean,
+      openChoice: Boolean,
+      choice: Boolean,
+    },
+  },
+};
+
 const store = createStore({
   state: {
     questionnaire: {},

@@ -18,12 +18,13 @@
   </q-splitter>
 </template>
 
-<script>
-import { ref } from "vue";
-import MainItem from "@/components/MainItem.vue";
+<script lang="ts">
+import { defineComponent, ref } from "vue";
+import MainItem from "./MainItem.vue";
 import { mapGetters } from "vuex";
 
-export default {
+export default defineComponent({
+  name: "MainItems",
   components: {
     MainItem,
   },
@@ -35,5 +36,5 @@ export default {
       splitterModel: ref(35),
     };
   },
-};
+});
 </script>
