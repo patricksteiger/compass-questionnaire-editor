@@ -52,7 +52,7 @@ const FHIRValidations: any = {
     this.identifier(this.questionnaire);
     this.itemsNode(this.questionnaire.item);
   },
-  setConditionDependence(item = []) {
+  setConditionDependence(item: any[] = []) {
     item.forEach((item) => {
       if (item.item) {
         this.setConditionDependence(item.item);
@@ -354,7 +354,7 @@ const FHIRValidations: any = {
         ? this.questionType.open_choice.icon
         : this.questionType[item.type].icon;
   },
-  itemsNode(item = []) {
+  itemsNode(item: any[] = []) {
     let idCount = 0;
     item.forEach((element) => {
       idCount++;
@@ -503,7 +503,7 @@ const generalValidations: any = {
     }
     try {
       JSON.parse(jsonFileString);
-    } catch (error) {
+    } catch (error: any) {
       const message = `${this.i18n.global.t(
         "messagesErrors.GeneralJSONValidations.NoJSONFILEStructure",
       )}
