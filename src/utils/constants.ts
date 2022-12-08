@@ -6,7 +6,7 @@ export const answerType = {
   string: { name: "string", icon: "input" },
   choice: { name: "choice", icon: "radio_button_unchecked" },
   open_choice: { name: "open-choice", icon: "input" },
-};
+} as const;
 
 export const questionType = {
   group: { name: "group", icon: "article", label: "Group" },
@@ -23,13 +23,14 @@ export const questionType = {
     icon: "horizontal_split",
     label: "Open-Choice",
   },
-};
+} as const;
+
 export const answerTypeButton = [
   { name: "integer", icon: "pin", label: "Integer" },
   { name: "date", icon: "event", label: "Date" },
   { name: "string", icon: "text_fields", label: "String" },
   { name: "coding", icon: "toc", label: "Coding" },
-];
+] as const;
 
 export const questionTypesIcons = [
   { name: "group", icon: "article", label: "Group" },
@@ -40,7 +41,7 @@ export const questionTypesIcons = [
   { name: "open-choice", icon: "horizontal_split", label: "Open-Choice" },
   { name: "integer", icon: "pin", label: "Integer" },
   { name: "decimal", icon: "input", label: "Decimal" },
-];
+] as const;
 
 export const questionTypes = {
   group: "group",
@@ -51,8 +52,10 @@ export const questionTypes = {
   openChoice: "open-choice",
   integer: "integer",
   decimal: "decimal",
-};
+} as const;
+
 export const COLORS = {
   itemDragOver: "rgb(2,123,227,0.5)",
-};
+} as const;
+
 export const MAX_ALLOWED_LEVELS = 5;

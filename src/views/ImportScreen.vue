@@ -72,10 +72,10 @@
 import FileUpload from "vue-upload-component";
 import { mapMutations, mapActions, mapGetters } from "vuex";
 import { useQuasar } from "quasar";
-import { importJsonQuestionnaire } from "../utils/ImportJson.js";
-import { ref } from "vue";
+import { importJsonQuestionnaire } from "../utils/ImportJson";
+import { defineComponent, ref } from "vue";
 
-export default {
+export default defineComponent({
   setup() {
     const $q = useQuasar();
 
@@ -170,7 +170,7 @@ export default {
   computed: {
     ...mapGetters(["getQuestionnaireImportedJSON"]),
   },
-};
+});
 </script>
 
 <style>
