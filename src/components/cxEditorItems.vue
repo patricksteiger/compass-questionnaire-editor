@@ -934,10 +934,10 @@ import {
   answerTypeButton,
   COLORS,
   MAX_ALLOWED_LEVELS,
-} from "../utils/constants.js";
+} from "../utils/constants";
 import { useQuasar } from "quasar";
 import { ref } from "vue";
-import { editorTools } from "../utils/editor.js";
+import { editorTools } from "../utils/editor";
 import { mapGetters } from "vuex";
 import { v4 as uuidv4 } from "uuid";
 import cxEnableWhen from "../components/cxEnableWhen.vue";

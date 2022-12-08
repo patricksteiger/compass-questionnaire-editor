@@ -182,7 +182,7 @@
 <script>
 import { mapGetters } from "vuex";
 import { defineComponent, ref } from "vue";
-import { editorTools } from "../utils/editor.js";
+import { editorTools } from "../utils/editor";
 
 export default defineComponent({
   props: {

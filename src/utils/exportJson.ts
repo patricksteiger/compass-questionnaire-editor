@@ -1,110 +1,37 @@
+import {
+  ExportAnswerOption,
+  ExportEnableWhen,
+  ExportIdentifier,
+  ExportItem,
+} from "@/types";
 import { i18n } from "../i18n";
 
-type Coding = {
-  code?: string;
-  system?: string;
-  display?: string;
-  version?: string;
-  userSelected?: boolean;
-};
-
-type AnswerType =
-  | "integer"
-  | "decimal"
-  | "date"
-  | "boolean"
-  | "string"
-  | "choice"
-  | "coding"
-  | "open-choice";
-
-type EnableWhen = {
-  question: string;
-  answer?: string;
-  operator: string;
-  type?: AnswerType;
-  system?: string;
-  display?: string;
-  answerInteger?: number;
-  answerDecimal?: number;
-  answerDate?: string;
-  answerBoolean?: boolean;
-  answerString?: string;
-  answerCoding?: Coding;
-};
-
-type Extension = {
-  valueInteger: Number;
-  valueString: String;
-  valueCoding: Coding;
-};
-
-type AnswerOption = {
-  valueInteger: string | number;
-};
-
-type Identifier = {
-  value?: string;
-  use?: string;
-  system?: string;
-  period?: {
-    start?: string;
-    end?: string;
-  };
-  type?: {
-    coding?: Coding;
-    text?: string;
-  };
-};
-
-type Item = {
-  item?: Item[];
-  extension?: Extension[];
-  answerOption?: AnswerOption[];
-  answerValueSet?: string;
-  disabled?: boolean;
-  enableWhen?: EnableWhen[];
-  linkId: string;
-  identifier?: Identifier[];
-  url?: string;
-  name?: string;
-  version?: string;
-  title?: string;
-  status?: string;
-  publisher?: string;
-  date?: string;
-  approvalDate?: string;
-  lastReviewDate?: string;
-  experimental?: boolean;
-  resourceType: string;
-};
-
 const exportJsonQuestionnaire = {
-  getExportObject(jsonObject: Item) {
-    // let cloneObject = this.getObjectExportCopy(jsonObject);
+  // TODO: fix types for exporting
+  getExportObject(jsonObject: any) {
+    const cloneObject = this.getObjectExportCopy(jsonObject) as ExportItem;
     const objWithoutItemsDisabled =
-      this.getObjectWithouItemsDisables(jsonObject);
+      this.getObjectWithouItemsDisables(cloneObject);
     const finalObj = this.clearMetadatafields(objWithoutItemsDisabled);
     return finalObj;
   },
-  getObjectWithouItemsDisables(jsonObject: Item) {
+  getObjectWithouItemsDisables(jsonObject: ExportItem) {
     if (jsonObject.item === undefined) {
       return jsonObject;
     }
     // To only keep items with linkId
     jsonObject.item = jsonObject.item.filter(
-      (element: Item) => element.linkId !== "",
+      (element: ExportItem) => element.linkId !== "",
     );
 
     // For items within item
-    jsonObject.item.forEach((element: Item) => {
+    jsonObject.item.forEach((element: ExportItem) => {
       if (element.item) {
         this.getObjectWithouItemsDisables(element);
       }
 
       if (element.extension) {
-        let i = element.extension.length;
-        while (i--) {
+        for (let i = element.extension.length - 1; i >= 0; i--) {
           if (
             (!element.extension[i].valueInteger ||
               element.extension[i].valueInteger === null) &&
@@ -123,7 +50,7 @@ const exportJsonQuestionnaire = {
 
       //convert to integer ValueInteger
       if (element.answerOption) {
-        element.answerOption.forEach((element: AnswerOption) => {
+        element.answerOption.forEach((element: ExportAnswerOption) => {
           if (
             element.valueInteger &&
             typeof element.valueInteger === "string"
@@ -158,7 +85,7 @@ const exportJsonQuestionnaire = {
 
       if (element.enableWhen) {
         element.enableWhen = element.enableWhen.filter(
-          (element: EnableWhen) => {
+          (element: ExportEnableWhen) => {
             return (
               element.operator !== "" &&
               element.question !== "" &&
@@ -166,7 +93,7 @@ const exportJsonQuestionnaire = {
             );
           },
         );
-        element.enableWhen.forEach((element: EnableWhen) => {
+        element.enableWhen.forEach((element: ExportEnableWhen) => {
           if (element.type === "decimal") {
             element.answerDecimal = parseFloat(element.answer || "");
           }
@@ -238,7 +165,7 @@ const exportJsonQuestionnaire = {
     }
     return newArray;
   },
-  clearMetadatafields(jsonObject: Item) {
+  clearMetadatafields(jsonObject: ExportItem) {
     //Version
     if (jsonObject.version === "") {
       delete jsonObject.version;
@@ -281,7 +208,7 @@ const exportJsonQuestionnaire = {
     }
     //Identifier
     if (jsonObject?.identifier && jsonObject.identifier.length > 0) {
-      const clearedId: Identifier[] = [];
+      const clearedId: ExportIdentifier[] = [];
       jsonObject?.identifier.forEach((identifier) => {
         let removeUserSelected = true;
         if (identifier) {

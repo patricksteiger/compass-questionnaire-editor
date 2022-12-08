@@ -1,5 +1,5 @@
 import { i18n } from "../i18n";
-import { answerType, MAX_ALLOWED_LEVELS, questionType } from "./constants.js";
+import { answerType, MAX_ALLOWED_LEVELS, questionType } from "./constants";
 import { v4 as uuidv4 } from "uuid";
 
 /* Error Exceptions obj */
@@ -12,23 +12,25 @@ QuestionnaireValidationException.prototype.toString = function () {
   return `${this.name}: "${this.message}"`;
 };
 
-function FHIRValidationException(message) {
-  this.message = message;
-  this.name = "FHIRValidationException";
+class FHIRValidationException {
+  constructor(message) {
+    this.message = message;
+    this.name = "FHIRValidationException";
+  }
+  toString() {
+    return `${this.name}: "${this.message}"`;
+  }
 }
 
-FHIRValidationException.prototype.toString = function () {
-  return `${this.name}: "${this.message}"`;
-};
-
-function GeneralJSONValidationException(message) {
-  this.message = message;
-  this.name = "GeneralJSONValidationException";
+class GeneralJSONValidationException {
+  constructor(message) {
+    this.message = message;
+    this.name = "GeneralJSONValidationException";
+  }
+  toString() {
+    return `${this.name}: "${this.message}"`;
+  }
 }
-
-GeneralJSONValidationException.prototype.toString = function () {
-  return `${this.name}: "${this.message}"`;
-};
 
 /* Function Validations */
 
@@ -81,7 +83,7 @@ const FHIRValidations = {
   getItemNodeByInternalID(linkId, item = []) {
     let itemSearched;
 
-    let searchNodebyLinkId = function (linkId, item) {
+    let searchNodebyLinkId = function(linkId, item) {
       item.forEach((element) => {
         if (element.item) {
           searchNodebyLinkId(linkId, element.item);
@@ -97,7 +99,7 @@ const FHIRValidations = {
     return itemSearched;
   },
   sortByProperty(property) {
-    return function (a, b) {
+    return function(a, b) {
       if (
         parseInt(a[property].split(".")[a[property].split(".").length - 1]) >
         parseInt(b[property].split(".")[b[property].split(".").length - 1])
@@ -457,15 +459,15 @@ const FHIRValidations = {
         id.type =
           id.type === undefined
             ? {
-                coding: {
-                  system: "",
-                  version: "",
-                  code: "",
-                  display: "",
-                  userSelected: false,
-                },
-                text: "",
-              }
+              coding: {
+                system: "",
+                version: "",
+                code: "",
+                display: "",
+                userSelected: false,
+              },
+              text: "",
+            }
             : id.type;
       });
     } else {

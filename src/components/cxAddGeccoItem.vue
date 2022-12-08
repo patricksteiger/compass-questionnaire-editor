@@ -155,12 +155,12 @@
 </template>
 <script>
 // import { mapGetters } from "vuex";
-import { ref } from "vue";
-import { editorTools } from "../utils/editor.js";
+import { defineComponent, ref } from "vue";
+import { editorTools } from "../utils/editor";
 import * as geccoQuestionnaire from "./../store/questionnaire.json";
 import { importJsonQuestionnaire } from "@/utils/ImportJson";
 
-export default {
+export default defineComponent({
   props: {},
   setup() {
     const filter = ref("de");
@@ -220,5 +220,5 @@ export default {
       this.$emit("choiceQuestion", answerOption);
     },
   },
-};
+});
 </script>
