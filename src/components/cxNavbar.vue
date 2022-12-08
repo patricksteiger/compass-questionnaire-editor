@@ -110,13 +110,14 @@
     </q-card>
   </q-dialog>
 </template>
-<script>
-import { ref } from "vue";
+<script lang="ts">
+import { defineComponent, ref } from "vue";
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import { useQuasar } from "quasar";
 import FileSaver from "file-saver";
 import { exportJsonQuestionnaire } from "../utils/exportJson";
-export default {
+
+export default defineComponent({
   computed: {
     ...mapGetters([
       "getNameofQuestionnaire",
@@ -211,7 +212,7 @@ export default {
         await writableStream.close();
         this.hideLoading();
         this.alert = true;
-      } catch (e) {
+      } catch (e: any) {
         if (e.message !== "The user aborted a request." && blob !== undefined) {
           this.messageError = this.$t("messagesErrors.fileNoExported");
           this.alertError = true;
@@ -234,7 +235,7 @@ export default {
       this.$router.push("/");
     },
   },
-};
+});
 </script>
 <style scoped>
 .toolbar_logo {
