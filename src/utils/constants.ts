@@ -25,6 +25,9 @@ export const questionType = {
   },
 } as const;
 
+type QuestionType = typeof questionType;
+export type QuestionTypeIndex = QuestionType[keyof QuestionType]["name"];
+
 export const answerTypeButton = [
   { name: "integer", icon: "pin", label: "Integer" },
   { name: "date", icon: "event", label: "Date" },

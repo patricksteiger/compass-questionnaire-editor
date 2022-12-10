@@ -1,0 +1,161 @@
+export const en = {
+  lang: "en",
+  components: {
+    reverseAnswer: "Reverse Answer",
+    reverseQuestion: "Reverse Question",
+    remove: "Remove",
+    fieldEmpty: "Field Empty!",
+    linkId: "Link ID",
+    navigationBar: {
+      version: "Version",
+      metaInformation: "Metadata",
+      metadataItems: {
+        identifier: "Identifier",
+        URL: "URL",
+        name: "Name",
+        title: "Title",
+        date: "Date",
+        status: "Status",
+        publisher: "Publisher",
+        approvalDate: "Approval Date",
+        lastReviewDate: "Last Review Date",
+        experimental: "Experimental",
+      },
+      ImportJSONBtn: "Import JSON",
+      ExportJSONBtn: "Export JSON",
+      createNewQRE: "Create new questionnaire",
+      warningLeaveDialog: {
+        title: "Warning",
+        instructions:
+          "Are you sure that you want to leave the edition questionnaire screen without exporting first?",
+        continue: "Continue",
+        cancel: "Cancel",
+      },
+    },
+  },
+  views: {
+    import: {
+      dropFile: "Drop a file here",
+      instructions:
+        "Please upload a Questionnaire JSON file that you would like to edit. Drag & drop the file on this area or click here to select a file.",
+    },
+    editor: {
+      conditionFulfilled: "Condition Fulfilled",
+      enableWhenCondition: "Condition: enableWhen",
+      questionDontexist: "Question does not exist in this Questionnaire.",
+      backLastItem: "Back to item",
+      navigateToItem: "Navigate to item",
+      toSelectOneAnswer: "Double tap to select one answer option.",
+      dragItem: "Drag Item",
+      answers: "Answers",
+      itemConditions: "Conditions",
+      addNewCondition: "Add New Condition",
+      addItem: "New Item",
+      deleteItem: "Delete Item",
+      question: "Question",
+      questions: "Questions",
+      operator: "Operator",
+      answer: "Answer",
+      answerSelected: "Answer Overview",
+      AnswerValueSet: "Answer Value Set",
+      selectAnswer: "Select Question",
+      AnswerOptions: "Answer Options",
+      system: "System",
+      code: "Code",
+      newQuestion: "New Item",
+      addAnswer: "ADD ANSWER",
+      reverseText: "Reverse Original Text",
+      newUUID: "New UUID",
+      maxLength: "MaxLength",
+      sliderStepValue: "Slider Step Value",
+      minValue: "Min Value",
+      lowRangeLabel: "Low Range Label",
+      maxValue: "Max Value",
+      highRangeLabel: "High Range Label",
+      extensions: "Extensions",
+      UUID: "UUID",
+      regenerateUUID: "Regenerate UUID",
+      showQuestionContidions: "Show Item Conditions",
+      disableItem: "Disable Item",
+      enableItem: "Enabled Item",
+      originalText: "Original Text",
+      optionsAnswers: {
+        choice: "Choice",
+        open: "Open",
+        boolean: "Boolean",
+      },
+    },
+    tabsTitles: {
+      ediorQRE: "Questionnaire Items",
+      metadata: "Questionnaire Metadata",
+      settings: "Editor Settings",
+    },
+    tabs: {
+      metadata: {
+        addNewId: "Add new Identifier",
+        removeId: "Remove ID",
+        use: "Use",
+        system: "System",
+        value: "Value",
+        period: {
+          period: "Period",
+          start: "Start",
+          end: "End",
+        },
+        type: {
+          type: "Type",
+          coding: {
+            coding: "Coding",
+            system: "System",
+            version: "Version",
+            code: "Code",
+            display: "Display",
+            userSelected: "User Selected",
+          },
+          text: "Text",
+        },
+      },
+      settings: {
+        Answers: {
+          title: "Answers",
+          AnswerValueset: "Answer Value Set",
+          OpenChoice: "Open Choice Enabled",
+          Choice: "Choice Enabled",
+        },
+      },
+    },
+  },
+  export: {
+    successfully: "Successfully export",
+  },
+  messagesErrors: {
+    warning: "Warning",
+    error: "Error",
+    fileNoExported:
+      "JSON File could no be exported. File was downloaded in Donwloads instead.",
+    QuestionnaireValidations: {
+      test: "test",
+    },
+    FHIRValidations: {
+      nodeMissing:
+        "FHIR Resource Content Invalid! Missing Information on {node}. {item}",
+      resourceImportedNoAllow: "Resource {resource} Imported is not allow",
+      nodeMissingItem:
+        "FHIR Resource Content Invalid! {node} in Item {linkId}.",
+      typeNodeNoValAllow: "Item {linkId} {type} type value is not allow.",
+      posiblesValues: "{currentValue} value is no allowed in {node}.",
+      moreThan5Levels: "Item {linkId} has more that 5 levels.",
+      answerOptionAndValueSetNoAllow:
+        "Item {linkId} has [answerOption] and [answerValueSet], both are not allow.",
+      linkId:
+        "Item: [{linkId} - {text}] has an error, it doesn't follow the right secuence of LinkId. Link ID should be {internalId} instead if {linkId}. ",
+    },
+    GeneralJSONValidations: {
+      test: "test",
+      fileNoJSONType:
+        "File {nameFile} imported is no a JSON File. Only JSON Files are allow.",
+      NoJSONFILEStructure:
+        "Content of file loaded has no a properly structure of a JSON. ",
+    },
+  },
+} as const;

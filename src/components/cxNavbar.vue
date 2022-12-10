@@ -127,7 +127,7 @@ export default defineComponent({
   },
   data() {
     return {
-      questionaireGUI: {},
+      questionnaireGUI: {},
       messageError: "",
     };
   },
@@ -151,7 +151,7 @@ export default defineComponent({
     };
   },
   created() {
-    this.questionaireGUI = this.getQuestionnaireImportedJSON
+    this.questionnaireGUI = this.getQuestionnaireImportedJSON
       ? this.getQuestionnaireImportedJSON
       : {};
   },

@@ -1,6 +1,102 @@
 import { i18n } from "../i18n";
-import { answerType, MAX_ALLOWED_LEVELS, questionType } from "./constants";
+import {
+  answerType,
+  MAX_ALLOWED_LEVELS,
+  questionType,
+  QuestionTypeIndex,
+} from "./constants";
 import { v4 as uuidv4 } from "uuid";
+
+type Coding = {
+  __oldDisplay: string | undefined;
+  code: string | undefined;
+  display: string | undefined;
+  system: string | undefined;
+  version: string | undefined;
+  userSelected: boolean | undefined;
+};
+
+export type AnswerType =
+  | "integer"
+  | "decimal"
+  | "date"
+  | "boolean"
+  | "string"
+  | "choice"
+  | "coding"
+  | "open-choice";
+
+type EnableWhen = {
+  question: string;
+  answer: string | undefined;
+  operator: string;
+  type: AnswerType;
+  system: string | undefined;
+  display: string | undefined;
+  answerDecimal: string | undefined;
+  answerInteger: string | undefined;
+  answerCoding: Coding | undefined;
+  answerDate: string | undefined;
+  answerString: string | undefined;
+  answerBoolean: string | undefined;
+};
+
+type Extension = {};
+
+type AnswerOption = {
+  __id: number;
+  __type: string;
+  __icon: string;
+  __oldValueInteger: Number | undefined;
+  __oldValueString: String | undefined;
+  __oldValueDate: String | undefined;
+  valueCoding: Coding | undefined;
+  valueInteger: Number | undefined;
+  valueString: String | undefined;
+  valueDate: String | undefined;
+};
+
+type Identifier = {
+  use: string | undefined;
+  value: string | undefined;
+  system: string | undefined;
+  period: { start?: string; end?: string } | undefined;
+  type: {
+    coding: Coding;
+    text: string | undefined;
+  };
+};
+
+type Item = {
+  __linkId: string;
+  __internalID: string;
+  __active: boolean;
+  __answerValueSetCheck: boolean;
+  __OldAnswerValueSet: ValueSet | undefined;
+  __oldText: string;
+  __newDefinition: boolean;
+  __icon: string;
+  item?: Item[];
+  type: QuestionTypeIndex;
+  linkId: string;
+  text: string;
+  disabled: boolean;
+  definition: string | undefined;
+  answerOption: AnswerOption[] | undefined;
+  answerValueSet: ValueSet | undefined;
+  enableWhen: EnableWhen[] | undefined;
+  extension: Extension[] | undefined;
+};
+
+type ValueSet = {};
+
+type State = "draft" | "active" | "retired" | "unknown";
+
+type File = {
+  status: State | undefined;
+  item?: Item[];
+  identifier: Identifier[] | undefined;
+};
 
 /* Error Exceptions obj */
 /*function QuestionnaireValidationException(message) {
@@ -40,18 +136,27 @@ class GeneralJSONValidationException {
 
 /* Function Validations */
 
-const questionnaireSpecific = {};
+class FHIRValidation {
+  errorMessages: string[] = [];
+  questionnaire: File = {
+    status: undefined,
+    identifier: undefined,
+  };
+  i18n = i18n;
+  answerType = answerType;
+  questionType = questionType;
 
-const FHIRValidations: any = {
-  errorMessages: [],
-  questionnaire: {},
-  validateFHIRResourceItems(JSONFHIRQuestionnaire: any) {
+  validateFHIRResourceItems(JSONFHIRQuestionnaire: File) {
     this.errorMessages = [];
-    this.questionnaire = this.getSortItems(JSONFHIRQuestionnaire);
+    this.questionnaire = this.getSortItems(JSONFHIRQuestionnaire) || {
+      status: undefined,
+      identifier: undefined,
+    };
     this.statusNode(this.questionnaire);
     this.identifier(this.questionnaire);
     this.itemsNode(this.questionnaire.item);
-  },
+  }
+
   setConditionDependence(item: any[] = []) {
     item.forEach((item) => {
       if (item.item) {
@@ -85,7 +190,8 @@ const FHIRValidations: any = {
         });
       }
     });
-  },
+  }
+
   getItemNodeByInternalID(linkId: string, item: any[] = []) {
     let itemSearched: any;
 
@@ -103,60 +209,73 @@ const FHIRValidations: any = {
     searchNodebyLinkId(linkId, item);
 
     return itemSearched;
-  },
-  sortByProperty(property: any) {
-    return function (a: any, b: any) {
-      if (
-        parseInt(a[property].split(".")[a[property].split(".").length - 1]) >
-        parseInt(b[property].split(".")[b[property].split(".").length - 1])
-      )
-        return 1;
-      else if (
-        parseInt(a[property].split(".")[a[property].split(".").length - 1]) <
-        parseInt(b[property].split(".")[b[property].split(".").length - 1])
-      )
-        return -1;
+  }
 
-      return 0;
-    };
-  },
-  sortItems(item: any[]) {
-    item.sort(this.sortByProperty("linkId"));
+  sortByLinkId(i1: Item, i2: Item) {
+    const nums1 = i1.linkId.split(".");
+    const nums2 = i2.linkId.split(".");
+    const last1 = nums1.at(-1);
+    const last2 = nums2.at(-1);
+    if (last1 === undefined && last2 === undefined) return 0;
+    if (last1 === undefined) return -1;
+    if (last2 === undefined) return 1;
+    return parseInt(last1) - parseInt(last2);
+    // return function (a: Item, b: Item) {
+    //   if (
+    //     parseInt(a[property].split(".")[a[property].split(".").length - 1]) >
+    //     parseInt(b[property].split(".")[b[property].split(".").length - 1])
+    //   )
+    //     return 1;
+    //   else if (
+    //     parseInt(a[property].split(".")[a[property].split(".").length - 1]) <
+    //     parseInt(b[property].split(".")[b[property].split(".").length - 1])
+    //   )
+    //     return -1;
+    //
+    //   return 0;
+    // };
+  }
+
+  sortItems(item: Item[]) {
+    item.sort(this.sortByLinkId);
     item.forEach((element) => {
       if (element.item) {
         this.sortItems(element.item);
       }
     });
-  },
-  getSortItems(jsonFile: any) {
-    if (!jsonFile.item) return;
+  }
+
+  getSortItems(jsonFile: File) {
+    if (!jsonFile.item) return undefined;
     this.sortItems(jsonFile.item);
     return jsonFile;
-  },
-  validateItem(item: any) {
+  }
+
+  validateItem(item: Item) {
     this.addPropertiesNeededtoGUIItemNode(item);
     //Validate if missing required fields of the Item
     this.itemNodeRequiredFields(item);
 
     //Error if there is more than 6 levels
-    if (item.linkId.split(".").length > MAX_ALLOWED_LEVELS) {
-      this.errorMessages.push(
-        this.i18n.global.t("messagesErrors.FHIRValidations.moreThan5Levels", {
-          linkId: item.linkId,
-        }),
+    const linkIdLevel = item.linkId.split(".").length;
+    if (linkIdLevel > MAX_ALLOWED_LEVELS) {
+      const message = this.i18n.global.t(
+        "messagesErrors.FHIRValidations.moreThan5Levels",
+        { linkId: item.linkId },
       );
+      this.errorMessages.push(message);
     }
 
     //Error no follow the linkId logic stucture
     if (item.linkId !== item.__linkId && item.linkId !== "") {
-      const message = `${this.i18n.global.t(
+      const message = this.i18n.global.t(
         "messagesErrors.FHIRValidations.linkId",
         {
           text: item.text,
           linkId: item.linkId,
           internalId: item.__linkId,
         },
-      )}`;
+      );
       throw new FHIRValidationException(message);
       /* this.errorMessages.push(
         this.i18n.global.t("messagesErrors.FHIRValidations.linkId", {
@@ -169,7 +288,7 @@ const FHIRValidations: any = {
     //format Answer
     if (item.answerOption) {
       let idCountAnswer = 0;
-      item.answerOption.forEach((answerOpt: any) => {
+      item.answerOption.forEach((answerOpt) => {
         idCountAnswer++;
         answerOpt.__id = idCountAnswer;
         /*         if (answerOpt.valueString !== undefined) {
@@ -235,12 +354,13 @@ const FHIRValidations: any = {
     } else {
       item.__newDefinition = false;
     }
-  },
-  validateItems(item: any) {
+  }
+
+  validateItems(item: Item) {
     if (item.item) {
       let idCount = 0;
       const that = this;
-      item.item.forEach((element: any) => {
+      item.item.forEach((element) => {
         idCount++;
         element.__internalID = `${uuidv4()}-${Date.now()}`;
         element.__linkId = item.linkId + "." + idCount;
@@ -254,8 +374,9 @@ const FHIRValidations: any = {
         }
       });
     }
-  },
-  itemNodeRequiredFields(item: any) {
+  }
+
+  itemNodeRequiredFields(item: Item) {
     //Error if missing required fields of the Item
     if (!item.linkId) {
       this.errorMessages.push(
@@ -328,7 +449,7 @@ const FHIRValidations: any = {
           targetIdx: 4,
           type: "String",
         },
-      ];
+      ] as const;
 
       for (const { url, targetIdx, type } of extensionSet) {
         const index = item.extension.findIndex((e: any) => e.url === url);
@@ -344,8 +465,9 @@ const FHIRValidations: any = {
         }
       }
     }
-  },
-  addPropertiesNeededtoGUIItemNode(item: any) {
+  }
+
+  addPropertiesNeededtoGUIItemNode(item: Item) {
     item.__active = true;
     item.disabled = false;
     item.__oldText = item.text;
@@ -353,8 +475,9 @@ const FHIRValidations: any = {
       item.type === "open-choice"
         ? this.questionType.open_choice.icon
         : this.questionType[item.type].icon;
-  },
-  itemsNode(item: any[] = []) {
+  }
+
+  itemsNode(item: Item[] = []) {
     let idCount = 0;
     item.forEach((element) => {
       idCount++;
@@ -367,72 +490,85 @@ const FHIRValidations: any = {
         this.validateItems(element);
       }
     });
-  },
-  validateEnableWhen(item: any) {
-    const that = this;
-    item.enableWhen.forEach((element: any) => {
-      if (!element.question) {
-        that.errorMessages.push(
-          that.i18n.global.t("messagesErrors.FHIRValidations.nodeMissingItem", {
-            node: "enableWhen.question",
-            linkId: item.linkId,
-          }),
-        );
-      }
-      if (!element.operator) {
-        that.errorMessages.push(
-          that.i18n.global.t("messagesErrors.FHIRValidations.nodeMissingItem", {
-            node: "enableWhen.operator",
-            linkId: item.linkId,
-          }),
-        );
-      }
-      //missing  answer
-      if (
-        element.answerDecimal === undefined &&
-        element.answerInteger === undefined &&
-        element.answerCoding === undefined && //openChoice || choice
-        element.answerDate === undefined &&
-        element.answerBoolean === undefined &&
-        element.answerString === undefined
-      ) {
-        that.errorMessages.push(
-          that.i18n.global.t("messagesErrors.FHIRValidations.nodeMissingItem", {
-            node: "enableWhen.answer[x]",
-            linkId: item.linkId,
-          }),
-        );
-      }
+  }
 
-      if (element.answerDecimal) {
-        element.answer = element.answerDecimal;
-        element.type = "decimal";
-      }
-      if (element.answerInteger) {
-        element.answer = element.answerIntegerl;
-        element.type = "integer";
-      }
-      if (element.answerCoding) {
-        element.answer = element.answerCoding.code;
-        element.type = "choice";
-        element.display = element.answerCoding.display;
-        element.system = element.answerCoding.system;
-      }
-      if (element.answerDate) {
-        element.answer = element.answerDate;
-        element.type = "date";
-      }
-      if (element.answerBoolean !== undefined) {
-        element.answer = element.answerBoolean ? "true" : "false";
-        element.type = "boolean";
-      }
-      if (element.answerString) {
-        element.answer = element.answerString;
-        element.type = "string";
-      }
-    });
-  },
-  statusNode(FHIRobj: any) {
+  validateEnableWhen(item: Item) {
+    const that = this;
+    if (item.enableWhen) {
+      item.enableWhen.forEach((element) => {
+        if (!element.question) {
+          that.errorMessages.push(
+            that.i18n.global.t(
+              "messagesErrors.FHIRValidations.nodeMissingItem",
+              {
+                node: "enableWhen.question",
+                linkId: item.linkId,
+              },
+            ),
+          );
+        }
+        if (!element.operator) {
+          that.errorMessages.push(
+            that.i18n.global.t(
+              "messagesErrors.FHIRValidations.nodeMissingItem",
+              {
+                node: "enableWhen.operator",
+                linkId: item.linkId,
+              },
+            ),
+          );
+        }
+        //missing  answer
+        if (
+          element.answerDecimal === undefined &&
+          element.answerInteger === undefined &&
+          element.answerCoding === undefined && //openChoice || choice
+          element.answerDate === undefined &&
+          element.answerBoolean === undefined &&
+          element.answerString === undefined
+        ) {
+          that.errorMessages.push(
+            that.i18n.global.t(
+              "messagesErrors.FHIRValidations.nodeMissingItem",
+              {
+                node: "enableWhen.answer[x]",
+                linkId: item.linkId,
+              },
+            ),
+          );
+        }
+
+        if (element.answerDecimal) {
+          element.answer = element.answerDecimal;
+          element.type = "decimal";
+        }
+        if (element.answerInteger) {
+          element.answer = element.answerInteger;
+          element.type = "integer";
+        }
+        if (element.answerCoding) {
+          element.answer = element.answerCoding.code;
+          element.type = "choice";
+          element.display = element.answerCoding.display;
+          element.system = element.answerCoding.system;
+        }
+        if (element.answerDate) {
+          element.answer = element.answerDate;
+          element.type = "date";
+        }
+        if (element.answerBoolean !== undefined) {
+          element.answer = element.answerBoolean ? "true" : "false";
+          element.type = "boolean";
+        }
+        if (element.answerString) {
+          element.answer = element.answerString;
+          element.type = "string";
+        }
+      });
+    }
+  }
+
+  statusNode(FHIRobj: File) {
     if (!FHIRobj.status) {
       this.errorMessages.push(
         this.i18n.global.t("messagesErrors.FHIRValidations.nodeMissing", {
@@ -453,10 +589,11 @@ const FHIRValidations: any = {
         }),
       );
     }
-  },
-  identifier(FHIRobj: any) {
-    if (FHIRobj?.identifier?.length > 0) {
-      FHIRobj.identifier.forEach((id: any) => {
+  }
+
+  identifier(FHIRobj: File) {
+    if (FHIRobj.identifier && FHIRobj.identifier.length > 0) {
+      FHIRobj.identifier.forEach((id) => {
         id.use = id.use === undefined ? "" : id.use;
         id.system = id.system === undefined ? "" : id.system;
         id.value = id.value === undefined ? "" : id.value;
@@ -466,6 +603,7 @@ const FHIRValidations: any = {
           id.type === undefined
             ? {
                 coding: {
+                  __oldDisplay: undefined,
                   system: "",
                   version: "",
                   code: "",
@@ -479,8 +617,9 @@ const FHIRValidations: any = {
     } else {
       FHIRobj.identifier = [];
     }
-  },
-  resourceType(FHIRobj: any) {
+  }
+
+  /*resourceType(FHIRobj: any) {
     if (!FHIRobj.resourceType) {
       return this.i18n.global.t("messagesErrors.FHIRValidations.nodeMissing", {
         node: "resourceType",
@@ -492,10 +631,12 @@ const FHIRValidations: any = {
         { resource: FHIRobj.resourceType },
       );
     }
-  },
-};
+  }*/
+}
 
-const generalValidations: any = {
+const generalValidations = {
+  i18n: i18n,
+
   //Validata that is a right JSON Structure
   JSONValid(jsonFileString = "") {
     if (typeof jsonFileString !== "string") {
@@ -513,11 +654,18 @@ const generalValidations: any = {
   },
 };
 
-const importJsonQuestionnaire: any = {
-  getValidateJSON(jsonFile: any) {
+const questionnaireSpecific = {};
+
+const importJsonQuestionnaire = {
+  FHIRValidations: new FHIRValidation(),
+  questionnaireSpecific: questionnaireSpecific,
+  generalValidations: generalValidations,
+  i18n: i18n,
+
+  getValidateJSON(jsonFile: string) {
     this.generalValidations.JSONValid(jsonFile);
   },
-  getValidateFHIRResource(jsonFile: any) {
+  getValidateFHIRResource(jsonFile: File) {
     this.FHIRValidations.validateFHIRResourceItems(jsonFile);
     return this.FHIRValidations.errorMessages;
   },
@@ -525,14 +673,5 @@ const importJsonQuestionnaire: any = {
     return this.FHIRValidations.questionnaire;
   },
 };
-
-importJsonQuestionnaire.questionnaireSpecific = questionnaireSpecific;
-importJsonQuestionnaire.FHIRValidations = FHIRValidations;
-importJsonQuestionnaire.generalValidations = generalValidations;
-importJsonQuestionnaire.i18n = i18n;
-generalValidations.i18n = i18n;
-FHIRValidations.i18n = i18n;
-FHIRValidations.answerType = answerType;
-FHIRValidations.questionType = questionType;
 
 export { importJsonQuestionnaire };
