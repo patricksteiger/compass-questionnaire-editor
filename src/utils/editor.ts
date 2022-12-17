@@ -124,30 +124,32 @@ class EditorTools {
   };
   currentQuestionNodeByLinkId: Node = defaultNode;
 
-  getIndexItem(internalIDToBeRemove: string, arrayQuestions: Node[]) {
-    let indexOfItemtoBeRemoved = 1;
-    arrayQuestions.forEach((element: Node, index: number) => {
-      if (element.__internalID === internalIDToBeRemove) {
-        indexOfItemtoBeRemoved = index;
-      }
-    });
-    return indexOfItemtoBeRemoved;
+  getIndexItem(internalIDToBeRemove: string, arrayQuestions: Node[]): number {
+    // let indexOfItemtoBeRemoved = 1;
+    for (let i = 0; i < arrayQuestions.length; i++)
+      if (arrayQuestions[i].__internalID === internalIDToBeRemove) return i;
+    return 1;
+    // arrayQuestions.forEach((element: Node, index: number) => {
+    //   if (element.__internalID === internalIDToBeRemove) {
+    //     indexOfItemtoBeRemoved = index;
+    //   }
+    // });
+    // return indexOfItemtoBeRemoved;
   }
 
   // TODO: What is type of event from onDrop in cxEditorItems
-  getInternalIDFromEhandler(e: any) {
-    return e.currentTarget.id.split("_").length > 1
-      ? e.currentTarget.id.split("_")[1]
-      : e.currentTarget.id;
+  getInternalIDFromEhandler(e: any): string {
+    const splitId = e.currentTarget.id.split("_");
+    return splitId.length > 1 ? splitId[1] : e.currentTarget.id;
   }
 
   // TODO: What is type of event from onDrop in cxEditorItems
-  isPreviousQuestion(e: any) {
+  isPreviousQuestion(e: any): boolean {
     //if with prefix _ means that id has been dragged before the item question
-    return e.currentTarget.id.split("_").length == 2 ? true : false;
+    return e.currentTarget.id.split("_").length == 2;
   }
 
-  assingNewItemInternalIDs(item: Node) {
+  assingNewItemInternalIDs(item: Node): void {
     if (item.item) {
       let idCount = 0;
       item.item.forEach((element: Node) => {
@@ -160,9 +162,9 @@ class EditorTools {
     }
   }
 
-  assingNewItemIDs(item: Node) {
+  assingNewItemIDs(item: Node): Map<string, string> {
+    let changedIdMap = new Map<string, string>();
     if (item.item) {
-      let changedIdMap = new Map();
       let idCount = 0;
 
       item.item.forEach((element) => {
@@ -181,12 +183,11 @@ class EditorTools {
           changedIdMap = new Map([...changedIdMap, ...(newIds || [])]);
         }
       });
-
-      return changedIdMap;
     }
+    return changedIdMap;
   }
 
-  regenerateInternalIDs(item: Node[]) {
+  regenerateInternalIDs(item: Node[]): void {
     let idCount = 0;
     item.forEach((element) => {
       idCount++;
@@ -197,55 +198,52 @@ class EditorTools {
     });
   }
 
-  regenerateLinkIds(item?: Node[]) {
-    let idCount = 0;
+  regenerateLinkIds(item?: Node[]): Map<string, string> {
     let changedIdMap = new Map<string, string>();
-    if (item) {
-      item.forEach((element) => {
-        if (element.__active) {
-          idCount++;
-          const oldLinkId = element.linkId;
-          const newLinkId = idCount + "";
-          changedIdMap.set(oldLinkId, newLinkId);
-          element.linkId = newLinkId;
-        } else {
-          changedIdMap.set(element.linkId, "");
-          element.linkId = "";
-        }
-        if (element.item) {
-          const newIds = this.assingNewItemIDs(element);
-          changedIdMap = new Map([...changedIdMap, ...(newIds || [])]);
-        }
-      });
-    }
+    if (item === undefined) return changedIdMap;
+    let idCount = 0;
+    item.forEach((element) => {
+      if (element.__active) {
+        idCount++;
+        const oldLinkId = element.linkId;
+        const newLinkId = idCount + "";
+        changedIdMap.set(oldLinkId, newLinkId);
+        element.linkId = newLinkId;
+      } else {
+        changedIdMap.set(element.linkId, "");
+        element.linkId = "";
+      }
+      if (element.item) {
+        const newIds = this.assingNewItemIDs(element);
+        changedIdMap = new Map([...changedIdMap, ...(newIds || [])]);
+      }
+    });
     return changedIdMap;
   }
 
   regenerateConditionWhenIds(
     item: Node[] | undefined,
     changedIdMap: Map<string, string>,
-  ) {
-    if (item) {
-      item.forEach((element) => {
-        if (element.type === "group") {
-          this.regenerateConditionWhenIds(element.item, changedIdMap);
-        }
-
-        if (element.enableWhen != null) {
-          element.enableWhen.forEach((condition) => {
-            if (
-              condition.question !== "" &&
-              changedIdMap.has(condition.question)
-            ) {
-              condition.question = changedIdMap.get(condition.question) || "";
-            }
-          });
-        }
-      });
-    }
+  ): void {
+    if (item === undefined) return;
+    item.forEach((element) => {
+      if (element.type === "group") {
+        this.regenerateConditionWhenIds(element.item, changedIdMap);
+      }
+      if (element.enableWhen !== null) {
+        element.enableWhen.forEach((condition) => {
+          if (
+            condition.question !== "" &&
+            changedIdMap.has(condition.question)
+          ) {
+            condition.question = changedIdMap.get(condition.question) || "";
+          }
+        });
+      }
+    });
   }
 
-  isEnableWhenCondition(item: Node[], linkId: string) {
+  isEnableWhenCondition(item: Node[], linkId: string): boolean {
     // deactivated Questions
     if (linkId === "") {
       return false;
@@ -269,7 +267,7 @@ class EditorTools {
     return false;
   }
 
-  disableItem(item: Node, toggleValue: boolean) {
+  disableItem(item: Node, toggleValue: boolean): void {
     if (item.item) {
       item.item.forEach((element) => {
         element.__active = toggleValue;
@@ -280,7 +278,7 @@ class EditorTools {
     item.__active = toggleValue;
   }
 
-  getArraySource(internalId: string, rootItem: Node[]) {
+  getArraySource(internalId: string, rootItem: Node[]): Node[] {
     let parentArrayItem: Node[] = [];
     function getArray(internalId: string, currentNode: Node[]) {
       const currentItemFound = currentNode.find(
@@ -292,7 +290,7 @@ class EditorTools {
       }
       if (parentArrayItem.length === 0) {
         //if not parent array Founded iterate
-        currentNode.forEach((element: any) => {
+        currentNode.forEach((element) => {
           if (element.item) {
             getArray(internalId, element.item);
           }
@@ -342,7 +340,7 @@ class EditorTools {
     // return this.currentQuestionNodeByID;
   }
 
-  getQuestionNodeByLinkId(linkId: string, rootItem: Node[] = []) {
+  getQuestionNodeByLinkId(linkId: string, rootItem: Node[] = []): void {
     rootItem.forEach((element) => {
       if (element.item) {
         this.getQuestionNodeByLinkId(linkId, element.item);
@@ -353,13 +351,13 @@ class EditorTools {
     });
   }
 
-  getCurrentQuestionNodeByLinkId(linkId: string, rootItem: Node[] = []) {
+  getCurrentQuestionNodeByLinkId(linkId: string, rootItem: Node[] = []): Node {
     this.currentQuestionNodeByLinkId = defaultNode;
     this.getQuestionNodeByLinkId(linkId, rootItem);
     return this.currentQuestionNodeByLinkId;
   }
 
-  disableEntireItemQuestion(id: string, rootItem: Node[]) {
+  disableEntireItemQuestion(id: string, rootItem: Node[]): void {
     const oItemQuestionTodisabled = this.getCurrentQuestionNodeByID(
       id,
       rootItem,
@@ -395,7 +393,10 @@ class EditorTools {
     return icon;
   }
 
-  getNewAnswerValueCoding(answer: Answer, arrayAnswers: AnswerOption[] = []) {
+  getNewAnswerValueCoding(
+    answer: Answer,
+    arrayAnswers: AnswerOption[] = [],
+  ): AnswerOption {
     const id = arrayAnswers.length + 1;
     const { text } = answer;
     const newAnswer = {
@@ -413,7 +414,10 @@ class EditorTools {
     return answerOption;
   }
 
-  getNewAnswerValueString(answer: Answer, arrayAnswers: AnswerOption[] = []) {
+  getNewAnswerValueString(
+    answer: Answer,
+    arrayAnswers: AnswerOption[] = [],
+  ): AnswerOption {
     const id = arrayAnswers.length + 1;
     const { text, type } = answer;
     const answerOption: AnswerOption = {
@@ -428,7 +432,7 @@ class EditorTools {
 
   //typeQuestion-> group /string / choice / boolean /date /open-choice
   // integer/decimal
-  getTypeObjQuestion(typeQuestion: QuestionType) {
+  getTypeObjQuestion(typeQuestion: QuestionType): Node {
     const questionTypeIcon = this.getTypeQuestionIcon(typeQuestion);
     const item: Node = {
       ...defaultNode,
@@ -477,17 +481,23 @@ class EditorTools {
     return item;
   }
 
-  getIndexAnswer(internalIDToBeRemove: number, arrayAnswers: AnswerOption[]) {
-    let indexOfItemtoBeRemoved = 1;
-    arrayAnswers.forEach((element, index) => {
-      if (element.__id === internalIDToBeRemove) {
-        indexOfItemtoBeRemoved = index;
-      }
-    });
-    return indexOfItemtoBeRemoved;
+  getIndexAnswer(
+    internalIDToBeRemove: number,
+    arrayAnswers: AnswerOption[],
+  ): number {
+    // let indexOfItemtoBeRemoved = 1;
+    const indexOfItemtoBeRemoved = arrayAnswers.findIndex(
+      (answer) => answer.__id === internalIDToBeRemove,
+    );
+    // arrayAnswers.forEach((element, index) => {
+    //   if (element.__id === internalIDToBeRemove) {
+    //     indexOfItemtoBeRemoved = index;
+    //   }
+    // });
+    return indexOfItemtoBeRemoved >= 0 ? indexOfItemtoBeRemoved : 1;
   }
 
-  getNextID(currentID: string) {
+  getNextID(currentID: string): string {
     const acurrentID = currentID.split(".");
     const nextID = 1 + acurrentID.slice(-1)[0];
     acurrentID.pop();
@@ -495,7 +505,7 @@ class EditorTools {
     return acurrentID.join(".");
   }
 
-  getNumbersMaxOfLevels(item: Node[]) {
+  getNumbersMaxOfLevels(item: Node[]): number {
     const getLevelNum = {
       level: 1,
       currentLevel: 1,
@@ -537,7 +547,7 @@ class EditorTools {
     return itemSearched;
   }
 
-  setConditionDependence(item: Node[] = [], rootItem: Node[] = []) {
+  setConditionDependence(item: Node[] = [], rootItem: Node[] = []): void {
     const that = this;
     item.forEach((item) => {
       if (item.item) {
@@ -579,7 +589,7 @@ class EditorTools {
     });
   }
 
-  removeCondionDependece(item: Node[] = []) {
+  removeCondionDependece(item: Node[] = []): void {
     item.forEach((item) => {
       if (item.item) {
         this.removeCondionDependece(item.item);
