@@ -1,7 +1,7 @@
 import { questionTypesIcons, questionTypes, answerType } from "./constants";
 import { v4 as uuidv4 } from "uuid";
 
-type QuestionType =
+export type QuestionType =
   | "group"
   | "string"
   | "choice"
@@ -11,53 +11,73 @@ type QuestionType =
   | "integer"
   | "decimal";
 
-type EnableWhen = {
+export type EnableWhen = {
+  answer?: string;
   question: string;
+  operator?: string;
+  type?: string;
 };
 
-type Answer = {
+export type Answer = {
   text: string;
   type: string;
 };
 
-type Coding = {
+export type Coding = {
+  __oldDisplay?: string;
   code: string;
   system: string;
   display: string;
 };
 
-type AnswerOption = {
-  __id: number;
-  __type: string;
-  __icon: string;
-  __newAnswer: boolean;
+export type AnswerOption = {
+  __id?: number;
+  __type?: string;
+  __icon?: string;
+  __newAnswer?: boolean;
+  __oldValueInteger?: string;
+  __oldValueDate?: string;
+  __oldValueString?: string;
   valueCoding?: Coding;
   valueString?: string;
+  valueInteger?: string;
+  valueDate?: string;
 };
 
-type Extension = {
+export type Extension = {
   url: string;
   valueInteger?: number | null;
   valueString?: string;
 };
 
-type Condition = {
+export type Question = {
+  __linkId?: string;
+  __text?: string;
+  __question?: string;
+  __answer?: string;
+  __operator?: string;
+  __type?: string;
+};
+
+export type Condition = {
   __icon: string;
-  __questions: string[];
+  __questions: Question[];
   __linkId: string;
   __text: string;
 };
 
-type Node = {
+export type Node = {
   __active: boolean;
   __icon: string;
   __internalID: string;
   __linkId: string;
   __newQuestion: boolean;
+  __oldText?: string;
   __dependeceCondition?: Condition;
   disabled: boolean;
   item: Node[] | undefined;
   linkId: string;
+  maxLength?: number;
   type: string;
   enableWhen: EnableWhen[] | null;
   text: string;
@@ -69,7 +89,7 @@ type Node = {
   extensions: Extension[];
 };
 
-const defaultNode: Node = {
+export const defaultNode: Node = {
   __active: true,
   __icon: "",
   __internalID: "",
@@ -89,11 +109,19 @@ const defaultNode: Node = {
   extensions: [],
 };
 
+type Base<T> = {
+  __internalID: string;
+  item: T[] | undefined;
+};
+
 class EditorTools {
   answerType = answerType;
   questionTypes = questionTypes;
   questionTypesIcons = questionTypesIcons;
-  currentQuestionNodeByID: Node = defaultNode;
+  currentQuestionNodeByID = {
+    __internalID: defaultNode.__internalID,
+    item: undefined,
+  };
   currentQuestionNodeByLinkId: Node = defaultNode;
 
   getIndexItem(internalIDToBeRemove: string, arrayQuestions: Node[]) {
@@ -275,21 +303,43 @@ class EditorTools {
     return parentArrayItem;
   }
 
-  private getQuestionNodeByID(internalId: string, rootItem: Node[] = []) {
-    rootItem.forEach((element: Node) => {
-      if (element.item) {
-        this.getQuestionNodeByID(internalId, element.item);
+  private getQuestionNodeByID<T extends Base<T>>(
+    internalId: string,
+    rootItem: T[] = [],
+  ): T | undefined {
+    for (const item of rootItem) {
+      if (item.__internalID === internalId) {
+        return item;
       }
-      if (element.__internalID === internalId) {
-        this.currentQuestionNodeByID = element;
+      if (item.item !== undefined) {
+        const result = this.getQuestionNodeByID(internalId, item.item);
+        if (result !== undefined) {
+          return result;
+        }
       }
-    });
+    }
+    return undefined;
+    // rootItem.forEach((element) => {
+    //   if (element.__internalID === internalId) {
+    //     return element;
+    //   }
+    //   if (element.item) {
+    //     const node = this.getQuestionNodeByID(internalId, element.item);
+    //     if (node !== undefined) {
+    //       return node;
+    //     }
+    //   }
+    //   return undefined;
+    // });
   }
 
-  getCurrentQuestionNodeByID(internalId: string, rootItem: Node[] = []) {
-    this.currentQuestionNodeByID = defaultNode;
-    this.getQuestionNodeByID(internalId, rootItem);
-    return this.currentQuestionNodeByID;
+  getCurrentQuestionNodeByID<T extends Base<T>>(
+    internalId: string,
+    rootItem: T[] = [],
+  ): T | undefined {
+    // this.currentQuestionNodeByID = defaultNode;
+    return this.getQuestionNodeByID(internalId, rootItem);
+    // return this.currentQuestionNodeByID;
   }
 
   getQuestionNodeByLinkId(linkId: string, rootItem: Node[] = []) {
@@ -314,7 +364,9 @@ class EditorTools {
       id,
       rootItem,
     );
-
+    if (oItemQuestionTodisabled === undefined) {
+      return;
+    }
     if (Object.entries(oItemQuestionTodisabled).length === 0) {
       return;
     }

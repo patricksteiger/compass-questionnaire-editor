@@ -638,12 +638,13 @@ const generalValidations = {
   i18n: i18n,
 
   //Validata that is a right JSON Structure
-  JSONValid(jsonFileString = "") {
+  JSONValid(jsonFileString: string | ArrayBuffer | null = ""): object {
     if (typeof jsonFileString !== "string") {
-      return false;
+      // TODO: i18n error message
+      throw new GeneralJSONValidationException("jsonFile is not a string");
     }
     try {
-      JSON.parse(jsonFileString);
+      return JSON.parse(jsonFileString);
     } catch (error: any) {
       const message = `${this.i18n.global.t(
         "messagesErrors.GeneralJSONValidations.NoJSONFILEStructure",
@@ -662,11 +663,11 @@ const importJsonQuestionnaire = {
   generalValidations: generalValidations,
   i18n: i18n,
 
-  getValidateJSON(jsonFile: string) {
-    this.generalValidations.JSONValid(jsonFile);
+  getValidateJSON(jsonFile: string | ArrayBuffer | null) {
+    return this.generalValidations.JSONValid(jsonFile);
   },
-  getValidateFHIRResource(jsonFile: File) {
-    this.FHIRValidations.validateFHIRResourceItems(jsonFile);
+  getValidateFHIRResource(jsonFile: object) {
+    this.FHIRValidations.validateFHIRResourceItems(jsonFile as File);
     return this.FHIRValidations.errorMessages;
   },
   getQuestionnaireGUI() {
