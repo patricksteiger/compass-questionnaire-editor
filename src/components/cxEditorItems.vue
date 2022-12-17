@@ -145,11 +145,10 @@
           <!-- Button new question first Item -->
           <div
             v-if="
+              selected === null ||
               selectedItem === undefined ||
               Object.keys(selectedItem).length === 0 ||
-              (selectedItem &&
-                selectedItem.__active &&
-                selectedItem.type === 'group')
+              (selectedItem.__active && selectedItem.type === 'group')
             "
           >
             <q-page-sticky position="bottom-left" :offset="[18, 18]">
@@ -204,7 +203,7 @@
               class="row items-center justify-between text-caption text-grey-8 non-selectable"
               style="width: 100%"
             >
-              <span>{{ selectedItem.type }}</span>
+              <span>{{ selectedItem?.type || "empty type" }}</span>
             </div>
             <div
               class="row items-center justify-between text-bold text-h5 q-mb-md"
@@ -212,6 +211,7 @@
               <!-- Question text -->
               <q-input
                 autogrow
+                v-if="selectedItem !== undefined"
                 v-model="selectedItem.text"
                 class="col-10"
                 input-class="text-h5 text-bold"
@@ -236,14 +236,14 @@
                 color="primary"
                 icon="device_hub"
                 @click="alert = true"
-                v-if="selectedItem.__dependeceCondition"
+                v-if="selectedItem?.__dependeceCondition"
                 ><q-tooltip>
                   {{ $t("views.editor.conditionFulfilled") }}
                 </q-tooltip></q-btn
               >
               <!-- Question linkId text -->
               <span class="text-grey-6"
-                >{{ selectedItem.linkId
+                >{{ selectedItem?.linkId || "empty linkID"
                 }}<q-tooltip> {{ $t("components.linkId") }} </q-tooltip></span
               >
             </div>
@@ -253,6 +253,7 @@
               <!-- UUID -->
               <q-input
                 :disable="!selectedItem.__active"
+                v-if="selectedItem !== undefined"
                 v-model="selectedItem.definition"
                 :label="$t('views.editor.UUID')"
                 dense
@@ -292,7 +293,7 @@
             >
               <!-- Max Length-->
               <q-input
-                v-if="selectedItem.type === 'string'"
+                v-if="selectedItem?.type === 'string'"
                 :disable="!selectedItem.__active"
                 :label="$t('views.editor.maxLength')"
                 dense
@@ -305,8 +306,8 @@
             <div
               class="row"
               v-if="
-                selectedItem.__icon === 'toc' || //choice
-                selectedItem.__icon === 'horizontal_split' //open-choice
+                selectedItem?.__icon === 'toc' || //choice
+                selectedItem?.__icon === 'horizontal_split' //open-choice
               "
             >
               <div v-if="getAnswerValueSet">
@@ -341,6 +342,7 @@
               <!-- Answers -->
               <q-expansion-item
                 v-if="
+                  selectedItem !== undefined &&
                   !selectedItem.__answerValueSetCheck &&
                   (selectedItem.__icon === 'toc' || //choice
                     selectedItem.__icon === 'horizontal_split') //open-choice
@@ -363,14 +365,17 @@
                       <q-list dense v-if="!selectedItem.__answerValueSetCheck"
                         ><q-item
                           v-for="answerOption in selectedItem.answerOption"
-                          :key="answerOption"
+                          :key="answerOption.__id"
                         >
                           <!-- Open Choice and Choice-->
                           <q-item-section v-if="answerOption">
                             <!-- coding input answer -->
                             <div
                               class="row"
-                              v-if="answerOption.__type === 'coding'"
+                              v-if="
+                                answerOption.__type === 'coding' &&
+                                answerOption.valueCoding !== undefined
+                              "
                             >
                               <q-input
                                 class="col-12"
@@ -400,14 +405,12 @@
                                   :disable="!selectedItem.__active"
                                   class="q-mr-sm text-grey-8"
                                   v-if="
-                                    answerOption?.valueCoding?.display !==
-                                      answerOption?.valueCoding?.__oldDisplay &&
-                                    !answerOption?.__newAnswer
+                                    answerOption.valueCoding !== undefined &&
+                                    answerOption.valueCoding.display !==
+                                      answerOption.valueCoding.__oldDisplay &&
+                                    answerOption.__newAnswer !== true
                                   "
-                                  @click="
-                                    answerOption.valueCoding.display =
-                                      answerOption.valueCoding.__oldDisplay
-                                  "
+                                  @click="setDisplayToOld(answerOption)"
                                   ><q-tooltip>
                                     {{ $t("components.reverseAnswer") }}
                                   </q-tooltip></q-btn
@@ -556,7 +559,10 @@
                               <!--  If answer Item is Coding Display Code and System input-->
                               <div
                                 class="row"
-                                v-if="answerOption.__type === 'coding'"
+                                v-if="
+                                  answerOption.__type === 'coding' &&
+                                  answerOption.valueCoding !== undefined
+                                "
                               >
                                 <q-input
                                   :disable="
@@ -642,6 +648,7 @@
               </q-expansion-item>
               <!-- Item Condition -->
               <q-expansion-item
+                v-if="selectedItem !== undefined"
                 :disable="!selectedItem.__active"
                 expand-separator
                 icon="account_tree"
@@ -649,6 +656,7 @@
                 default-opened
               >
                 <q-separator />
+                <!-- FIXME: Changed key from enableWhen to index correct? -->
                 <q-card>
                   <q-list
                     dense
@@ -656,7 +664,7 @@
                     padding
                     class="rounded-borders"
                     v-for="(enableWhen, index) in selectedItem.enableWhen"
-                    :key="enableWhen"
+                    :key="index"
                   >
                     <q-item-section>
                       <q-card-section>
@@ -715,7 +723,7 @@
                             :label="$t('views.editor.operator')"
                             dense
                           />
-                          <!-- enableWhen integer -->
+                          <!-- TODO: type conversion correct? enableWhen integer -->
                           <q-input
                             v-else-if="enableWhen.type === 'integer'"
                             @keypress="onlyNumber"
@@ -723,7 +731,7 @@
                             :label="$t('views.editor.answer')"
                             class="col-4"
                             v-model="enableWhen.answer"
-                            :type="enableWhen.type"
+                            :type="'number'"
                             dense
                           />
                           <!-- enableWhen decimal -->
@@ -737,13 +745,14 @@
                             type="number"
                             dense
                           />
+                          <!-- FIXME: what is default type? -->
                           <q-input
                             v-else
                             :disable="!selectedItem.__active"
                             :label="$t('views.editor.answer')"
                             class="col-4"
                             v-model="enableWhen.answer"
-                            :type="enableWhen.type"
+                            :type="'text'"
                             dense
                           />
                           <!--  remove item enable when -->
@@ -780,7 +789,7 @@
               </q-expansion-item>
               <!-- Extensions -->
               <q-expansion-item
-                v-if="selectedItem.type === 'integer'"
+                v-if="selectedItem?.type === 'integer'"
                 :disable="!selectedItem.__active"
                 expand-separator
                 icon="account_tree"
@@ -873,8 +882,8 @@
 
         <q-card-section class="q-pt-none">
           <div
-            v-for="(question, index) in selectedItem.__dependeceCondition
-              .__questions"
+            v-for="(question, index) in selectedItem?.__dependeceCondition
+              ?.__questions"
             :key="index"
           >
             <div class="q-pb-sm">
@@ -914,6 +923,7 @@
     <!-- Condition Item Dialog -->
     <q-dialog v-model="layout">
       <cx-enable-When
+        v-if="selected !== null"
         :internalID="selected"
         v-on:choiceQuestion="onSelectedQuestionsAnswer"
         v-on:question="onSelectedQuestion"
@@ -926,7 +936,7 @@
     </q-dialog>
   </div>
 </template>
-<script>
+<script lang="ts">
 import {
   questionTypesIcons,
   questionTypes,
@@ -936,26 +946,98 @@ import {
   MAX_ALLOWED_LEVELS,
 } from "../utils/constants";
 import { useQuasar } from "quasar";
-import { ref } from "vue";
-import { editorTools } from "../utils/editor";
+import { defineComponent, Ref, ref } from "vue";
+import { AnswerOption, editorTools, Node } from "../utils/editor";
 import { mapGetters } from "vuex";
 import { v4 as uuidv4 } from "uuid";
 import cxEnableWhen from "../components/cxEnableWhen.vue";
-import CxAddGeccoItem from "@/components/cxAddGeccoItem";
-export default {
+import cxAddGeccoItem from "../components/cxAddGeccoItem.vue";
+import { i18n } from "@/i18n";
+
+type Event = {
+  keyCode: number;
+  which: number;
+  preventDefault: () => void;
+};
+
+// type DragStartEvent = {
+//   target: { id: number };
+//   dataTransfer: {
+//     // eslint-disable-next-line no-unused-vars
+//     setData: (arg1: string, arg2: number) => void;
+//   };
+// };
+//
+// type DragOverEvent = {
+//   preventDefault: () => void;
+//   currentTarget: {
+//     style: { backgroundColor: string };
+//   };
+// };
+//
+// type DragLeaveEvent = {
+//   preventDefault: () => void;
+//   currentTarget: {
+//     style: { backgroundColor: string };
+//   };
+// };
+//
+// type DropEvent = {
+//   preventDefault: () => void;
+//   currentTarget: {
+//     id: string;
+//     style: { backgroundColor: string; cursor: string };
+//   };
+//   dataTransfer: {
+//     // eslint-disable-next-line no-unused-vars
+//     getData: (arg1: string) => string;
+//   };
+// };
+
+type EnableWhenItem = {
+  question?: string;
+  answer?: string;
+  type?: string;
+  display?: string;
+  system?: string;
+};
+
+export default defineComponent({
   components: {
-    CxAddGeccoItem,
+    cxAddGeccoItem,
     cxEnableWhen,
   },
   setup() {
-    const $q = useQuasar();
+    const triggerNegative = () => {
+      const $q = useQuasar();
+      $q.notify({
+        type: "negative",
+        message: i18n.global.t("views.editor.questionDontexist"),
+      });
+    };
+    const questionaireGUI: Ref<Node | undefined> = ref(undefined);
+    const item: Ref<Node[]> = ref([]);
+    const selectedItem: Ref<Node | undefined> = ref(undefined);
+    const lastSelectedItem: Ref<Node | undefined> = ref(undefined);
+    const selected: Ref<string | null> = ref(null);
+    const lastSelected: Ref<string | null> = ref(null);
+    const enableWhenItem: Ref<EnableWhenItem> = ref({});
+    const setDisplayToOld = (answerOption: AnswerOption) => {
+      if (answerOption.valueCoding !== undefined) {
+        answerOption.valueCoding.display =
+          answerOption.valueCoding.__oldDisplay || "";
+      }
+    };
     return {
-      triggerNegative() {
-        $q.notify({
-          type: "negative",
-          message: this.$t("views.editor.questionDontexist"),
-        });
-      },
+      triggerNegative,
+      questionaireGUI,
+      item,
+      selected,
+      selectedItem,
+      lastSelected,
+      lastSelectedItem,
+      enableWhenItem,
+      setDisplayToOld,
       layout: ref(false),
       layout2: ref(false),
       alert: ref(false),
@@ -971,19 +1053,19 @@ export default {
   },
   created() {
     this.questionaireGUI = this.getQuestionnaireImportedJSON;
-    this.item = this.questionaireGUI.item;
+    this.item = this.questionaireGUI?.item || [];
   },
   data() {
     return {
       fabLeft: true,
       splitterModel: 40,
-      selected: null,
-      selectedItem: {},
-      item: [],
-      questionaireGUI: {},
-      enableWhenItem: {},
-      lastSelected: null,
-      lastSelectedItem: {},
+      // selected: null,
+      // selectedItem: {},
+      // item: [],
+      // questionaireGUI: {},
+      // enableWhenItem: {},
+      // lastSelected: null,
+      // lastSelectedItem: {},
       limitsSpliter: [35, 100],
     };
   },
@@ -992,11 +1074,11 @@ export default {
       if (this.lastSelected) {
         this.selectedItem = this.lastSelectedItem;
         this.selected = this.lastSelected;
-        this.lastSelectedItem = {};
+        this.lastSelectedItem = undefined;
         this.lastSelected = null;
       }
     },
-    onGotoItem($event) {
+    onGotoItem($event: string | null) {
       if ($event === null || $event === "") {
         //no value Item to go
         return;
@@ -1015,7 +1097,7 @@ export default {
         this.triggerNegative();
       }
     },
-    onlyNumberDec($event) {
+    onlyNumberDec($event: Event) {
       //keyCodes value
       let keyCode = $event.keyCode ? $event.keyCode : $event.which;
       if ((keyCode < 48 || keyCode > 57) && keyCode !== 46 && keyCode !== 44) {
@@ -1023,45 +1105,43 @@ export default {
         $event.preventDefault();
       }
     },
-    onlyNumber($event) {
+    onlyNumber($event: Event) {
       //keyCodes value
       let keyCode = $event.keyCode ? $event.keyCode : $event.which;
       if (keyCode < 48 || keyCode > 57) {
         $event.preventDefault();
       }
     },
-    onSelectedQuestionsAnswer(e) {
+    onSelectedQuestionsAnswer(e: any) {
       this.enableWhenItem.question = e.linkId;
       this.enableWhenItem.type = e.__type;
       if (e.__type === "coding") {
         this.enableWhenItem.answer = e.valueCoding.code;
-        this.enableWhenItem.display = e.valueCoding.display;
         this.enableWhenItem.system = e.valueCoding.system;
-      }
-      if (e.__type === "integer") {
+        this.enableWhenItem.display = e.valueCoding.display;
+      } else if (e.__type === "integer") {
         this.enableWhenItem.answer = e.valueInteger;
-      }
-      if (e.__type === "date") {
+      } else if (e.__type === "date") {
         this.enableWhenItem.answer = e.valueDate;
-      }
-      if (e.__type === "string") {
+      } else if (e.__type === "string") {
         this.enableWhenItem.answer = e.valueString;
       }
       this.layout = false;
     },
-    onSelectedQuestion(e) {
+    onSelectedQuestion(e: Node) {
       this.enableWhenItem.question = e.linkId;
       this.enableWhenItem.answer = "";
+      // TODO: is it type or __type?
       this.enableWhenItem.type = e.type;
       this.layout = false;
     },
-    onSelectedGECCOQuestion(item) {
+    onSelectedGECCOQuestion(input: Node) {
       this.layout2 = false;
-      item = JSON.parse(JSON.stringify(item)); //create copy
-      if (this.selected !== null) {
+      const item = JSON.parse(JSON.stringify(input)); //create copy
+      if (this.selected !== null && this.selectedItem !== undefined) {
         // only add questions in items type group
         if (this.selectedItem.__icon !== "article") return;
-        if (this.selectedItem.item) {
+        if (this.selectedItem.item && this.selectedItem.item.length > 0) {
           const lastItem = this.selectedItem.item.slice(-1)[0];
           item.__linkId = this.editorTools.getNextID(lastItem.__linkId);
           item.linkId = this.editorTools.getNextID(lastItem.linkId);
@@ -1079,7 +1159,10 @@ export default {
       this.editorTools.regenerateConditionWhenIds(this.item, changedIdMap);
     },
     onAddCondition() {
-      if (this.selectedItem.enableWhen === undefined) {
+      if (this.selectedItem === undefined) {
+        return;
+      }
+      if (this.selectedItem.enableWhen === null) {
         this.selectedItem.enableWhen = [];
       }
       this.selectedItem.enableWhen.push({
@@ -1089,36 +1172,46 @@ export default {
         type: "",
       });
     },
-    onRemoveCondition(index) {
-      this.selectedItem.enableWhen.splice(index, 1);
+    onRemoveCondition(index: number) {
+      if (
+        this.selectedItem !== undefined &&
+        this.selectedItem.enableWhen !== null
+      ) {
+        this.selectedItem.enableWhen.splice(index, 1);
+      } else {
+        throw new Error("Remove can't used with no conditions!");
+      }
     },
-    onShowQuestionsItems(enableWhen) {
+    onShowQuestionsItems(enableWhen: EnableWhenItem) {
       this.enableWhenItem = enableWhen;
       this.layout = true;
     },
     answerValeSet() {
-      if (this.selectedItem.__answerValueSetCheck) {
-        this.selectedItem.answerOption = [];
-      }
-      if (!this.selectedItem.__answerValueSetCheck) {
-        this.selectedItem.answerValueSet = "";
+      if (this.selectedItem !== undefined) {
+        if (this.selectedItem.__answerValueSetCheck) {
+          this.selectedItem.answerOption = [];
+        } else {
+          this.selectedItem.answerValueSet = "";
+        }
       }
     },
     newUUID() {
-      this.selectedItem.definition = uuidv4();
+      if (this.selectedItem !== undefined) {
+        this.selectedItem.definition = uuidv4();
+      }
     },
-    onDragStart(e) {
+    onDragStart(e: any) {
       e.dataTransfer.setData("text", e.target.id);
     },
-    onDragOver(e) {
+    onDragOver(e: any) {
       e.preventDefault();
       e.currentTarget.style.backgroundColor = this.COLORS.itemDragOver;
     },
-    onDragLeave(e) {
+    onDragLeave(e: any) {
       e.preventDefault();
       e.currentTarget.style.backgroundColor = "";
     },
-    onDrop(e) {
+    onDrop(e: any) {
       e.preventDefault();
       e.currentTarget.style.backgroundColor = "";
       e.currentTarget.style.cursor = "default";
@@ -1129,7 +1222,7 @@ export default {
         this.item,
       );
 
-      if (Object.keys(itemSource).length === 0) {
+      if (itemSource === undefined || Object.keys(itemSource).length === 0) {
         //No valid source Item
         return;
       }
@@ -1143,7 +1236,11 @@ export default {
         this.item,
       );
 
-      if (itemTarget.linkId === "" || itemSource.linkId === "") {
+      if (
+        itemTarget === undefined ||
+        itemTarget.linkId === "" ||
+        itemSource.linkId === ""
+      ) {
         return;
       }
 
@@ -1152,7 +1249,10 @@ export default {
         itemTarget.__internalID,
         itemSource.item,
       );
-      if (Object.keys(itemNodeChild).length > 0) {
+      if (
+        itemNodeChild === undefined ||
+        Object.keys(itemNodeChild).length > 0
+      ) {
         return;
       }
 
@@ -1181,6 +1281,11 @@ export default {
         draggedId,
         this.item,
       );
+
+      if (itemToBeMoved === undefined) {
+        console.error("Moved item was not found by id");
+        return;
+      }
 
       if (itemToBeMoved.item) {
         //no allow more than 5 levels of items, nested Items
@@ -1237,11 +1342,16 @@ export default {
       this.editorTools.regenerateInternalIDs(this.item);
       this.editorTools.regenerateConditionWhenIds(this.item, changedIdMap);
     },
-    onToggle(id) {
-      let linkId = this.editorTools.getCurrentQuestionNodeByID(
+    onToggle(id: string) {
+      const currentNode = this.editorTools.getCurrentQuestionNodeByID(
         id,
         this.item,
-      ).linkId;
+      );
+      if (currentNode === undefined) {
+        console.error("Toggled node was not found by id");
+        return;
+      }
+      const linkId = currentNode.linkId;
 
       if (this.editorTools.isEnableWhenCondition(this.item, linkId)) {
         alert(
@@ -1256,20 +1366,24 @@ export default {
       let changedIdMap = this.editorTools.regenerateLinkIds(this.item);
       this.editorTools.regenerateConditionWhenIds(this.item, changedIdMap);
     },
-    isCondition(id) {
+    isCondition(id: string) {
       return this.editorTools.isEnableWhenCondition(
         this.item,
-        this.editorTools.getCurrentQuestionNodeByID(id, this.item).linkId,
+        this.editorTools.getCurrentQuestionNodeByID(id, this.item)?.linkId ||
+          "",
       );
     },
-    onAddQuestion(e) {
+    onAddQuestion(e: any) {
       //No Add Question on Items disabled
-      if (this.selectedItem?.__active === false) {
+      if (
+        this.selectedItem === undefined ||
+        this.selectedItem.__active === false
+      ) {
         return;
       }
       //No allow add question more than 5 levels
       if (
-        this.selectedItem?.linkId?.split(".").length >= MAX_ALLOWED_LEVELS &&
+        this.selectedItem.linkId.split(".").length >= MAX_ALLOWED_LEVELS &&
         e.name === this.questionTypes.group
       ) {
         return;
@@ -1297,21 +1411,30 @@ export default {
       const changedIdMap = this.editorTools.regenerateLinkIds(this.item);
       this.editorTools.regenerateConditionWhenIds(this.item, changedIdMap);
     },
-    onAddGECCOQuestion(e) {
+    onAddGECCOQuestion(e: any) {
       //No Add Question on Items disabled
-      if (this.selectedItem && this.selectedItem.__active === false) return;
+      if (
+        this.selectedItem === undefined ||
+        this.selectedItem.__active === false
+      ) {
+        return;
+      }
       //No allow add question more than 5 levels
       if (
-        this.selectedItem?.linkId?.split(".").length >= MAX_ALLOWED_LEVELS &&
+        this.selectedItem.linkId.split(".").length >= MAX_ALLOWED_LEVELS &&
         e.name === this.questionTypes.group
       ) {
         return;
       }
       this.layout2 = true;
     },
-    onClickAddAnswerOpenChiose(e) {
+    onClickAddAnswerOpenChiose(e: any) {
+      if (this.selectedItem === undefined) {
+        console.error("Selected item should not be undefined");
+        return;
+      }
       //only choise answer are allowed to open-choise questions
-      let answerOption = {};
+      let answerOption: AnswerOption = {};
       if (e.type === "choice") {
         answerOption = this.editorTools.getNewAnswerValueCoding(
           { text: "", type: e.type },
@@ -1329,27 +1452,30 @@ export default {
       }
       this.selectedItem.answerOption.push(answerOption);
     },
-    hasGeccoExtension(e) {
+    hasGeccoExtension(e: any) {
       return (
         e.extension &&
         e.extension.some(
-          (it) =>
+          (it: any) =>
             it.url ===
             "https://num-compass.science/fhir/StructureDefinition/CompassGeccoItem",
         )
       );
     },
-    getGeccoExtensionValue(e) {
+    getGeccoExtensionValue(e: any) {
       let extension = e.extension?.find(
-        (it) =>
+        (it: any) =>
           it.url ===
           "https://num-compass.science/fhir/StructureDefinition/CompassGeccoItem",
       );
       return extension?.valueCoding?.code;
     },
-    onClickAddAnswer(e) {
-      const that = this;
-      let newItemAnswer;
+    onClickAddAnswer(e: any) {
+      if (this.selectedItem === undefined) {
+        console.error("Selected item should not be undefined");
+        return;
+      }
+      let newItemAnswer: AnswerOption;
 
       if (!this.selectedItem.answerOption) {
         this.selectedItem.answerOption = [];
@@ -1357,13 +1483,13 @@ export default {
 
       if (e.name === "coding") {
         newItemAnswer = this.editorTools.getNewAnswerValueCoding(
-          { text: "", type: that.selectedItem.type },
+          { text: "", type: this.selectedItem.type },
           this.selectedItem.answerOption,
         );
       } else {
         newItemAnswer = {
           __icon: e.icon,
-          __id: that.selectedItem.answerOption.length,
+          __id: this.selectedItem.answerOption.length,
           __newAnswer: true,
           __type: e.name,
         };
@@ -1380,14 +1506,18 @@ export default {
 
       this.selectedItem.answerOption.push(newItemAnswer);
     },
-    onRemoveAnswer(e) {
-      const indexOfItemtoBeRemoved = this.edtiorTools.getIndexAnswer(
+    onRemoveAnswer(e: any) {
+      if (this.selectedItem === undefined) {
+        console.error("Can't remove answer from not selected item");
+        return;
+      }
+      const indexOfItemtoBeRemoved = this.editorTools.getIndexAnswer(
         e.__id,
         this.selectedItem.answerOption,
       );
       this.selectedItem.answerOption.splice(indexOfItemtoBeRemoved, 1);
     },
-    deleteItem(item) {
+    deleteItem(item: any) {
       let answer = confirm(
         "Do you really want to delete this item and all of its child items?",
       );
@@ -1398,7 +1528,7 @@ export default {
       this.editorTools.regenerateInternalIDs(this.item);
       this.editorTools.regenerateConditionWhenIds(this.item, changedIdMap);
     },
-    deleteItemRecursivly(itemlist, key) {
+    deleteItemRecursivly(itemlist: any, key: string) {
       for (let idx in itemlist) {
         if (itemlist[idx].__internalID === key) {
           itemlist.splice(idx, 1);
@@ -1419,8 +1549,8 @@ export default {
     ]),
     aAddAnswerButtonOptions: function () {
       const that = this;
-      let optionsAnswers = [];
-      if (this.answerType.open_choice.name === this.selectedItem.type) {
+      let optionsAnswers: any[] = [];
+      if (this.answerType.open_choice.name === this.selectedItem?.type) {
         optionsAnswers = [
           {
             text: that.$t("views.editor.optionsAnswers.open"),
@@ -1438,6 +1568,9 @@ export default {
     },
     answerTypeField: function () {
       let type = "";
+      if (this.selectedItem === undefined) {
+        return type;
+      }
       if (this.selectedItem.type === "date") {
         type = "date";
       }
@@ -1453,7 +1586,7 @@ export default {
       // const allowedQuestions = (q) =>
       //   !(!this.getChoice && q.name == "choice") &&
       //   !(!this.getOpenChoice && q.name == "open-choice");
-      const allowedQuestions = (q) =>
+      const allowedQuestions = (q: any) =>
         !(
           (!this.getChoice && q.name === "choice") ||
           (!this.getOpenChoice && q.name === "open-choice")
@@ -1463,11 +1596,12 @@ export default {
     },
   },
   watch: {
-    selected(val) {
+    selected(val: string | null) {
       this.editorTools.removeCondionDependece(this.item);
       this.editorTools.setConditionDependence(this.item, this.item);
       if (val === null) {
-        this.selectedItem = this.item.item;
+        // FIXME: Is item item-array or -object?
+        this.selectedItem = this.item[0];
         return;
       }
       this.selectedItem = this.editorTools.getCurrentQuestionNodeByID(
@@ -1475,7 +1609,7 @@ export default {
         this.item,
       );
     },
-    lastSelected(val) {
+    lastSelected(val: string | null) {
       if (val) {
         this.limitsSpliter = [0, 100];
         this.splitterModel = 0;
@@ -1485,5 +1619,5 @@ export default {
       }
     },
   },
-};
+});
 </script>

@@ -2,8 +2,9 @@
   <q-page class="q-pa-md" style="min-height: 80vh">
     <div class="row items-center justify-center example-drag">
       <div class="upload">
+        <!-- TODO: remove any type -->
         <div
-          v-show="$refs.upload && $refs.upload.dropActive"
+          v-show="$refs.upload && ($refs.upload as any).dropActive"
           class="drop-active"
         >
           <h4>{{ $t("views.import.dropFile") }}</h4>
@@ -67,17 +68,23 @@
   </q-dialog>
 </template>
 
-<script>
+<script lang="ts">
 // @ is an alias to /src
 import FileUpload from "vue-upload-component";
 import { mapMutations, mapActions, mapGetters } from "vuex";
 import { useQuasar } from "quasar";
 import { importJsonQuestionnaire } from "../utils/ImportJson";
-import { defineComponent, ref } from "vue";
+import { defineComponent, Ref, ref } from "vue";
+
+type File = {
+  name: string;
+  file: Blob;
+};
 
 export default defineComponent({
   setup() {
     const $q = useQuasar();
+    const messageErrorFHIR: Ref<string[]> = ref([]);
 
     return {
       showLoading() {
@@ -88,6 +95,7 @@ export default defineComponent({
       },
       importJsonQuestionnaire,
       alertError: ref(false),
+      messageErrorFHIR,
     };
   },
   components: {
@@ -97,7 +105,6 @@ export default defineComponent({
     return {
       files: [],
       messageError: "",
-      messageErrorFHIR: [],
     };
   },
   methods: {
@@ -109,7 +116,7 @@ export default defineComponent({
      * @param  Object|undefined   oldFile   Read only
      * @return undefined
      */
-    inputFile: function (newFile) {
+    inputFile: function (newFile: File | undefined) {
       if (!newFile) return;
       this.messageError = "";
       this.showLoading();
@@ -118,11 +125,11 @@ export default defineComponent({
       const that = this;
       reader.onload = function () {
         try {
-          that.importJsonQuestionnaire.getValidateJSON(reader.result);
+          const result = that.importJsonQuestionnaire.getValidateJSON(
+            reader.result,
+          );
           that.messageErrorFHIR =
-            that.importJsonQuestionnaire.getValidateFHIRResource(
-              JSON.parse(reader.result),
-            );
+            that.importJsonQuestionnaire.getValidateFHIRResource(result);
           that.hideLoading();
           if (that.messageErrorFHIR.length === 0) {
             that.setFileImported(newFile);
@@ -133,7 +140,7 @@ export default defineComponent({
           } else {
             that.alertError = true;
           }
-        } catch (error) {
+        } catch (error: any) {
           that.messageError = error.message;
           that.alertError = true;
           that.hideLoading();
@@ -141,7 +148,8 @@ export default defineComponent({
       };
 
       reader.onerror = function () {
-        that.messageError = reader.error;
+        // TODO: i18n error message
+        that.messageError = reader.error?.message || "an error has occurred";
         that.alertError = true;
         that.hideLoading();
       };
@@ -153,7 +161,11 @@ export default defineComponent({
      * @param  Function           prevent   Prevent changing
      * @return undefined
      */
-    inputFilter: function (newFile, oldFile, prevent) {
+    inputFilter: function (
+      newFile: File | undefined,
+      oldFile: File | undefined,
+      prevent: () => boolean,
+    ) {
       if (newFile && !oldFile) {
         // Filter non-json file
         if (!/\.(json)$/i.test(newFile.name)) {

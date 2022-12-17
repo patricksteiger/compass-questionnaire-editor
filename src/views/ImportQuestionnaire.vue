@@ -1,3 +1,3 @@
 <template>
-  <h1>import Questionnaire</h1>
+  <h1>Import Questionnaire</h1>
 </template>

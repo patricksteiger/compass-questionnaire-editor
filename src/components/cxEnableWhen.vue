@@ -57,7 +57,7 @@
                 $t("views.editor.answerSelected")
               }}</q-toolbar-title>
             </q-toolbar>
-            <div class="q-pa-md" v-if="selected">
+            <div class="q-pa-md" v-if="selected && selectedItem">
               <div class="text-h5 text-bold q-mb-md">
                 {{ selectedItem.text }}
                 <div class="text-caption">{{ selectedItem.type }}</div>
@@ -94,21 +94,25 @@
                 <div class="q-pl-sm text-caption text-grey-8 text-italic">
                   {{ $t("views.editor.toSelectOneAnswer") }}
                 </div>
-                <q-list bordered separator v-if="selectedItem.answerOption"
+                <q-list bordered separator v-if="selectedItem?.answerOption"
                   ><q-item
                     clickable
                     @dblclick="
                       onSelectAnswer({
                         ...answerOption,
-                        linkId: selectedItem.linkId,
-                        type: selectedItem.type,
+                        linkId: selectedItem?.linkId,
+                        type: selectedItem?.type,
                       })
                     "
                     v-for="answerOption in selectedItem.answerOption"
-                    :key="answerOption"
+                    :key="answerOption.__id"
                   >
                     <!--Coding Answer type -->
-                    <q-item-section v-if="answerOption.__type === 'coding'"
+                    <q-item-section
+                      v-if="
+                        answerOption.__type === 'coding' &&
+                        answerOption.valueCoding
+                      "
                       ><q-item-label>{{
                         answerOption.valueCoding.display
                       }}</q-item-label
@@ -119,7 +123,10 @@
                     <q-item-section
                       side
                       top
-                      v-if="answerOption.__type === 'coding'"
+                      v-if="
+                        answerOption.valueCoding &&
+                        answerOption.__type === 'coding'
+                      "
                     >
                       <q-item-label caption>{{
                         answerOption.valueCoding.code
@@ -156,6 +163,7 @@
         position="bottom-right"
         :offset="[18, 18]"
         v-if="
+          selectedItem &&
           selectedItem.type !== 'group' &&
           selectedItem.type !== 'open-choice' &&
           selectedItem.type !== 'choice' &&
@@ -170,8 +178,8 @@
           :label="$t('views.editor.selectAnswer')"
           @click="
             onSelectQuestion({
-              linkId: selectedItem.linkId,
-              type: selectedItem.type,
+              linkId: selectedItem?.linkId,
+              type: selectedItem?.type,
             })
           "
         />
@@ -179,10 +187,20 @@
     </q-page-container>
   </q-layout>
 </template>
-<script>
+<script lang="ts">
 import { mapGetters } from "vuex";
-import { defineComponent, ref } from "vue";
-import { editorTools } from "../utils/editor";
+import { defineComponent, Ref, ref } from "vue";
+import { AnswerOption, editorTools, Node } from "../utils/editor";
+
+type Question = {
+  linkId: string | undefined;
+  type: string | undefined;
+};
+
+type Answer = AnswerOption & {
+  linkId: string | undefined;
+  type: string | undefined;
+};
 
 export default defineComponent({
   props: {
@@ -193,10 +211,12 @@ export default defineComponent({
   },
   setup() {
     const filter = ref("de");
+    const selectedItem: Ref<Node | null> = ref(null);
     return {
       splitterModel: ref(50), // start at 50%
       edtiorTools: editorTools,
       filter,
+      selectedItem,
     };
   },
   data() {
@@ -206,14 +226,14 @@ export default defineComponent({
         item: [],
       },
       selected: null,
-      selectedItem: {
-        linkId: "",
-        type: "",
-        answerOption: [],
-        text: "",
-        definition: "",
-        answerValueSet: false,
-      },
+      // selectedItem: {
+      //   linkId: "",
+      //   type: "",
+      //   answerOption: [],
+      //   text: "",
+      //   definition: "",
+      //   answerValueSet: false,
+      // },
     };
   },
   created() {
@@ -232,17 +252,15 @@ export default defineComponent({
         this.selectedItem = null;
         return;
       }
-      this.selectedItem = this.edtiorTools.getCurrentQuestionNodeByID(
-        val,
-        this.item,
-      );
+      this.selectedItem =
+        this.edtiorTools.getCurrentQuestionNodeByID(val, this.item) || null;
     },
   },
   methods: {
-    onSelectQuestion(questionSelected) {
+    onSelectQuestion(questionSelected: Question) {
       this.$emit("question", questionSelected);
     },
-    filterItemToBeShown(node) {
+    filterItemToBeShown(node: Node) {
       let toBeAdd;
       if (node.__internalID === this.internalID) {
         toBeAdd = false;
@@ -251,7 +269,7 @@ export default defineComponent({
       }
       return toBeAdd;
     },
-    onSelectAnswer(answerOption) {
+    onSelectAnswer(answerOption: Answer) {
       this.$emit("choiceQuestion", answerOption);
     },
   },

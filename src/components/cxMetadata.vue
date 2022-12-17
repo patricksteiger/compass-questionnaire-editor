@@ -15,7 +15,7 @@
                 outline
                 color="primary"
                 size="sm"
-                @click="addId"
+                @click="addEmptyId"
               >
                 <q-icon left name="add" />
                 <div>
@@ -367,7 +367,7 @@ export default defineComponent({
     },
   },
   methods: {
-    addId() {
+    addEmptyId() {
       let newID = {
         use: "",
         system: "",
@@ -387,6 +387,9 @@ export default defineComponent({
           text: "",
         },
       };
+      if (this.$store.state.questionnaireImported.identifier === undefined) {
+        this.$store.state.questionnaireImported.identifier = [];
+      }
       this.$store.state.questionnaireImported.identifier.push(newID);
     },
     removeID(indexID: number) {

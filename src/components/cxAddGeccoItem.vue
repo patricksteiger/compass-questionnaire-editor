@@ -153,29 +153,38 @@
     </q-page-container>
   </q-layout>
 </template>
-<script>
+<script lang="ts">
 // import { mapGetters } from "vuex";
-import { defineComponent, ref } from "vue";
+import { defineComponent, Ref, ref } from "vue";
 import { editorTools } from "../utils/editor";
-import * as geccoQuestionnaire from "./../store/questionnaire.json";
+import { geccoQuestionnaire } from "@/store/questionnaire";
 import { importJsonQuestionnaire } from "@/utils/ImportJson";
+// import { Node } from "@/utils/editor";
+
+// type GeccoItem = typeof geccoQuestionnaire["item"][0];
+// type GeccoItemNode = GeccoItem & {
+//   __internalID: string;
+// };
 
 export default defineComponent({
-  props: {},
+  // props: {},
   setup() {
     const filter = ref("de");
+    const item: Ref<any> = ref([]);
+    const selectedItem: Ref<any> = ref(undefined);
+    const questionaireGUI = { ...geccoQuestionnaire };
     return {
       splitterModel: ref(50), // start at 50%
       edtiorTools: editorTools,
       filter,
+      selectedItem,
+      questionaireGUI,
+      item,
     };
   },
   data() {
     return {
-      item: [],
-      questionaireGUI: {},
       selected: null,
-      selectedItem: {},
     };
   },
   created() {
@@ -192,6 +201,7 @@ export default defineComponent({
         this.selectedItem = this.item;
         return;
       }
+      // TODO: types are not properly aligned
       this.selectedItem = this.edtiorTools.getCurrentQuestionNodeByID(
         val,
         this.item,
@@ -199,10 +209,10 @@ export default defineComponent({
     },
   },
   methods: {
-    onSelectGECCOQuestion(questionSelected) {
+    onSelectGECCOQuestion(questionSelected: any) {
       if (
         questionSelected.extension?.find(
-          (it) =>
+          (it: any) =>
             it?.url ===
             "https://num-compass.science/fhir/StructureDefinition/DependentItem",
         )
@@ -216,7 +226,7 @@ export default defineComponent({
       this.$emit("question", questionSelected);
     },
 
-    onSelectAnswer(answerOption) {
+    onSelectAnswer(answerOption: any) {
       this.$emit("choiceQuestion", answerOption);
     },
   },
