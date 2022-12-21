@@ -1,7 +1,7 @@
 // import { createI18n } from "vue-i18n/dist/vue-i18n.esm-bundler.js";
 //import * as VueI18n from "vue-i18n";
 import { createI18n, FallbackLocale } from "vue-i18n";
-import { en } from "./locales";
+import { de, en } from "./locales";
 /**
  * Load locale messages
  *
@@ -35,6 +35,7 @@ export const i18n = createI18n({
   fallbackLocale: fallbackLocale,
   globalInjection: true,
   messages: {
+    de: de,
     en: en,
   },
 });

@@ -139,23 +139,192 @@ export const en = {
     FHIRValidations: {
       nodeMissing:
         "FHIR Resource Content Invalid! Missing Information on {node}. {item}",
-      resourceImportedNoAllow: "Resource {resource} Imported is not allow",
+      resourceImportedNoAllow: "Resource {resource} Imported is not allowed",
       nodeMissingItem:
         "FHIR Resource Content Invalid! {node} in Item {linkId}.",
-      typeNodeNoValAllow: "Item {linkId} {type} type value is not allow.",
+      typeNodeNoValAllow: "Item {linkId} {type} type value is not allowed.",
       posiblesValues: "{currentValue} value is no allowed in {node}.",
       moreThan5Levels: "Item {linkId} has more that 5 levels.",
       answerOptionAndValueSetNoAllow:
-        "Item {linkId} has [answerOption] and [answerValueSet], both are not allow.",
+        "Item {linkId} has [answerOption] and [answerValueSet], both are not allowed.",
       linkId:
-        "Item: [{linkId} - {text}] has an error, it doesn't follow the right secuence of LinkId. Link ID should be {internalId} instead if {linkId}. ",
+        "Item: [{linkId} - {text}] has an error, it doesn't follow the right sequence of LinkId. Link ID should be {internalId} instead if {linkId}.",
     },
     GeneralJSONValidations: {
       test: "test",
       fileNoJSONType:
-        "File {nameFile} imported is no a JSON File. Only JSON Files are allow.",
+        "File {nameFile} imported is no a JSON File. Only JSON Files are allowed.",
       NoJSONFILEStructure:
         "Content of file loaded has no a properly structure of a JSON. ",
+    },
+  },
+} as const;
+
+export type I18nType<T extends object> = {
+  [Key in keyof T]: T[Key] extends object ? I18nType<T[Key]> : string;
+};
+
+export type Language = I18nType<typeof en>;
+
+export const de: Language = {
+  lang: "de",
+  components: {
+    reverseAnswer: "Setze Antwort zurück",
+    reverseQuestion: "Setze Frage zurück",
+    remove: "Entferne",
+    fieldEmpty: "Leeres Feld!",
+    linkId: "Link ID",
+    navigationBar: {
+      version: "Version",
+      metaInformation: "Metadaten",
+      metadataItems: {
+        identifier: "Identifier",
+        URL: "URL",
+        name: "Name",
+        title: "Titel",
+        date: "Datum",
+        status: "Status",
+        publisher: "Publisher",
+        approvalDate: "Genehmigungsdatum",
+        lastReviewDate: "Letztes Überprüfungsdatum",
+        experimental: "Experimental",
+      },
+      ImportJSONBtn: "Importiere JSON",
+      ExportJSONBtn: "Exportiere JSON",
+      createNewQRE: "Erstelle neuen Fragebogen",
+      warningLeaveDialog: {
+        title: "Warnung",
+        instructions: "Seite verlassen ohne zu Exportieren?",
+        continue: "Fortfahren",
+        cancel: "Abbrechen",
+      },
+    },
+  },
+  views: {
+    import: {
+      dropFile: "Lege eine Datei hier ab",
+      instructions:
+        "Lade Fragebogen-Datei im JSON-Format hoch. Ziehe die Datei in diesen Bereich oder klicke hier um eine auszuwählen.",
+    },
+    editor: {
+      conditionFulfilled: "Condition erfüllt",
+      enableWhenCondition: "Condition: enableWhen",
+      questionDontexist: "Frage existiert nicht in diesem Fragebogen.",
+      backLastItem: "Zurück zum Element",
+      navigateToItem: "Navigiere zum Element",
+      toSelectOneAnswer: "Doppelklick um eine Antwortmöglichkeit auszuwählen.",
+      dragItem: "Ziehe Element",
+      answers: "Antworten",
+      itemConditions: "Conditions",
+      addNewCondition: "Füge neue Condition hinzu",
+      addItem: "Neues Element",
+      deleteItem: "Lösche Element",
+      question: "Frage",
+      questions: "Fragen",
+      operator: "Operator",
+      answer: "Antwort",
+      answerSelected: "Antwortübersicht",
+      AnswerValueSet: "Antwortwertemengen",
+      selectAnswer: "Wähle Frage",
+      AnswerOptions: "Antwortoptionen",
+      system: "System",
+      code: "Code",
+      newQuestion: "Neues Element",
+      addAnswer: "NEUE ANWORT",
+      reverseText: "Setze originalen Text zurück",
+      newUUID: "Neue UUID",
+      maxLength: "MaxLength",
+      sliderStepValue: "Slider Schrittwerte",
+      minValue: "Min Value",
+      lowRangeLabel: "Low Range Label",
+      maxValue: "Max Value",
+      highRangeLabel: "High Range Label",
+      extensions: "Extensions",
+      UUID: "UUID",
+      regenerateUUID: "Regeneriere UUID",
+      showQuestionContidions: "Zeige Element Conditions",
+      disableItem: "Deaktiviere Element",
+      enableItem: "Aktiviere Element",
+      originalText: "Originaler Text",
+      optionsAnswers: {
+        choice: "Auswahl",
+        open: "Frei",
+        boolean: "Boolean",
+      },
+    },
+    tabsTitles: {
+      ediorQRE: "Fragebogenelemente",
+      metadata: "Fragebogenmetadaten",
+      settings: "Editorkonfiguration",
+    },
+    tabs: {
+      metadata: {
+        addNewId: "Füge neuen Identifier hinzu",
+        removeId: "Entferne ID",
+        use: "Use",
+        system: "System",
+        value: "Value",
+        period: {
+          period: "Period",
+          start: "Start",
+          end: "End",
+        },
+        type: {
+          type: "Type",
+          coding: {
+            coding: "Coding",
+            system: "System",
+            version: "Version",
+            code: "Code",
+            display: "Display",
+            userSelected: "User Selected",
+          },
+          text: "Text",
+        },
+      },
+      settings: {
+        Answers: {
+          title: "Antworten",
+          AnswerValueset: "Antwortwertemengen",
+          OpenChoice: "Freie Auswahl aktiviert",
+          Choice: "Auswahl aktiviert",
+        },
+      },
+    },
+  },
+  export: {
+    successfully: "Erfolgreich exportiert",
+  },
+  messagesErrors: {
+    warning: "Warnung",
+    error: "Fehler",
+    fileNoExported:
+      "JSON-Datei konnte nicht exportiert werden. Datei wurde stattdessen in Downloads heruntergeladen.",
+    QuestionnaireValidations: {
+      test: "test",
+    },
+    FHIRValidations: {
+      nodeMissing:
+        "Inhalt der FHIR-Ressource ist ungültig! Fehlende Informationen in {node}. {item}",
+      resourceImportedNoAllow:
+        "Ressourcentyp {resource} darf nicht importiert werden",
+      nodeMissingItem:
+        "Inhalt der FHIR-Ressource ist ungültig! {node} in Element {linkId}.",
+      typeNodeNoValAllow:
+        "Element {linkId} hat nicht unterstützten Typ: {type}",
+      posiblesValues: "Wert {currentValue} ist nicht erlaubt in {node}.",
+      moreThan5Levels: "Element {linkId} hat mehr als 5 Level.",
+      answerOptionAndValueSetNoAllow:
+        "Element {linkId} hat [answerOption] und [answerValueSet], beide sind nicht gleichzeitig erlaubt.",
+      linkId:
+        "Element: [{linkId} - {text}] hat eine ungültige Sequenz in der LinkId. LinkId sollte stattdessen {internalId} sein, falls {linkId}.",
+    },
+    GeneralJSONValidations: {
+      test: "test",
+      fileNoJSONType:
+        "Importierte Datei {nameFile} ist keine JSON-Datei. Nur JSON-Dateien sind erlaubt.",
+      NoJSONFILEStructure:
+        "Inhalt der geladenen Datei hat eine ungültige JSON-Struktur.",
     },
   },
 } as const;
