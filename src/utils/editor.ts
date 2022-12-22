@@ -83,7 +83,7 @@ export type Node = {
   item: Node[] | undefined;
   linkId: string;
   maxLength?: number;
-  type: string;
+  type: QuestionType;
   enableWhen: EnableWhen[] | null;
   text: string;
   definition: string;
@@ -103,7 +103,7 @@ export const defaultNode: Node = {
   disabled: true,
   item: undefined,
   linkId: "",
-  type: "",
+  type: "group",
   enableWhen: null,
   text: "",
   definition: "",
@@ -160,26 +160,24 @@ class EditorTools {
 
   assingNewItemIDs(item: Node): Map<string, string> {
     let changedIdMap = new Map<string, string>();
-    if (item.item) {
-      let idCount = 0;
-
-      item.item.forEach((element) => {
-        if (element.__active) {
-          idCount++;
-          const oldLinkId = element.linkId;
-          const newLinkId = item.linkId + "." + idCount;
-          changedIdMap.set(oldLinkId, newLinkId);
-          element.linkId = newLinkId;
-        } else {
-          changedIdMap.set(element.linkId, "");
-          element.linkId = "";
-        }
-        if (element.item) {
-          const newIds = this.assingNewItemIDs(element);
-          changedIdMap = new Map([...changedIdMap, ...(newIds || [])]);
-        }
-      });
-    }
+    if (item.item === undefined) return changedIdMap;
+    let idCount = 0;
+    item.item.forEach((element) => {
+      if (element.__active) {
+        idCount++;
+        const oldLinkId = element.linkId;
+        const newLinkId = item.linkId + "." + idCount;
+        changedIdMap.set(oldLinkId, newLinkId);
+        element.linkId = newLinkId;
+      } else {
+        changedIdMap.set(element.linkId, "");
+        element.linkId = "";
+      }
+      if (element.item) {
+        const newIds = this.assingNewItemIDs(element);
+        changedIdMap = new Map([...changedIdMap, ...(newIds || [])]);
+      }
+    });
     return changedIdMap;
   }
 
@@ -187,7 +185,7 @@ class EditorTools {
     let idCount = 0;
     item.forEach((element) => {
       idCount++;
-      element.__linkId = idCount + "";
+      element.__linkId = idCount.toString();
       if (element.item) {
         this.assingNewItemInternalIDs(element);
       }
@@ -498,46 +496,39 @@ class EditorTools {
     return undefined;
   }
 
+  private objectKeys<T extends object>(obj: T): (keyof T)[] {
+    return Object.keys(obj) as (keyof T)[];
+  }
+
   setConditionDependence(item: Node[] = [], rootItem: Node[] = []): void {
-    const that = this;
-    item.forEach((item) => {
-      if (item.item) {
-        this.setConditionDependence(item.item, rootItem);
+    for (const element of item) {
+      if (element.item !== undefined) {
+        this.setConditionDependence(element.item, rootItem);
       }
-      if (item.enableWhen) {
-        item.enableWhen.forEach((element) => {
-          const itemToAppendCondition = that.getItemNodeByInternalID(
-            element.question,
-            rootItem,
-          );
-          if (itemToAppendCondition) {
-            if (!itemToAppendCondition.__dependeceCondition) {
-              itemToAppendCondition.__dependeceCondition = {
-                __icon: "account_tree",
-                __questions: [],
-                __linkId: "",
-                __text: "",
-              };
-            }
-            const objectKeys = <T extends object>(obj: T): (keyof T)[] => {
-              return Object.keys(obj) as (keyof T)[];
-            };
-            const keysEnableWhen = objectKeys(element);
-            // TODO: define type for condition and check correctness
-            const condition: any = {};
-            for (const key in keysEnableWhen) {
-              condition[`__${keysEnableWhen[key]}`] =
-                element[keysEnableWhen[key]];
-            }
-            condition.__linkId = item.linkId;
-            condition.__text = item.text;
-            itemToAppendCondition.__dependeceCondition.__questions.push(
-              condition,
-            );
-          }
-        });
+      if (element.enableWhen === null) continue;
+      for (const enableWhen of element.enableWhen) {
+        const itemToAppendCondition = this.getItemNodeByInternalID(
+          enableWhen.question,
+          rootItem,
+        );
+        if (itemToAppendCondition === undefined) continue;
+        itemToAppendCondition.__dependeceCondition ??= {
+          __icon: "account_tree",
+          __questions: [],
+          __linkId: "",
+          __text: "",
+        };
+        const keysEnableWhen = this.objectKeys(enableWhen);
+        const condition: Question = {};
+        for (const key in keysEnableWhen) {
+          condition[`__${keysEnableWhen[key]}`] =
+            enableWhen[keysEnableWhen[key]];
+        }
+        condition.__linkId = element.linkId;
+        condition.__text = element.text;
+        itemToAppendCondition.__dependeceCondition.__questions.push(condition);
       }
-    });
+    }
   }
 
   removeConditionDependence(item: Node[] = []): void {
