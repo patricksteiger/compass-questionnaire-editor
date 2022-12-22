@@ -1,4 +1,9 @@
-import { questionTypesIcons, questionTypes, answerType } from "./constants";
+import {
+  questionTypesIcons,
+  questionTypes,
+  answerType,
+  QuestionIcon,
+} from "./constants";
 import { v4 as uuidv4 } from "uuid";
 
 export type QuestionType =
@@ -117,24 +122,15 @@ type Base<T> = {
 class EditorTools {
   answerType = answerType;
   questionTypes = questionTypes;
-  questionTypesIcons = questionTypesIcons;
   currentQuestionNodeByID = {
     __internalID: defaultNode.__internalID,
     item: undefined,
   };
-  currentQuestionNodeByLinkId: Node = defaultNode;
 
   getIndexItem(internalIDToBeRemove: string, arrayQuestions: Node[]): number {
-    // let indexOfItemtoBeRemoved = 1;
     for (let i = 0; i < arrayQuestions.length; i++)
       if (arrayQuestions[i].__internalID === internalIDToBeRemove) return i;
     return 1;
-    // arrayQuestions.forEach((element: Node, index: number) => {
-    //   if (element.__internalID === internalIDToBeRemove) {
-    //     indexOfItemtoBeRemoved = index;
-    //   }
-    // });
-    // return indexOfItemtoBeRemoved;
   }
 
   // TODO: What is type of event from onDrop in cxEditorItems
@@ -269,39 +265,34 @@ class EditorTools {
 
   disableItem(item: Node, toggleValue: boolean): void {
     if (item.item) {
-      item.item.forEach((element) => {
+      for (const element of item.item) {
         element.__active = toggleValue;
         this.disableItem(element, toggleValue);
-      });
+      }
     }
     item.disabled = !toggleValue;
     item.__active = toggleValue;
   }
 
-  getArraySource(internalId: string, rootItem: Node[]): Node[] {
-    let parentArrayItem: Node[] = [];
-    function getArray(internalId: string, currentNode: Node[]) {
-      const currentItemFound = currentNode.find(
-        (element: any) => element.__internalID === internalId,
-      );
-      if (currentItemFound) {
-        parentArrayItem = currentNode;
-        return;
-      }
-      if (parentArrayItem.length === 0) {
-        //if not parent array Founded iterate
-        currentNode.forEach((element) => {
-          if (element.item) {
-            getArray(internalId, element.item);
-          }
-        });
+  getArraySource(internalID: string, rootItem: Node[]): Node[] {
+    const includesId = rootItem.some(
+      (item) => item.__internalID === internalID,
+    );
+    if (includesId) {
+      return rootItem;
+    }
+    for (const item of rootItem) {
+      if (item.item === undefined) continue;
+      const result = this.getArraySource(internalID, item.item);
+      if (result.length > 0) {
+        return result;
       }
     }
-    getArray(internalId, rootItem);
-    return parentArrayItem;
+    return [];
   }
 
-  private getQuestionNodeByID<T extends Base<T>>(
+  // TODO: Is LinkId always unique?
+  getCurrentQuestionNodeByID<T extends Base<T>>(
     internalId: string,
     rootItem: T[] = [],
   ): T | undefined {
@@ -309,52 +300,29 @@ class EditorTools {
       if (item.__internalID === internalId) {
         return item;
       }
-      if (item.item !== undefined) {
-        const result = this.getQuestionNodeByID(internalId, item.item);
-        if (result !== undefined) {
-          return result;
-        }
+      const result = this.getCurrentQuestionNodeByID(internalId, item.item);
+      if (result !== undefined) {
+        return result;
       }
     }
     return undefined;
-    // rootItem.forEach((element) => {
-    //   if (element.__internalID === internalId) {
-    //     return element;
-    //   }
-    //   if (element.item) {
-    //     const node = this.getQuestionNodeByID(internalId, element.item);
-    //     if (node !== undefined) {
-    //       return node;
-    //     }
-    //   }
-    //   return undefined;
-    // });
   }
 
-  getCurrentQuestionNodeByID<T extends Base<T>>(
-    internalId: string,
-    rootItem: T[] = [],
-  ): T | undefined {
-    // this.currentQuestionNodeByID = defaultNode;
-    return this.getQuestionNodeByID(internalId, rootItem);
-    // return this.currentQuestionNodeByID;
-  }
-
-  getQuestionNodeByLinkId(linkId: string, rootItem: Node[] = []): void {
-    rootItem.forEach((element) => {
-      if (element.item) {
-        this.getQuestionNodeByLinkId(linkId, element.item);
+  // TODO: Is LinkId always unique?
+  getCurrentQuestionNodeByLinkId(
+    linkId: string,
+    rootItem: Node[] = [],
+  ): Node | undefined {
+    for (const item of rootItem) {
+      if (item.linkId === linkId) {
+        return item;
       }
-      if (element.linkId === linkId) {
-        this.currentQuestionNodeByLinkId = element;
+      const result = this.getCurrentQuestionNodeByLinkId(linkId, item.item);
+      if (result !== undefined) {
+        return result;
       }
-    });
-  }
-
-  getCurrentQuestionNodeByLinkId(linkId: string, rootItem: Node[] = []): Node {
-    this.currentQuestionNodeByLinkId = defaultNode;
-    this.getQuestionNodeByLinkId(linkId, rootItem);
-    return this.currentQuestionNodeByLinkId;
+    }
+    return undefined;
   }
 
   disableEntireItemQuestion(id: string, rootItem: Node[]): void {
@@ -362,13 +330,10 @@ class EditorTools {
       id,
       rootItem,
     );
-    if (oItemQuestionTodisabled === undefined) {
-      return;
-    }
-    if (Object.entries(oItemQuestionTodisabled).length === 0) {
-      return;
-    }
-    if (oItemQuestionTodisabled.disabled) {
+    if (
+      oItemQuestionTodisabled === undefined ||
+      oItemQuestionTodisabled.disabled
+    ) {
       return;
     }
     if (oItemQuestionTodisabled.item) {
@@ -386,10 +351,12 @@ class EditorTools {
     }
   }
 
-  getTypeQuestionIcon(type: QuestionType) {
-    const icon = this.questionTypesIcons.find((item) => {
-      return item.name === type;
-    });
+  // TODO: Is there a case where QuestionType can be invalid? How to throw error?
+  getTypeQuestionIcon(type: QuestionType): QuestionIcon {
+    const icon = questionTypesIcons.find((item) => item.name === type);
+    if (icon === undefined) {
+      throw new Error(`Invalid QuestionType: ${type}`);
+    }
     return icon;
   }
 
@@ -430,15 +397,13 @@ class EditorTools {
     return answerOption;
   }
 
-  //typeQuestion-> group /string / choice / boolean /date /open-choice
-  // integer/decimal
   getTypeObjQuestion(typeQuestion: QuestionType): Node {
     const questionTypeIcon = this.getTypeQuestionIcon(typeQuestion);
     const item: Node = {
       ...defaultNode,
       text: "",
       type: typeQuestion,
-      __icon: questionTypeIcon?.icon || "",
+      __icon: questionTypeIcon.icon,
       __active: true,
       disabled: false,
       __newQuestion: true,
@@ -446,8 +411,8 @@ class EditorTools {
       definition: uuidv4(),
     };
     if (
-      questionTypeIcon?.name === this.questionTypes.choice ||
-      questionTypeIcon?.name === this.questionTypes.openChoice
+      questionTypeIcon.name === this.questionTypes.choice ||
+      questionTypeIcon.name === this.questionTypes.openChoice
     ) {
       item.answerOption = [];
       item.__OldAnswerValueSet = item.answerValueSet = "";
@@ -482,69 +447,55 @@ class EditorTools {
   }
 
   getIndexAnswer(
-    internalIDToBeRemove: number,
+    internalIDToBeRemoved: number,
     arrayAnswers: AnswerOption[],
   ): number {
-    // let indexOfItemtoBeRemoved = 1;
-    const indexOfItemtoBeRemoved = arrayAnswers.findIndex(
-      (answer) => answer.__id === internalIDToBeRemove,
-    );
-    // arrayAnswers.forEach((element, index) => {
-    //   if (element.__id === internalIDToBeRemove) {
-    //     indexOfItemtoBeRemoved = index;
-    //   }
-    // });
-    return indexOfItemtoBeRemoved >= 0 ? indexOfItemtoBeRemoved : 1;
+    for (let i = arrayAnswers.length - 1; i >= 0; i--) {
+      if (arrayAnswers[i].__id === internalIDToBeRemoved) {
+        return i;
+      }
+    }
+    // TODO: Is default index of 1 sensible?
+    return 1;
   }
 
   getNextID(currentID: string): string {
     const acurrentID = currentID.split(".");
-    const nextID = 1 + acurrentID.slice(-1)[0];
+    const nextID = Number(acurrentID.at(-1)) + 1;
     acurrentID.pop();
-    acurrentID.push(nextID);
+    acurrentID.push(nextID.toString());
     return acurrentID.join(".");
   }
 
-  getNumbersMaxOfLevels(item: Node[]): number {
-    const getLevelNum = {
-      level: 1,
-      currentLevel: 1,
-      getDeepLevel(item: Node[]) {
-        item.forEach((element) => {
-          if (element.item) {
-            if (element.item.length > 0) {
-              this.currentLevel++;
-            }
-            if (this.currentLevel >= this.level) {
-              this.level = this.currentLevel;
-            }
-            this.getDeepLevel(element.item);
-            this.currentLevel = 1;
-          }
-        });
-      },
-    };
-    getLevelNum.getDeepLevel(item);
-    return getLevelNum.level;
+  private currentMaxLevel(items: Node[], currLevel: number): number {
+    let maxLevel = currLevel;
+    for (const element of items) {
+      if (element.item === undefined || element.item.length === 0) continue;
+      const level = this.currentMaxLevel(element.item, currLevel + 1);
+      maxLevel = level > maxLevel ? level : maxLevel;
+    }
+    return maxLevel;
   }
 
-  getItemNodeByInternalID(linkId: string, item: Node[] = []): Node | undefined {
-    let itemSearched = undefined;
+  getNumbersMaxOfLevels(items: Node[]): number {
+    return items.length > 0 ? this.currentMaxLevel(items, 1) : 0;
+  }
 
-    const searchNodebyLinkId = (linkId: string, item: Node[]) => {
-      item.forEach((element) => {
-        if (element.item) {
-          searchNodebyLinkId(linkId, element.item);
-        }
-        if (element.linkId === linkId) {
-          itemSearched = element;
-        }
-      });
-    };
-
-    searchNodebyLinkId(linkId, item);
-
-    return itemSearched;
+  // FIXME: Is LinkId instead of InternalId correct here?
+  getItemNodeByInternalID(
+    linkId: string,
+    items: Node[] = [],
+  ): Node | undefined {
+    for (const element of items) {
+      if (element.linkId === linkId) {
+        return element;
+      }
+      const result = this.getItemNodeByInternalID(linkId, element.item);
+      if (result !== undefined) {
+        return result;
+      }
+    }
+    return undefined;
   }
 
   setConditionDependence(item: Node[] = [], rootItem: Node[] = []): void {
@@ -555,13 +506,13 @@ class EditorTools {
       }
       if (item.enableWhen) {
         item.enableWhen.forEach((element) => {
-          const itemToAppendCondintion = that.getItemNodeByInternalID(
+          const itemToAppendCondition = that.getItemNodeByInternalID(
             element.question,
             rootItem,
           );
-          if (itemToAppendCondintion) {
-            if (!itemToAppendCondintion.__dependeceCondition) {
-              itemToAppendCondintion.__dependeceCondition = {
+          if (itemToAppendCondition) {
+            if (!itemToAppendCondition.__dependeceCondition) {
+              itemToAppendCondition.__dependeceCondition = {
                 __icon: "account_tree",
                 __questions: [],
                 __linkId: "",
@@ -572,7 +523,7 @@ class EditorTools {
               return Object.keys(obj) as (keyof T)[];
             };
             const keysEnableWhen = objectKeys(element);
-            // TODO: define type for condition
+            // TODO: define type for condition and check correctness
             const condition: any = {};
             for (const key in keysEnableWhen) {
               condition[`__${keysEnableWhen[key]}`] =
@@ -580,7 +531,7 @@ class EditorTools {
             }
             condition.__linkId = item.linkId;
             condition.__text = item.text;
-            itemToAppendCondintion.__dependeceCondition.__questions.push(
+            itemToAppendCondition.__dependeceCondition.__questions.push(
               condition,
             );
           }
@@ -589,13 +540,13 @@ class EditorTools {
     });
   }
 
-  removeCondionDependece(item: Node[] = []): void {
-    item.forEach((item) => {
-      if (item.item) {
-        this.removeCondionDependece(item.item);
+  removeConditionDependence(item: Node[] = []): void {
+    item.forEach((element) => {
+      if (element.item) {
+        this.removeConditionDependence(element.item);
       }
-      if (item.__dependeceCondition) {
-        delete item.__dependeceCondition;
+      if (element.__dependeceCondition) {
+        delete element.__dependeceCondition;
       }
     });
   }

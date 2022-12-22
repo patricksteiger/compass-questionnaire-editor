@@ -45,6 +45,7 @@ export const questionTypesIcons = [
   { name: "integer", icon: "pin", label: "Integer" },
   { name: "decimal", icon: "input", label: "Decimal" },
 ] as const;
+export type QuestionIcon = typeof questionTypesIcons[number];
 
 export const questionTypes = {
   group: "group",

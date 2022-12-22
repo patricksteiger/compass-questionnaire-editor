@@ -1087,7 +1087,7 @@ export default defineComponent({
         $event,
         this.item,
       );
-      if (Object.keys(itemSelected).length > 0) {
+      if (itemSelected !== undefined) {
         this.lastSelected = this.selected;
         this.lastSelectedItem = this.selectedItem;
 
@@ -1141,7 +1141,10 @@ export default defineComponent({
       if (this.selected !== null && this.selectedItem !== undefined) {
         // only add questions in items type group
         if (this.selectedItem.__icon !== "article") return;
-        if (this.selectedItem.item && this.selectedItem.item.length > 0) {
+        if (
+          this.selectedItem.item !== undefined &&
+          this.selectedItem.item.length > 0
+        ) {
           const lastItem = this.selectedItem.item.slice(-1)[0];
           item.__linkId = this.editorTools.getNextID(lastItem.__linkId);
           item.linkId = this.editorTools.getNextID(lastItem.linkId);
@@ -1289,11 +1292,9 @@ export default defineComponent({
 
       if (itemToBeMoved.item) {
         //no allow more than 5 levels of items, nested Items
-        let numLevel = this.editorTools.getNumbersMaxOfLevels(
-          itemToBeMoved.item,
-        );
-        numLevel++; //count parent
-        let totalOfLevelts = itemTarget.linkId.split(".").length + numLevel;
+        const numLevel =
+          this.editorTools.getNumbersMaxOfLevels(itemToBeMoved.item) + 1; //count parent
+        const totalOfLevelts = itemTarget.linkId.split(".").length + numLevel;
         if (totalOfLevelts > MAX_ALLOWED_LEVELS) {
           return;
         }
@@ -1376,13 +1377,14 @@ export default defineComponent({
     onAddQuestion(e: any) {
       //No Add Question on Items disabled
       if (
-        this.selectedItem === undefined ||
-        this.selectedItem.__active === false
+        // this.selectedItem === undefined ||
+        this.selectedItem?.__active === false
       ) {
         return;
       }
       //No allow add question more than 5 levels
       if (
+        this.selectedItem !== undefined &&
         this.selectedItem.linkId.split(".").length >= MAX_ALLOWED_LEVELS &&
         e.name === this.questionTypes.group
       ) {
@@ -1390,7 +1392,7 @@ export default defineComponent({
       }
       const item = this.editorTools.getTypeObjQuestion(e.name);
       item.text = this.$t("views.editor.newQuestion");
-      if (this.selected !== null) {
+      if (this.selected !== null && this.selectedItem !== undefined) {
         //only add questions in items type group
         if (this.selectedItem.__icon !== "article") return;
         // if (this.selectedItem.type !== this.questionTypes.group) return;
@@ -1597,7 +1599,7 @@ export default defineComponent({
   },
   watch: {
     selected(val: string | null) {
-      this.editorTools.removeCondionDependece(this.item);
+      this.editorTools.removeConditionDependence(this.item);
       this.editorTools.setConditionDependence(this.item, this.item);
       if (val === null) {
         // FIXME: Is item item-array or -object?
