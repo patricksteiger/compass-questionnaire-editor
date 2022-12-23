@@ -1,3 +1,4 @@
+// TODO: remove objects if not needed
 export const en = {
   lang: "en",
   components: {

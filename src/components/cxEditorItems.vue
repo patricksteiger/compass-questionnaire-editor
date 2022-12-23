@@ -1165,7 +1165,10 @@ export default defineComponent({
       if (this.selectedItem === undefined) {
         return;
       }
-      if (this.selectedItem.enableWhen === null) {
+      if (
+        this.selectedItem.enableWhen === null ||
+        this.selectedItem.enableWhen === undefined
+      ) {
         this.selectedItem.enableWhen = [];
       }
       this.selectedItem.enableWhen.push({
@@ -1178,7 +1181,8 @@ export default defineComponent({
     onRemoveCondition(index: number) {
       if (
         this.selectedItem !== undefined &&
-        this.selectedItem.enableWhen !== null
+        this.selectedItem.enableWhen !== null &&
+        this.selectedItem.enableWhen !== undefined
       ) {
         this.selectedItem.enableWhen.splice(index, 1);
       } else {
@@ -1415,14 +1419,12 @@ export default defineComponent({
     },
     onAddGECCOQuestion(e: any) {
       //No Add Question on Items disabled
-      if (
-        this.selectedItem === undefined ||
-        this.selectedItem.__active === false
-      ) {
+      if (this.selectedItem?.__active === false) {
         return;
       }
       //No allow add question more than 5 levels
       if (
+        this.selectedItem !== undefined &&
         this.selectedItem.linkId.split(".").length >= MAX_ALLOWED_LEVELS &&
         e.name === this.questionTypes.group
       ) {

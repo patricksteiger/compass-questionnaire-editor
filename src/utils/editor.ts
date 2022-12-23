@@ -224,7 +224,7 @@ class EditorTools {
       if (element.type === "group") {
         this.regenerateConditionWhenIds(element.item, changedIdMap);
       }
-      if (element.enableWhen !== null) {
+      if (element.enableWhen !== null && element.enableWhen !== undefined) {
         element.enableWhen.forEach((condition) => {
           if (
             condition.question !== "" &&
@@ -505,7 +505,9 @@ class EditorTools {
       if (element.item !== undefined) {
         this.setConditionDependence(element.item, rootItem);
       }
-      if (element.enableWhen === null) continue;
+      if (element.enableWhen === null || element.enableWhen === undefined) {
+        continue;
+      }
       for (const enableWhen of element.enableWhen) {
         const itemToAppendCondition = this.getItemNodeByInternalID(
           enableWhen.question,
