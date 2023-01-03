@@ -522,9 +522,8 @@ class EditorTools {
         };
         const keysEnableWhen = this.objectKeys(enableWhen);
         const condition: Question = {};
-        for (const key in keysEnableWhen) {
-          condition[`__${keysEnableWhen[key]}`] =
-            enableWhen[keysEnableWhen[key]];
+        for (const key of keysEnableWhen) {
+          condition[`__${key}`] = enableWhen[key];
         }
         condition.__linkId = element.linkId;
         condition.__text = element.text;

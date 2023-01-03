@@ -67,6 +67,30 @@ type Identifier = {
   };
 };
 
+type Question = {
+  __linkId?: string;
+  __text?: string;
+  __question?: string;
+  __answer?: string;
+  __operator?: string;
+  __type?: string;
+  __display?: string;
+  __system?: string;
+  __answerDecimal?: string;
+  __answerString?: string;
+  __answerInteger?: string;
+  __answerCoding?: Coding;
+  __answerDate?: string;
+  __answerBoolean?: string;
+};
+
+type Condition = {
+  __icon: string;
+  __questions: Question[];
+  __linkId: string;
+  __text: string;
+};
+
 type Item = {
   __linkId: string;
   __internalID: string;
@@ -76,6 +100,7 @@ type Item = {
   __oldText: string;
   __newDefinition: boolean;
   __icon: string;
+  __dependeceCondition?: Condition;
   item?: Item[];
   type: QuestionTypeIndex;
   linkId: string;
@@ -108,29 +133,29 @@ QuestionnaireValidationException.prototype.toString = function () {
   return `${this.name}: "${this.message}"`;
 };*/
 
-class FHIRValidationException {
-  private message: string;
+abstract class Exception {
   private name: string;
+  private message: string;
 
-  constructor(message: string) {
+  constructor(name: string, message: string) {
+    this.name = name;
     this.message = message;
-    this.name = "FHIRValidationException";
   }
+
   toString() {
     return `${this.name}: "${this.message}"`;
   }
 }
 
-class GeneralJSONValidationException {
-  private message: string;
-  private name: string;
-
+class FHIRValidationException extends Exception {
   constructor(message: string) {
-    this.message = message;
-    this.name = "GeneralJSONValidationException";
+    super("FHIRValidationException", message);
   }
-  toString() {
-    return `${this.name}: "${this.message}"`;
+}
+
+class GeneralJSONValidationException extends Exception {
+  constructor(message: string) {
+    super("GeneralJSONValidationException", message);
   }
 }
 
@@ -157,60 +182,60 @@ class FHIRValidation {
     this.itemsNode(this.questionnaire.item);
   }
 
-  setConditionDependence(item: any[] = []) {
-    item.forEach((item) => {
-      if (item.item) {
-        this.setConditionDependence(item.item);
-      }
-      if (item.enableWhen) {
-        item.enableWhen.forEach((element: any) => {
-          const itemToAppendCondintion = this.getItemNodeByInternalID(
-            element.question,
-            this.questionnaire.item,
-          );
-          if (itemToAppendCondintion) {
-            if (!itemToAppendCondintion.__dependeceCondition) {
-              itemToAppendCondintion.__dependeceCondition = {
-                __icon: "account_tree",
-                __questions: [],
-              };
+  private objectKeys<T extends object>(obj: T): (keyof T)[] {
+    return Object.keys(obj) as (keyof T)[];
+  }
+
+  setConditionDependence(items: Item[] = []): void {
+    for (const item of items) {
+      this.setConditionDependence(item.item);
+      if (item.enableWhen === undefined) continue;
+      for (const enableWhen of item.enableWhen) {
+        const itemToAppendCondition = this.getItemNodeByInternalID(
+          enableWhen.question,
+          this.questionnaire.item,
+        );
+        if (itemToAppendCondition !== undefined) {
+          itemToAppendCondition.__dependeceCondition ??= {
+            __icon: "account_tree",
+            __questions: [],
+            __linkId: "",
+            __text: "",
+          };
+          const keysEnableWhen = this.objectKeys(enableWhen);
+          const condition: Question = {};
+          for (const key of keysEnableWhen) {
+            if (key === "answerCoding") {
+              condition.__answerCoding = enableWhen[key];
+            } else {
+              condition[`__${key}`] = enableWhen[key];
             }
-            const keysEnableWhen = Object.keys(element);
-            const condition: any = {};
-            for (const key in keysEnableWhen) {
-              condition[`__${keysEnableWhen[key]}`] =
-                element[keysEnableWhen[key]];
-            }
-            condition.__linkId = item.linkId;
-            condition.__text = item.text;
-            itemToAppendCondintion.__dependeceCondition.__questions.push(
-              condition,
-            );
           }
-        });
+          condition.__linkId = item.linkId;
+          condition.__text = item.text;
+          itemToAppendCondition.__dependeceCondition.__questions.push(
+            condition,
+          );
+        }
       }
-    });
+    }
   }
 
-  getItemNodeByInternalID(linkId: string, item: any[] = []) {
-    let itemSearched: any;
-
-    const searchNodebyLinkId = function (linkId: string, item: any[]) {
-      item.forEach((element) => {
-        if (element.item) {
-          searchNodebyLinkId(linkId, element.item);
-        }
-        if (element.linkId === linkId) {
-          itemSearched = element;
-        }
-      });
-    };
-
-    searchNodebyLinkId(linkId, item);
-
-    return itemSearched;
+  // FIXME: Why is it called InternalId but using linkId?
+  getItemNodeByInternalID(linkId: string, item: Item[] = []): Item | undefined {
+    for (const element of item) {
+      if (element.linkId === linkId) {
+        return element;
+      }
+      const result = this.getItemNodeByInternalID(linkId, element.item);
+      if (result !== undefined) {
+        return result;
+      }
+    }
+    return undefined;
   }
 
+  // TODO: Is new sortByLinkId accurate?
   sortByLinkId(i1: Item, i2: Item) {
     const nums1 = i1.linkId.split(".");
     const nums2 = i2.linkId.split(".");

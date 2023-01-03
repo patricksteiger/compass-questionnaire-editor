@@ -172,7 +172,7 @@ export default defineComponent({
     continueLeavingEditionScreen: function () {
       this.resetQuestionnaire();
       this.$router.push("Import");
-      //resetear los objetos de las preguntas
+      // TODO: ? resetear los objetos de las preguntas
     },
     async exporting() {
       let blob = undefined;
