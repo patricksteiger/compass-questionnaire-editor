@@ -236,7 +236,7 @@ class FHIRValidation {
   }
 
   // TODO: Is new sortByLinkId accurate?
-  sortByLinkId(i1: Item, i2: Item) {
+  sortByLinkId(i1: Item, i2: Item): number {
     const nums1 = i1.linkId.split(".");
     const nums2 = i2.linkId.split(".");
     const last1 = nums1.at(-1);
@@ -245,38 +245,24 @@ class FHIRValidation {
     if (last1 === undefined) return -1;
     if (last2 === undefined) return 1;
     return parseInt(last1) - parseInt(last2);
-    // return function (a: Item, b: Item) {
-    //   if (
-    //     parseInt(a[property].split(".")[a[property].split(".").length - 1]) >
-    //     parseInt(b[property].split(".")[b[property].split(".").length - 1])
-    //   )
-    //     return 1;
-    //   else if (
-    //     parseInt(a[property].split(".")[a[property].split(".").length - 1]) <
-    //     parseInt(b[property].split(".")[b[property].split(".").length - 1])
-    //   )
-    //     return -1;
-    //
-    //   return 0;
-    // };
   }
 
-  sortItems(item: Item[]) {
-    item.sort(this.sortByLinkId);
-    item.forEach((element) => {
-      if (element.item) {
-        this.sortItems(element.item);
+  sortItems(items: Item[]): void {
+    items.sort(this.sortByLinkId);
+    for (const item of items) {
+      if (item.item !== undefined) {
+        this.sortItems(item.item);
       }
-    });
+    }
   }
 
-  getSortItems(jsonFile: File) {
-    if (!jsonFile.item) return undefined;
+  getSortItems(jsonFile: File): File | undefined {
+    if (jsonFile.item === undefined) return undefined;
     this.sortItems(jsonFile.item);
     return jsonFile;
   }
 
-  validateItem(item: Item) {
+  validateItem(item: Item): void {
     this.addPropertiesNeededtoGUIItemNode(item);
     //Validate if missing required fields of the Item
     this.itemNodeRequiredFields(item);
@@ -301,6 +287,7 @@ class FHIRValidation {
           internalId: item.__linkId,
         },
       );
+      // FIXME: errorMessages or Exceptions? (unused Exception earlier)
       throw new FHIRValidationException(message);
       /* this.errorMessages.push(
         this.i18n.global.t("messagesErrors.FHIRValidations.linkId", {
@@ -325,15 +312,9 @@ class FHIRValidation {
           answerOpt.__type = "coding";
           answerOpt.__icon = "radio_button_unchecked";
           answerOpt.valueCoding.__oldDisplay = answerOpt.valueCoding.display;
-          if (answerOpt.valueCoding.code === undefined) {
-            answerOpt.valueCoding.code = "";
-          }
-          if (answerOpt.valueCoding.display === undefined) {
-            answerOpt.valueCoding.display = "";
-          }
-          if (answerOpt.valueCoding.system === undefined) {
-            answerOpt.valueCoding.system = "";
-          }
+          answerOpt.valueCoding.code ??= "";
+          answerOpt.valueCoding.display ??= "";
+          answerOpt.valueCoding.system ??= "";
         }
         if (answerOpt.valueInteger) {
           answerOpt.__icon = "pin";
@@ -381,23 +362,21 @@ class FHIRValidation {
     }
   }
 
-  validateItems(item: Item) {
-    if (item.item) {
-      let idCount = 0;
-      const that = this;
-      item.item.forEach((element) => {
-        idCount++;
-        element.__internalID = `${uuidv4()}-${Date.now()}`;
-        element.__linkId = item.linkId + "." + idCount;
-        that.validateItem(element);
-        //deep inside no more that 5 levels
-        if (
-          element.item &&
-          element.__linkId.split(".").length <= MAX_ALLOWED_LEVELS
-        ) {
-          that.validateItems(element);
-        }
-      });
+  validateItems(item: Item): void {
+    if (item.item === undefined) return;
+    let idCount = 0;
+    for (const element of item.item) {
+      idCount++;
+      element.__internalID = `${uuidv4()}-${Date.now()}`;
+      element.__linkId = item.linkId + "." + idCount;
+      this.validateItem(element);
+      //deep inside no more that 5 levels
+      if (
+        element.item &&
+        element.__linkId.split(".").length <= MAX_ALLOWED_LEVELS
+      ) {
+        this.validateItems(element);
+      }
     }
   }
 
@@ -442,9 +421,8 @@ class FHIRValidation {
         ),
       );
     }
-    if (item.enableWhen) {
-      this.validateEnableWhen(item);
-    }
+
+    this.validateEnableWhen(item);
 
     if (item.type === "integer") {
       item.extension = item.extension || [];
@@ -517,83 +495,72 @@ class FHIRValidation {
     });
   }
 
-  validateEnableWhen(item: Item) {
-    const that = this;
-    if (item.enableWhen) {
-      item.enableWhen.forEach((element) => {
-        if (!element.question) {
-          that.errorMessages.push(
-            that.i18n.global.t(
-              "messagesErrors.FHIRValidations.nodeMissingItem",
-              {
-                node: "enableWhen.question",
-                linkId: item.linkId,
-              },
-            ),
-          );
-        }
-        if (!element.operator) {
-          that.errorMessages.push(
-            that.i18n.global.t(
-              "messagesErrors.FHIRValidations.nodeMissingItem",
-              {
-                node: "enableWhen.operator",
-                linkId: item.linkId,
-              },
-            ),
-          );
-        }
-        //missing  answer
-        if (
-          element.answerDecimal === undefined &&
-          element.answerInteger === undefined &&
-          element.answerCoding === undefined && //openChoice || choice
-          element.answerDate === undefined &&
-          element.answerBoolean === undefined &&
-          element.answerString === undefined
-        ) {
-          that.errorMessages.push(
-            that.i18n.global.t(
-              "messagesErrors.FHIRValidations.nodeMissingItem",
-              {
-                node: "enableWhen.answer[x]",
-                linkId: item.linkId,
-              },
-            ),
-          );
-        }
+  validateEnableWhen(item: Item): void {
+    if (item.enableWhen === undefined) return;
+    for (const enableWhen of item.enableWhen) {
+      if (!enableWhen.question) {
+        this.errorMessages.push(
+          this.i18n.global.t("messagesErrors.FHIRValidations.nodeMissingItem", {
+            node: "enableWhen.question",
+            linkId: item.linkId,
+          }),
+        );
+      }
+      if (!enableWhen.operator) {
+        this.errorMessages.push(
+          this.i18n.global.t("messagesErrors.FHIRValidations.nodeMissingItem", {
+            node: "enableWhen.operator",
+            linkId: item.linkId,
+          }),
+        );
+      }
+      //missing  answer
+      if (
+        enableWhen.answerDecimal === undefined &&
+        enableWhen.answerInteger === undefined &&
+        enableWhen.answerCoding === undefined && //openChoice || choice
+        enableWhen.answerDate === undefined &&
+        enableWhen.answerBoolean === undefined &&
+        enableWhen.answerString === undefined
+      ) {
+        this.errorMessages.push(
+          this.i18n.global.t("messagesErrors.FHIRValidations.nodeMissingItem", {
+            node: "enableWhen.answer[x]",
+            linkId: item.linkId,
+          }),
+        );
+      }
 
-        if (element.answerDecimal) {
-          element.answer = element.answerDecimal;
-          element.type = "decimal";
-        }
-        if (element.answerInteger) {
-          element.answer = element.answerInteger;
-          element.type = "integer";
-        }
-        if (element.answerCoding) {
-          element.answer = element.answerCoding.code;
-          element.type = "choice";
-          element.display = element.answerCoding.display;
-          element.system = element.answerCoding.system;
-        }
-        if (element.answerDate) {
-          element.answer = element.answerDate;
-          element.type = "date";
-        }
-        if (element.answerBoolean !== undefined) {
-          element.answer = element.answerBoolean ? "true" : "false";
-          element.type = "boolean";
-        }
-        if (element.answerString) {
-          element.answer = element.answerString;
-          element.type = "string";
-        }
-      });
+      if (enableWhen.answerDecimal) {
+        enableWhen.answer = enableWhen.answerDecimal;
+        enableWhen.type = "decimal";
+      }
+      if (enableWhen.answerInteger) {
+        enableWhen.answer = enableWhen.answerInteger;
+        enableWhen.type = "integer";
+      }
+      if (enableWhen.answerCoding) {
+        enableWhen.answer = enableWhen.answerCoding.code;
+        enableWhen.type = "choice";
+        enableWhen.display = enableWhen.answerCoding.display;
+        enableWhen.system = enableWhen.answerCoding.system;
+      }
+      if (enableWhen.answerDate) {
+        enableWhen.answer = enableWhen.answerDate;
+        enableWhen.type = "date";
+      }
+      if (enableWhen.answerBoolean !== undefined) {
+        enableWhen.answer = enableWhen.answerBoolean ? "true" : "false";
+        enableWhen.type = "boolean";
+      }
+      if (enableWhen.answerString) {
+        enableWhen.answer = enableWhen.answerString;
+        enableWhen.type = "string";
+      }
     }
   }
 
-  statusNode(FHIRobj: File) {
+  statusNode(FHIRobj: File): void {
     if (!FHIRobj.status) {
       this.errorMessages.push(
         this.i18n.global.t("messagesErrors.FHIRValidations.nodeMissing", {
@@ -616,7 +583,7 @@ class FHIRValidation {
     }
   }
 
-  identifier(FHIRobj: File) {
+  identifier(FHIRobj: File): void {
     if (FHIRobj.identifier && FHIRobj.identifier.length > 0) {
       FHIRobj.identifier.forEach((id) => {
         id.use = id.use === undefined ? "" : id.use;
@@ -663,11 +630,7 @@ const generalValidations = {
   i18n: i18n,
 
   //Validata that is a right JSON Structure
-  JSONValid(jsonFileString: string | ArrayBuffer | null = ""): object {
-    if (typeof jsonFileString !== "string") {
-      // TODO: i18n error message
-      throw new GeneralJSONValidationException("jsonFile is not a string");
-    }
+  JSONValid(jsonFileString: string): object {
     try {
       return JSON.parse(jsonFileString);
     } catch (error: any) {
@@ -689,6 +652,10 @@ const importJsonQuestionnaire = {
   i18n: i18n,
 
   getValidateJSON(jsonFile: string | ArrayBuffer | null) {
+    if (jsonFile === null || typeof jsonFile !== "string") {
+      // TODO: i18n error message
+      throw new GeneralJSONValidationException("jsonFile is not a string");
+    }
     return this.generalValidations.JSONValid(jsonFile);
   },
   getValidateFHIRResource(jsonFile: object) {
