@@ -1409,7 +1409,10 @@ export default defineComponent({
         //only add questions in items type group
         if (this.selectedItem.__icon !== "article") return;
         // if (this.selectedItem.type !== this.questionTypes.group) return;
-        if (this.selectedItem.item) {
+        if (
+          this.selectedItem.item !== undefined &&
+          this.selectedItem.item.length > 0
+        ) {
           const lastItem = this.selectedItem.item.slice(-1)[0];
           item.__linkId = this.editorTools.getNextID(lastItem.__linkId);
           item.linkId = this.editorTools.getNextID(lastItem.linkId);
