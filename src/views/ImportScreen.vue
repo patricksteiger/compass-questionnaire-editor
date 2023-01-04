@@ -70,7 +70,7 @@
 
 <script lang="ts">
 // @ is an alias to /src
-import FileUpload from "vue-upload-component";
+import FileUpload, { VueUploadItem } from "vue-upload-component";
 import { mapMutations, mapActions, mapGetters } from "vuex";
 import { useQuasar } from "quasar";
 import { importJsonQuestionnaire } from "../utils/ImportJson";
@@ -82,9 +82,14 @@ type File = {
 };
 
 export default defineComponent({
+  components: {
+    FileUpload,
+  },
   setup() {
     const $q = useQuasar();
     const messageErrorFHIR: Ref<string[]> = ref([]);
+    const files: Ref<VueUploadItem[]> = ref([]);
+    const messageError = ref("");
 
     return {
       showLoading() {
@@ -96,15 +101,8 @@ export default defineComponent({
       importJsonQuestionnaire,
       alertError: ref(false),
       messageErrorFHIR,
-    };
-  },
-  components: {
-    FileUpload,
-  },
-  data() {
-    return {
-      files: [],
-      messageError: "",
+      messageError,
+      files,
     };
   },
   methods: {
@@ -166,7 +164,7 @@ export default defineComponent({
       oldFile: File | undefined,
       prevent: () => boolean,
     ) {
-      if (newFile && !oldFile) {
+      if (newFile !== undefined && oldFile === undefined) {
         // Filter non-json file
         if (!/\.(json)$/i.test(newFile.name)) {
           this.messageError = this.$t(

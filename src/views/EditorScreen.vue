@@ -29,13 +29,13 @@
     </q-tab-panel>
   </q-tab-panels>
 </template>
-<script>
+<script lang="ts">
 import cxEditorItems from "../components/cxEditorItems.vue";
 import cxMetadata from "../components/cxMetadata.vue";
 import cxSettings from "../components/cxSettings.vue";
-import { ref } from "vue";
+import { defineComponent, ref } from "vue";
 
-export default {
+export default defineComponent({
   components: {
     cxEditorItems,
     cxMetadata,
@@ -50,5 +50,5 @@ export default {
   data() {
     return {};
   },
-};
+});
 </script>

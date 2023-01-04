@@ -86,22 +86,30 @@
     </div>
   </div>
 </template>
-<script>
-import { ref } from "vue";
+<script lang="ts">
+import { defineComponent, Ref, ref } from "vue";
 
-export default {
+type Node = {};
+
+type MutationRecord = {
+  type: string;
+  addedNodes: Node[];
+  removedNodes: Node[];
+  oldValue: number;
+};
+
+export default defineComponent({
   setup() {
-    const status1 = ref([]);
-    const status2 = ref([]);
+    const status1: Ref<string[]> = ref([]);
+    const status2: Ref<string[]> = ref([]);
 
     return {
       status1,
       status2,
 
-      handler1(mutationRecords) {
+      handler1(mutationRecords: MutationRecord[]) {
         status1.value = [];
-        for (const index in mutationRecords) {
-          const record = mutationRecords[index];
+        for (const record of mutationRecords) {
           const info = `type: ${record.type}, nodes added: ${
             record.addedNodes.length > 0 ? "true" : "false"
           }, nodes removed: ${
@@ -111,10 +119,9 @@ export default {
         }
       },
 
-      handler2(mutationRecords) {
+      handler2(mutationRecords: MutationRecord[]) {
         status2.value = [];
-        for (const index in mutationRecords) {
-          const record = mutationRecords[index];
+        for (const record of mutationRecords) {
           const info = `type: ${record.type}, nodes added: ${
             record.addedNodes.length > 0 ? "true" : "false"
           }, nodes removed: ${
@@ -124,27 +131,27 @@ export default {
         }
       },
 
-      onDragStart(e) {
+      onDragStart(e: any) {
         e.dataTransfer.setData("text", e.target.id);
         e.dataTransfer.dropEffect = "move";
       },
 
-      onDragEnter(e) {
+      onDragEnter(e: any) {
         // don't drop on other draggables
         if (e.target.draggable !== true) {
           e.target.classList.add("drag-enter");
         }
       },
 
-      onDragLeave(e) {
+      onDragLeave(e: any) {
         e.target.classList.remove("drag-enter");
       },
 
-      onDragOver(e) {
+      onDragOver(e: any) {
         e.preventDefault();
       },
 
-      onDrop(e) {
+      onDrop(e: any) {
         e.preventDefault();
 
         // don't drop on other draggables
@@ -154,6 +161,9 @@ export default {
 
         const draggedId = e.dataTransfer.getData("text");
         const draggedEl = document.getElementById(draggedId);
+        if (draggedEl === null) {
+          return;
+        }
 
         // check if original parent node
         if (draggedEl.parentNode === e.target) {
@@ -162,13 +172,15 @@ export default {
         }
 
         // make the exchange
-        draggedEl.parentNode.removeChild(draggedEl);
+        if (draggedEl.parentNode !== null) {
+          draggedEl.parentNode.removeChild(draggedEl);
+        }
         e.target.appendChild(draggedEl);
         e.target.classList.remove("drag-enter");
       },
     };
   },
-};
+});
 </script>
 <style scoped lang="sass">
 .drop-target
