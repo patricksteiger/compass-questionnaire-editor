@@ -53,6 +53,7 @@ export type Extension = {
   url: string;
   valueInteger?: number | null;
   valueString?: string;
+  valueCoding?: Coding;
 };
 
 export type Question = {
@@ -133,16 +134,16 @@ class EditorTools {
     return 1;
   }
 
-  // TODO: What is type of event from onDrop in cxEditorItems
-  getInternalIDFromEhandler(e: any): string {
-    const splitId = e.currentTarget.id.split("_");
-    return splitId.length > 1 ? splitId[1] : e.currentTarget.id;
+  getInternalIDFromEhandler(e: DragEvent): string {
+    const currentTarget = e.currentTarget as HTMLInputElement;
+    const splitId = currentTarget.id.split("_");
+    return splitId.length > 1 ? splitId[1] : currentTarget.id;
   }
 
-  // TODO: What is type of event from onDrop in cxEditorItems
-  isPreviousQuestion(e: any): boolean {
+  isPreviousQuestion(e: DragEvent): boolean {
     //if with prefix _ means that id has been dragged before the item question
-    return e.currentTarget.id.split("_").length == 2;
+    const currentTarget = e.currentTarget as HTMLInputElement;
+    return currentTarget.id.split("_").length == 2;
   }
 
   assingNewItemInternalIDs(item: Node): void {

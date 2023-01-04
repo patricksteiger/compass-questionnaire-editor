@@ -37,7 +37,7 @@
                   @dragover="onDragOver"
                   @dragleave="onDragLeave"
                   @drop="onDrop"
-                  @dragstart="onDragStart"
+                  @dragstart="onDragStart($event, prop.node)"
                   :id="prop.node.__internalID"
                   draggable="true"
                 >
@@ -944,6 +944,7 @@ import {
   answerTypeButton,
   COLORS,
   MAX_ALLOWED_LEVELS,
+  QuestionIcon,
 } from "../utils/constants";
 import { useQuasar } from "quasar";
 import { defineComponent, Ref, ref } from "vue";
@@ -1002,6 +1003,7 @@ type EnableWhenItem = {
   system?: string;
 };
 
+// TODO: Fix any-types
 export default defineComponent({
   components: {
     cxAddGeccoItem,
@@ -1207,21 +1209,30 @@ export default defineComponent({
         this.selectedItem.definition = uuidv4();
       }
     },
-    onDragStart(e: any) {
-      e.dataTransfer.setData("text", e.target.id);
+    onDragStart(e: DragEvent, node: Node) {
+      if (e.dataTransfer !== null) {
+        e.dataTransfer.setData("text", node.__internalID);
+      } else {
+        console.error(`DataTransfer is null: ${node.__internalID}`);
+      }
     },
-    onDragOver(e: any) {
+    onDragOver(e: DragEvent) {
       e.preventDefault();
-      e.currentTarget.style.backgroundColor = this.COLORS.itemDragOver;
+      const currentTarget = e.currentTarget as HTMLInputElement;
+      currentTarget.style.backgroundColor = this.COLORS.itemDragOver;
     },
-    onDragLeave(e: any) {
+    onDragLeave(e: DragEvent) {
       e.preventDefault();
-      e.currentTarget.style.backgroundColor = "";
+      const currentTarget = e.currentTarget as HTMLInputElement;
+      currentTarget.style.backgroundColor = "";
     },
-    onDrop(e: any) {
+    onDrop(e: DragEvent) {
       e.preventDefault();
-      e.currentTarget.style.backgroundColor = "";
-      e.currentTarget.style.cursor = "default";
+      if (e.currentTarget === null || e.dataTransfer === null) return;
+      // TODO: check how styling of currentTarget is needed/works
+      const currentTarget = e.currentTarget as HTMLInputElement;
+      currentTarget.style.backgroundColor = "";
+      currentTarget.style.cursor = "default";
       const draggedId = e.dataTransfer.getData("text");
 
       const itemSource = this.editorTools.getCurrentQuestionNodeByID(
@@ -1256,10 +1267,7 @@ export default defineComponent({
         itemTarget.__internalID,
         itemSource.item,
       );
-      if (
-        itemNodeChild === undefined ||
-        Object.keys(itemNodeChild).length > 0
-      ) {
+      if (itemNodeChild !== undefined) {
         return;
       }
 
@@ -1327,7 +1335,8 @@ export default defineComponent({
       );
 
       //Insert Inside Group Item: at the end
-      if (e.currentTarget.id.split("_").length === 1) {
+      // if (e.currentTarget.id.split("_").length === 1) {
+      if (currentTarget.id.split("_").length === 1) {
         if (!itemTarget.item) {
           itemTarget.item = [];
         }
@@ -1378,7 +1387,7 @@ export default defineComponent({
           "",
       );
     },
-    onAddQuestion(e: any) {
+    onAddQuestion(e: QuestionIcon) {
       //No Add Question on Items disabled
       if (
         // this.selectedItem === undefined ||
@@ -1456,19 +1465,19 @@ export default defineComponent({
       }
       this.selectedItem.answerOption.push(answerOption);
     },
-    hasGeccoExtension(e: any) {
+    hasGeccoExtension(e: Node | undefined) {
       return (
-        e.extension &&
-        e.extension.some(
-          (it: any) =>
+        e?.extensions &&
+        e.extensions.some(
+          (it) =>
             it.url ===
             "https://num-compass.science/fhir/StructureDefinition/CompassGeccoItem",
         )
       );
     },
-    getGeccoExtensionValue(e: any) {
-      let extension = e.extension?.find(
-        (it: any) =>
+    getGeccoExtensionValue(e: Node | undefined) {
+      let extension = e?.extensions?.find(
+        (it) =>
           it.url ===
           "https://num-compass.science/fhir/StructureDefinition/CompassGeccoItem",
       );
