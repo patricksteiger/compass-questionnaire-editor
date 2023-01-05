@@ -5,6 +5,7 @@ import {
   QuestionIcon,
 } from "./constants";
 import { v4 as uuidv4 } from "uuid";
+import { GeccoNode } from "@/store/questionnaire";
 
 export type QuestionType =
   | "group"
@@ -43,6 +44,8 @@ export type AnswerOption = {
   __oldValueInteger?: string;
   __oldValueDate?: string;
   __oldValueString?: string;
+  linkId?: string;
+  type?: string;
   valueCoding?: Coding;
   valueString?: string;
   valueInteger?: string;
@@ -300,6 +303,25 @@ class EditorTools {
         return item;
       }
       const result = this.getCurrentQuestionNodeByID(internalId, item.item);
+      if (result !== undefined) {
+        return result;
+      }
+    }
+    return undefined;
+  }
+
+  getCurrentGeccoQuestionNodeByID(
+    internalId: string,
+    rootItem: GeccoNode[] = [],
+  ): GeccoNode | undefined {
+    for (const item of rootItem) {
+      if (item.__internalID === internalId) {
+        return item;
+      }
+      const result = this.getCurrentGeccoQuestionNodeByID(
+        internalId,
+        item.item,
+      );
       if (result !== undefined) {
         return result;
       }

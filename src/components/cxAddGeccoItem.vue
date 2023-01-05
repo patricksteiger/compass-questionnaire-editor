@@ -55,7 +55,7 @@
                 $t("views.editor.answerSelected")
               }}</q-toolbar-title>
             </q-toolbar>
-            <div class="q-pa-md" v-if="selected">
+            <div class="q-pa-md" v-if="selected && selectedItem">
               <div class="text-h5 text-bold q-mb-md">
                 {{ selectedItem.text }}
                 <div class="text-caption">{{ selectedItem.type }}</div>
@@ -88,15 +88,19 @@
                     @dblclick="
                       onSelectAnswer({
                         ...answerOption,
-                        linkId: selectedItem.linkId,
-                        type: selectedItem.type,
+                        linkId: selectedItem?.linkId,
+                        type: selectedItem?.type,
                       })
                     "
                     v-for="answerOption in selectedItem.answerOption"
-                    :key="answerOption"
+                    :key="answerOption.__id"
                   >
-                    <!--Coding Answer type -->
-                    <q-item-section v-if="answerOption.__type === 'coding'"
+                    <!--Coding Answer type TODO: ^ id correct?-->
+                    <q-item-section
+                      v-if="
+                        answerOption.__type === 'coding' &&
+                        answerOption.valueCoding !== undefined
+                      "
                       ><q-item-label>{{
                         answerOption.valueCoding.display
                       }}</q-item-label
@@ -107,7 +111,10 @@
                     <q-item-section
                       side
                       top
-                      v-if="answerOption.__type === 'coding'"
+                      v-if="
+                        answerOption.__type === 'coding' &&
+                        answerOption.valueCoding !== undefined
+                      "
                     >
                       <q-item-label caption>{{
                         answerOption.valueCoding.code
@@ -154,65 +161,52 @@
   </q-layout>
 </template>
 <script lang="ts">
-// import { mapGetters } from "vuex";
 import { defineComponent, Ref, ref } from "vue";
-import { editorTools } from "../utils/editor";
-import { geccoQuestionnaire } from "@/store/questionnaire";
+import { AnswerOption, editorTools } from "../utils/editor";
+import { Gecco, GeccoNode, geccoQuestionnaire } from "@/store/questionnaire";
 import { importJsonQuestionnaire } from "@/utils/ImportJson";
-// import { Node } from "@/utils/editor";
-
-// type GeccoItem = typeof geccoQuestionnaire["item"][0];
-// type GeccoItemNode = GeccoItem & {
-//   __internalID: string;
-// };
 
 export default defineComponent({
-  // props: {},
   setup() {
     const filter = ref("de");
-    const item: Ref<any> = ref([]);
-    const selectedItem: Ref<any> = ref(undefined);
-    const questionaireGUI = { ...geccoQuestionnaire };
+    const questionaireGUI: Ref<Gecco> = ref({ ...geccoQuestionnaire });
+    const item: Ref<GeccoNode[]> = ref([]);
+    const selectedItem: Ref<GeccoNode | undefined> = ref(undefined);
+    const selected: Ref<string | null> = ref(null);
     return {
       splitterModel: ref(50), // start at 50%
       edtiorTools: editorTools,
       filter,
+      selected,
       selectedItem,
       questionaireGUI,
       item,
     };
   },
-  data() {
-    return {
-      selected: null,
-    };
-  },
   created() {
-    importJsonQuestionnaire.getValidateFHIRResource(geccoQuestionnaire); //create __internal_ids
-    this.questionaireGUI = geccoQuestionnaire;
-    this.item = this.questionaireGUI.item ? this.questionaireGUI.item : [];
-  },
-  computed: {
-    // ...mapGetters(["getQuestionnaireGECCO"]),
+    importJsonQuestionnaire.getValidateFHIRResource(this.questionaireGUI); //create __internal_ids
+    // FIXME: fix type conversion
+    this.item = this.questionaireGUI.item
+      ? (this.questionaireGUI.item as GeccoNode[])
+      : [];
   },
   watch: {
-    selected(val) {
+    selected(val: string | null) {
       if (val === null) {
-        this.selectedItem = this.item;
-        return;
+        this.selectedItem = undefined;
+      } else {
+        this.selectedItem = this.edtiorTools.getCurrentGeccoQuestionNodeByID(
+          val,
+          this.item,
+        );
       }
-      // TODO: types are not properly aligned
-      this.selectedItem = this.edtiorTools.getCurrentQuestionNodeByID(
-        val,
-        this.item,
-      );
     },
   },
   methods: {
-    onSelectGECCOQuestion(questionSelected: any) {
+    onSelectGECCOQuestion(questionSelected: GeccoNode | undefined): void {
       if (
-        questionSelected.extension?.find(
-          (it: any) =>
+        questionSelected?.extension?.find(
+          (it) =>
             it?.url ===
             "https://num-compass.science/fhir/StructureDefinition/DependentItem",
         )
@@ -226,7 +220,7 @@ export default defineComponent({
       this.$emit("question", questionSelected);
     },
 
-    onSelectAnswer(answerOption: any) {
+    onSelectAnswer(answerOption: AnswerOption): void {
       this.$emit("choiceQuestion", answerOption);
     },
   },

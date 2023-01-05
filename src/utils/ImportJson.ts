@@ -41,7 +41,9 @@ type EnableWhen = {
   answerBoolean: string | undefined;
 };
 
-type Extension = {};
+type Extension = {
+  url: string;
+};
 
 type AnswerOption = {
   __id: number;
@@ -455,7 +457,7 @@ class FHIRValidation {
       ] as const;
 
       for (const { url, targetIdx, type } of extensionSet) {
-        const index = item.extension.findIndex((e: any) => e.url === url);
+        const index = item.extension.findIndex((e) => e.url === url);
         if (index === -1) {
           item.extension.splice(targetIdx, 0, {
             url,
