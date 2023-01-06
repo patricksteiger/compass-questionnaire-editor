@@ -1,3 +1,4 @@
+import { ImportedQuestionnaire } from "@/store";
 import {
   ExportAnswerOption,
   ExportEnableWhen,
@@ -7,8 +8,8 @@ import {
 import { i18n } from "../i18n";
 
 const exportJsonQuestionnaire = {
-  // TODO: fix types for exporting
-  getExportObject(jsonObject: any) {
+  // TODO: fix types for exporting, copy somehow generic?
+  getExportObject(jsonObject: ImportedQuestionnaire) {
     const cloneObject = this.getObjectExportCopy(jsonObject) as ExportItem;
     const objWithoutItemsDisabled =
       this.getObjectWithouItemsDisables(cloneObject);
@@ -137,24 +138,22 @@ const exportJsonQuestionnaire = {
 
     return jsonObject;
   },
-  getObjectExportCopy(jsonObject: any) {
+  getObjectExportCopy(jsonObject: any): any {
     if (typeof jsonObject === "string") {
       return jsonObject;
     }
     const newObject: any = {};
     const keys = Object.keys(jsonObject);
-    for (const indexKey in keys) {
-      const itemKey = keys[indexKey];
-      if (!itemKey.startsWith("__")) {
-        let value = jsonObject[itemKey];
-        if (Array.isArray(value)) {
-          value = this.getArrayExportCopy(value);
-        } else if (typeof value === "object" && value !== null) {
-          value = this.getObjectExportCopy(value);
-        }
-
-        newObject[itemKey] = value;
+    for (const itemKey of keys) {
+      if (itemKey.startsWith("__")) continue;
+      let value = jsonObject[itemKey];
+      if (Array.isArray(value)) {
+        value = this.getArrayExportCopy(value);
+      } else if (typeof value === "object" && value !== null) {
+        value = this.getObjectExportCopy(value);
       }
+
+      newObject[itemKey] = value;
     }
     return newObject;
   },

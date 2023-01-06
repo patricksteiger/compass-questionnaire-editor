@@ -1,25 +1,78 @@
 import { createStore } from "vuex";
 
+// state.questionnaireImported = {
+//   identifier: [],
+//   url: "",
+//   name: "",
+//   version: "",
+//   title: "",
+//   status: "unknown",
+//   publisher: "",
+//   date: "",
+//   approvalDate: "",
+//   lastReviewDate: "",
+//   experimental: true,
+//   resourceType: "Questionnaire",
+//   item: [],
+// };
+type Identifier = {
+  use: string;
+  system: string;
+  value: string;
+  period: {
+    start: string;
+    end: string;
+  };
+  type: {
+    coding: {
+      system: string;
+      version: string;
+      code: string;
+      display: string;
+      userSelected: boolean;
+    };
+    text: string;
+  };
+};
+
+export type ImportedQuestionnaire = {
+  identifier: Identifier[];
+  url: string;
+  name: string;
+  version: string;
+  title: string;
+  status: "draft" | "active" | "retired" | "unknown";
+  publisher: string;
+  date: string;
+  approvalDate: string;
+  lastReviewDate: string;
+  experimental: Boolean;
+  item: object[];
+  resourceType: string;
+};
+
+const qI: ImportedQuestionnaire = {
+  identifier: [],
+  url: "",
+  name: "",
+  version: "",
+  title: "",
+  status: "unknown",
+  publisher: "",
+  date: "",
+  approvalDate: "",
+  lastReviewDate: "",
+  experimental: true,
+  item: [],
+  resourceType: "Questionnaire",
+};
+
 const store = createStore({
   state: {
     questionnaire: {
       item: {},
     },
-    questionnaireImported: {
-      identifier: [],
-      url: "",
-      name: "",
-      version: "",
-      title: "",
-      status: "unknown",
-      publisher: "",
-      date: "",
-      approvalDate: "",
-      lastReviewDate: "",
-      experimental: true,
-      item: [],
-      resourceType: "Questionnaire",
-    },
+    questionnaireImported: qI,
     secondaryItemSelected: {},
     fileImported: {
       name: "",
@@ -132,7 +185,7 @@ const store = createStore({
     getMainItem(state) {
       return state.questionnaire.item;
     },
-    getQuestionnaireImportedJSON(state) {
+    getQuestionnaireImportedJSON(state): ImportedQuestionnaire {
       if (!state.questionnaireImported) {
         state.questionnaireImported = {
           identifier: [],

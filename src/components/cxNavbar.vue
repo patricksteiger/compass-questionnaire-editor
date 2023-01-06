@@ -116,6 +116,7 @@ import { mapGetters, mapMutations, mapActions } from "vuex";
 import { useQuasar } from "quasar";
 import FileSaver from "file-saver";
 import { exportJsonQuestionnaire } from "../utils/exportJson";
+import { ImportedQuestionnaire } from "@/store";
 
 export default defineComponent({
   computed: {
@@ -178,7 +179,8 @@ export default defineComponent({
       let blob = undefined;
       try {
         this.showLoading();
-        const objToExport = this.getQuestionnaireImportedJSON;
+        const objToExport: ImportedQuestionnaire =
+          this.getQuestionnaireImportedJSON;
         if (this.version !== "") {
           this.getQuestionnaireImportedJSON.version = this.version;
         } else {

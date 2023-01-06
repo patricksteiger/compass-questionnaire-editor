@@ -502,6 +502,17 @@ class EditorTools {
     return items.length > 0 ? this.currentMaxLevel(items, 1) : 0;
   }
 
+  getNumberOfGroupLevel(item: Node): number {
+    let maxLevel = 0;
+    for (const element of item.item || []) {
+      if (element.type === "group") {
+        const level = this.getNumberOfGroupLevel(element);
+        maxLevel = level > maxLevel ? level : maxLevel;
+      }
+    }
+    return maxLevel + 1;
+  }
+
   // FIXME: Is LinkId instead of InternalId correct here?
   getItemNodeByInternalID(
     linkId: string,

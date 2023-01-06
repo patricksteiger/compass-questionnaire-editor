@@ -24,7 +24,6 @@ export const questionType = {
     label: "Open-Choice",
   },
 } as const;
-
 type QuestionType = typeof questionType;
 export type QuestionTypeIndex = QuestionType[keyof QuestionType]["name"];
 
@@ -34,6 +33,7 @@ export const answerTypeButton = [
   { name: "string", icon: "text_fields", label: "String" },
   { name: "coding", icon: "toc", label: "Coding" },
 ] as const;
+export type AnswerButtonType = typeof answerTypeButton[number];
 
 export const questionTypesIcons = [
   { name: "group", icon: "article", label: "Group" },
@@ -63,3 +63,4 @@ export const COLORS = {
 } as const;
 
 export const MAX_ALLOWED_LEVELS = 5;
+export const MAX_ALLOWED_LEVELS_FOR_GROUPS = MAX_ALLOWED_LEVELS - 1;

@@ -930,7 +930,7 @@
       >
       </cx-enable-When>
     </q-dialog>
-    <q-dialog v-model="layout2">
+    <q-dialog v-model="geccoLayout">
       <cx-add-gecco-item v-on:question="onSelectedGECCOQuestion">
       </cx-add-gecco-item>
     </q-dialog>
@@ -944,7 +944,9 @@ import {
   answerTypeButton,
   COLORS,
   MAX_ALLOWED_LEVELS,
+  AnswerButtonType,
   QuestionIcon,
+  MAX_ALLOWED_LEVELS_FOR_GROUPS,
 } from "../utils/constants";
 import { useQuasar } from "quasar";
 import { defineComponent, Ref, ref } from "vue";
@@ -955,7 +957,7 @@ import cxEnableWhen from "../components/cxEnableWhen.vue";
 import cxAddGeccoItem from "../components/cxAddGeccoItem.vue";
 import { i18n } from "@/i18n";
 
-type Event = {
+type CustomEvent = {
   keyCode: number;
   which: number;
   preventDefault: () => void;
@@ -1041,7 +1043,7 @@ export default defineComponent({
       enableWhenItem,
       setDisplayToOld,
       layout: ref(false),
-      layout2: ref(false),
+      geccoLayout: ref(false),
       alert: ref(false),
       itemsAnwers: ref(""),
       editorTools: editorTools,
@@ -1099,7 +1101,7 @@ export default defineComponent({
         this.triggerNegative();
       }
     },
-    onlyNumberDec($event: Event) {
+    onlyNumberDec($event: CustomEvent) {
       //keyCodes value
       let keyCode = $event.keyCode ? $event.keyCode : $event.which;
       if ((keyCode < 48 || keyCode > 57) && keyCode !== 46 && keyCode !== 44) {
@@ -1107,20 +1109,20 @@ export default defineComponent({
         $event.preventDefault();
       }
     },
-    onlyNumber($event: Event) {
+    onlyNumber($event: CustomEvent) {
       //keyCodes value
       let keyCode = $event.keyCode ? $event.keyCode : $event.which;
       if (keyCode < 48 || keyCode > 57) {
         $event.preventDefault();
       }
     },
-    onSelectedQuestionsAnswer(e: any) {
+    onSelectedQuestionsAnswer(e: AnswerOption) {
       this.enableWhenItem.question = e.linkId;
       this.enableWhenItem.type = e.__type;
       if (e.__type === "coding") {
-        this.enableWhenItem.answer = e.valueCoding.code;
-        this.enableWhenItem.system = e.valueCoding.system;
-        this.enableWhenItem.display = e.valueCoding.display;
+        this.enableWhenItem.answer = e.valueCoding?.code;
+        this.enableWhenItem.system = e.valueCoding?.system;
+        this.enableWhenItem.display = e.valueCoding?.display;
       } else if (e.__type === "integer") {
         this.enableWhenItem.answer = e.valueInteger;
       } else if (e.__type === "date") {
@@ -1130,33 +1132,54 @@ export default defineComponent({
       }
       this.layout = false;
     },
-    onSelectedQuestion(e: Node) {
+    onSelectedQuestion(e: Node): void {
       this.enableWhenItem.question = e.linkId;
       this.enableWhenItem.answer = "";
       // TODO: is it type or __type?
       this.enableWhenItem.type = e.type;
       this.layout = false;
     },
-    onSelectedGECCOQuestion(input: Node) {
-      this.layout2 = false;
-      const item = JSON.parse(JSON.stringify(input)); //create copy
+    onSelectedGECCOQuestion(input: Node | undefined): void {
+      this.geccoLayout = false;
+      if (input === undefined) {
+        return; // No question was selected
+      }
+      const item = JSON.parse(JSON.stringify(input)) as Node; //create copy
       if (this.selected !== null && this.selectedItem !== undefined) {
         // only add questions in items type group
-        if (this.selectedItem.__icon !== "article") return;
+        const selectedLevel = this.selectedItem.linkId.split(".").length;
+        if (
+          this.selectedItem.type !== "group" ||
+          selectedLevel >= MAX_ALLOWED_LEVELS
+        ) {
+          return;
+        }
+        // only add group if there are enough levels
+        if (item.type === "group") {
+          const countGroupLevels = this.editorTools.getNumberOfGroupLevel(item);
+          if (
+            selectedLevel + countGroupLevels >
+            MAX_ALLOWED_LEVELS_FOR_GROUPS
+          ) {
+            return;
+          }
+        }
+        // Add new item at correct place
         if (
           this.selectedItem.item !== undefined &&
           this.selectedItem.item.length > 0
         ) {
-          const lastItem = this.selectedItem.item.slice(-1)[0];
+          const lastItem = this.selectedItem.item.at(-1) as Node; // undefined should never happen
           item.__linkId = this.editorTools.getNextID(lastItem.__linkId);
           item.linkId = this.editorTools.getNextID(lastItem.linkId);
         } else {
-          this.selectedItem.item = [];
+          this.selectedItem.item ??= [];
           item.__linkId = this.selected + "." + 1;
           item.linkId = item.__linkId;
         }
         this.selectedItem.item.push(item);
       } else {
+        // Add to root item
         item.__linkId = this.item.length + 1 + "";
         this.item.push(item);
       }
@@ -1398,7 +1421,8 @@ export default defineComponent({
       //No allow add question more than 5 levels
       if (
         this.selectedItem !== undefined &&
-        this.selectedItem.linkId.split(".").length >= MAX_ALLOWED_LEVELS &&
+        this.selectedItem.linkId.split(".").length >=
+          MAX_ALLOWED_LEVELS_FOR_GROUPS &&
         e.name === this.questionTypes.group
       ) {
         return;
@@ -1429,7 +1453,7 @@ export default defineComponent({
       const changedIdMap = this.editorTools.regenerateLinkIds(this.item);
       this.editorTools.regenerateConditionWhenIds(this.item, changedIdMap);
     },
-    onAddGECCOQuestion(e: any) {
+    onAddGECCOQuestion(): void {
       //No Add Question on Items disabled
       if (this.selectedItem?.__active === false) {
         return;
@@ -1437,14 +1461,13 @@ export default defineComponent({
       //No allow add question more than 5 levels
       if (
         this.selectedItem !== undefined &&
-        this.selectedItem.linkId.split(".").length >= MAX_ALLOWED_LEVELS &&
-        e.name === this.questionTypes.group
+        this.selectedItem.linkId.split(".").length >= MAX_ALLOWED_LEVELS
       ) {
         return;
       }
-      this.layout2 = true;
+      this.geccoLayout = true;
     },
-    onClickAddAnswerOpenChiose(e: any) {
+    onClickAddAnswerOpenChoice(e: any): void {
       if (this.selectedItem === undefined) {
         console.error("Selected item should not be undefined");
         return;
@@ -1486,7 +1509,7 @@ export default defineComponent({
       );
       return extension?.valueCoding?.code;
     },
-    onClickAddAnswer(e: any) {
+    onClickAddAnswer(e: AnswerButtonType) {
       if (this.selectedItem === undefined) {
         console.error("Selected item should not be undefined");
         return;
@@ -1598,11 +1621,11 @@ export default defineComponent({
       }
       return type;
     },
-    enabledQuestionTypes: function () {
+    enabledQuestionTypes() {
       // const allowedQuestions = (q) =>
       //   !(!this.getChoice && q.name == "choice") &&
       //   !(!this.getOpenChoice && q.name == "open-choice");
-      const allowedQuestions = (q: any) =>
+      const allowedQuestions = (q: QuestionIcon) =>
         !(
           (!this.getChoice && q.name === "choice") ||
           (!this.getOpenChoice && q.name === "open-choice")
