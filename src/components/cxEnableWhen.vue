@@ -190,7 +190,8 @@
 <script lang="ts">
 import { mapGetters } from "vuex";
 import { defineComponent, Ref, ref } from "vue";
-import { AnswerOption, editorTools, Node } from "../utils/editor";
+import { editorTools } from "../utils/editor";
+import { AnswerOption, Questionnaire } from "@/types";
 
 type Question = {
   linkId: string | undefined;
@@ -211,7 +212,7 @@ export default defineComponent({
   },
   setup() {
     const filter = ref("de");
-    const selectedItem: Ref<Node | null> = ref(null);
+    const selectedItem: Ref<Questionnaire | null> = ref(null);
     return {
       splitterModel: ref(50), // start at 50%
       edtiorTools: editorTools,
@@ -260,7 +261,7 @@ export default defineComponent({
     onSelectQuestion(questionSelected: Question) {
       this.$emit("question", questionSelected);
     },
-    filterItemToBeShown(node: Node) {
+    filterItemToBeShown(node: Questionnaire) {
       let toBeAdd;
       if (node.__internalID === this.internalID) {
         toBeAdd = false;

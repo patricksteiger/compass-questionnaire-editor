@@ -807,61 +807,76 @@
                     <q-item-section>
                       <q-card-section>
                         <q-input
-                          v-if="selectedItem.type === 'integer'"
+                          v-if="
+                            selectedItem.type === 'integer' &&
+                            selectedItem.extension !== undefined
+                          "
                           :disable="!selectedItem.__active"
                           :label="$t('views.editor.sliderStepValue')"
                           dense
                           type="number"
                           @keypress="onlyNumber"
-                          v-model="selectedItem.extensions[0].valueInteger"
+                          v-model="selectedItem.extension[0].valueInteger"
                         ></q-input>
                       </q-card-section>
                     </q-item-section>
                     <q-item-section>
                       <q-card-section>
                         <q-input
-                          v-if="selectedItem.type === 'integer'"
+                          v-if="
+                            selectedItem.type === 'integer' &&
+                            selectedItem.extension !== undefined
+                          "
                           :disable="!selectedItem.__active"
                           :label="$t('views.editor.minValue')"
                           dense
                           type="number"
                           @keypress="onlyNumber"
-                          v-model="selectedItem.extensions[1].valueInteger"
+                          v-model="selectedItem.extension[1].valueInteger"
                         ></q-input>
                       </q-card-section>
                     </q-item-section>
                     <q-item-section>
                       <q-card-section>
                         <q-input
-                          v-if="selectedItem.type === 'integer'"
+                          v-if="
+                            selectedItem.type === 'integer' &&
+                            selectedItem.extension !== undefined
+                          "
                           :disable="!selectedItem.__active"
                           :label="$t('views.editor.lowRangeLabel')"
                           dense
-                          v-model="selectedItem.extensions[2].valueString"
+                          v-model="selectedItem.extension[2].valueString"
                         ></q-input>
                       </q-card-section>
                     </q-item-section>
                     <q-item-section>
                       <q-card-section>
                         <q-input
-                          v-if="selectedItem.type === 'integer'"
+                          v-if="
+                            selectedItem.type === 'integer' &&
+                            selectedItem.extension !== undefined
+                          "
                           :disable="!selectedItem.__active"
                           :label="$t('views.editor.maxValue')"
                           dense
                           type="number"
                           @keypress="onlyNumber"
-                          v-model="selectedItem.extensions[3].valueInteger"
+                          v-model="selectedItem.extension[3].valueInteger"
                         ></q-input>
                       </q-card-section>
                     </q-item-section>
                     <q-item-section>
                       <q-card-section>
                         <q-input
-                          v-if="selectedItem.type === 'integer'"
+                          v-if="
+                            selectedItem.type === 'integer' &&
+                            selectedItem.extension !== undefined
+                          "
                           :disable="!selectedItem.__active"
                           :label="$t('views.editor.highRangeLabel')"
                           dense
-                          v-model="selectedItem.extensions[4].valueString"
+                          v-model="selectedItem.extension[4].valueString"
                         ></q-input>
                       </q-card-section>
                     </q-item-section>
@@ -950,12 +965,13 @@ import {
 } from "../utils/constants";
 import { useQuasar } from "quasar";
 import { defineComponent, Ref, ref } from "vue";
-import { AnswerOption, editorTools, Node } from "../utils/editor";
+import { editorTools } from "../utils/editor";
 import { mapGetters } from "vuex";
 import { v4 as uuidv4 } from "uuid";
 import cxEnableWhen from "../components/cxEnableWhen.vue";
 import cxAddGeccoItem from "../components/cxAddGeccoItem.vue";
 import { i18n } from "@/i18n";
+import { AnswerOption, Questionnaire } from "@/types";
 
 type CustomEvent = {
   keyCode: number;
@@ -1019,10 +1035,10 @@ export default defineComponent({
         message: i18n.global.t("views.editor.questionDontexist"),
       });
     };
-    const questionaireGUI: Ref<Node | undefined> = ref(undefined);
-    const item: Ref<Node[]> = ref([]);
-    const selectedItem: Ref<Node | undefined> = ref(undefined);
-    const lastSelectedItem: Ref<Node | undefined> = ref(undefined);
+    const questionaireGUI: Ref<Questionnaire | undefined> = ref(undefined);
+    const item: Ref<Questionnaire[]> = ref([]);
+    const selectedItem: Ref<Questionnaire | undefined> = ref(undefined);
+    const lastSelectedItem: Ref<Questionnaire | undefined> = ref(undefined);
     const selected: Ref<string | null> = ref(null);
     const lastSelected: Ref<string | null> = ref(null);
     const enableWhenItem: Ref<EnableWhenItem> = ref({});
@@ -1124,7 +1140,11 @@ export default defineComponent({
         this.enableWhenItem.system = e.valueCoding?.system;
         this.enableWhenItem.display = e.valueCoding?.display;
       } else if (e.__type === "integer") {
-        this.enableWhenItem.answer = e.valueInteger;
+        if (typeof e.valueInteger === "number") {
+          this.enableWhenItem.answer = e.valueInteger.toString();
+        } else {
+          this.enableWhenItem.answer = e.valueInteger;
+        }
       } else if (e.__type === "date") {
         this.enableWhenItem.answer = e.valueDate;
       } else if (e.__type === "string") {
@@ -1132,19 +1152,19 @@ export default defineComponent({
       }
       this.layout = false;
     },
-    onSelectedQuestion(e: Node): void {
+    onSelectedQuestion(e: Questionnaire): void {
       this.enableWhenItem.question = e.linkId;
       this.enableWhenItem.answer = "";
       // TODO: is it type or __type?
       this.enableWhenItem.type = e.type;
       this.layout = false;
     },
-    onSelectedGECCOQuestion(input: Node | undefined): void {
+    onSelectedGECCOQuestion(input: Questionnaire | undefined): void {
       this.geccoLayout = false;
       if (input === undefined) {
         return; // No question was selected
       }
-      const item = JSON.parse(JSON.stringify(input)) as Node; //create copy
+      const item = JSON.parse(JSON.stringify(input)) as Questionnaire; //create copy
       if (this.selected !== null && this.selectedItem !== undefined) {
         // only add questions in items type group
         const selectedLevel = this.selectedItem.linkId.split(".").length;
@@ -1169,7 +1189,7 @@ export default defineComponent({
           this.selectedItem.item !== undefined &&
           this.selectedItem.item.length > 0
         ) {
-          const lastItem = this.selectedItem.item.at(-1) as Node; // undefined should never happen
+          const lastItem = this.selectedItem.item.at(-1) as Questionnaire; // undefined should never happen
           item.__linkId = this.editorTools.getNextID(lastItem.__linkId);
           item.linkId = this.editorTools.getNextID(lastItem.linkId);
         } else {
@@ -1200,7 +1220,6 @@ export default defineComponent({
         question: "",
         operator: "",
         answer: "",
-        type: "",
       });
     },
     onRemoveCondition(index: number) {
@@ -1232,7 +1251,7 @@ export default defineComponent({
         this.selectedItem.definition = uuidv4();
       }
     },
-    onDragStart(e: DragEvent, node: Node) {
+    onDragStart(e: DragEvent, node: Questionnaire) {
       if (e.dataTransfer !== null) {
         e.dataTransfer.setData("text", node.__internalID);
       } else {
@@ -1491,18 +1510,18 @@ export default defineComponent({
       }
       this.selectedItem.answerOption.push(answerOption);
     },
-    hasGeccoExtension(e: Node | undefined) {
+    hasGeccoExtension(e: Questionnaire | undefined) {
       return (
-        e?.extensions &&
-        e.extensions.some(
+        e?.extension &&
+        e.extension.some(
           (it) =>
             it.url ===
             "https://num-compass.science/fhir/StructureDefinition/CompassGeccoItem",
         )
       );
     },
-    getGeccoExtensionValue(e: Node | undefined) {
-      let extension = e?.extensions?.find(
+    getGeccoExtensionValue(e: Questionnaire | undefined) {
+      let extension = e?.extension?.find(
         (it) =>
           it.url ===
           "https://num-compass.science/fhir/StructureDefinition/CompassGeccoItem",
@@ -1548,6 +1567,10 @@ export default defineComponent({
     onRemoveAnswer(e: any) {
       if (this.selectedItem === undefined) {
         console.error("Can't remove answer from not selected item");
+        return;
+      }
+      if (this.selectedItem.answerOption === undefined) {
+        console.error("Selected item has undefined/empty answer option");
         return;
       }
       const indexOfItemtoBeRemoved = this.editorTools.getIndexAnswer(

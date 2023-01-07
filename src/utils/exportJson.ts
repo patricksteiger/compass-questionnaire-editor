@@ -1,32 +1,27 @@
 import { ImportedQuestionnaire } from "@/store";
-import {
-  ExportAnswerOption,
-  ExportEnableWhen,
-  ExportIdentifier,
-  ExportItem,
-} from "@/types";
+import { AnswerOption, EnableWhen, Identifier, Questionnaire } from "@/types";
 import { i18n } from "../i18n";
 
 const exportJsonQuestionnaire = {
   // TODO: fix types for exporting, copy somehow generic?
   getExportObject(jsonObject: ImportedQuestionnaire) {
-    const cloneObject = this.getObjectExportCopy(jsonObject) as ExportItem;
+    const cloneObject = this.getObjectExportCopy(jsonObject) as Questionnaire;
     const objWithoutItemsDisabled =
       this.getObjectWithouItemsDisables(cloneObject);
     const finalObj = this.clearMetadatafields(objWithoutItemsDisabled);
     return finalObj;
   },
-  getObjectWithouItemsDisables(jsonObject: ExportItem) {
+  getObjectWithouItemsDisables(jsonObject: Questionnaire) {
     if (jsonObject.item === undefined) {
       return jsonObject;
     }
     // To only keep items with linkId
     jsonObject.item = jsonObject.item.filter(
-      (element: ExportItem) => element.linkId !== "",
+      (element: Questionnaire) => element.linkId !== "",
     );
 
     // For items within item
-    jsonObject.item.forEach((element: ExportItem) => {
+    jsonObject.item.forEach((element: Questionnaire) => {
       if (element.item) {
         this.getObjectWithouItemsDisables(element);
       }
@@ -51,7 +46,7 @@ const exportJsonQuestionnaire = {
 
       //convert to integer ValueInteger
       if (element.answerOption) {
-        element.answerOption.forEach((element: ExportAnswerOption) => {
+        element.answerOption.forEach((element: AnswerOption) => {
           if (
             element.valueInteger &&
             typeof element.valueInteger === "string"
@@ -86,7 +81,7 @@ const exportJsonQuestionnaire = {
 
       if (element.enableWhen) {
         element.enableWhen = element.enableWhen.filter(
-          (element: ExportEnableWhen) => {
+          (element: EnableWhen) => {
             return (
               element.operator !== "" &&
               element.question !== "" &&
@@ -94,7 +89,7 @@ const exportJsonQuestionnaire = {
             );
           },
         );
-        element.enableWhen.forEach((element: ExportEnableWhen) => {
+        element.enableWhen.forEach((element: EnableWhen) => {
           if (element.type === "decimal") {
             element.answerDecimal = parseFloat(element.answer || "");
           }
@@ -164,7 +159,7 @@ const exportJsonQuestionnaire = {
     }
     return newArray;
   },
-  clearMetadatafields(jsonObject: ExportItem) {
+  clearMetadatafields(jsonObject: Questionnaire) {
     //Version
     if (jsonObject.version === "") {
       delete jsonObject.version;
@@ -207,7 +202,7 @@ const exportJsonQuestionnaire = {
     }
     //Identifier
     if (jsonObject?.identifier && jsonObject.identifier.length > 0) {
-      const clearedId: ExportIdentifier[] = [];
+      const clearedId: Identifier[] = [];
       jsonObject?.identifier.forEach((identifier) => {
         let removeUserSelected = true;
         if (identifier) {

@@ -1,4 +1,4 @@
-import { AnswerOption } from "@/utils/editor";
+import { AnswerOption } from "@/types";
 import gecco from "./questionnaire.json";
 export const geccoQuestionnaire = gecco;
 

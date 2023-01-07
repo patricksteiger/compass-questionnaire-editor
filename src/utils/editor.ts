@@ -6,99 +6,15 @@ import {
 } from "./constants";
 import { v4 as uuidv4 } from "uuid";
 import { GeccoNode } from "@/store/questionnaire";
+import {
+  Answer,
+  AnswerOption,
+  Question,
+  Questionnaire,
+  QuestionType,
+} from "@/types";
 
-export type QuestionType =
-  | "group"
-  | "string"
-  | "choice"
-  | "boolean"
-  | "date"
-  | "open-choice"
-  | "integer"
-  | "decimal";
-
-export type EnableWhen = {
-  answer?: string;
-  question: string;
-  operator?: string;
-  type?: string;
-};
-
-export type Answer = {
-  text: string;
-  type: string;
-};
-
-export type Coding = {
-  __oldDisplay?: string;
-  code: string;
-  system: string;
-  display: string;
-};
-
-export type AnswerOption = {
-  __id?: number;
-  __type?: string;
-  __icon?: string;
-  __newAnswer?: boolean;
-  __oldValueInteger?: string;
-  __oldValueDate?: string;
-  __oldValueString?: string;
-  linkId?: string;
-  type?: string;
-  valueCoding?: Coding;
-  valueString?: string;
-  valueInteger?: string;
-  valueDate?: string;
-};
-
-export type Extension = {
-  url: string;
-  valueInteger?: number | null;
-  valueString?: string;
-  valueCoding?: Coding;
-};
-
-export type Question = {
-  __linkId?: string;
-  __text?: string;
-  __question?: string;
-  __answer?: string;
-  __operator?: string;
-  __type?: string;
-};
-
-export type Condition = {
-  __icon: string;
-  __questions: Question[];
-  __linkId: string;
-  __text: string;
-};
-
-export type Node = {
-  __active: boolean;
-  __icon: string;
-  __internalID: string;
-  __linkId: string;
-  __newQuestion: boolean;
-  __oldText?: string;
-  __dependeceCondition?: Condition;
-  disabled: boolean;
-  item: Node[] | undefined;
-  linkId: string;
-  maxLength?: number;
-  type: QuestionType;
-  enableWhen: EnableWhen[] | null;
-  text: string;
-  definition: string;
-  answerOption: AnswerOption[];
-  __OldAnswerValueSet: string;
-  answerValueSet: string;
-  __answerValueSetCheck: boolean;
-  extensions: Extension[];
-};
-
-export const defaultNode: Node = {
+export const defaultNode: Questionnaire = {
   __active: true,
   __icon: "",
   __internalID: "",
@@ -115,7 +31,8 @@ export const defaultNode: Node = {
   __OldAnswerValueSet: "",
   answerValueSet: "",
   __answerValueSetCheck: false,
-  extensions: [],
+  extension: [],
+  resourceType: "Questionnaire",
 };
 
 type Base<T> = {
@@ -131,7 +48,10 @@ class EditorTools {
     item: undefined,
   };
 
-  getIndexItem(internalIDToBeRemove: string, arrayQuestions: Node[]): number {
+  getIndexItem(
+    internalIDToBeRemove: string,
+    arrayQuestions: Questionnaire[],
+  ): number {
     for (let i = 0; i < arrayQuestions.length; i++)
       if (arrayQuestions[i].__internalID === internalIDToBeRemove) return i;
     return 1;
@@ -149,10 +69,10 @@ class EditorTools {
     return currentTarget.id.split("_").length == 2;
   }
 
-  assingNewItemInternalIDs(item: Node): void {
+  assingNewItemInternalIDs(item: Questionnaire): void {
     if (item.item) {
       let idCount = 0;
-      item.item.forEach((element: Node) => {
+      item.item.forEach((element: Questionnaire) => {
         idCount++;
         element.__linkId = item.__linkId + "." + idCount;
         if (element.item) {
@@ -162,7 +82,7 @@ class EditorTools {
     }
   }
 
-  assingNewItemIDs(item: Node): Map<string, string> {
+  assingNewItemIDs(item: Questionnaire): Map<string, string> {
     let changedIdMap = new Map<string, string>();
     if (item.item === undefined) return changedIdMap;
     let idCount = 0;
@@ -185,7 +105,7 @@ class EditorTools {
     return changedIdMap;
   }
 
-  regenerateInternalIDs(item: Node[]): void {
+  regenerateInternalIDs(item: Questionnaire[]): void {
     let idCount = 0;
     item.forEach((element) => {
       idCount++;
@@ -196,7 +116,7 @@ class EditorTools {
     });
   }
 
-  regenerateLinkIds(item?: Node[]): Map<string, string> {
+  regenerateLinkIds(item?: Questionnaire[]): Map<string, string> {
     let changedIdMap = new Map<string, string>();
     if (item === undefined) return changedIdMap;
     let idCount = 0;
@@ -220,7 +140,7 @@ class EditorTools {
   }
 
   regenerateConditionWhenIds(
-    item: Node[] | undefined,
+    item: Questionnaire[] | undefined,
     changedIdMap: Map<string, string>,
   ): void {
     if (item === undefined) return;
@@ -241,7 +161,7 @@ class EditorTools {
     });
   }
 
-  isEnableWhenCondition(item: Node[], linkId: string): boolean {
+  isEnableWhenCondition(item: Questionnaire[], linkId: string): boolean {
     // deactivated Questions
     if (linkId === "") {
       return false;
@@ -265,7 +185,7 @@ class EditorTools {
     return false;
   }
 
-  disableItem(item: Node, toggleValue: boolean): void {
+  disableItem(item: Questionnaire, toggleValue: boolean): void {
     if (item.item) {
       for (const element of item.item) {
         element.__active = toggleValue;
@@ -276,7 +196,10 @@ class EditorTools {
     item.__active = toggleValue;
   }
 
-  getArraySource(internalID: string, rootItem: Node[]): Node[] {
+  getArraySource(
+    internalID: string,
+    rootItem: Questionnaire[],
+  ): Questionnaire[] {
     const includesId = rootItem.some(
       (item) => item.__internalID === internalID,
     );
@@ -332,8 +255,8 @@ class EditorTools {
   // TODO: Is LinkId always unique?
   getCurrentQuestionNodeByLinkId(
     linkId: string,
-    rootItem: Node[] = [],
-  ): Node | undefined {
+    rootItem: Questionnaire[] = [],
+  ): Questionnaire | undefined {
     for (const item of rootItem) {
       if (item.linkId === linkId) {
         return item;
@@ -346,7 +269,7 @@ class EditorTools {
     return undefined;
   }
 
-  disableEntireItemQuestion(id: string, rootItem: Node[]): void {
+  disableEntireItemQuestion(id: string, rootItem: Questionnaire[]): void {
     const oItemQuestionTodisabled = this.getCurrentQuestionNodeByID(
       id,
       rootItem,
@@ -418,9 +341,9 @@ class EditorTools {
     return answerOption;
   }
 
-  getTypeObjQuestion(typeQuestion: QuestionType): Node {
+  getTypeObjQuestion(typeQuestion: QuestionType): Questionnaire {
     const questionTypeIcon = this.getTypeQuestionIcon(typeQuestion);
-    const item: Node = {
+    const item: Questionnaire = {
       ...defaultNode,
       text: "",
       type: typeQuestion,
@@ -440,7 +363,7 @@ class EditorTools {
       item.__answerValueSetCheck = false;
     }
     if (item.type === this.questionTypes.integer) {
-      item.extensions = [
+      item.extension = [
         {
           url: "http://hl7.org/fhir/StructureDefinition/questionnaire-sliderStepValue",
           valueInteger: null,
@@ -488,7 +411,7 @@ class EditorTools {
     return acurrentID.join(".");
   }
 
-  private currentMaxLevel(items: Node[], currLevel: number): number {
+  private currentMaxLevel(items: Questionnaire[], currLevel: number): number {
     let maxLevel = currLevel;
     for (const element of items) {
       if (element.item === undefined || element.item.length === 0) continue;
@@ -498,11 +421,11 @@ class EditorTools {
     return maxLevel;
   }
 
-  getNumbersMaxOfLevels(items: Node[]): number {
+  getNumbersMaxOfLevels(items: Questionnaire[]): number {
     return items.length > 0 ? this.currentMaxLevel(items, 1) : 0;
   }
 
-  getNumberOfGroupLevel(item: Node): number {
+  getNumberOfGroupLevel(item: Questionnaire): number {
     let maxLevel = 0;
     for (const element of item.item || []) {
       if (element.type === "group") {
@@ -516,8 +439,8 @@ class EditorTools {
   // FIXME: Is LinkId instead of InternalId correct here?
   getItemNodeByInternalID(
     linkId: string,
-    items: Node[] = [],
-  ): Node | undefined {
+    items: Questionnaire[] = [],
+  ): Questionnaire | undefined {
     for (const element of items) {
       if (element.linkId === linkId) {
         return element;
@@ -534,7 +457,10 @@ class EditorTools {
     return Object.keys(obj) as (keyof T)[];
   }
 
-  setConditionDependence(item: Node[] = [], rootItem: Node[] = []): void {
+  setConditionDependence(
+    item: Questionnaire[] = [],
+    rootItem: Questionnaire[] = [],
+  ): void {
     for (const element of item) {
       if (element.item !== undefined) {
         this.setConditionDependence(element.item, rootItem);
@@ -557,7 +483,15 @@ class EditorTools {
         const keysEnableWhen = this.objectKeys(enableWhen);
         const condition: Question = {};
         for (const key of keysEnableWhen) {
-          condition[`__${key}`] = enableWhen[key];
+          if (key === "answerCoding") {
+            condition[`__${key}`] = enableWhen[key];
+          } else if (key === "answerInteger" || key === "answerDecimal") {
+            condition[`__${key}`] = enableWhen[key];
+          } else if (key === "answerBoolean") {
+            condition[`__${key}`] = enableWhen[key];
+          } else {
+            condition[`__${key}`] = enableWhen[key];
+          }
         }
         condition.__linkId = element.linkId;
         condition.__text = element.text;
@@ -566,7 +500,7 @@ class EditorTools {
     }
   }
 
-  removeConditionDependence(item: Node[] = []): void {
+  removeConditionDependence(item: Questionnaire[] = []): void {
     item.forEach((element) => {
       if (element.item) {
         this.removeConditionDependence(element.item);
@@ -579,5 +513,3 @@ class EditorTools {
 }
 
 export const editorTools = new EditorTools();
-
-// export { editorTools };

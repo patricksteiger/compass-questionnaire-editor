@@ -162,9 +162,10 @@
 </template>
 <script lang="ts">
 import { defineComponent, Ref, ref } from "vue";
-import { AnswerOption, editorTools } from "../utils/editor";
+import { editorTools } from "../utils/editor";
 import { Gecco, GeccoNode, geccoQuestionnaire } from "@/store/questionnaire";
 import { importJsonQuestionnaire } from "@/utils/ImportJson";
+import { AnswerOption } from "@/types";
 
 export default defineComponent({
   setup() {
