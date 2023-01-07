@@ -1,5 +1,3 @@
-export * from "./export.types";
-
 export type QuestionType =
   | "group"
   | "string"
