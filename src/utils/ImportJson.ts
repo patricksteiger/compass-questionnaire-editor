@@ -2,6 +2,7 @@ import { i18n } from "../i18n";
 import {
   answerType,
   MAX_ALLOWED_LEVELS,
+  MAX_ALLOWED_LEVELS_FOR_GROUPS,
   questionType,
   QuestionTypeIndex,
 } from "./constants";
@@ -279,6 +280,11 @@ class FHIRValidation {
       this.errorMessages.push(message);
     }
 
+    if (item.type === "group" && linkIdLevel > MAX_ALLOWED_LEVELS_FOR_GROUPS) {
+      const message = `LinkId ${item.linkId}: Group-level can't exceed ${MAX_ALLOWED_LEVELS_FOR_GROUPS}`;
+      this.errorMessages.push(message);
+    }
+
     //Error no follow the linkId logic stucture
     if (item.linkId !== item.__linkId && item.linkId !== "") {
       const message = this.i18n.global.t(
@@ -489,7 +495,7 @@ class FHIRValidation {
       //assign ID Item internal
       element.__internalID = `${uuidv4()}-${Date.now()}`;
 
-      element.__linkId = idCount + "";
+      element.__linkId = idCount.toString();
       this.validateItem(element);
       if (element.item) {
         this.validateItems(element);
