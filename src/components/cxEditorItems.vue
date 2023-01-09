@@ -1449,7 +1449,7 @@ export default defineComponent({
       }
       this.geccoLayout = true;
     },
-    // TODO: Is this mehtod needed?
+    // TODO: Is this method needed?
     onClickAddAnswerOpenChoice(e: any): void {
       if (this.selectedItem === undefined) {
         console.error("Selected item should not be undefined");

@@ -199,11 +199,6 @@ import {
   SelectedQuestion,
 } from "@/types";
 
-type Answer = AnswerOption & {
-  linkId: string | undefined;
-  type: string | undefined;
-};
-
 export default defineComponent({
   props: {
     internalID: {
@@ -214,31 +209,26 @@ export default defineComponent({
   setup() {
     const filter = ref("de");
     const selectedItem: Ref<Questionnaire | null> = ref(null);
+    const selected: Ref<string | null> = ref(null);
+    const item: Ref<Questionnaire[]> = ref([]);
     return {
       splitterModel: ref(50), // start at 50%
       edtiorTools: editorTools,
       filter,
       selectedItem,
+      selected,
+      item,
     };
   },
   data() {
     return {
-      item: [],
+      // item: [],
       questionnaireGUI: {
         item: [],
       },
-      selected: null,
-      // selectedItem: {
-      //   linkId: "",
-      //   type: "",
-      //   answerOption: [],
-      //   text: "",
-      //   definition: "",
-      //   answerValueSet: false,
-      // },
     };
   },
-  created() {
+  created(): void {
     this.questionnaireGUI = this.getQuestionnaireImportedJSON
       ? this.getQuestionnaireImportedJSON
       : {};
@@ -248,30 +238,27 @@ export default defineComponent({
     ...mapGetters(["getQuestionnaireImportedJSON"]),
   },
   watch: {
-    selected(val) {
+    selected(val: string | null): void {
       if (val === null) {
-        //this.selectedItem = this.item;
         this.selectedItem = null;
         return;
       }
-      this.selectedItem =
-        this.edtiorTools.getCurrentQuestionNodeByID(val, this.item) || null;
+      const item = this.edtiorTools.getCurrentQuestionNodeByID(val, this.item);
+      if (item === undefined) {
+        console.error(`LinkId ${val} is not on an available Node`);
+        return;
+      }
+      this.selectedItem = item;
     },
   },
   methods: {
-    onSelectQuestion(questionSelected: SelectedQuestion) {
+    onSelectQuestion(questionSelected: SelectedQuestion): void {
       this.$emit("question", questionSelected);
     },
-    filterItemToBeShown(node: Questionnaire) {
-      let toBeAdd;
-      if (node.__internalID === this.internalID) {
-        toBeAdd = false;
-      } else {
-        toBeAdd = node.__active;
-      }
-      return toBeAdd;
+    filterItemToBeShown(node: Questionnaire): boolean {
+      return node.__active && node.__internalID !== this.internalID;
     },
-    onSelectAnswer(answerOption: Answer) {
+    onSelectAnswer(answerOption: AnswerOption): void {
       this.$emit("choiceQuestion", answerOption);
     },
   },
