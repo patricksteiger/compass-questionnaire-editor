@@ -164,16 +164,16 @@ export default defineComponent({
       "setNameofQuestionnaireNEW",
     ]),
     ...mapActions(["uploadJSONQuestionnaire"]),
-    importing: function () {
+    importing() {
       this.alertWantToLeaveScreen = true;
     },
-    editMetadata: function () {
+    editMetadata() {
       this.alertMetadata = true;
     },
-    continueLeavingEditionScreen: function () {
+    continueLeavingEditionScreen() {
       this.resetQuestionnaire();
       this.$router.push("Import");
-      // TODO: ? resetear los objetos de las preguntas
+      // TODO: spanish? resetear los objetos de las preguntas
     },
     async exporting() {
       let blob = undefined;

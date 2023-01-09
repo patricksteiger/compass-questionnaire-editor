@@ -1,5 +1,5 @@
 import { ImportedQuestionnaire } from "@/store";
-import { AnswerOption, EnableWhen, Identifier, Questionnaire } from "@/types";
+import { AnswerOption, Identifier, Questionnaire } from "@/types";
 import { i18n } from "../i18n";
 
 const exportJsonQuestionnaire = {
@@ -7,11 +7,11 @@ const exportJsonQuestionnaire = {
   getExportObject(jsonObject: ImportedQuestionnaire) {
     const cloneObject = this.getObjectExportCopy(jsonObject) as Questionnaire;
     const objWithoutItemsDisabled =
-      this.getObjectWithouItemsDisables(cloneObject);
-    const finalObj = this.clearMetadatafields(objWithoutItemsDisabled);
+      this.getObjectWithoutItemsDisabled(cloneObject);
+    const finalObj = this.clearMetadataFields(objWithoutItemsDisabled);
     return finalObj;
   },
-  getObjectWithouItemsDisables(jsonObject: Questionnaire) {
+  getObjectWithoutItemsDisabled(jsonObject: Questionnaire): Questionnaire {
     if (jsonObject.item === undefined) {
       return jsonObject;
     }
@@ -21,34 +21,32 @@ const exportJsonQuestionnaire = {
     );
 
     // For items within item
-    jsonObject.item.forEach((element: Questionnaire) => {
-      if (element.item) {
-        this.getObjectWithouItemsDisables(element);
-      }
+    jsonObject.item.forEach((questionnaire: Questionnaire) => {
+      this.getObjectWithoutItemsDisabled(questionnaire);
 
-      if (element.extension) {
-        for (let i = element.extension.length - 1; i >= 0; i--) {
-          if (
-            (!element.extension[i].valueInteger ||
-              element.extension[i].valueInteger === null) &&
-            (!element.extension[i].valueString ||
-              element.extension[i].valueString === "") &&
-            !element.extension[i].valueCoding
-          ) {
-            element.extension.splice(i, 1);
+      if (questionnaire.extension !== undefined) {
+        for (let i = questionnaire.extension.length - 1; i >= 0; i--) {
+          const ext = questionnaire.extension[i];
+          const isNotInteger =
+            ext.valueInteger === undefined || ext.valueInteger === null;
+          const isNotString =
+            ext.valueString === undefined || ext.valueString === "";
+          const isNotCoding = ext.valueCoding === undefined;
+          if (isNotInteger && isNotString && isNotCoding) {
+            questionnaire.extension.splice(i, 1);
           }
         }
 
-        if (element.extension.length === 0) {
-          delete element.extension;
+        if (questionnaire.extension.length === 0) {
+          delete questionnaire.extension;
         }
       }
 
       //convert to integer ValueInteger
-      if (element.answerOption) {
-        element.answerOption.forEach((element: AnswerOption) => {
+      if (questionnaire.answerOption !== undefined) {
+        questionnaire.answerOption.forEach((element: AnswerOption) => {
           if (
-            element.valueInteger &&
+            element.valueInteger !== undefined &&
             typeof element.valueInteger === "string"
           ) {
             element.valueInteger = parseInt(element.valueInteger);
@@ -57,73 +55,79 @@ const exportJsonQuestionnaire = {
       }
 
       //answerOption and Value Set
-      if (element.answerValueSet !== "") {
-        delete element.answerOption;
+      if (questionnaire.answerValueSet !== "") {
+        delete questionnaire.answerOption;
       }
-      if (element.answerOption !== undefined) {
+      if (questionnaire.answerOption !== undefined) {
         //answerOption has data
-        if (element.answerOption.length > 0) {
-          delete element.answerValueSet;
+        if (questionnaire.answerOption.length > 0) {
+          delete questionnaire.answerValueSet;
         }
         //remove if is empty
-        if (element.answerOption.length === 0) {
-          delete element.answerOption;
+        if (questionnaire.answerOption.length === 0) {
+          delete questionnaire.answerOption;
         }
       }
 
       //remove disable Item property
-      delete element.disabled;
+      delete questionnaire.disabled;
 
       //remove empty answerValueSet
-      if (element.answerValueSet === "") {
-        delete element.answerValueSet;
+      if (questionnaire.answerValueSet === "") {
+        delete questionnaire.answerValueSet;
       }
 
-      if (element.enableWhen) {
-        element.enableWhen = element.enableWhen.filter(
-          (element: EnableWhen) => {
-            return (
-              element.operator !== "" &&
-              element.question !== "" &&
-              element.answer !== ""
-            );
-          },
+      if (
+        questionnaire.enableWhen !== null &&
+        questionnaire.enableWhen !== undefined
+      ) {
+        questionnaire.enableWhen = questionnaire.enableWhen.filter(
+          (enableWhen) =>
+            enableWhen.operator !== "" &&
+            enableWhen.question !== "" &&
+            enableWhen.answer !== "",
         );
-        element.enableWhen.forEach((element: EnableWhen) => {
-          if (element.type === "decimal") {
-            element.answerDecimal = parseFloat(element.answer || "");
+        questionnaire.enableWhen.forEach((enableWhen) => {
+          if (enableWhen.operator === "exists") {
+            enableWhen.answerBoolean = enableWhen.answer === "true";
+          } else {
+            if (enableWhen.type === "decimal") {
+              enableWhen.answerDecimal = parseFloat(enableWhen.answer || "");
+            }
+            if (enableWhen.type === "integer") {
+              enableWhen.answerInteger = parseInt(enableWhen.answer || "");
+            }
+            if (enableWhen.type === "date") {
+              enableWhen.answerDate = enableWhen.answer;
+            }
+            if (enableWhen.type === "boolean") {
+              enableWhen.answerBoolean = enableWhen.answer === "true";
+            }
+            if (enableWhen.type === "string") {
+              enableWhen.answerString = enableWhen.answer;
+            }
+            if (
+              enableWhen.type === "choice" ||
+              enableWhen.type === "open-choice" ||
+              enableWhen.type === "coding"
+            ) {
+              enableWhen.answerCoding = {
+                code: enableWhen.answer || "",
+                display: enableWhen.display || "",
+                system: enableWhen.system || "",
+              };
+            }
           }
-          if (element.type === "integer") {
-            element.answerInteger = parseInt(element.answer || "");
-          }
-          if (element.type === "date") {
-            element.answerDate = element.answer;
-          }
-          if (element.type === "boolean" || element.operator === "exist") {
-            element.answerBoolean = element.answer === "true";
-          }
-          if (element.type === "string") {
-            element.answerString = element.answer;
-          }
-          if (
-            element.type === "choice" ||
-            element.type === "open-choice" ||
-            element.type === "coding"
-          ) {
-            element.answerCoding = {
-              code: element.answer || "",
-              display: element.display || "",
-              system: element.system || "",
-            };
-          }
-          delete element.system;
-          delete element.display;
-          delete element.answer;
-          delete element.type;
+          delete enableWhen.system;
+          delete enableWhen.display;
+          delete enableWhen.answer;
+          delete enableWhen.type;
         });
-        if (element.enableWhen.length === 0) {
-          delete element.enableWhen;
+        if (questionnaire.enableWhen.length === 0) {
+          delete questionnaire.enableWhen;
         }
+      } else {
+        delete questionnaire.enableWhen;
       }
     });
     // Item must be deleted when empty
@@ -159,7 +163,7 @@ const exportJsonQuestionnaire = {
     }
     return newArray;
   },
-  clearMetadatafields(jsonObject: Questionnaire) {
+  clearMetadataFields(jsonObject: Questionnaire) {
     //Version
     if (jsonObject.version === "") {
       delete jsonObject.version;

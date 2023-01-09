@@ -698,15 +698,7 @@
                             :disable="!selectedItem.__active"
                             class="col-2"
                             v-model="enableWhen.operator"
-                            :options="[
-                              'exists',
-                              '=',
-                              '!=',
-                              '>',
-                              '<',
-                              '>=',
-                              '<=',
-                            ]"
+                            :options="operators"
                             :label="$t('views.editor.operator')"
                             dense
                           />
@@ -720,7 +712,7 @@
                             class="col-4"
                             v-model="enableWhen.answer"
                             :options="['true', 'false']"
-                            :label="$t('views.editor.operator')"
+                            :label="$t('views.editor.answer')"
                             dense
                           />
                           <!-- TODO: type conversion correct? enableWhen integer -->
@@ -977,6 +969,7 @@ import {
   Prop,
   Questionnaire,
   SelectedQuestion,
+  operators,
 } from "@/types";
 
 // TODO: Replace with KeyboardEvent
@@ -1005,10 +998,8 @@ export default defineComponent({
     const lastSelectedItem: Ref<Questionnaire | undefined> = ref(undefined);
     const selected: Ref<string | null> = ref(null);
     const lastSelected: Ref<string | null> = ref(null);
-    const enableWhenItem: Ref<EnableWhen> = ref({
-      question: "",
-      operator: "",
-    });
+    const enableWhen: EnableWhen = { question: "", operator: "" };
+    const enableWhenItem = ref(enableWhen);
     const setDisplayToOld = (answerOption: AnswerOption) => {
       if (answerOption.valueCoding !== undefined) {
         answerOption.valueCoding.display =
@@ -1036,6 +1027,7 @@ export default defineComponent({
       COLORS,
       uuidv4,
       answerTypeButton,
+      operators,
     };
   },
   created() {

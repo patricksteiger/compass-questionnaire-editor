@@ -41,10 +41,13 @@ export type AnswerType =
   | "coding"
   | "open-choice";
 
+export const operators = ["exists", "=", "!=", ">", "<", ">=", "<="] as const;
+export type Operator = typeof operators[number] | "";
+
 export type EnableWhen = {
   question: string;
   answer?: string;
-  operator: string;
+  operator: Operator;
   type?: AnswerType;
   system?: string;
   display?: string;
