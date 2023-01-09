@@ -163,7 +163,7 @@
         position="bottom-right"
         :offset="[18, 18]"
         v-if="
-          selectedItem &&
+          selectedItem !== null &&
           selectedItem.type !== 'group' &&
           selectedItem.type !== 'open-choice' &&
           selectedItem.type !== 'choice' &&
@@ -179,7 +179,7 @@
           @click="
             onSelectQuestion({
               linkId: selectedItem?.linkId,
-              type: selectedItem?.type,
+              type: selectedItem?.type as SelectableQuestion,
             })
           "
         />
@@ -191,12 +191,13 @@
 import { mapGetters } from "vuex";
 import { defineComponent, Ref, ref } from "vue";
 import { editorTools } from "../utils/editor";
-import { AnswerOption, Questionnaire } from "@/types";
-
-type Question = {
-  linkId: string | undefined;
-  type: string | undefined;
-};
+import {
+  AnswerOption,
+  Questionnaire,
+  // eslint-disable-next-line no-unused-vars
+  SelectableQuestion,
+  SelectedQuestion,
+} from "@/types";
 
 type Answer = AnswerOption & {
   linkId: string | undefined;
@@ -258,7 +259,7 @@ export default defineComponent({
     },
   },
   methods: {
-    onSelectQuestion(questionSelected: Question) {
+    onSelectQuestion(questionSelected: SelectedQuestion) {
       this.$emit("question", questionSelected);
     },
     filterItemToBeShown(node: Questionnaire) {

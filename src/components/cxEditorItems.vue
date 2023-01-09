@@ -319,7 +319,7 @@
                   "
                   v-model="selectedItem.__answerValueSetCheck"
                   :disable="!selectedItem.__active"
-                  @click="answerValeSet()"
+                  @click="answerValueSet()"
                 ></q-checkbox
                 ><q-input
                   v-if="selectedItem.__answerValueSetCheck"
@@ -683,11 +683,11 @@
                               </q-tooltip></q-btn
                             >
                           </div>
-
+                          <!-- FIXME: if type is undefined it shows as string -->
                           <q-input
                             :disable="!selectedItem.__active"
                             :label="`${$t('views.editor.question')}: ${
-                              enableWhen.type
+                              enableWhen.type || ''
                             }`"
                             dense
                             v-model="enableWhen.question"
@@ -745,7 +745,7 @@
                             type="number"
                             dense
                           />
-                          <!-- FIXME: what is default type? -->
+                          <!-- FIXME: what is default type of enableWhen? -->
                           <q-input
                             v-else
                             :disable="!selectedItem.__active"
@@ -971,57 +971,21 @@ import { v4 as uuidv4 } from "uuid";
 import cxEnableWhen from "../components/cxEnableWhen.vue";
 import cxAddGeccoItem from "../components/cxAddGeccoItem.vue";
 import { i18n } from "@/i18n";
-import { AnswerOption, Questionnaire } from "@/types";
+import {
+  AnswerOption,
+  EnableWhen,
+  Prop,
+  Questionnaire,
+  SelectedQuestion,
+} from "@/types";
 
+// TODO: Replace with KeyboardEvent
 type CustomEvent = {
   keyCode: number;
   which: number;
   preventDefault: () => void;
 };
 
-// type DragStartEvent = {
-//   target: { id: number };
-//   dataTransfer: {
-//     // eslint-disable-next-line no-unused-vars
-//     setData: (arg1: string, arg2: number) => void;
-//   };
-// };
-//
-// type DragOverEvent = {
-//   preventDefault: () => void;
-//   currentTarget: {
-//     style: { backgroundColor: string };
-//   };
-// };
-//
-// type DragLeaveEvent = {
-//   preventDefault: () => void;
-//   currentTarget: {
-//     style: { backgroundColor: string };
-//   };
-// };
-//
-// type DropEvent = {
-//   preventDefault: () => void;
-//   currentTarget: {
-//     id: string;
-//     style: { backgroundColor: string; cursor: string };
-//   };
-//   dataTransfer: {
-//     // eslint-disable-next-line no-unused-vars
-//     getData: (arg1: string) => string;
-//   };
-// };
-
-type EnableWhenItem = {
-  question?: string;
-  answer?: string;
-  type?: string;
-  display?: string;
-  system?: string;
-};
-
-// TODO: Fix any-types
 export default defineComponent({
   components: {
     cxAddGeccoItem,
@@ -1041,7 +1005,10 @@ export default defineComponent({
     const lastSelectedItem: Ref<Questionnaire | undefined> = ref(undefined);
     const selected: Ref<string | null> = ref(null);
     const lastSelected: Ref<string | null> = ref(null);
-    const enableWhenItem: Ref<EnableWhenItem> = ref({});
+    const enableWhenItem: Ref<EnableWhen> = ref({
+      question: "",
+      operator: "",
+    });
     const setDisplayToOld = (answerOption: AnswerOption) => {
       if (answerOption.valueCoding !== undefined) {
         answerOption.valueCoding.display =
@@ -1079,13 +1046,6 @@ export default defineComponent({
     return {
       fabLeft: true,
       splitterModel: 40,
-      // selected: null,
-      // selectedItem: {},
-      // item: [],
-      // questionaireGUI: {},
-      // enableWhenItem: {},
-      // lastSelected: null,
-      // lastSelectedItem: {},
       limitsSpliter: [35, 100],
     };
   },
@@ -1133,7 +1093,7 @@ export default defineComponent({
       }
     },
     onSelectedQuestionsAnswer(e: AnswerOption) {
-      this.enableWhenItem.question = e.linkId;
+      this.enableWhenItem.question = e.linkId || "";
       this.enableWhenItem.type = e.__type;
       if (e.__type === "coding") {
         this.enableWhenItem.answer = e.valueCoding?.code;
@@ -1152,8 +1112,8 @@ export default defineComponent({
       }
       this.layout = false;
     },
-    onSelectedQuestion(e: Questionnaire): void {
-      this.enableWhenItem.question = e.linkId;
+    onSelectedQuestion(e: SelectedQuestion): void {
+      this.enableWhenItem.question = e.linkId || "";
       this.enableWhenItem.answer = "";
       // TODO: is it type or __type?
       this.enableWhenItem.type = e.type;
@@ -1223,21 +1183,24 @@ export default defineComponent({
       });
     },
     onRemoveCondition(index: number) {
+      // TODO: Error msg with i18n?
       if (
-        this.selectedItem !== undefined &&
-        this.selectedItem.enableWhen !== null &&
-        this.selectedItem.enableWhen !== undefined
+        this.selectedItem === undefined ||
+        this.selectedItem.enableWhen === undefined ||
+        this.selectedItem.enableWhen === null
       ) {
-        this.selectedItem.enableWhen.splice(index, 1);
-      } else {
-        throw new Error("Remove can't used with no conditions!");
+        throw new Error("Remove can't be used with no conditions!");
       }
+      if (index < 0 || index >= this.selectedItem.enableWhen.length) {
+        throw new Error("Out of bounds index removing condition!");
+      }
+      this.selectedItem.enableWhen.splice(index, 1);
     },
-    onShowQuestionsItems(enableWhen: EnableWhenItem) {
+    onShowQuestionsItems(enableWhen: EnableWhen) {
       this.enableWhenItem = enableWhen;
       this.layout = true;
     },
-    answerValeSet() {
+    answerValueSet() {
       if (this.selectedItem !== undefined) {
         if (this.selectedItem.__answerValueSetCheck) {
           this.selectedItem.answerOption = [];
@@ -1456,7 +1419,7 @@ export default defineComponent({
           this.selectedItem.item !== undefined &&
           this.selectedItem.item.length > 0
         ) {
-          const lastItem = this.selectedItem.item.slice(-1)[0];
+          const lastItem = this.selectedItem.item.at(-1) as Questionnaire;
           item.__linkId = this.editorTools.getNextID(lastItem.__linkId);
           item.linkId = this.editorTools.getNextID(lastItem.linkId);
         } else {
@@ -1486,6 +1449,7 @@ export default defineComponent({
       }
       this.geccoLayout = true;
     },
+    // TODO: Is this mehtod needed?
     onClickAddAnswerOpenChoice(e: any): void {
       if (this.selectedItem === undefined) {
         console.error("Selected item should not be undefined");
@@ -1541,7 +1505,8 @@ export default defineComponent({
 
       if (e.name === "coding") {
         newItemAnswer = this.editorTools.getNewAnswerValueCoding(
-          { text: "", type: this.selectedItem.type },
+          // { text: "", type: this.selectedItem.type },
+          { text: "", type: e.name },
           this.selectedItem.answerOption,
         );
       } else {
@@ -1564,7 +1529,7 @@ export default defineComponent({
 
       this.selectedItem.answerOption.push(newItemAnswer);
     },
-    onRemoveAnswer(e: any) {
+    onRemoveAnswer(e: AnswerOption) {
       if (this.selectedItem === undefined) {
         console.error("Can't remove answer from not selected item");
         return;
@@ -1573,13 +1538,19 @@ export default defineComponent({
         console.error("Selected item has undefined/empty answer option");
         return;
       }
+      if (e.__id === undefined) {
+        console.error("Answer-Option has undefined id");
+        return;
+      }
       const indexOfItemtoBeRemoved = this.editorTools.getIndexAnswer(
         e.__id,
         this.selectedItem.answerOption,
       );
       this.selectedItem.answerOption.splice(indexOfItemtoBeRemoved, 1);
     },
-    deleteItem(item: any) {
+    // FIXME: Deletion is not respected in Condition
+    deleteItem(item: Prop) {
+      // TODO: Add i18n-messaging
       let answer = confirm(
         "Do you really want to delete this item and all of its child items?",
       );
@@ -1590,13 +1561,14 @@ export default defineComponent({
       this.editorTools.regenerateInternalIDs(this.item);
       this.editorTools.regenerateConditionWhenIds(this.item, changedIdMap);
     },
-    deleteItemRecursivly(itemlist: any, key: string) {
-      for (let idx in itemlist) {
-        if (itemlist[idx].__internalID === key) {
-          itemlist.splice(idx, 1);
+    deleteItemRecursivly(itemList: Questionnaire[], key: string) {
+      for (let i = 0; i < itemList.length; i++) {
+        const item = itemList[i];
+        if (item.__internalID === key) {
+          itemList.splice(i, 1);
           return;
-        } else if (itemlist[idx].item) {
-          this.deleteItemRecursivly(itemlist[idx].item, key);
+        } else if (item.item !== undefined) {
+          this.deleteItemRecursivly(item.item, key);
         }
       }
     },
@@ -1609,7 +1581,8 @@ export default defineComponent({
       "getOpenChoice",
       "getChoice",
     ]),
-    aAddAnswerButtonOptions: function () {
+    // TODO: Is this method needed?
+    aAddAnswerButtonOptions() {
       const that = this;
       let optionsAnswers: any[] = [];
       if (this.answerType.open_choice.name === this.selectedItem?.type) {
@@ -1628,7 +1601,7 @@ export default defineComponent({
       }
       return optionsAnswers;
     },
-    answerTypeField: function () {
+    answerTypeField() {
       let type = "";
       if (this.selectedItem === undefined) {
         return type;

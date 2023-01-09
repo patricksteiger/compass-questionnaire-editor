@@ -20,6 +20,7 @@ export const defaultNode: Questionnaire = {
   __internalID: "",
   __linkId: "",
   __newQuestion: true,
+  __newDefinition: true,
   disabled: true,
   item: undefined,
   linkId: "",
@@ -35,10 +36,10 @@ export const defaultNode: Questionnaire = {
   resourceType: "Questionnaire",
 };
 
-type Base<T> = {
-  __internalID: string;
-  item: T[] | undefined;
-};
+// type Base<T> = {
+//   __internalID: string;
+//   item: T[] | undefined;
+// };
 
 class EditorTools {
   answerType = answerType;
@@ -217,10 +218,10 @@ class EditorTools {
   }
 
   // TODO: Is LinkId always unique?
-  getCurrentQuestionNodeByID<T extends Base<T>>(
+  getCurrentQuestionNodeByID(
     internalId: string,
-    rootItem: T[] = [],
-  ): T | undefined {
+    rootItem: Questionnaire[] = [],
+  ): Questionnaire | undefined {
     for (const item of rootItem) {
       if (item.__internalID === internalId) {
         return item;
@@ -481,13 +482,17 @@ class EditorTools {
           __text: "",
         };
         const keysEnableWhen = this.objectKeys(enableWhen);
-        const condition: Question = {};
+        const condition: Question = {
+          __question: "",
+        };
         for (const key of keysEnableWhen) {
           if (key === "answerCoding") {
             condition[`__${key}`] = enableWhen[key];
           } else if (key === "answerInteger" || key === "answerDecimal") {
             condition[`__${key}`] = enableWhen[key];
           } else if (key === "answerBoolean") {
+            condition[`__${key}`] = enableWhen[key];
+          } else if (key === "question") {
             condition[`__${key}`] = enableWhen[key];
           } else {
             condition[`__${key}`] = enableWhen[key];

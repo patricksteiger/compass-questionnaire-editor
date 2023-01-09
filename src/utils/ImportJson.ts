@@ -4,125 +4,15 @@ import {
   MAX_ALLOWED_LEVELS,
   MAX_ALLOWED_LEVELS_FOR_GROUPS,
   questionType,
-  QuestionTypeIndex,
 } from "./constants";
 import { v4 as uuidv4 } from "uuid";
-
-type Coding = {
-  __oldDisplay: string | undefined;
-  code: string | undefined;
-  display: string | undefined;
-  system: string | undefined;
-  version: string | undefined;
-  userSelected: boolean | undefined;
-};
-
-export type AnswerType =
-  | "integer"
-  | "decimal"
-  | "date"
-  | "boolean"
-  | "string"
-  | "choice"
-  | "coding"
-  | "open-choice";
-
-type EnableWhen = {
-  question: string;
-  answer: string | undefined;
-  operator: string;
-  type: AnswerType;
-  system: string | undefined;
-  display: string | undefined;
-  answerDecimal: string | undefined;
-  answerInteger: string | undefined;
-  answerCoding: Coding | undefined;
-  answerDate: string | undefined;
-  answerString: string | undefined;
-  answerBoolean: string | undefined;
-};
-
-type Extension = {
-  url: string;
-};
-
-type AnswerOption = {
-  __id: number;
-  __type: string;
-  __icon: string;
-  __oldValueInteger: Number | undefined;
-  __oldValueString: String | undefined;
-  __oldValueDate: String | undefined;
-  valueCoding: Coding | undefined;
-  valueInteger: Number | undefined;
-  valueString: String | undefined;
-  valueDate: String | undefined;
-};
-
-type Identifier = {
-  use: string | undefined;
-  value: string | undefined;
-  system: string | undefined;
-  period: { start?: string; end?: string } | undefined;
-  type: {
-    coding: Coding;
-    text: string | undefined;
-  };
-};
-
-type Question = {
-  __linkId?: string;
-  __text?: string;
-  __question?: string;
-  __answer?: string;
-  __operator?: string;
-  __type?: string;
-  __display?: string;
-  __system?: string;
-  __answerDecimal?: string;
-  __answerString?: string;
-  __answerInteger?: string;
-  __answerCoding?: Coding;
-  __answerDate?: string;
-  __answerBoolean?: string;
-};
-
-type Condition = {
-  __icon: string;
-  __questions: Question[];
-  __linkId: string;
-  __text: string;
-};
-
-type Item = {
-  __linkId: string;
-  __internalID: string;
-  __active: boolean;
-  __answerValueSetCheck: boolean;
-  __OldAnswerValueSet: ValueSet | undefined;
-  __oldText: string;
-  __newDefinition: boolean;
-  __icon: string;
-  __dependeceCondition?: Condition;
-  item?: Item[];
-  type: QuestionTypeIndex;
-  linkId: string;
-  text: string;
-  disabled: boolean;
-  definition: string | undefined;
-  answerOption: AnswerOption[] | undefined;
-  answerValueSet: ValueSet | undefined;
-  enableWhen: EnableWhen[] | undefined;
-  extension: Extension[] | undefined;
-};
-
-type ValueSet = {};
+import { Identifier, Question, Questionnaire } from "@/types";
 
 type State = "draft" | "active" | "retired" | "unknown";
 
 type File = {
   status: State | undefined;
-  item?: Item[];
+  item?: Questionnaire[];
   identifier: Identifier[] | undefined;
 };
 
@@ -189,10 +79,10 @@ class FHIRValidation {
     return Object.keys(obj) as (keyof T)[];
   }
 
-  setConditionDependence(items: Item[] = []): void {
+  setConditionDependence(items: Questionnaire[] = []): void {
     for (const item of items) {
       this.setConditionDependence(item.item);
-      if (item.enableWhen === undefined) continue;
+      if (item.enableWhen === undefined || item.enableWhen === null) continue;
       for (const enableWhen of item.enableWhen) {
         const itemToAppendCondition = this.getItemNodeByInternalID(
           enableWhen.question,
@@ -206,10 +96,18 @@ class FHIRValidation {
             __text: "",
           };
           const keysEnableWhen = this.objectKeys(enableWhen);
-          const condition: Question = {};
+          const condition: Question = {
+            __question: "",
+          };
           for (const key of keysEnableWhen) {
             if (key === "answerCoding") {
-              condition.__answerCoding = enableWhen[key];
+              condition[`__${key}`] = enableWhen[key];
+            } else if (key === "answerInteger" || key === "answerDecimal") {
+              condition[`__${key}`] = enableWhen[key];
+            } else if (key === "answerBoolean") {
+              condition[`__${key}`] = enableWhen[key];
+            } else if (key === "question") {
+              condition[`__${key}`] = enableWhen[key];
             } else {
               condition[`__${key}`] = enableWhen[key];
             }
@@ -225,7 +123,10 @@ class FHIRValidation {
   }
 
   // FIXME: Why is it called InternalId but using linkId?
-  getItemNodeByInternalID(linkId: string, item: Item[] = []): Item | undefined {
+  getItemNodeByInternalID(
+    linkId: string,
+    item: Questionnaire[] = [],
+  ): Questionnaire | undefined {
     for (const element of item) {
       if (element.linkId === linkId) {
         return element;
@@ -239,7 +140,7 @@ class FHIRValidation {
   }
 
   // TODO: Is new sortByLinkId accurate?
-  sortByLinkId(i1: Item, i2: Item): number {
+  sortByLinkId(i1: Questionnaire, i2: Questionnaire): number {
     const nums1 = i1.linkId.split(".");
     const nums2 = i2.linkId.split(".");
     const last1 = nums1.at(-1);
@@ -250,7 +151,7 @@ class FHIRValidation {
     return parseInt(last1) - parseInt(last2);
   }
 
-  sortItems(items: Item[]): void {
+  sortItems(items: Questionnaire[]): void {
     items.sort(this.sortByLinkId);
     for (const item of items) {
       if (item.item !== undefined) {
@@ -265,7 +166,7 @@ class FHIRValidation {
     return jsonFile;
   }
 
-  validateItem(item: Item): void {
+  validateItem(item: Questionnaire): void {
     this.addPropertiesNeededtoGUIItemNode(item);
     //Validate if missing required fields of the Item
     this.itemNodeRequiredFields(item);
@@ -370,7 +271,7 @@ class FHIRValidation {
     }
   }
 
-  validateItems(item: Item): void {
+  validateItems(item: Questionnaire): void {
     if (item.item === undefined) return;
     let idCount = 0;
     for (const element of item.item) {
@@ -388,7 +289,7 @@ class FHIRValidation {
     }
   }
 
-  itemNodeRequiredFields(item: Item) {
+  itemNodeRequiredFields(item: Questionnaire) {
     //Error if missing required fields of the Item
     if (!item.linkId) {
       this.errorMessages.push(
@@ -478,7 +379,7 @@ class FHIRValidation {
     }
   }
 
-  addPropertiesNeededtoGUIItemNode(item: Item) {
+  addPropertiesNeededtoGUIItemNode(item: Questionnaire) {
     item.__active = true;
     item.disabled = false;
     item.__oldText = item.text;
@@ -488,7 +389,7 @@ class FHIRValidation {
         : this.questionType[item.type].icon;
   }
 
-  itemsNode(item: Item[] = []) {
+  itemsNode(item: Questionnaire[] = []) {
     let idCount = 0;
     item.forEach((element) => {
       idCount++;
@@ -503,8 +404,8 @@ class FHIRValidation {
     });
   }
 
-  validateEnableWhen(item: Item): void {
-    if (item.enableWhen === undefined) return;
+  validateEnableWhen(item: Questionnaire): void {
+    if (item.enableWhen === undefined || item.enableWhen === null) return;
     for (const enableWhen of item.enableWhen) {
       if (!enableWhen.question) {
         this.errorMessages.push(
@@ -540,11 +441,11 @@ class FHIRValidation {
       }
 
       if (enableWhen.answerDecimal) {
-        enableWhen.answer = enableWhen.answerDecimal;
+        enableWhen.answer = enableWhen.answerDecimal.toString();
         enableWhen.type = "decimal";
       }
       if (enableWhen.answerInteger) {
-        enableWhen.answer = enableWhen.answerInteger;
+        enableWhen.answer = enableWhen.answerInteger.toString();
         enableWhen.type = "integer";
       }
       if (enableWhen.answerCoding) {

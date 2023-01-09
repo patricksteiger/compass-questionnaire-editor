@@ -1,3 +1,15 @@
+import { QTree } from "quasar";
+
+export type Prop = {
+  expanded: boolean;
+  ticked: boolean;
+  tree: QTree;
+  node: Questionnaire;
+  key: string;
+  color: string;
+  dark: boolean;
+};
+
 export type QuestionType =
   | "group"
   | "string"
@@ -7,6 +19,17 @@ export type QuestionType =
   | "open-choice"
   | "integer"
   | "decimal";
+
+// Exclude determined in cxEnableWhen when adding condition
+export type SelectableQuestion = Exclude<
+  QuestionType,
+  "group" | "open-choice" | "choice"
+>;
+
+export type SelectedQuestion = {
+  linkId?: string;
+  type?: SelectableQuestion;
+};
 
 export type AnswerType =
   | "integer"
@@ -35,7 +58,7 @@ export type EnableWhen = {
 
 export type Answer = {
   text: string;
-  type: string;
+  type: AnswerType;
 };
 
 export type Coding = {
@@ -49,10 +72,10 @@ export type Coding = {
 
 export type AnswerOption = {
   __id?: number;
-  __type?: string;
+  __type?: AnswerType;
   __icon?: string;
   __newAnswer?: boolean;
-  __oldValueInteger?: string;
+  __oldValueInteger?: string | number;
   __oldValueDate?: string;
   __oldValueString?: string;
   linkId?: string;
@@ -73,7 +96,7 @@ export type Extension = {
 export type Question = {
   __linkId?: string;
   __text?: string;
-  __question?: string;
+  __question: string;
   __answer?: string;
   __operator?: string;
   __type?: string;
@@ -114,12 +137,13 @@ export type Questionnaire = {
   __internalID: string;
   __linkId: string;
   __newQuestion: boolean;
+  __newDefinition: boolean;
   __oldText?: string;
   __dependeceCondition?: Condition;
   __OldAnswerValueSet: string;
   __answerValueSetCheck: boolean;
   disabled?: boolean;
-  item: Questionnaire[] | undefined;
+  item?: Questionnaire[];
   identifier?: Identifier[];
   linkId: string;
   maxLength?: number;
