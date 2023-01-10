@@ -75,11 +75,7 @@ import { mapMutations, mapActions, mapGetters } from "vuex";
 import { useQuasar } from "quasar";
 import { importJsonQuestionnaire } from "../utils/ImportJson";
 import { defineComponent, Ref, ref } from "vue";
-
-type File = {
-  name: string;
-  file: Blob;
-};
+import { File } from "@/types";
 
 export default defineComponent({
   components: {
@@ -114,7 +110,7 @@ export default defineComponent({
      * @param  Object|undefined   oldFile   Read only
      * @return undefined
      */
-    inputFile: function (newFile: File | undefined) {
+    inputFile: function (newFile: File | undefined): void {
       if (!newFile) return;
       this.messageError = "";
       this.showLoading();

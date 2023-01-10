@@ -145,7 +145,7 @@
           <!-- Button new question first Item -->
           <div
             v-if="
-              selected === undefined ||
+              selected === null ||
               selectedItem === undefined ||
               Object.keys(selectedItem).length === 0 ||
               (selectedItem.__active && selectedItem.type === 'group')
@@ -930,7 +930,7 @@
     <!-- Condition Item Dialog -->
     <q-dialog v-model="layout">
       <cx-enable-When
-        v-if="selected !== undefined"
+        v-if="selected !== null"
         :internalID="selected"
         v-on:choiceQuestion="onSelectedQuestionsAnswer"
         v-on:question="onSelectedQuestion"
@@ -996,8 +996,8 @@ export default defineComponent({
     const item: Ref<Questionnaire[]> = ref([]);
     const selectedItem: Ref<Questionnaire | undefined> = ref(undefined);
     const lastSelectedItem: Ref<Questionnaire | undefined> = ref(undefined);
-    const selected: Ref<string | undefined> = ref(undefined);
-    const lastSelected: Ref<string | undefined> = ref(undefined);
+    const selected: Ref<string | null> = ref(null);
+    const lastSelected: Ref<string | null> = ref(null);
     const enableWhen: EnableWhen = { question: "", operator: "" };
     const enableWhenItem = ref(enableWhen);
     const setDisplayToOld = (answerOption: AnswerOption) => {
@@ -1047,11 +1047,11 @@ export default defineComponent({
         this.selectedItem = this.lastSelectedItem;
         this.selected = this.lastSelected;
         this.lastSelectedItem = undefined;
-        this.lastSelected = undefined;
+        this.lastSelected = null;
       }
     },
-    onGotoItem($event: string) {
-      if ($event === "") {
+    onGotoItem($event: string | null) {
+      if ($event === "" || $event === null) {
         //no value Item to go
         return;
       }
@@ -1117,7 +1117,7 @@ export default defineComponent({
         return; // No question was selected
       }
       const item = JSON.parse(JSON.stringify(input)) as Questionnaire; //create copy
-      if (this.selected !== undefined && this.selectedItem !== undefined) {
+      if (this.selected !== null && this.selectedItem !== undefined) {
         // only add questions in items type group
         const selectedLevel = this.selectedItem.linkId.split(".").length;
         if (
@@ -1397,7 +1397,7 @@ export default defineComponent({
       }
       const item = this.editorTools.getTypeObjQuestion(e.name);
       item.text = this.$t("views.editor.newQuestion");
-      if (this.selected !== undefined && this.selectedItem !== undefined) {
+      if (this.selected !== null && this.selectedItem !== undefined) {
         //only add questions in items type group
         if (this.selectedItem.__icon !== "article") return;
         // if (this.selectedItem.type !== this.questionTypes.group) return;

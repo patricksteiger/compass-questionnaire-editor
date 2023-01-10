@@ -169,3 +169,8 @@ export type Questionnaire = {
   experimental?: boolean;
   resourceType: string;
 };
+
+export type File = {
+  name: string;
+  file: Blob;
+};
