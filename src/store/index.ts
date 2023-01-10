@@ -1,20 +1,6 @@
+import { File, Questionnaire } from "@/types";
 import { createStore } from "vuex";
 
-// state.questionnaireImported = {
-//   identifier: [],
-//   url: "",
-//   name: "",
-//   version: "",
-//   title: "",
-//   status: "unknown",
-//   publisher: "",
-//   date: "",
-//   approvalDate: "",
-//   lastReviewDate: "",
-//   experimental: true,
-//   resourceType: "Questionnaire",
-//   item: [],
-// };
 type Identifier = {
   use: string;
   system: string;
@@ -47,7 +33,7 @@ export type ImportedQuestionnaire = {
   approvalDate: string;
   lastReviewDate: string;
   experimental: Boolean;
-  item: object[];
+  item: Questionnaire[];
   resourceType: string;
 };
 
@@ -67,16 +53,48 @@ const qI: ImportedQuestionnaire = {
   resourceType: "Questionnaire",
 };
 
+const q: Questionnaire = {
+  __active: false,
+  __icon: "",
+  __internalID: "",
+  __linkId: "",
+  __newQuestion: true,
+  __newDefinition: true,
+  __OldAnswerValueSet: "",
+  __answerValueSetCheck: false,
+  linkId: "",
+  text: "",
+  resourceType: "Questionnaire",
+  definition: "",
+  type: "group",
+  item: [],
+};
+
+const fI: File = {
+  name: "",
+  file: new Blob(),
+};
+
+export type StoreState = {
+  questionnaire: Questionnaire;
+  questionnaireImported: ImportedQuestionnaire;
+  secondaryItemSelected: {};
+  fileImported: File;
+  settings: {
+    answers: {
+      answersValueset: boolean;
+      openChoice: boolean;
+      choice: boolean;
+    };
+  };
+};
+
 const store = createStore({
   state: {
-    questionnaire: {
-      item: {},
-    },
+    questionnaire: q,
     questionnaireImported: qI,
     secondaryItemSelected: {},
-    fileImported: {
-      name: "",
-    },
+    fileImported: fI,
     settings: {
       answers: {
         answersValueset: false,
@@ -143,7 +161,22 @@ const store = createStore({
       state.fileImported = payload;
     },
     resetQuestionnaire(state) {
-      state.questionnaire = { item: {} };
+      state.questionnaire = {
+        __active: false,
+        __icon: "",
+        __internalID: "",
+        __linkId: "",
+        __newQuestion: true,
+        __newDefinition: true,
+        __OldAnswerValueSet: "",
+        __answerValueSetCheck: false,
+        linkId: "",
+        text: "",
+        resourceType: "Questionnaire",
+        definition: "",
+        type: "group",
+        item: [],
+      };
       state.questionnaireImported = {
         identifier: [],
         url: "",
@@ -162,6 +195,7 @@ const store = createStore({
       state.secondaryItemSelected = {};
       state.fileImported = {
         name: "",
+        file: new Blob(),
       };
     },
   },
