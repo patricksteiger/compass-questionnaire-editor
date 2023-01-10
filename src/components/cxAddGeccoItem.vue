@@ -173,7 +173,7 @@ export default defineComponent({
     const questionaireGUI: Ref<Gecco> = ref({ ...geccoQuestionnaire });
     const item: Ref<GeccoNode[]> = ref([]);
     const selectedItem: Ref<GeccoNode | undefined> = ref(undefined);
-    const selected: Ref<string | null> = ref(null);
+    const selected: Ref<string | undefined> = ref(undefined);
     return {
       splitterModel: ref(50), // start at 50%
       edtiorTools: editorTools,
@@ -192,8 +192,8 @@ export default defineComponent({
       : [];
   },
   watch: {
-    selected(val: string | null) {
-      if (val === null) {
+    selected(val: string | undefined) {
+      if (val === undefined) {
         this.selectedItem = undefined;
       } else {
         this.selectedItem = this.edtiorTools.getCurrentGeccoQuestionNodeByID(

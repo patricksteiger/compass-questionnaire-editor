@@ -27,8 +27,7 @@ const exportJsonQuestionnaire = {
       if (questionnaire.extension !== undefined) {
         for (let i = questionnaire.extension.length - 1; i >= 0; i--) {
           const ext = questionnaire.extension[i];
-          const isNotInteger =
-            ext.valueInteger === undefined || ext.valueInteger === null;
+          const isNotInteger = ext.valueInteger === undefined;
           const isNotString =
             ext.valueString === undefined || ext.valueString === "";
           const isNotCoding = ext.valueCoding === undefined;

@@ -366,11 +366,11 @@ class EditorTools {
       item.extension = [
         {
           url: "http://hl7.org/fhir/StructureDefinition/questionnaire-sliderStepValue",
-          valueInteger: null,
+          valueInteger: undefined,
         },
         {
           url: "http://hl7.org/fhir/StructureDefinition/minValue",
-          valueInteger: null,
+          valueInteger: undefined,
         },
         {
           url: "https://num-compass.science/fhir/StructureDefinition/LowRangeLabel",
@@ -378,7 +378,7 @@ class EditorTools {
         },
         {
           url: "http://hl7.org/fhir/StructureDefinition/maxValue",
-          valueInteger: null,
+          valueInteger: undefined,
         },
         {
           url: "https://num-compass.science/fhir/StructureDefinition/HighRangeLabel",

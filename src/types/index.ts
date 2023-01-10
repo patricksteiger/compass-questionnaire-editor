@@ -91,7 +91,7 @@ export type AnswerOption = {
 
 export type Extension = {
   url: string;
-  valueInteger?: number | null;
+  valueInteger?: number;
   valueString?: string;
   valueCoding?: Coding;
 };

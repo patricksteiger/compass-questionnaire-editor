@@ -163,7 +163,7 @@
         position="bottom-right"
         :offset="[18, 18]"
         v-if="
-          selectedItem !== null &&
+          selectedItem !== undefined &&
           selectedItem.type !== 'group' &&
           selectedItem.type !== 'open-choice' &&
           selectedItem.type !== 'choice' &&
@@ -208,8 +208,8 @@ export default defineComponent({
   },
   setup() {
     const filter = ref("de");
-    const selectedItem: Ref<Questionnaire | null> = ref(null);
-    const selected: Ref<string | null> = ref(null);
+    const selectedItem: Ref<Questionnaire | undefined> = ref(undefined);
+    const selected: Ref<string | undefined> = ref(undefined);
     const item: Ref<Questionnaire[]> = ref([]);
     return {
       splitterModel: ref(50), // start at 50%
@@ -222,7 +222,6 @@ export default defineComponent({
   },
   data() {
     return {
-      // item: [],
       questionnaireGUI: {
         item: [],
       },
@@ -238,9 +237,9 @@ export default defineComponent({
     ...mapGetters(["getQuestionnaireImportedJSON"]),
   },
   watch: {
-    selected(val: string | null): void {
-      if (val === null) {
-        this.selectedItem = null;
+    selected(val: string | undefined): void {
+      if (val === undefined) {
+        this.selectedItem = undefined;
         return;
       }
       const item = this.edtiorTools.getCurrentQuestionNodeByID(val, this.item);

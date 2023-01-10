@@ -145,7 +145,7 @@
           <!-- Button new question first Item -->
           <div
             v-if="
-              selected === null ||
+              selected === undefined ||
               selectedItem === undefined ||
               Object.keys(selectedItem).length === 0 ||
               (selectedItem.__active && selectedItem.type === 'group')
@@ -930,7 +930,7 @@
     <!-- Condition Item Dialog -->
     <q-dialog v-model="layout">
       <cx-enable-When
-        v-if="selected !== null"
+        v-if="selected !== undefined"
         :internalID="selected"
         v-on:choiceQuestion="onSelectedQuestionsAnswer"
         v-on:question="onSelectedQuestion"
@@ -996,8 +996,8 @@ export default defineComponent({
     const item: Ref<Questionnaire[]> = ref([]);
     const selectedItem: Ref<Questionnaire | undefined> = ref(undefined);
     const lastSelectedItem: Ref<Questionnaire | undefined> = ref(undefined);
-    const selected: Ref<string | null> = ref(null);
-    const lastSelected: Ref<string | null> = ref(null);
+    const selected: Ref<string | undefined> = ref(undefined);
+    const lastSelected: Ref<string | undefined> = ref(undefined);
     const enableWhen: EnableWhen = { question: "", operator: "" };
     const enableWhenItem = ref(enableWhen);
     const setDisplayToOld = (answerOption: AnswerOption) => {
@@ -1047,11 +1047,11 @@ export default defineComponent({
         this.selectedItem = this.lastSelectedItem;
         this.selected = this.lastSelected;
         this.lastSelectedItem = undefined;
-        this.lastSelected = null;
+        this.lastSelected = undefined;
       }
     },
-    onGotoItem($event: string | null) {
-      if ($event === null || $event === "") {
+    onGotoItem($event: string) {
+      if ($event === "") {
         //no value Item to go
         return;
       }
@@ -1117,7 +1117,7 @@ export default defineComponent({
         return; // No question was selected
       }
       const item = JSON.parse(JSON.stringify(input)) as Questionnaire; //create copy
-      if (this.selected !== null && this.selectedItem !== undefined) {
+      if (this.selected !== undefined && this.selectedItem !== undefined) {
         // only add questions in items type group
         const selectedLevel = this.selectedItem.linkId.split(".").length;
         if (
@@ -1126,7 +1126,7 @@ export default defineComponent({
         ) {
           return;
         }
-        // only add group if there are enough levels
+        // only add group if there are enough levels (recursively)
         if (item.type === "group") {
           const countGroupLevels = this.editorTools.getNumberOfGroupLevel(item);
           if (
@@ -1397,7 +1397,7 @@ export default defineComponent({
       }
       const item = this.editorTools.getTypeObjQuestion(e.name);
       item.text = this.$t("views.editor.newQuestion");
-      if (this.selected !== null && this.selectedItem !== undefined) {
+      if (this.selected !== undefined && this.selectedItem !== undefined) {
         //only add questions in items type group
         if (this.selectedItem.__icon !== "article") return;
         // if (this.selectedItem.type !== this.questionTypes.group) return;
@@ -1617,10 +1617,10 @@ export default defineComponent({
     },
   },
   watch: {
-    selected(val: string | null) {
+    selected(val: string | undefined) {
       this.editorTools.removeConditionDependence(this.item);
       this.editorTools.setConditionDependence(this.item, this.item);
-      if (val === null) {
+      if (val === undefined) {
         // FIXME: Is item item-array or -object?
         // this.selectedItem = this.item[0];
         this.selectedItem = undefined;
@@ -1631,8 +1631,8 @@ export default defineComponent({
         this.item,
       );
     },
-    lastSelected(val: string | null) {
-      if (val !== null && val !== "") {
+    lastSelected(val: string | undefined) {
+      if (val !== undefined && val !== "") {
         this.limitsSpliter = [0, 100];
         this.splitterModel = 0;
       } else {
