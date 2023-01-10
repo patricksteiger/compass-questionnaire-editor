@@ -82,7 +82,7 @@ class FHIRValidation {
   setConditionDependence(items: Questionnaire[] = []): void {
     for (const item of items) {
       this.setConditionDependence(item.item);
-      if (item.enableWhen === undefined || item.enableWhen === null) continue;
+      if (item.enableWhen === undefined) continue;
       for (const enableWhen of item.enableWhen) {
         const itemToAppendCondition = this.getItemNodeByInternalID(
           enableWhen.question,
@@ -405,7 +405,7 @@ class FHIRValidation {
   }
 
   validateEnableWhen(item: Questionnaire): void {
-    if (item.enableWhen === undefined || item.enableWhen === null) return;
+    if (item.enableWhen === undefined) return;
     for (const enableWhen of item.enableWhen) {
       if (!enableWhen.question) {
         this.errorMessages.push(

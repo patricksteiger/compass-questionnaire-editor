@@ -1162,12 +1162,7 @@ export default defineComponent({
       if (this.selectedItem === undefined) {
         return;
       }
-      if (
-        this.selectedItem.enableWhen === null ||
-        this.selectedItem.enableWhen === undefined
-      ) {
-        this.selectedItem.enableWhen = [];
-      }
+      this.selectedItem.enableWhen ??= [];
       this.selectedItem.enableWhen.push({
         question: "",
         operator: "",
@@ -1178,8 +1173,7 @@ export default defineComponent({
       // TODO: Error msg with i18n?
       if (
         this.selectedItem === undefined ||
-        this.selectedItem.enableWhen === undefined ||
-        this.selectedItem.enableWhen === null
+        this.selectedItem.enableWhen === undefined
       ) {
         throw new Error("Remove can't be used with no conditions!");
       }
@@ -1628,7 +1622,8 @@ export default defineComponent({
       this.editorTools.setConditionDependence(this.item, this.item);
       if (val === null) {
         // FIXME: Is item item-array or -object?
-        this.selectedItem = this.item[0];
+        // this.selectedItem = this.item[0];
+        this.selectedItem = undefined;
         return;
       }
       this.selectedItem = this.editorTools.getCurrentQuestionNodeByID(
@@ -1637,7 +1632,7 @@ export default defineComponent({
       );
     },
     lastSelected(val: string | null) {
-      if (val) {
+      if (val !== null && val !== "") {
         this.limitsSpliter = [0, 100];
         this.splitterModel = 0;
       } else {

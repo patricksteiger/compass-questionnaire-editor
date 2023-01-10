@@ -25,7 +25,6 @@ export const defaultNode: Questionnaire = {
   item: undefined,
   linkId: "",
   type: "group",
-  enableWhen: null,
   text: "",
   definition: "",
   answerOption: [],
@@ -149,7 +148,7 @@ class EditorTools {
       if (element.type === "group") {
         this.regenerateConditionWhenIds(element.item, changedIdMap);
       }
-      if (element.enableWhen !== null && element.enableWhen !== undefined) {
+      if (element.enableWhen !== undefined) {
         element.enableWhen.forEach((condition) => {
           if (
             condition.question !== "" &&
@@ -168,7 +167,7 @@ class EditorTools {
       return false;
     }
     for (const element of item) {
-      if (element.enableWhen != null) {
+      if (element.enableWhen !== undefined) {
         for (const condition of element.enableWhen) {
           if (condition.question === linkId) {
             return true;
@@ -466,9 +465,7 @@ class EditorTools {
       if (element.item !== undefined) {
         this.setConditionDependence(element.item, rootItem);
       }
-      if (element.enableWhen === null || element.enableWhen === undefined) {
-        continue;
-      }
+      if (element.enableWhen === undefined) continue;
       for (const enableWhen of element.enableWhen) {
         const itemToAppendCondition = this.getItemNodeByInternalID(
           enableWhen.question,

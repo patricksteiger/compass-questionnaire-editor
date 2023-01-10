@@ -151,7 +151,7 @@ export type Questionnaire = {
   linkId: string;
   maxLength?: number;
   type: QuestionType;
-  enableWhen?: EnableWhen[] | null;
+  enableWhen?: EnableWhen[];
   text: string;
   definition: string;
   answerOption?: AnswerOption[];

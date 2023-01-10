@@ -77,10 +77,7 @@ const exportJsonQuestionnaire = {
         delete questionnaire.answerValueSet;
       }
 
-      if (
-        questionnaire.enableWhen !== null &&
-        questionnaire.enableWhen !== undefined
-      ) {
+      if (questionnaire.enableWhen !== undefined) {
         questionnaire.enableWhen = questionnaire.enableWhen.filter(
           (enableWhen) =>
             enableWhen.operator !== "" &&
@@ -188,6 +185,7 @@ const exportJsonQuestionnaire = {
     if (jsonObject.title === "") {
       delete jsonObject.title;
     }
+    // FIXME: undefined instead of null?
     //approvalDate
     if (jsonObject.date === null) {
       delete jsonObject.date;
