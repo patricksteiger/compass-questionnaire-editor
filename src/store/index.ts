@@ -1,4 +1,4 @@
-import { File, Questionnaire } from "@/types";
+import { File, Item } from "@/types";
 import { createStore } from "vuex";
 
 type Identifier = {
@@ -21,7 +21,7 @@ type Identifier = {
   };
 };
 
-export type ImportedQuestionnaire = {
+export type Questionnaire = {
   identifier: Identifier[];
   url: string;
   name: string;
@@ -33,11 +33,11 @@ export type ImportedQuestionnaire = {
   approvalDate: string;
   lastReviewDate: string;
   experimental: Boolean;
-  item: Questionnaire[];
+  item: Item[];
   resourceType: string;
 };
 
-const qI: ImportedQuestionnaire = {
+const qI: Questionnaire = {
   identifier: [],
   url: "",
   name: "",
@@ -53,7 +53,7 @@ const qI: ImportedQuestionnaire = {
   resourceType: "Questionnaire",
 };
 
-const q: Questionnaire = {
+const q: Item = {
   __active: false,
   __icon: "",
   __internalID: "",
@@ -76,8 +76,8 @@ const fI: File = {
 };
 
 export type StoreState = {
-  questionnaire: Questionnaire;
-  questionnaireImported: ImportedQuestionnaire;
+  questionnaire: Item;
+  questionnaireImported: Questionnaire;
   secondaryItemSelected: {};
   fileImported: File;
   settings: {
@@ -219,7 +219,7 @@ const store = createStore({
     getMainItem(state) {
       return state.questionnaire.item;
     },
-    getQuestionnaireImportedJSON(state): ImportedQuestionnaire {
+    getQuestionnaireImportedJSON(state): Questionnaire {
       if (!state.questionnaireImported) {
         state.questionnaireImported = {
           identifier: [],

@@ -193,7 +193,7 @@ import { defineComponent, Ref, ref } from "vue";
 import { editorTools } from "../utils/editor";
 import {
   AnswerOption,
-  Questionnaire,
+  Item,
   // eslint-disable-next-line no-unused-vars
   SelectableQuestion,
   SelectedQuestion,
@@ -208,9 +208,9 @@ export default defineComponent({
   },
   setup() {
     const filter = ref("de");
-    const selectedItem: Ref<Questionnaire | undefined> = ref(undefined);
+    const selectedItem: Ref<Item | undefined> = ref(undefined);
     const selected: Ref<string | null> = ref(null);
-    const item: Ref<Questionnaire[]> = ref([]);
+    const item: Ref<Item[]> = ref([]);
     return {
       splitterModel: ref(50), // start at 50%
       edtiorTools: editorTools,
@@ -254,7 +254,7 @@ export default defineComponent({
     onSelectQuestion(questionSelected: SelectedQuestion): void {
       this.$emit("question", questionSelected);
     },
-    filterItemToBeShown(node: Questionnaire): boolean {
+    filterItemToBeShown(node: Item): boolean {
       return node.__active && node.__internalID !== this.internalID;
     },
     onSelectAnswer(answerOption: AnswerOption): void {

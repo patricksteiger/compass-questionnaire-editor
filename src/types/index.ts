@@ -4,7 +4,7 @@ export type Prop = {
   expanded: boolean;
   ticked: boolean;
   tree: QTree;
-  node: Questionnaire;
+  node: Item;
   key: string;
   color: string;
   dark: boolean;
@@ -134,7 +134,7 @@ export type Identifier = {
   };
 };
 
-export type Questionnaire = {
+export type Item = {
   __active: boolean;
   __icon: string;
   __internalID: string;
@@ -146,7 +146,7 @@ export type Questionnaire = {
   __OldAnswerValueSet: string;
   __answerValueSetCheck: boolean;
   disabled?: boolean;
-  item?: Questionnaire[];
+  item?: Item[];
   identifier?: Identifier[];
   linkId: string;
   maxLength?: number;

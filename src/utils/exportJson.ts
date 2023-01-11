@@ -1,27 +1,27 @@
-import { ImportedQuestionnaire } from "@/store";
-import { AnswerOption, Identifier, Questionnaire } from "@/types";
+import { Questionnaire } from "@/store";
+import { AnswerOption, Identifier, Item } from "@/types";
 import { i18n } from "../i18n";
 
 const exportJsonQuestionnaire = {
   // TODO: fix types for exporting, copy somehow generic?
-  getExportObject(jsonObject: ImportedQuestionnaire) {
-    const cloneObject = this.getObjectExportCopy(jsonObject) as Questionnaire;
+  getExportObject(jsonObject: Questionnaire) {
+    const cloneObject = this.getObjectExportCopy(jsonObject) as Item;
     const objWithoutItemsDisabled =
       this.getObjectWithoutItemsDisabled(cloneObject);
     const finalObj = this.clearMetadataFields(objWithoutItemsDisabled);
     return finalObj;
   },
-  getObjectWithoutItemsDisabled(jsonObject: Questionnaire): Questionnaire {
+  getObjectWithoutItemsDisabled(jsonObject: Item): Item {
     if (jsonObject.item === undefined) {
       return jsonObject;
     }
     // To only keep items with linkId
     jsonObject.item = jsonObject.item.filter(
-      (element: Questionnaire) => element.linkId !== "",
+      (element: Item) => element.linkId !== "",
     );
 
     // For items within item
-    jsonObject.item.forEach((questionnaire: Questionnaire) => {
+    jsonObject.item.forEach((questionnaire: Item) => {
       this.getObjectWithoutItemsDisabled(questionnaire);
 
       if (questionnaire.extension !== undefined) {
@@ -159,7 +159,7 @@ const exportJsonQuestionnaire = {
     }
     return newArray;
   },
-  clearMetadataFields(jsonObject: Questionnaire) {
+  clearMetadataFields(jsonObject: Item) {
     //Version
     if (jsonObject.version === "") {
       delete jsonObject.version;

@@ -6,13 +6,13 @@ import {
   questionType,
 } from "./constants";
 import { v4 as uuidv4 } from "uuid";
-import { Identifier, Question, Questionnaire } from "@/types";
+import { Identifier, Question, Item } from "@/types";
 
 type State = "draft" | "active" | "retired" | "unknown";
 
 type File = {
   status: State | undefined;
-  item?: Questionnaire[];
+  item?: Item[];
   identifier: Identifier[] | undefined;
 };
 
@@ -79,7 +79,7 @@ class FHIRValidation {
     return Object.keys(obj) as (keyof T)[];
   }
 
-  setConditionDependence(items: Questionnaire[] = []): void {
+  setConditionDependence(items: Item[] = []): void {
     for (const item of items) {
       this.setConditionDependence(item.item);
       if (item.enableWhen === undefined) continue;
@@ -123,10 +123,7 @@ class FHIRValidation {
   }
 
   // FIXME: Why is it called InternalId but using linkId?
-  getItemNodeByInternalID(
-    linkId: string,
-    item: Questionnaire[] = [],
-  ): Questionnaire | undefined {
+  getItemNodeByInternalID(linkId: string, item: Item[] = []): Item | undefined {
     for (const element of item) {
       if (element.linkId === linkId) {
         return element;
@@ -140,7 +137,7 @@ class FHIRValidation {
   }
 
   // TODO: Is new sortByLinkId accurate?
-  sortByLinkId(i1: Questionnaire, i2: Questionnaire): number {
+  sortByLinkId(i1: Item, i2: Item): number {
     const nums1 = i1.linkId.split(".");
     const nums2 = i2.linkId.split(".");
     const last1 = nums1.at(-1);
@@ -151,7 +148,7 @@ class FHIRValidation {
     return parseInt(last1) - parseInt(last2);
   }
 
-  sortItems(items: Questionnaire[]): void {
+  sortItems(items: Item[]): void {
     items.sort(this.sortByLinkId);
     for (const item of items) {
       if (item.item !== undefined) {
@@ -166,7 +163,7 @@ class FHIRValidation {
     return jsonFile;
   }
 
-  validateItem(item: Questionnaire): void {
+  validateItem(item: Item): void {
     this.addPropertiesNeededtoGUIItemNode(item);
     //Validate if missing required fields of the Item
     this.itemNodeRequiredFields(item);
@@ -271,7 +268,7 @@ class FHIRValidation {
     }
   }
 
-  validateItems(item: Questionnaire): void {
+  validateItems(item: Item): void {
     if (item.item === undefined) return;
     let idCount = 0;
     for (const element of item.item) {
@@ -289,7 +286,7 @@ class FHIRValidation {
     }
   }
 
-  itemNodeRequiredFields(item: Questionnaire) {
+  itemNodeRequiredFields(item: Item) {
     //Error if missing required fields of the Item
     if (!item.linkId) {
       this.errorMessages.push(
@@ -379,7 +376,7 @@ class FHIRValidation {
     }
   }
 
-  addPropertiesNeededtoGUIItemNode(item: Questionnaire) {
+  addPropertiesNeededtoGUIItemNode(item: Item) {
     item.__active = true;
     item.disabled = false;
     item.__oldText = item.text;
@@ -389,7 +386,7 @@ class FHIRValidation {
         : this.questionType[item.type].icon;
   }
 
-  itemsNode(item: Questionnaire[] = []) {
+  itemsNode(item: Item[] = []) {
     let idCount = 0;
     item.forEach((element) => {
       idCount++;
@@ -404,7 +401,7 @@ class FHIRValidation {
     });
   }
 
-  validateEnableWhen(item: Questionnaire): void {
+  validateEnableWhen(item: Item): void {
     if (item.enableWhen === undefined) return;
     for (const enableWhen of item.enableWhen) {
       if (!enableWhen.question) {

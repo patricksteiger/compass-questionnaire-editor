@@ -6,15 +6,9 @@ import {
 } from "./constants";
 import { v4 as uuidv4 } from "uuid";
 import { GeccoNode } from "@/store/questionnaire";
-import {
-  Answer,
-  AnswerOption,
-  Question,
-  Questionnaire,
-  QuestionType,
-} from "@/types";
+import { Answer, AnswerOption, Question, Item, QuestionType } from "@/types";
 
-export const defaultNode: Questionnaire = {
+export const defaultNode: Item = {
   __active: true,
   __icon: "",
   __internalID: "",
@@ -48,10 +42,7 @@ class EditorTools {
     item: undefined,
   };
 
-  getIndexItem(
-    internalIDToBeRemove: string,
-    arrayQuestions: Questionnaire[],
-  ): number {
+  getIndexItem(internalIDToBeRemove: string, arrayQuestions: Item[]): number {
     for (let i = 0; i < arrayQuestions.length; i++)
       if (arrayQuestions[i].__internalID === internalIDToBeRemove) return i;
     return 1;
@@ -69,10 +60,10 @@ class EditorTools {
     return currentTarget.id.split("_").length == 2;
   }
 
-  assingNewItemInternalIDs(item: Questionnaire): void {
+  assingNewItemInternalIDs(item: Item): void {
     if (item.item) {
       let idCount = 0;
-      item.item.forEach((element: Questionnaire) => {
+      item.item.forEach((element: Item) => {
         idCount++;
         element.__linkId = item.__linkId + "." + idCount;
         if (element.item) {
@@ -82,7 +73,7 @@ class EditorTools {
     }
   }
 
-  assingNewItemIDs(item: Questionnaire): Map<string, string> {
+  assingNewItemIDs(item: Item): Map<string, string> {
     let changedIdMap = new Map<string, string>();
     if (item.item === undefined) return changedIdMap;
     let idCount = 0;
@@ -105,7 +96,7 @@ class EditorTools {
     return changedIdMap;
   }
 
-  regenerateInternalIDs(item: Questionnaire[]): void {
+  regenerateInternalIDs(item: Item[]): void {
     let idCount = 0;
     item.forEach((element) => {
       idCount++;
@@ -116,7 +107,7 @@ class EditorTools {
     });
   }
 
-  regenerateLinkIds(item?: Questionnaire[]): Map<string, string> {
+  regenerateLinkIds(item?: Item[]): Map<string, string> {
     let changedIdMap = new Map<string, string>();
     if (item === undefined) return changedIdMap;
     let idCount = 0;
@@ -140,7 +131,7 @@ class EditorTools {
   }
 
   regenerateConditionWhenIds(
-    item: Questionnaire[] | undefined,
+    item: Item[] | undefined,
     changedIdMap: Map<string, string>,
   ): void {
     if (item === undefined) return;
@@ -161,7 +152,7 @@ class EditorTools {
     });
   }
 
-  isEnableWhenCondition(item: Questionnaire[], linkId: string): boolean {
+  isEnableWhenCondition(item: Item[], linkId: string): boolean {
     // deactivated Questions
     if (linkId === "") {
       return false;
@@ -185,7 +176,7 @@ class EditorTools {
     return false;
   }
 
-  disableItem(item: Questionnaire, toggleValue: boolean): void {
+  disableItem(item: Item, toggleValue: boolean): void {
     if (item.item) {
       for (const element of item.item) {
         element.__active = toggleValue;
@@ -196,10 +187,7 @@ class EditorTools {
     item.__active = toggleValue;
   }
 
-  getArraySource(
-    internalID: string,
-    rootItem: Questionnaire[],
-  ): Questionnaire[] {
+  getArraySource(internalID: string, rootItem: Item[]): Item[] {
     const includesId = rootItem.some(
       (item) => item.__internalID === internalID,
     );
@@ -219,8 +207,8 @@ class EditorTools {
   // TODO: Is LinkId always unique?
   getCurrentQuestionNodeByID(
     internalId: string,
-    rootItem: Questionnaire[] = [],
-  ): Questionnaire | undefined {
+    rootItem: Item[] = [],
+  ): Item | undefined {
     for (const item of rootItem) {
       if (item.__internalID === internalId) {
         return item;
@@ -255,8 +243,8 @@ class EditorTools {
   // TODO: Is LinkId always unique?
   getCurrentQuestionNodeByLinkId(
     linkId: string,
-    rootItem: Questionnaire[] = [],
-  ): Questionnaire | undefined {
+    rootItem: Item[] = [],
+  ): Item | undefined {
     for (const item of rootItem) {
       if (item.linkId === linkId) {
         return item;
@@ -269,7 +257,7 @@ class EditorTools {
     return undefined;
   }
 
-  disableEntireItemQuestion(id: string, rootItem: Questionnaire[]): void {
+  disableEntireItemQuestion(id: string, rootItem: Item[]): void {
     const oItemQuestionTodisabled = this.getCurrentQuestionNodeByID(
       id,
       rootItem,
@@ -341,9 +329,9 @@ class EditorTools {
     return answerOption;
   }
 
-  getTypeObjQuestion(typeQuestion: QuestionType): Questionnaire {
+  getTypeObjQuestion(typeQuestion: QuestionType): Item {
     const questionTypeIcon = this.getTypeQuestionIcon(typeQuestion);
-    const item: Questionnaire = {
+    const item: Item = {
       ...defaultNode,
       text: "",
       type: typeQuestion,
@@ -411,7 +399,7 @@ class EditorTools {
     return acurrentID.join(".");
   }
 
-  private currentMaxLevel(items: Questionnaire[], currLevel: number): number {
+  private currentMaxLevel(items: Item[], currLevel: number): number {
     let maxLevel = currLevel;
     for (const element of items) {
       if (element.item === undefined || element.item.length === 0) continue;
@@ -421,11 +409,11 @@ class EditorTools {
     return maxLevel;
   }
 
-  getNumbersMaxOfLevels(items: Questionnaire[]): number {
+  getNumbersMaxOfLevels(items: Item[]): number {
     return items.length > 0 ? this.currentMaxLevel(items, 1) : 0;
   }
 
-  getNumberOfGroupLevel(item: Questionnaire): number {
+  getNumberOfGroupLevel(item: Item): number {
     let maxLevel = 0;
     for (const element of item.item || []) {
       if (element.type === "group") {
@@ -439,8 +427,8 @@ class EditorTools {
   // FIXME: Is LinkId instead of InternalId correct here?
   getItemNodeByInternalID(
     linkId: string,
-    items: Questionnaire[] = [],
-  ): Questionnaire | undefined {
+    items: Item[] = [],
+  ): Item | undefined {
     for (const element of items) {
       if (element.linkId === linkId) {
         return element;
@@ -457,10 +445,7 @@ class EditorTools {
     return Object.keys(obj) as (keyof T)[];
   }
 
-  setConditionDependence(
-    item: Questionnaire[] = [],
-    rootItem: Questionnaire[] = [],
-  ): void {
+  setConditionDependence(item: Item[] = [], rootItem: Item[] = []): void {
     for (const element of item) {
       if (element.item !== undefined) {
         this.setConditionDependence(element.item, rootItem);
@@ -502,7 +487,7 @@ class EditorTools {
     }
   }
 
-  removeConditionDependence(item: Questionnaire[] = []): void {
+  removeConditionDependence(item: Item[] = []): void {
     item.forEach((element) => {
       if (element.item) {
         this.removeConditionDependence(element.item);

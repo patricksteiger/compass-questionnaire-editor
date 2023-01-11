@@ -967,7 +967,7 @@ import {
   AnswerOption,
   EnableWhen,
   Prop,
-  Questionnaire,
+  Item,
   SelectedQuestion,
   operators,
 } from "@/types";
@@ -992,10 +992,10 @@ export default defineComponent({
         message: i18n.global.t("views.editor.questionDontexist"),
       });
     };
-    const questionaireGUI: Ref<Questionnaire | undefined> = ref(undefined);
-    const item: Ref<Questionnaire[]> = ref([]);
-    const selectedItem: Ref<Questionnaire | undefined> = ref(undefined);
-    const lastSelectedItem: Ref<Questionnaire | undefined> = ref(undefined);
+    const questionaireGUI: Ref<Item | undefined> = ref(undefined);
+    const item: Ref<Item[]> = ref([]);
+    const selectedItem: Ref<Item | undefined> = ref(undefined);
+    const lastSelectedItem: Ref<Item | undefined> = ref(undefined);
     const selected: Ref<string | null> = ref(null);
     const lastSelected: Ref<string | null> = ref(null);
     const enableWhen: EnableWhen = { question: "", operator: "" };
@@ -1111,12 +1111,12 @@ export default defineComponent({
       this.enableWhenItem.type = e.type;
       this.layout = false;
     },
-    onSelectedGECCOQuestion(input: Questionnaire | undefined): void {
+    onSelectedGECCOQuestion(input: Item | undefined): void {
       this.geccoLayout = false;
       if (input === undefined) {
         return; // No question was selected
       }
-      const item = JSON.parse(JSON.stringify(input)) as Questionnaire; //create copy
+      const item = JSON.parse(JSON.stringify(input)) as Item; //create copy
       if (this.selected !== null && this.selectedItem !== undefined) {
         // only add questions in items type group
         const selectedLevel = this.selectedItem.linkId.split(".").length;
@@ -1141,7 +1141,7 @@ export default defineComponent({
           this.selectedItem.item !== undefined &&
           this.selectedItem.item.length > 0
         ) {
-          const lastItem = this.selectedItem.item.at(-1) as Questionnaire; // undefined should never happen
+          const lastItem = this.selectedItem.item.at(-1) as Item; // undefined should never happen
           item.__linkId = this.editorTools.getNextID(lastItem.__linkId);
           item.linkId = this.editorTools.getNextID(lastItem.linkId);
         } else {
@@ -1200,7 +1200,7 @@ export default defineComponent({
         this.selectedItem.definition = uuidv4();
       }
     },
-    onDragStart(e: DragEvent, node: Questionnaire) {
+    onDragStart(e: DragEvent, node: Item) {
       if (e.dataTransfer !== null) {
         e.dataTransfer.setData("text", node.__internalID);
       } else {
@@ -1405,7 +1405,7 @@ export default defineComponent({
           this.selectedItem.item !== undefined &&
           this.selectedItem.item.length > 0
         ) {
-          const lastItem = this.selectedItem.item.at(-1) as Questionnaire;
+          const lastItem = this.selectedItem.item.at(-1) as Item;
           item.__linkId = this.editorTools.getNextID(lastItem.__linkId);
           item.linkId = this.editorTools.getNextID(lastItem.linkId);
         } else {
@@ -1460,7 +1460,7 @@ export default defineComponent({
       }
       this.selectedItem.answerOption.push(answerOption);
     },
-    hasGeccoExtension(e: Questionnaire | undefined) {
+    hasGeccoExtension(e: Item | undefined) {
       return (
         e?.extension &&
         e.extension.some(
@@ -1470,7 +1470,7 @@ export default defineComponent({
         )
       );
     },
-    getGeccoExtensionValue(e: Questionnaire | undefined) {
+    getGeccoExtensionValue(e: Item | undefined) {
       let extension = e?.extension?.find(
         (it) =>
           it.url ===
@@ -1547,7 +1547,7 @@ export default defineComponent({
       this.editorTools.regenerateInternalIDs(this.item);
       this.editorTools.regenerateConditionWhenIds(this.item, changedIdMap);
     },
-    deleteItemRecursivly(itemList: Questionnaire[], key: string) {
+    deleteItemRecursivly(itemList: Item[], key: string) {
       for (let i = 0; i < itemList.length; i++) {
         const item = itemList[i];
         if (item.__internalID === key) {
