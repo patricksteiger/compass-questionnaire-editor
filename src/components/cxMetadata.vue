@@ -93,6 +93,7 @@
                         <div class="col-3">
                           <!-- system -->
                           <q-input
+                            v-if="id.type?.coding !== undefined"
                             v-model="id.type.coding.system"
                             dense
                             class="q-mr-sm"
@@ -104,6 +105,7 @@
                         <div class="col-2">
                           <!-- version -->
                           <q-input
+                            v-if="id.type?.coding !== undefined"
                             v-model="id.type.coding.version"
                             dense
                             class="q-mr-sm"
@@ -115,6 +117,7 @@
                         <div class="col-2">
                           <!-- code -->
                           <q-input
+                            v-if="id.type?.coding !== undefined"
                             v-model="id.type.coding.code"
                             dense
                             class="q-mr-sm"
@@ -124,6 +127,7 @@
                         <div class="col-3">
                           <!-- display -->
                           <q-input
+                            v-if="id.type?.coding !== undefined"
                             v-model="id.type.coding.display"
                             dense
                             class="q-mr-sm"
@@ -137,6 +141,7 @@
                           <div class="q-gutter-sm">
                             <q-checkbox
                               left-label
+                              v-if="id.type?.coding !== undefined"
                               v-model="id.type.coding.userSelected"
                               :label="
                                 $t(
@@ -155,6 +160,7 @@
                         <div class="col-3">
                           <!-- system -->
                           <q-input
+                            v-if="id.type !== undefined"
                             v-model="id.type.text"
                             dense
                             class="q-mr-sm"
@@ -171,6 +177,7 @@
                     <div class="col-3">
                       <!-- start -->
                       <q-input
+                        v-if="id.period !== undefined"
                         v-model="id.period.start"
                         dense
                         type="date"
@@ -182,6 +189,7 @@
                     <div class="col-3">
                       <!-- end -->
                       <q-input
+                        v-if="id.period !== undefined"
                         v-model="id.period.end"
                         dense
                         type="date"
@@ -393,7 +401,7 @@ export default defineComponent({
       this.$store.state.questionnaireImported.identifier.push(newID);
     },
     removeID(indexID: number) {
-      this.$store.state.questionnaireImported.identifier.splice(indexID, 1);
+      this.$store.state.questionnaireImported.identifier?.splice(indexID, 1);
     },
   },
 });

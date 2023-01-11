@@ -110,7 +110,7 @@ export default defineComponent({
      * @param  Object|undefined   oldFile   Read only
      * @return undefined
      */
-    inputFile: function (newFile: File | undefined): void {
+    inputFile(newFile: File | undefined): void {
       if (!newFile) return;
       this.messageError = "";
       this.showLoading();

@@ -2,37 +2,37 @@ import { File, Item } from "@/types";
 import { createStore } from "vuex";
 
 type Identifier = {
-  use: string;
-  system: string;
-  value: string;
-  period: {
-    start: string;
-    end: string;
+  use?: string;
+  system?: string;
+  value?: string;
+  period?: {
+    start?: string;
+    end?: string;
   };
-  type: {
-    coding: {
-      system: string;
-      version: string;
-      code: string;
-      display: string;
-      userSelected: boolean;
+  type?: {
+    coding?: {
+      system?: string;
+      version?: string;
+      code?: string;
+      display?: string;
+      userSelected?: boolean;
     };
-    text: string;
+    text?: string;
   };
 };
 
 export type Questionnaire = {
-  identifier: Identifier[];
-  url: string;
-  name: string;
-  version: string;
-  title: string;
+  identifier?: Identifier[];
+  url?: string;
+  name?: string;
+  version?: string;
+  title?: string;
   status: "draft" | "active" | "retired" | "unknown";
-  publisher: string;
-  date: string;
-  approvalDate: string;
-  lastReviewDate: string;
-  experimental: Boolean;
+  publisher?: string;
+  date?: string;
+  approvalDate?: string;
+  lastReviewDate?: string;
+  experimental?: Boolean;
   item: Item[];
   resourceType: string;
 };

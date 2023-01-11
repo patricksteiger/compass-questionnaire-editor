@@ -64,6 +64,7 @@ class FHIRValidation {
   answerType = answerType;
   questionType = questionType;
 
+  // TODO: Refactor import/validation?
   validateFHIRResourceItems(JSONFHIRQuestionnaire: File) {
     this.errorMessages = [];
     this.questionnaire = this.getSortItems(JSONFHIRQuestionnaire) || {
@@ -365,7 +366,7 @@ class FHIRValidation {
         if (index === -1) {
           item.extension.splice(targetIdx, 0, {
             url,
-            ["value" + type]: type === "String" ? "" : null,
+            ["value" + type]: type === "String" ? "" : undefined,
           });
         } else {
           const element = item.extension[index];

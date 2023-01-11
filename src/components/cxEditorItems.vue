@@ -131,16 +131,46 @@
                   class="row items-center justify-between text-caption text-grey-8 non-selectable"
                   style="width: 100%"
                 >
-                  <span
-                    >{{ prop.node.type }}:{{ prop.node.linkId
-                    }}<q-tooltip>
+                  <span>
+                    {{ prop.node.type }}:{{ prop.node.linkId }}
+                    <q-tooltip>
                       {{ $t("components.linkId") }}
-                    </q-tooltip></span
-                  >
+                    </q-tooltip>
+                  </span>
                 </div>
               </div>
             </template>
           </q-tree>
+
+          <!-- Language button -->
+          <div
+            v-if="
+              selected === null ||
+              selectedItem === undefined ||
+              Object.keys(selectedItem).length === 0
+            "
+          >
+            <q-page-sticky position="bottom-left" :offset="[240, 18]">
+              <q-fab
+                vertical-actions-align="left"
+                color="primary"
+                push
+                icon="keyboard_arrow_up"
+                direction="up"
+                padding="none xl"
+                :label="`Language: ${language}`"
+              >
+                <q-fab-action
+                  v-for="lang in languages.filter((l) => l !== language)"
+                  :key="lang"
+                  label-position="right"
+                  color="primary"
+                  @click="onLanguageChoice(lang)"
+                  :label="lang"
+                />
+              </q-fab>
+            </q-page-sticky>
+          </div>
 
           <!-- Button new question first Item -->
           <div
@@ -972,6 +1002,9 @@ import {
   operators,
 } from "@/types";
 
+const languages = ["de", "en"] as const;
+type Language = typeof languages[number];
+
 // TODO: Replace with KeyboardEvent
 type CustomEvent = {
   keyCode: number;
@@ -993,7 +1026,6 @@ export default defineComponent({
       });
     };
     const questionaireGUI: Ref<Item | undefined> = ref(undefined);
-    const item: Ref<Item[]> = ref([]);
     const selectedItem: Ref<Item | undefined> = ref(undefined);
     const lastSelectedItem: Ref<Item | undefined> = ref(undefined);
     const selected: Ref<string | null> = ref(null);
@@ -1006,10 +1038,17 @@ export default defineComponent({
           answerOption.valueCoding.__oldDisplay || "";
       }
     };
+    const language: Ref<Language> = ref("de");
+    const item: Ref<Item[]> = ref([]);
+    const enItem: Ref<Item[]> = ref([]);
+    const deItem: Ref<Item[]> = ref([]);
     return {
+      language,
       triggerNegative,
       questionaireGUI,
       item,
+      deItem,
+      enItem,
       selected,
       selectedItem,
       lastSelected,
@@ -1028,11 +1067,13 @@ export default defineComponent({
       uuidv4,
       answerTypeButton,
       operators,
+      languages,
     };
   },
   created() {
     this.questionaireGUI = this.getQuestionnaireImportedJSON;
     this.item = this.questionaireGUI?.item || [];
+    this.deItem = this.item;
   },
   data() {
     return {
@@ -1042,7 +1083,17 @@ export default defineComponent({
     };
   },
   methods: {
-    onBackLastSelectedItem() {
+    onLanguageChoice(lang: Language): void {
+      if (this.language === lang) {
+        console.log("Nothing changed.");
+      } else {
+        this.language = lang;
+        this.item = this.language === "de" ? this.deItem : this.enItem;
+        // Sets item used for exporting
+        this.getQuestionnaireImportedJSON.item = this.item;
+      }
+    },
+    onBackLastSelectedItem(): void {
       if (this.lastSelected) {
         this.selectedItem = this.lastSelectedItem;
         this.selected = this.lastSelected;

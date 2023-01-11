@@ -2,136 +2,142 @@ import { Questionnaire } from "@/store";
 import { AnswerOption, Identifier, Item } from "@/types";
 import { i18n } from "../i18n";
 
+function getObjectWithoutItemsDisabled(
+  jsonObject: Questionnaire,
+): Questionnaire;
+function getObjectWithoutItemsDisabled(jsonObject: Item): Item;
+function getObjectWithoutItemsDisabled(
+  jsonObject: Questionnaire | Item,
+): Questionnaire | Item {
+  if (jsonObject.item === undefined) {
+    return jsonObject;
+  }
+  // To only keep items with linkId
+  jsonObject.item = jsonObject.item.filter(
+    (element: Item) => element.linkId !== "",
+  );
+
+  // For items within item
+  jsonObject.item.forEach((questionnaire: Item) => {
+    getObjectWithoutItemsDisabled(questionnaire);
+
+    if (questionnaire.extension !== undefined) {
+      for (let i = questionnaire.extension.length - 1; i >= 0; i--) {
+        const ext = questionnaire.extension[i];
+        const isNotInteger = ext.valueInteger === undefined;
+        const isNotString =
+          ext.valueString === undefined || ext.valueString === "";
+        const isNotCoding = ext.valueCoding === undefined;
+        if (isNotInteger && isNotString && isNotCoding) {
+          questionnaire.extension.splice(i, 1);
+        }
+      }
+
+      if (questionnaire.extension.length === 0) {
+        delete questionnaire.extension;
+      }
+    }
+
+    //convert to integer ValueInteger
+    if (questionnaire.answerOption !== undefined) {
+      questionnaire.answerOption.forEach((element: AnswerOption) => {
+        if (
+          element.valueInteger !== undefined &&
+          typeof element.valueInteger === "string"
+        ) {
+          element.valueInteger = parseInt(element.valueInteger);
+        }
+      });
+    }
+
+    //answerOption and Value Set
+    if (questionnaire.answerValueSet !== "") {
+      delete questionnaire.answerOption;
+    }
+    if (questionnaire.answerOption !== undefined) {
+      //answerOption has data
+      if (questionnaire.answerOption.length > 0) {
+        delete questionnaire.answerValueSet;
+      }
+      //remove if is empty
+      if (questionnaire.answerOption.length === 0) {
+        delete questionnaire.answerOption;
+      }
+    }
+
+    //remove disable Item property
+    delete questionnaire.disabled;
+
+    //remove empty answerValueSet
+    if (questionnaire.answerValueSet === "") {
+      delete questionnaire.answerValueSet;
+    }
+
+    if (questionnaire.enableWhen !== undefined) {
+      questionnaire.enableWhen = questionnaire.enableWhen.filter(
+        (enableWhen) =>
+          enableWhen.operator !== "" &&
+          enableWhen.question !== "" &&
+          enableWhen.answer !== "",
+      );
+      questionnaire.enableWhen.forEach((enableWhen) => {
+        if (enableWhen.operator === "exists") {
+          enableWhen.answerBoolean = enableWhen.answer === "true";
+        } else {
+          if (enableWhen.type === "decimal") {
+            enableWhen.answerDecimal = parseFloat(enableWhen.answer || "");
+          }
+          if (enableWhen.type === "integer") {
+            enableWhen.answerInteger = parseInt(enableWhen.answer || "");
+          }
+          if (enableWhen.type === "date") {
+            enableWhen.answerDate = enableWhen.answer;
+          }
+          if (enableWhen.type === "boolean") {
+            enableWhen.answerBoolean = enableWhen.answer === "true";
+          }
+          if (enableWhen.type === "string") {
+            enableWhen.answerString = enableWhen.answer;
+          }
+          if (
+            enableWhen.type === "choice" ||
+            enableWhen.type === "open-choice" ||
+            enableWhen.type === "coding"
+          ) {
+            enableWhen.answerCoding = {
+              code: enableWhen.answer || "",
+              display: enableWhen.display || "",
+              system: enableWhen.system || "",
+            };
+          }
+        }
+        delete enableWhen.system;
+        delete enableWhen.display;
+        delete enableWhen.answer;
+        delete enableWhen.type;
+      });
+      if (questionnaire.enableWhen.length === 0) {
+        delete questionnaire.enableWhen;
+      }
+    } else {
+      delete questionnaire.enableWhen;
+    }
+  });
+  // Item must be deleted when empty
+  if (jsonObject.item.length === 0) {
+    delete jsonObject.item;
+  }
+
+  return jsonObject;
+}
+
 const exportJsonQuestionnaire = {
   // TODO: fix types for exporting, copy somehow generic?
   getExportObject(jsonObject: Questionnaire) {
-    const cloneObject = this.getObjectExportCopy(jsonObject) as Item;
-    const objWithoutItemsDisabled =
-      this.getObjectWithoutItemsDisabled(cloneObject);
+    const cloneObject = this.getObjectExportCopy(jsonObject) as Questionnaire;
+    const objWithoutItemsDisabled = getObjectWithoutItemsDisabled(cloneObject);
     const finalObj = this.clearMetadataFields(objWithoutItemsDisabled);
     return finalObj;
-  },
-  getObjectWithoutItemsDisabled(jsonObject: Item): Item {
-    if (jsonObject.item === undefined) {
-      return jsonObject;
-    }
-    // To only keep items with linkId
-    jsonObject.item = jsonObject.item.filter(
-      (element: Item) => element.linkId !== "",
-    );
-
-    // For items within item
-    jsonObject.item.forEach((questionnaire: Item) => {
-      this.getObjectWithoutItemsDisabled(questionnaire);
-
-      if (questionnaire.extension !== undefined) {
-        for (let i = questionnaire.extension.length - 1; i >= 0; i--) {
-          const ext = questionnaire.extension[i];
-          const isNotInteger = ext.valueInteger === undefined;
-          const isNotString =
-            ext.valueString === undefined || ext.valueString === "";
-          const isNotCoding = ext.valueCoding === undefined;
-          if (isNotInteger && isNotString && isNotCoding) {
-            questionnaire.extension.splice(i, 1);
-          }
-        }
-
-        if (questionnaire.extension.length === 0) {
-          delete questionnaire.extension;
-        }
-      }
-
-      //convert to integer ValueInteger
-      if (questionnaire.answerOption !== undefined) {
-        questionnaire.answerOption.forEach((element: AnswerOption) => {
-          if (
-            element.valueInteger !== undefined &&
-            typeof element.valueInteger === "string"
-          ) {
-            element.valueInteger = parseInt(element.valueInteger);
-          }
-        });
-      }
-
-      //answerOption and Value Set
-      if (questionnaire.answerValueSet !== "") {
-        delete questionnaire.answerOption;
-      }
-      if (questionnaire.answerOption !== undefined) {
-        //answerOption has data
-        if (questionnaire.answerOption.length > 0) {
-          delete questionnaire.answerValueSet;
-        }
-        //remove if is empty
-        if (questionnaire.answerOption.length === 0) {
-          delete questionnaire.answerOption;
-        }
-      }
-
-      //remove disable Item property
-      delete questionnaire.disabled;
-
-      //remove empty answerValueSet
-      if (questionnaire.answerValueSet === "") {
-        delete questionnaire.answerValueSet;
-      }
-
-      if (questionnaire.enableWhen !== undefined) {
-        questionnaire.enableWhen = questionnaire.enableWhen.filter(
-          (enableWhen) =>
-            enableWhen.operator !== "" &&
-            enableWhen.question !== "" &&
-            enableWhen.answer !== "",
-        );
-        questionnaire.enableWhen.forEach((enableWhen) => {
-          if (enableWhen.operator === "exists") {
-            enableWhen.answerBoolean = enableWhen.answer === "true";
-          } else {
-            if (enableWhen.type === "decimal") {
-              enableWhen.answerDecimal = parseFloat(enableWhen.answer || "");
-            }
-            if (enableWhen.type === "integer") {
-              enableWhen.answerInteger = parseInt(enableWhen.answer || "");
-            }
-            if (enableWhen.type === "date") {
-              enableWhen.answerDate = enableWhen.answer;
-            }
-            if (enableWhen.type === "boolean") {
-              enableWhen.answerBoolean = enableWhen.answer === "true";
-            }
-            if (enableWhen.type === "string") {
-              enableWhen.answerString = enableWhen.answer;
-            }
-            if (
-              enableWhen.type === "choice" ||
-              enableWhen.type === "open-choice" ||
-              enableWhen.type === "coding"
-            ) {
-              enableWhen.answerCoding = {
-                code: enableWhen.answer || "",
-                display: enableWhen.display || "",
-                system: enableWhen.system || "",
-              };
-            }
-          }
-          delete enableWhen.system;
-          delete enableWhen.display;
-          delete enableWhen.answer;
-          delete enableWhen.type;
-        });
-        if (questionnaire.enableWhen.length === 0) {
-          delete questionnaire.enableWhen;
-        }
-      } else {
-        delete questionnaire.enableWhen;
-      }
-    });
-    // Item must be deleted when empty
-    if (jsonObject.item.length === 0) {
-      delete jsonObject.item;
-    }
-
-    return jsonObject;
   },
   getObjectExportCopy(jsonObject: any): any {
     if (typeof jsonObject === "string") {
@@ -159,7 +165,7 @@ const exportJsonQuestionnaire = {
     }
     return newArray;
   },
-  clearMetadataFields(jsonObject: Item) {
+  clearMetadataFields(jsonObject: Questionnaire) {
     //Version
     if (jsonObject.version === "") {
       delete jsonObject.version;
@@ -171,10 +177,6 @@ const exportJsonQuestionnaire = {
     //Name
     if (jsonObject.name === "") {
       delete jsonObject.name;
-    }
-    //Status
-    if (jsonObject.status === "") {
-      delete jsonObject.status;
     }
     //publisher
     if (jsonObject.publisher === "") {
