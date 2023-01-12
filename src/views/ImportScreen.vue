@@ -113,39 +113,36 @@ export default defineComponent({
     inputFile(newFile: File | undefined): void {
       if (!newFile) return;
       this.messageError = "";
+      this.messageErrorFHIR = [];
       this.showLoading();
       let reader = new FileReader();
       reader.readAsText(newFile.file);
-      const that = this;
-      reader.onload = function () {
+      reader.onload = () => {
         try {
-          const result = that.importJsonQuestionnaire.getValidateJSON(
+          const [questionnaire, errors] = this.importJsonQuestionnaire.from(
             reader.result,
           );
-          that.messageErrorFHIR =
-            that.importJsonQuestionnaire.getValidateFHIRResource(result);
-          that.hideLoading();
-          if (that.messageErrorFHIR.length === 0) {
-            that.setFileImported(newFile);
-            that.uploadJSONQuestionnaire(
-              that.importJsonQuestionnaire.getQuestionnaireGUI(),
-            );
-            that.$router.push("/");
+          this.hideLoading();
+          if (questionnaire !== undefined) {
+            this.setFileImported(newFile);
+            this.uploadJSONQuestionnaire(questionnaire);
+            this.$router.push("/");
           } else {
-            that.alertError = true;
+            this.messageErrorFHIR = errors;
+            this.alertError = true;
           }
         } catch (error: any) {
-          that.messageError = error.message;
-          that.alertError = true;
-          that.hideLoading();
+          this.messageError = error.message;
+          this.alertError = true;
+          this.hideLoading();
         }
       };
 
-      reader.onerror = function () {
+      reader.onerror = () => {
         // TODO: i18n error message
-        that.messageError = reader.error?.message || "an error has occurred";
-        that.alertError = true;
-        that.hideLoading();
+        this.messageError = reader.error?.message || "an error has occurred";
+        this.alertError = true;
+        this.hideLoading();
       };
     },
     /**
@@ -159,7 +156,7 @@ export default defineComponent({
       newFile: File | undefined,
       oldFile: File | undefined,
       prevent: () => boolean,
-    ) {
+    ): boolean {
       if (newFile !== undefined && oldFile === undefined) {
         // Filter non-json file
         if (!/\.(json)$/i.test(newFile.name)) {
@@ -171,6 +168,7 @@ export default defineComponent({
           return prevent();
         }
       }
+      return true;
     },
   },
   computed: {

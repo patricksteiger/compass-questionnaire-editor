@@ -6,15 +6,8 @@ import {
   questionType,
 } from "./constants";
 import { v4 as uuidv4 } from "uuid";
-import { Identifier, Question, Item } from "@/types";
-
-type State = "draft" | "active" | "retired" | "unknown";
-
-type File = {
-  status: State | undefined;
-  item?: Item[];
-  identifier: Identifier[] | undefined;
-};
+import { Question, Item } from "@/types";
+import { Questionnaire } from "@/store";
 
 /* Error Exceptions obj */
 /*function QuestionnaireValidationException(message) {
@@ -53,24 +46,24 @@ class GeneralJSONValidationException extends Exception {
 }
 
 /* Function Validations */
+const defaultQuestionnaire = (): Questionnaire => ({
+  status: "unknown",
+  item: [],
+  resourceType: "Questionnaire",
+});
 
 class FHIRValidation {
   errorMessages: string[] = [];
-  questionnaire: File = {
-    status: undefined,
-    identifier: undefined,
-  };
+  questionnaire: Questionnaire = defaultQuestionnaire();
   i18n = i18n;
   answerType = answerType;
   questionType = questionType;
 
-  // TODO: Refactor import/validation?
-  validateFHIRResourceItems(JSONFHIRQuestionnaire: File) {
+  // TODO: Refactor import/validation? File = Questionnaire?
+  validateFHIRResourceItems(JSONFHIRQuestionnaire: Questionnaire) {
     this.errorMessages = [];
-    this.questionnaire = this.getSortItems(JSONFHIRQuestionnaire) || {
-      status: undefined,
-      identifier: undefined,
-    };
+    this.questionnaire =
+      this.getSortItems(JSONFHIRQuestionnaire) || defaultQuestionnaire();
     this.statusNode(this.questionnaire);
     this.identifier(this.questionnaire);
     this.itemsNode(this.questionnaire.item);
@@ -84,6 +77,7 @@ class FHIRValidation {
     for (const item of items) {
       this.setConditionDependence(item.item);
       if (item.enableWhen === undefined) continue;
+      // FIXME: Should enableWhen === null be allowed?
       for (const enableWhen of item.enableWhen) {
         const itemToAppendCondition = this.getItemNodeByInternalID(
           enableWhen.question,
@@ -158,7 +152,7 @@ class FHIRValidation {
     }
   }
 
-  getSortItems(jsonFile: File): File | undefined {
+  getSortItems(jsonFile: Questionnaire): Questionnaire | undefined {
     if (jsonFile.item === undefined) return undefined;
     this.sortItems(jsonFile.item);
     return jsonFile;
@@ -467,7 +461,7 @@ class FHIRValidation {
     }
   }
 
-  statusNode(FHIRobj: File): void {
+  statusNode(FHIRobj: Questionnaire): void {
     if (!FHIRobj.status) {
       this.errorMessages.push(
         this.i18n.global.t("messagesErrors.FHIRValidations.nodeMissing", {
@@ -490,7 +484,7 @@ class FHIRValidation {
     }
   }
 
-  identifier(FHIRobj: File): void {
+  identifier(FHIRobj: Questionnaire): void {
     if (FHIRobj.identifier && FHIRobj.identifier.length > 0) {
       FHIRobj.identifier.forEach((id) => {
         id.use = id.use === undefined ? "" : id.use;
@@ -502,7 +496,6 @@ class FHIRValidation {
           id.type === undefined
             ? {
                 coding: {
-                  __oldDisplay: undefined,
                   system: "",
                   version: "",
                   code: "",
@@ -537,7 +530,7 @@ const generalValidations = {
   i18n: i18n,
 
   //Validata that is a right JSON Structure
-  JSONValid(jsonFileString: string): object {
+  json(jsonFileString: string): object {
     try {
       return JSON.parse(jsonFileString);
     } catch (error: any) {
@@ -558,16 +551,29 @@ const importJsonQuestionnaire = {
   generalValidations: generalValidations,
   i18n: i18n,
 
-  getValidateJSON(jsonFile: string | ArrayBuffer | null) {
+  from(
+    jsonFile: string | ArrayBuffer | null,
+  ): [Questionnaire | undefined, string[]] {
+    this.FHIRValidations.errorMessages = [];
+    const result = this.parseJson(jsonFile);
+    const errorMessages = this.getValidateFHIRResource(result);
+    this.FHIRValidations.errorMessages = [];
+    return [
+      errorMessages.length === 0 ? this.getQuestionnaireGUI() : undefined,
+      errorMessages,
+    ];
+  },
+  parseJson(jsonFile: string | ArrayBuffer | null): object {
     if (jsonFile === null || typeof jsonFile !== "string") {
       // TODO: i18n error message
       throw new GeneralJSONValidationException("jsonFile is not a string");
     }
-    return this.generalValidations.JSONValid(jsonFile);
+    return this.generalValidations.json(jsonFile);
   },
   getValidateFHIRResource(jsonFile: object) {
-    this.FHIRValidations.validateFHIRResourceItems(jsonFile as File);
-    return this.FHIRValidations.errorMessages;
+    this.FHIRValidations.validateFHIRResourceItems(jsonFile as Questionnaire);
+    const errors = this.FHIRValidations.errorMessages;
+    return errors;
   },
   getQuestionnaireGUI() {
     return this.FHIRValidations.questionnaire;
