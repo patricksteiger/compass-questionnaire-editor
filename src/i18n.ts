@@ -42,6 +42,7 @@ const fallbackLocale: FallbackLocale =
   process.env.VUE_APP_I18N_FALLBACK_LOCALE || "en";
 
 isSupportedLocale(locale);
+export const usedLocale: Locale = locale;
 
 export const i18n = createI18n({
   legacy: false,

@@ -1,3 +1,4 @@
+import { usedLocale, Locale } from "@/i18n";
 import { File, Item } from "@/types";
 import { createStore } from "vuex";
 
@@ -22,6 +23,7 @@ type Identifier = {
 };
 
 export type Questionnaire = {
+  language: Locale;
   identifier?: Identifier[];
   url?: string;
   name?: string;
@@ -38,6 +40,7 @@ export type Questionnaire = {
 };
 
 const qI: Questionnaire = {
+  language: usedLocale,
   identifier: [],
   url: "",
   name: "",
@@ -178,6 +181,7 @@ const store = createStore({
         item: [],
       };
       state.questionnaireImported = {
+        language: usedLocale,
         identifier: [],
         url: "",
         name: "",
@@ -222,6 +226,7 @@ const store = createStore({
     getQuestionnaireImportedJSON(state): Questionnaire {
       if (!state.questionnaireImported) {
         state.questionnaireImported = {
+          language: usedLocale,
           identifier: [],
           url: "",
           name: "",

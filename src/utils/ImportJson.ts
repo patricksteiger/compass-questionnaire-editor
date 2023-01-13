@@ -1,4 +1,4 @@
-import { i18n } from "../i18n";
+import { i18n, isSupportedLocale, usedLocale } from "../i18n";
 import {
   answerType,
   MAX_ALLOWED_LEVELS,
@@ -47,6 +47,7 @@ class GeneralJSONValidationException extends Exception {
 
 /* Function Validations */
 const defaultQuestionnaire = (): Questionnaire => ({
+  language: usedLocale,
   status: "unknown",
   item: [],
   resourceType: "Questionnaire",
@@ -59,8 +60,13 @@ class FHIRValidation {
   answerType = answerType;
   questionType = questionType;
 
-  // TODO: Refactor import/validation? File = Questionnaire?
   validateFHIRResourceItems(JSONFHIRQuestionnaire: Questionnaire) {
+    // TODO: How o solve missing language?
+    if (JSONFHIRQuestionnaire.language === undefined) {
+      JSONFHIRQuestionnaire.language = usedLocale;
+    } else {
+      isSupportedLocale(JSONFHIRQuestionnaire.language);
+    }
     this.errorMessages = [];
     this.questionnaire =
       this.getSortItems(JSONFHIRQuestionnaire) || defaultQuestionnaire();
