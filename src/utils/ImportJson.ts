@@ -70,6 +70,10 @@ class FHIRValidation {
     this.errorMessages = [];
     this.questionnaire =
       this.getSortItems(JSONFHIRQuestionnaire) || defaultQuestionnaire();
+    const resourceTypeResult = this.resourceType(this.questionnaire);
+    if (resourceTypeResult !== undefined) {
+      this.errorMessages.push(resourceTypeResult);
+    }
     this.statusNode(this.questionnaire);
     this.identifier(this.questionnaire);
     this.itemsNode(this.questionnaire.item);
@@ -517,19 +521,19 @@ class FHIRValidation {
     }
   }
 
-  /*resourceType(FHIRobj: any) {
-    if (!FHIRobj.resourceType) {
+  resourceType(FHIRobj: Questionnaire): string | undefined {
+    if (FHIRobj.resourceType === undefined) {
       return this.i18n.global.t("messagesErrors.FHIRValidations.nodeMissing", {
         node: "resourceType",
       });
-    }
-    if (FHIRobj.resourceType !== "Questionnaire") {
+    } else if (FHIRobj.resourceType !== "Questionnaire") {
       return this.i18n.global.t(
         "messagesErrors.FHIRValidations.resourceImportedNoAllow",
         { resource: FHIRobj.resourceType },
       );
     }
-  }*/
+    return undefined;
+  }
 }
 
 const generalValidations = {

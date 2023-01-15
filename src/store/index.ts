@@ -36,7 +36,7 @@ export type Questionnaire = {
   lastReviewDate?: string;
   experimental?: Boolean;
   item: Item[];
-  resourceType: string;
+  resourceType: "Questionnaire";
 };
 
 const qI: Questionnaire = {
@@ -108,7 +108,7 @@ const store = createStore({
   },
   mutations: {
     //metaData
-    // in cxNavbar
+    // in cxNavbar TODO: i18n
     setNameofQuestionnaireNEW(state) {
       state.fileImported.name = "New Questionnaire.json";
     },
@@ -195,7 +195,7 @@ const store = createStore({
         lastReviewDate: "",
         experimental: true,
         item: [],
-        resourceType: "",
+        resourceType: "Questionnaire",
       };
       state.secondaryItemSelected = {};
       state.fileImported = {
