@@ -522,7 +522,7 @@ class FHIRValidation {
   }
 
   resourceType(FHIRobj: Questionnaire): string | undefined {
-    if (FHIRobj.resourceType === undefined) {
+    if (!FHIRobj.resourceType) {
       return this.i18n.global.t("messagesErrors.FHIRValidations.nodeMissing", {
         node: "resourceType",
       });
