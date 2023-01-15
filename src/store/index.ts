@@ -67,13 +67,13 @@ const q: Item = {
   __answerValueSetCheck: false,
   linkId: "",
   text: "",
-  resourceType: "Questionnaire",
   definition: "",
   type: "group",
   item: [],
 };
 
 const fI: File = {
+  // Used as name of the Questionnaire
   name: "",
   file: new Blob(),
 };
@@ -94,9 +94,9 @@ export type StoreState = {
 
 const store = createStore({
   state: {
-    questionnaire: q,
+    questionnaire: q, // Only used in MainItems, can be deleted?
+    secondaryItemSelected: {}, // Only in MainItem, SecondaryItem, ...
     questionnaireImported: qI,
-    secondaryItemSelected: {},
     fileImported: fI,
     settings: {
       answers: {
@@ -108,6 +108,7 @@ const store = createStore({
   },
   mutations: {
     //metaData
+    // in cxNavbar
     setNameofQuestionnaireNEW(state) {
       state.fileImported.name = "New Questionnaire.json";
     },
@@ -160,6 +161,7 @@ const store = createStore({
     setQuestionnaireImportedJSON(state, payload = {}) {
       state.questionnaireImported = payload;
     },
+    // in ImportScreen, cxNavbar but not used?
     setFileImported(state, payload = {}) {
       state.fileImported = payload;
     },
@@ -175,7 +177,6 @@ const store = createStore({
         __answerValueSetCheck: false,
         linkId: "",
         text: "",
-        resourceType: "Questionnaire",
         definition: "",
         type: "group",
         item: [],

@@ -167,7 +167,6 @@ export type Item = {
   approvalDate?: string;
   lastReviewDate?: string;
   experimental?: boolean;
-  resourceType: string;
 };
 
 export type File = {

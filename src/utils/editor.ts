@@ -26,7 +26,6 @@ export const defaultNode: Item = {
   answerValueSet: "",
   __answerValueSetCheck: false,
   extension: [],
-  resourceType: "Questionnaire",
 };
 
 // type Base<T> = {
