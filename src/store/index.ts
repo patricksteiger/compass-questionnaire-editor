@@ -1,4 +1,4 @@
-import { usedLocale, Locale } from "@/i18n";
+import { usedLocale, Locale, i18n } from "@/i18n";
 import { File, Item } from "@/types";
 import { createStore } from "vuex";
 
@@ -108,9 +108,11 @@ const store = createStore({
   },
   mutations: {
     //metaData
-    // in cxNavbar TODO: i18n
+    // in cxNavbar
     setNameofQuestionnaireNEW(state) {
-      state.fileImported.name = "New Questionnaire.json";
+      state.fileImported.name = `${i18n.global.t(
+        "store.questionnaire.name",
+      )}.json`;
     },
     setVersion(state, payload) {
       state.questionnaireImported.version = payload;

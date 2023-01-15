@@ -142,7 +142,7 @@
             </template>
           </q-tree>
 
-          <!-- Language button TODO: i18n localization for label -->
+          <!-- Change language button -->
           <div
             v-if="
               selected === null ||
@@ -153,18 +153,18 @@
             <q-page-sticky position="bottom-left" :offset="[240, 18]">
               <q-fab
                 vertical-actions-align="left"
-                color="primary"
+                color="purple"
                 push
                 icon="keyboard_arrow_up"
                 direction="up"
                 padding="none xl"
-                :label="`Language: ${locale}`"
+                :label="$t('views.editor.changeLanguage', { language: locale })"
               >
                 <q-fab-action
                   v-for="lang in locales.filter((l) => l !== locale)"
                   :key="lang"
                   label-position="right"
-                  color="primary"
+                  color="purple"
                   @click="onLanguageChoice(lang)"
                   :label="lang"
                 />
@@ -1219,8 +1219,7 @@ export default defineComponent({
         answer: "",
       });
     },
-    onRemoveCondition(index: number) {
-      // TODO: Error msg with i18n?
+    onRemoveCondition(index: number): void {
       if (
         this.selectedItem === undefined ||
         this.selectedItem.enableWhen === undefined
@@ -1232,11 +1231,11 @@ export default defineComponent({
       }
       this.selectedItem.enableWhen.splice(index, 1);
     },
-    onShowQuestionsItems(enableWhen: EnableWhen) {
+    onShowQuestionsItems(enableWhen: EnableWhen): void {
       this.enableWhenItem = enableWhen;
       this.layout = true;
     },
-    answerValueSet() {
+    answerValueSet(): void {
       if (this.selectedItem !== undefined) {
         if (this.selectedItem.__answerValueSetCheck) {
           this.selectedItem.answerOption = [];
@@ -1245,29 +1244,30 @@ export default defineComponent({
         }
       }
     },
-    newUUID() {
-      if (this.selectedItem !== undefined) {
-        this.selectedItem.definition = uuidv4();
+    newUUID(): void {
+      if (this.selectedItem === undefined) {
+        throw new Error("Can't change UUID, if no item is selected");
       }
+      this.selectedItem.definition = uuidv4();
     },
-    onDragStart(e: DragEvent, node: Item) {
+    onDragStart(e: DragEvent, node: Item): void {
       if (e.dataTransfer !== null) {
         e.dataTransfer.setData("text", node.__internalID);
       } else {
         console.error(`DataTransfer is null: ${node.__internalID}`);
       }
     },
-    onDragOver(e: DragEvent) {
+    onDragOver(e: DragEvent): void {
       e.preventDefault();
       const currentTarget = e.currentTarget as HTMLInputElement;
       currentTarget.style.backgroundColor = this.COLORS.itemDragOver;
     },
-    onDragLeave(e: DragEvent) {
+    onDragLeave(e: DragEvent): void {
       e.preventDefault();
       const currentTarget = e.currentTarget as HTMLInputElement;
       currentTarget.style.backgroundColor = "";
     },
-    onDrop(e: DragEvent) {
+    onDrop(e: DragEvent): void {
       e.preventDefault();
       if (e.currentTarget === null || e.dataTransfer === null) return;
       // TODO: check how styling of currentTarget is needed/works
@@ -1586,10 +1586,7 @@ export default defineComponent({
     },
     // FIXME: Deletion is not respected in Condition
     deleteItem(item: Prop) {
-      // TODO: Add i18n-messaging
-      let answer = confirm(
-        "Do you really want to delete this item and all of its child items?",
-      );
+      let answer = confirm(i18n.global.t("views.editor.deleteItemDialogue"));
       if (answer) {
         this.deleteItemRecursivly(this.item, item.key);
       }

@@ -117,7 +117,7 @@ import { useQuasar } from "quasar";
 import FileSaver from "file-saver";
 import { exportJsonQuestionnaire } from "../utils/exportJson";
 import { Questionnaire } from "@/store";
-import { usedLocale } from "@/i18n";
+import { i18n, usedLocale } from "@/i18n";
 
 export default defineComponent({
   computed: {
@@ -224,15 +224,14 @@ export default defineComponent({
       }
     },
     createNewEmptyQRE() {
-      // TODO: i18n name and title
       const newQRE: Questionnaire = {
         language: usedLocale,
         resourceType: "Questionnaire",
         status: "draft",
         url: "https://num-compass.science/de/",
         version: "1.0",
-        name: "New questionnaire",
-        title: "New questionnaire",
+        name: i18n.global.t("store.questionnaire.name"),
+        title: i18n.global.t("store.questionnaire.name"),
         item: [],
       };
       this.uploadJSONQuestionnaire(newQRE);

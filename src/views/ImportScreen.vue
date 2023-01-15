@@ -76,6 +76,7 @@ import { useQuasar } from "quasar";
 import { importJsonQuestionnaire } from "../utils/ImportJson";
 import { defineComponent, Ref, ref } from "vue";
 import { File } from "@/types";
+import { i18n } from "@/i18n";
 
 export default defineComponent({
   components: {
@@ -139,8 +140,8 @@ export default defineComponent({
       };
 
       reader.onerror = () => {
-        // TODO: i18n error message
-        this.messageError = reader.error?.message || "an error has occurred";
+        this.messageError =
+          reader.error?.message || i18n.global.t("views.import.errorOcurred");
         this.alertError = true;
         this.hideLoading();
       };

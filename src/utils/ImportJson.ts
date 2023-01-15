@@ -575,8 +575,11 @@ const importJsonQuestionnaire = {
   },
   parseJson(jsonFile: string | ArrayBuffer | null): object {
     if (jsonFile === null || typeof jsonFile !== "string") {
-      // TODO: i18n error message
-      throw new GeneralJSONValidationException("jsonFile is not a string");
+      throw new GeneralJSONValidationException(
+        this.i18n.global.t(
+          "messagesErrors.GeneralJSONValidations.jsonFileIsNotString",
+        ),
+      );
     }
     return this.generalValidations.json(jsonFile);
   },

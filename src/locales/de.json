@@ -1,5 +1,10 @@
 {
   "lang": "de",
+  "store": {
+    "questionnaire": {
+      "name": "Neuer Fragebogen"
+    }
+  },
   "components": {
     "reverseAnswer": "Setze Antwort zurück",
     "reverseQuestion": "Setze Frage zurück",
@@ -35,7 +40,8 @@
   "views": {
     "import": {
       "dropFile": "Lege eine Datei hier ab",
-      "instructions": "Lade Fragebogen-Datei im JSON-Format hoch. Ziehe die Datei in diesen Bereich oder klicke hier um eine auszuwählen."
+      "instructions": "Lade Fragebogen-Datei im JSON-Format hoch. Ziehe die Datei in diesen Bereich oder klicke hier um eine auszuwählen.",
+      "errorOcurred": "Ein Fehler ist aufgetreten"
     },
     "editor": {
       "conditionFulfilled": "Condition erfüllt",
@@ -49,7 +55,9 @@
       "itemConditions": "Conditions",
       "addNewCondition": "Füge neue Condition hinzu",
       "addItem": "Neues Element",
+      "changeLanguage": "Sprache: {language}",
       "deleteItem": "Lösche Element",
+      "deleteItemDialogue": "Soll das Element inklusive aller Kindelemente gelöscht werden?",
       "question": "Frage",
       "questions": "Fragen",
       "operator": "Operator",
@@ -146,6 +154,7 @@
     "GeneralJSONValidations": {
       "test": "test",
       "fileNoJSONType": "Importierte Datei {nameFile} ist keine JSON-Datei. Nur JSON-Dateien sind erlaubt.",
+      "jsonFileIsNotString": "JSON-Datei hat nicht den Typ string",
       "NoJSONFILEStructure": "Inhalt der geladenen Datei hat eine ungültige JSON-Struktur."
     }
   }

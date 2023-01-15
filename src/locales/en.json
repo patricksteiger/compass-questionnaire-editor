@@ -1,5 +1,10 @@
 {
   "lang": "en",
+  "store": {
+    "questionnaire": {
+      "name": "New Questionnaire"
+    }
+  },
   "components": {
     "reverseAnswer": "Reverse Answer",
     "reverseQuestion": "Reverse Question",
@@ -35,7 +40,8 @@
   "views": {
     "import": {
       "dropFile": "Drop a file here",
-      "instructions": "Please upload a Questionnaire JSON file that you would like to edit. Drag & drop the file on this area or click here to select a file."
+      "instructions": "Please upload a Questionnaire JSON file that you would like to edit. Drag & drop the file on this area or click here to select a file.",
+      "errorOcurred": "An error has occurred"
     },
     "editor": {
       "conditionFulfilled": "Condition Fulfilled",
@@ -49,7 +55,9 @@
       "itemConditions": "Conditions",
       "addNewCondition": "Add New Condition",
       "addItem": "New Item",
+      "changeLanguage": "Language: {language}",
       "deleteItem": "Delete Item",
+      "deleteItemDialogue": "Do you really want to delete this item and all of its child items?",
       "question": "Question",
       "questions": "Questions",
       "operator": "Operator",
@@ -146,6 +154,7 @@
     "GeneralJSONValidations": {
       "test": "test",
       "fileNoJSONType": "File {nameFile} imported is no a JSON File. Only JSON Files are allowed.",
+      "jsonFileIsNotString": "JSON-File is not of type string",
       "NoJSONFILEStructure": "Content of file loaded has no a properly structure of a JSON. "
     }
   }
