@@ -20,14 +20,12 @@ type SimpleEquals<T extends object, O extends object> = {
  * de and en have mismatching value
  * */
 const d: SimpleEquals<typeof de, typeof en> = de;
-console.log(d ? "" : "Error asserting locale type");
 /*
  * Error if:
  * de is missing key
  * de and en have mismatching value
  * */
 const e: SimpleEquals<typeof en, typeof de> = en;
-console.log(e ? "" : "Error asserting locale type");
 
 export const locales = ["de", "en"] as const;
 export type Locale = typeof locales[number];
@@ -46,7 +44,7 @@ export const usedLocale: Locale = locale;
 
 export const i18n = createI18n({
   legacy: false,
-  locale: locale,
+  locale: usedLocale,
   fallbackLocale: fallbackLocale,
   globalInjection: true,
   messages: {
