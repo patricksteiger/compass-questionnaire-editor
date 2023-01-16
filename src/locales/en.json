@@ -142,6 +142,8 @@
       "test": "test"
     },
     "FHIRValidations": {
+      "languageMissing": "FHIR Resource Content Invalid! Missing language of Questionnaire.",
+      "unsupportedLanguage": "FHIR Resource Content Invalid! Unsupported language {language} in Questionnaire.",
       "nodeMissing": "FHIR Resource Content Invalid! Missing Information on {node}. {item}",
       "resourceImportedNoAllow": "Resource {resource} Imported is not allowed",
       "nodeMissingItem": "FHIR Resource Content Invalid! {node} in Item {linkId}.",

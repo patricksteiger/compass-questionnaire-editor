@@ -99,6 +99,9 @@ const fI: File = {
 
 export const languages = ["de", "en", "es"] as const;
 export type Language = typeof languages[number];
+export const isSupportedLanguage = (lang: string): lang is Language => {
+  return languages.includes(lang as Language);
+};
 
 export type StoreState = {
   questionnaire: Item;
@@ -199,6 +202,7 @@ const store = createStore<StoreState>({
       state.secondaryItemSelected = payload;
     },
     setQuestionnaireImportedJSON(state: StoreState, payload: Questionnaire) {
+      state.language = payload.language;
       state.questionnaireImported = payload;
       state.questionnaireRepo.set(payload.language, payload);
     },

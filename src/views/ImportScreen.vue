@@ -116,7 +116,7 @@ export default defineComponent({
       this.messageError = "";
       this.messageErrorFHIR = [];
       this.showLoading();
-      let reader = new FileReader();
+      const reader = new FileReader();
       reader.readAsText(newFile.file);
       reader.onload = () => {
         try {

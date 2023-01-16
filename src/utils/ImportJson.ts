@@ -1,4 +1,4 @@
-import { i18n, isSupportedLocale, usedLocale } from "../i18n";
+import { i18n, usedLocale } from "../i18n";
 import {
   answerType,
   MAX_ALLOWED_LEVELS,
@@ -7,7 +7,7 @@ import {
 } from "./constants";
 import { v4 as uuidv4 } from "uuid";
 import { Question, Item } from "@/types";
-import { Questionnaire } from "@/store";
+import { Questionnaire, isSupportedLanguage } from "@/store";
 
 /* Error Exceptions obj */
 /*function QuestionnaireValidationException(message) {
@@ -65,15 +65,13 @@ class FHIRValidation {
     if (JSONFHIRQuestionnaire.language === undefined) {
       JSONFHIRQuestionnaire.language = usedLocale;
     } else {
-      isSupportedLocale(JSONFHIRQuestionnaire.language);
+      isSupportedLanguage(JSONFHIRQuestionnaire.language);
     }
     this.errorMessages = [];
     this.questionnaire =
       this.getSortItems(JSONFHIRQuestionnaire) || defaultQuestionnaire();
-    const resourceTypeResult = this.resourceType(this.questionnaire);
-    if (resourceTypeResult !== undefined) {
-      this.errorMessages.push(resourceTypeResult);
-    }
+    this.resourceType(this.questionnaire);
+    this.supportedLanguage(this.questionnaire);
     this.statusNode(this.questionnaire);
     this.identifier(this.questionnaire);
     this.itemsNode(this.questionnaire.item);
@@ -521,18 +519,37 @@ class FHIRValidation {
     }
   }
 
-  resourceType(FHIRobj: Questionnaire): string | undefined {
+  supportedLanguage(qre: Questionnaire): void {
+    if (!qre.language) {
+      const message = this.i18n.global.t(
+        "messagesErrors.FHIRValidations.languageMissing",
+      );
+      this.errorMessages.push(message);
+    } else if (!isSupportedLanguage(qre.language)) {
+      const message = this.i18n.global.t(
+        "messagesErrors.FHIRValidations.unsupportedLanguage",
+        { language: qre.language },
+      );
+      this.errorMessages.push(message);
+    }
+  }
+
+  resourceType(FHIRobj: Questionnaire): void {
     if (!FHIRobj.resourceType) {
-      return this.i18n.global.t("messagesErrors.FHIRValidations.nodeMissing", {
-        node: "resourceType",
-      });
+      const message = this.i18n.global.t(
+        "messagesErrors.FHIRValidations.nodeMissing",
+        {
+          node: "resourceType",
+        },
+      );
+      this.errorMessages.push(message);
     } else if (FHIRobj.resourceType !== "Questionnaire") {
-      return this.i18n.global.t(
+      const message = this.i18n.global.t(
         "messagesErrors.FHIRValidations.resourceImportedNoAllow",
         { resource: FHIRobj.resourceType },
       );
+      this.errorMessages.push(message);
     }
-    return undefined;
   }
 }
 
