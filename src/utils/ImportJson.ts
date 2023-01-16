@@ -61,15 +61,8 @@ class FHIRValidation {
   questionType = questionType;
 
   validateFHIRResourceItems(JSONFHIRQuestionnaire: Questionnaire) {
-    // TODO: How o solve missing language?
-    if (JSONFHIRQuestionnaire.language === undefined) {
-      JSONFHIRQuestionnaire.language = usedLocale;
-    } else {
-      isSupportedLanguage(JSONFHIRQuestionnaire.language);
-    }
     this.errorMessages = [];
-    this.questionnaire =
-      this.getSortItems(JSONFHIRQuestionnaire) || defaultQuestionnaire();
+    this.questionnaire = this.getSortItems(JSONFHIRQuestionnaire);
     this.resourceType(this.questionnaire);
     this.supportedLanguage(this.questionnaire);
     this.statusNode(this.questionnaire);
@@ -160,14 +153,15 @@ class FHIRValidation {
     }
   }
 
-  getSortItems(jsonFile: Questionnaire): Questionnaire | undefined {
-    if (jsonFile.item === undefined) return undefined;
-    this.sortItems(jsonFile.item);
+  getSortItems(jsonFile: Questionnaire): Questionnaire {
+    if (jsonFile.item !== undefined) {
+      this.sortItems(jsonFile.item);
+    }
     return jsonFile;
   }
 
   validateItem(item: Item): void {
-    this.addPropertiesNeededtoGUIItemNode(item);
+    this.addPropertiesNeededForGUIItemNode(item);
     //Validate if missing required fields of the Item
     this.itemNodeRequiredFields(item);
 
@@ -379,7 +373,7 @@ class FHIRValidation {
     }
   }
 
-  addPropertiesNeededtoGUIItemNode(item: Item) {
+  addPropertiesNeededForGUIItemNode(item: Item) {
     item.__active = true;
     item.disabled = false;
     item.__oldText = item.text;
