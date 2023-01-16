@@ -1,4 +1,4 @@
-import { usedLocale, i18n } from "@/i18n";
+import { usedLocale, i18n, Locale } from "@/i18n";
 import { File, Item } from "@/types";
 import { createStore } from "vuex";
 
@@ -39,31 +39,21 @@ export type Questionnaire = {
   resourceType: "Questionnaire";
 };
 
-const qI: Questionnaire = {
-  language: usedLocale,
-  identifier: [],
-  url: "",
-  name: "",
-  version: "",
-  title: "",
-  status: "unknown",
-  publisher: "",
-  date: "",
-  approvalDate: "",
-  lastReviewDate: "",
-  experimental: true,
-  item: [],
-  resourceType: "Questionnaire",
-};
-
-const defaultQuestionnaire = (lang: Language): Questionnaire => {
+// TODO: If fallback locale is needed, i18n should not log to console
+export const defaultQuestionnaire = (lang: Language): Questionnaire => {
+  const locale: Locale = lang as Locale;
+  const name = i18n.global.t(
+    "store.questionnaire.name",
+    {},
+    { locale: locale },
+  );
   return {
     language: lang,
     identifier: [],
     url: "https://num-compass.science/de/",
-    name: i18n.global.t("store.questionnaire.name", { locale: lang }),
+    name: name,
+    title: name,
     version: "1.0",
-    title: i18n.global.t("store.questionnaire.name", { locale: lang }),
     status: "draft",
     publisher: "",
     date: "",
@@ -74,6 +64,8 @@ const defaultQuestionnaire = (lang: Language): Questionnaire => {
     resourceType: "Questionnaire",
   };
 };
+
+const qI: Questionnaire = defaultQuestionnaire(usedLocale);
 
 const q: Item = {
   __active: false,
@@ -227,22 +219,7 @@ const store = createStore<StoreState>({
         item: [],
       };
       const language = state.questionnaireImported.language || usedLocale;
-      state.questionnaireImported = {
-        language: language,
-        identifier: [],
-        url: "",
-        name: "",
-        version: "",
-        title: "",
-        status: "draft",
-        publisher: "",
-        date: "",
-        approvalDate: "",
-        lastReviewDate: "",
-        experimental: true,
-        item: [],
-        resourceType: "Questionnaire",
-      };
+      state.questionnaireImported = defaultQuestionnaire(language);
       state.questionnaireRepo.set(language, state.questionnaireImported);
       state.secondaryItemSelected = {};
       state.fileImported = {
@@ -279,22 +256,7 @@ const store = createStore<StoreState>({
     },
     getQuestionnaireImportedJSON(state): Questionnaire {
       if (!state.questionnaireImported) {
-        state.questionnaireImported = {
-          language: usedLocale,
-          identifier: [],
-          url: "",
-          name: "",
-          version: "",
-          title: "",
-          status: "unknown",
-          publisher: "",
-          date: "",
-          approvalDate: "",
-          lastReviewDate: "",
-          experimental: true,
-          resourceType: "Questionnaire",
-          item: [],
-        };
+        state.questionnaireImported = defaultQuestionnaire(usedLocale);
         state.questionnaireRepo.set(usedLocale, state.questionnaireImported);
       } else if (!state.questionnaireImported.item) {
         state.questionnaireImported.item = [];
