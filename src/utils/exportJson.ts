@@ -132,7 +132,6 @@ function getObjectWithoutItemsDisabled(
 }
 
 const exportJsonQuestionnaire = {
-  // TODO: fix types for exporting, copy somehow generic?
   getExportObject(jsonObject: Questionnaire) {
     const cloneObject = this.getObjectExportCopy(jsonObject) as Questionnaire;
     const objWithoutItemsDisabled = getObjectWithoutItemsDisabled(cloneObject);
@@ -167,40 +166,42 @@ const exportJsonQuestionnaire = {
   },
   clearMetadataFields(jsonObject: Questionnaire) {
     //Version
-    if (jsonObject.version === "") {
+    if (!jsonObject.version) {
       delete jsonObject.version;
     }
     //URL
-    if (jsonObject.url === "") {
+    if (!jsonObject.url) {
       delete jsonObject.url;
     }
     //Name
-    if (jsonObject.name === "") {
+    if (!jsonObject.name) {
       delete jsonObject.name;
     }
     //publisher
-    if (jsonObject.publisher === "") {
+    if (!jsonObject.publisher) {
       delete jsonObject.publisher;
     }
     //title
-    if (jsonObject.title === "") {
+    if (!jsonObject.title) {
       delete jsonObject.title;
     }
-    // FIXME: undefined instead of null?
     //approvalDate
-    if (jsonObject.date === null) {
+    if (!jsonObject.date) {
       delete jsonObject.date;
     }
     //approvalDate
-    if (jsonObject.approvalDate === null) {
+    if (!jsonObject.approvalDate) {
       delete jsonObject.approvalDate;
     }
     //lastReviewDate
-    if (jsonObject.lastReviewDate === null) {
+    if (!jsonObject.lastReviewDate) {
       delete jsonObject.lastReviewDate;
     }
     //experimental
-    if (jsonObject.experimental === null) {
+    if (
+      jsonObject.experimental === null ||
+      jsonObject.experimental === undefined
+    ) {
       delete jsonObject.experimental;
     }
     //Identifier
