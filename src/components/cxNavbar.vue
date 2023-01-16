@@ -181,10 +181,9 @@ export default defineComponent({
       try {
         this.showLoading();
         const objToExport: Questionnaire = this.getQuestionnaireImportedJSON;
+        // TODO: Should handling version work like this? Isn't setting in Metadata enough?
         if (this.version !== "") {
-          this.getQuestionnaireImportedJSON.version = this.version;
-        } else {
-          delete this.getQuestionnaireImportedJSON.version;
+          objToExport.version = this.version;
         }
         const objFinalToExport = JSON.stringify(
           this.exportJsonQuestionnaire.getExportObject(objToExport),

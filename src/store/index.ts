@@ -1,4 +1,4 @@
-import { usedLocale, Locale, i18n } from "@/i18n";
+import { usedLocale, i18n } from "@/i18n";
 import { File, Item } from "@/types";
 import { createStore } from "vuex";
 
@@ -23,7 +23,7 @@ type Identifier = {
 };
 
 export type Questionnaire = {
-  language: Locale;
+  language: Language;
   identifier?: Identifier[];
   url?: string;
   name?: string;
@@ -56,6 +56,25 @@ const qI: Questionnaire = {
   resourceType: "Questionnaire",
 };
 
+const defaultQuestionnaire = (lang: Language): Questionnaire => {
+  return {
+    language: lang,
+    identifier: [],
+    url: "https://num-compass.science/de/",
+    name: i18n.global.t("store.questionnaire.name", { locale: lang }),
+    version: "1.0",
+    title: i18n.global.t("store.questionnaire.name", { locale: lang }),
+    status: "draft",
+    publisher: "",
+    date: "",
+    approvalDate: "",
+    lastReviewDate: "",
+    experimental: true,
+    item: [],
+    resourceType: "Questionnaire",
+  };
+};
+
 const q: Item = {
   __active: false,
   __icon: "",
@@ -78,9 +97,14 @@ const fI: File = {
   file: new Blob(),
 };
 
+export const languages = ["de", "en", "es"] as const;
+export type Language = typeof languages[number];
+
 export type StoreState = {
   questionnaire: Item;
   questionnaireImported: Questionnaire;
+  questionnaireRepo: Map<Language, Questionnaire>;
+  language: Language;
   secondaryItemSelected: {};
   fileImported: File;
   settings: {
@@ -92,11 +116,13 @@ export type StoreState = {
   };
 };
 
-const store = createStore({
+const store = createStore<StoreState>({
   state: {
     questionnaire: q, // Only used in MainItems, can be deleted?
     secondaryItemSelected: {}, // Only in MainItem, SecondaryItem, ...
     questionnaireImported: qI,
+    language: qI.language,
+    questionnaireRepo: new Map([[qI.language, qI]]),
     fileImported: fI,
     settings: {
       answers: {
@@ -107,6 +133,18 @@ const store = createStore({
     },
   },
   mutations: {
+    switchQuestionnaireByLang(state, payload: Language): void {
+      let qre;
+      if (state.questionnaireRepo.has(payload)) {
+        qre = state.questionnaireRepo.get(payload) as Questionnaire;
+        state.questionnaireImported = qre;
+      } else {
+        qre = defaultQuestionnaire(payload);
+        state.questionnaireRepo.set(payload, qre);
+        state.questionnaireImported = qre;
+      }
+      state.language = payload;
+    },
     //metaData
     // in cxNavbar
     setNameofQuestionnaireNEW(state) {
@@ -160,8 +198,9 @@ const store = createStore({
     setSecondItemSelected(state, payload = {}) {
       state.secondaryItemSelected = payload;
     },
-    setQuestionnaireImportedJSON(state, payload = {}) {
+    setQuestionnaireImportedJSON(state: StoreState, payload: Questionnaire) {
       state.questionnaireImported = payload;
+      state.questionnaireRepo.set(payload.language, payload);
     },
     // in ImportScreen, cxNavbar but not used?
     setFileImported(state, payload = {}) {
@@ -183,14 +222,15 @@ const store = createStore({
         type: "group",
         item: [],
       };
+      const language = state.questionnaireImported.language || usedLocale;
       state.questionnaireImported = {
-        language: usedLocale,
+        language: language,
         identifier: [],
         url: "",
         name: "",
         version: "",
         title: "",
-        status: "unknown",
+        status: "draft",
         publisher: "",
         date: "",
         approvalDate: "",
@@ -199,6 +239,7 @@ const store = createStore({
         item: [],
         resourceType: "Questionnaire",
       };
+      state.questionnaireRepo.set(language, state.questionnaireImported);
       state.secondaryItemSelected = {};
       state.fileImported = {
         name: "",
@@ -207,12 +248,18 @@ const store = createStore({
     },
   },
   actions: {
-    async uploadJSONQuestionnaire({ commit }, payload) {
+    async uploadJSONQuestionnaire(
+      { commit },
+      payload: Questionnaire,
+    ): Promise<void> {
       await commit("setQuestionnaireImportedJSON", payload);
     },
   },
   modules: {},
   getters: {
+    getLanguage(state) {
+      return state.language;
+    },
     //Settings
     getAnswerValueSet(state) {
       return state.settings.answers.answersValueset;
@@ -244,6 +291,7 @@ const store = createStore({
           resourceType: "Questionnaire",
           item: [],
         };
+        state.questionnaireRepo.set(usedLocale, state.questionnaireImported);
       } else if (!state.questionnaireImported.item) {
         state.questionnaireImported.item = [];
       }

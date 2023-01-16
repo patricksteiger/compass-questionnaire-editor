@@ -158,10 +158,12 @@
                 icon="keyboard_arrow_up"
                 direction="up"
                 padding="none xl"
-                :label="$t('views.editor.changeLanguage', { language: locale })"
+                :label="
+                  $t('views.editor.changeLanguage', { language: language })
+                "
               >
                 <q-fab-action
-                  v-for="lang in locales.filter((l) => l !== locale)"
+                  v-for="lang in languages.filter((l) => l !== language)"
                   :key="lang"
                   label-position="right"
                   color="purple"
@@ -992,7 +994,7 @@ import { mapGetters } from "vuex";
 import { v4 as uuidv4 } from "uuid";
 import cxEnableWhen from "../components/cxEnableWhen.vue";
 import cxAddGeccoItem from "../components/cxAddGeccoItem.vue";
-import { i18n, Locale, locales, usedLocale } from "@/i18n";
+import { i18n } from "@/i18n";
 import {
   AnswerOption,
   EnableWhen,
@@ -1001,6 +1003,7 @@ import {
   SelectedQuestion,
   operators,
 } from "@/types";
+import { Language, languages, Questionnaire } from "@/store";
 
 // TODO: Replace with KeyboardEvent
 type CustomEvent = {
@@ -1022,7 +1025,7 @@ export default defineComponent({
         message: i18n.global.t("views.editor.questionDontexist"),
       });
     };
-    const questionaireGUI: Ref<Item | undefined> = ref(undefined);
+    const questionaireGUI: Ref<Questionnaire | undefined> = ref(undefined);
     const selectedItem: Ref<Item | undefined> = ref(undefined);
     const lastSelectedItem: Ref<Item | undefined> = ref(undefined);
     const selected: Ref<string | null> = ref(null);
@@ -1035,17 +1038,12 @@ export default defineComponent({
           answerOption.valueCoding.__oldDisplay || "";
       }
     };
-    const locale: Ref<Locale> = ref(usedLocale);
+    // let language: Ref<Language> = ref(usedLocale);
     const item: Ref<Item[]> = ref([]);
-    const enItem: Ref<Item[]> = ref([]);
-    const deItem: Ref<Item[]> = ref([]);
     return {
-      locale,
       triggerNegative,
       questionaireGUI,
       item,
-      deItem,
-      enItem,
       selected,
       selectedItem,
       lastSelected,
@@ -1064,33 +1062,29 @@ export default defineComponent({
       uuidv4,
       answerTypeButton,
       operators,
-      locales: locales,
+      languages,
     };
   },
   created() {
-    this.getQuestionnaireImportedJSON.language = this.locale;
-    this.questionaireGUI = this.getQuestionnaireImportedJSON;
-    this.item = this.questionaireGUI?.item || [];
-    this.deItem = this.item;
+    this.language = this.getLanguage;
+    this.questionaireGUI = this.getQuestionnaireImportedJSON as Questionnaire;
+    this.questionaireGUI.item ??= [];
+    this.item = this.questionaireGUI.item;
   },
   data() {
     return {
       fabLeft: true,
       splitterModel: 40,
       limitsSpliter: [35, 100],
+      language: "de",
     };
   },
   methods: {
-    onLanguageChoice(locale: Locale): void {
-      if (this.locale === locale) {
-        console.log("Nothing changed.");
-      } else {
-        this.locale = locale;
-        this.item = this.locale === "de" ? this.deItem : this.enItem;
-        // Sets item used for exporting
-        this.getQuestionnaireImportedJSON.item = this.item;
-        this.getQuestionnaireImportedJSON.language = this.locale;
-      }
+    onLanguageChoice(language: Language): void {
+      // language is filtered at button and always != to current language
+      this.$store.commit("switchQuestionnaireByLang", language);
+      this.item = this.getQuestionnaireImportedJSON.item;
+      this.language = this.getLanguage;
     },
     onBackLastSelectedItem(): void {
       if (this.lastSelected) {
@@ -1613,6 +1607,7 @@ export default defineComponent({
       "getAnswerValueSet",
       "getOpenChoice",
       "getChoice",
+      "getLanguage",
     ]),
     // TODO: Is this method needed?
     aAddAnswerButtonOptions() {
