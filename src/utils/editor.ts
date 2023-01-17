@@ -270,7 +270,6 @@ class EditorTools {
     return undefined;
   }
 
-  // TODO: Is LinkId always unique?
   getCurrentQuestionNodeByLinkId(
     linkId: string,
     rootItem: Item[] = [],
@@ -429,7 +428,6 @@ class EditorTools {
         return i;
       }
     }
-    // TODO: Is default index of 1 sensible?
     return undefined;
   }
 

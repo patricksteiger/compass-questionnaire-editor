@@ -202,6 +202,7 @@ const store = createStore<StoreState>({
     setFileImported(state, payload = {}) {
       state.fileImported = payload;
     },
+    // TODO: Only used to go back to Import: current QRE irrelevant?
     resetQuestionnaire(state) {
       state.questionnaire = {
         __active: false,

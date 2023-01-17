@@ -716,7 +716,6 @@
                               </q-tooltip></q-btn
                             >
                           </div>
-                          <!-- FIXME: if type is undefined it shows as string -->
                           <q-input
                             :disable="!selectedItem.__active"
                             :label="`${$t('views.editor.question')}: ${
@@ -1690,8 +1689,6 @@ export default defineComponent({
       this.editorTools.removeConditionDependence(this.item);
       this.editorTools.setConditionDependence(this.item, this.item);
       if (val === undefined) {
-        // FIXME: Is item item-array or -object?
-        // this.selectedItem = this.item[0];
         this.selectedItem = undefined;
         return;
       }
