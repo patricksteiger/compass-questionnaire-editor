@@ -101,6 +101,7 @@
                         </q-tooltip></q-toggle
                       >
                     </div>
+                    <!-- @click="deleteItem(prop)" -->
                     <div style="width: 30px">
                       <q-btn
                         flat
@@ -108,7 +109,7 @@
                         size="xs"
                         icon="delete"
                         class="q-mr-sm text-grey-8"
-                        @click="deleteItem(prop)"
+                        @click="deleteItem(prop.key)"
                       >
                         <q-tooltip>{{
                           $t("views.editor.deleteItem")
@@ -998,7 +999,6 @@ import { i18n } from "@/i18n";
 import {
   AnswerOption,
   EnableWhen,
-  Prop,
   Item,
   SelectedQuestion,
   operators,
@@ -1054,7 +1054,7 @@ export default defineComponent({
       geccoLayout: ref(false),
       alert: ref(false),
       itemsAnwers: ref(""),
-      editorTools: editorTools,
+      editorTools,
       questionTypesIcons,
       questionTypes,
       answerType,
@@ -1578,24 +1578,45 @@ export default defineComponent({
       );
       this.selectedItem.answerOption.splice(indexOfItemtoBeRemoved, 1);
     },
-    // FIXME: Deletion is not respected in Condition
-    deleteItem(item: Prop) {
-      let answer = confirm(i18n.global.t("views.editor.deleteItemDialogue"));
-      if (answer) {
-        this.deleteItemRecursivly(this.item, item.key);
+    deleteItem(internalID: string) {
+      if (!internalID) {
+        console.error("Empty internalID can't be deleted");
+        return;
       }
-      let changedIdMap = this.editorTools.regenerateLinkIds(this.item);
+      const answer = confirm(i18n.global.t("views.editor.deleteItemDialogue"));
+      if (!answer) {
+        return;
+      }
+      const branchWithPosition = this.editorTools.getBranchContainingInternalID(
+        internalID,
+        this.item,
+      );
+      if (branchWithPosition === undefined) {
+        console.error(
+          `InternalID ${internalID} doesn't exist in Questionnaire`,
+        );
+        return;
+      }
+      const [branch, position] = branchWithPosition;
+      const linkIDs = this.editorTools.getAllLinkIDs(branch[position]);
+      branch.splice(position, 1); // Delete item
+      this.deleteEnableWhenWithQuestionID(this.item, linkIDs);
+      const changedIdMap = this.editorTools.regenerateLinkIds(this.item);
       this.editorTools.regenerateInternalIDs(this.item);
       this.editorTools.regenerateConditionWhenIds(this.item, changedIdMap);
     },
-    deleteItemRecursivly(itemList: Item[], key: string) {
-      for (let i = 0; i < itemList.length; i++) {
-        const item = itemList[i];
-        if (item.__internalID === key) {
-          itemList.splice(i, 1);
-          return;
-        } else if (item.item !== undefined) {
-          this.deleteItemRecursivly(item.item, key);
+    deleteEnableWhenWithQuestionID(items: Item[], linkIDs: Set<string>) {
+      for (const item of items) {
+        if (item.enableWhen !== undefined) {
+          for (let i = item.enableWhen.length - 1; i >= 0; i--) {
+            const enableWhen = item.enableWhen[i];
+            if (linkIDs.has(enableWhen.question)) {
+              item.enableWhen.splice(i, 1);
+            }
+          }
+        }
+        if (item.item !== undefined) {
+          this.deleteEnableWhenWithQuestionID(item.item, linkIDs);
         }
       }
     },

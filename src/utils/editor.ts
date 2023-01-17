@@ -36,10 +36,24 @@ export const defaultNode: Item = {
 class EditorTools {
   answerType = answerType;
   questionTypes = questionTypes;
-  currentQuestionNodeByID = {
-    __internalID: defaultNode.__internalID,
-    item: undefined,
-  };
+  // currentQuestionNodeByID = {
+  //   __internalID: defaultNode.__internalID,
+  //   item: undefined,
+  // };
+
+  private getAllLinkIDsHelper(item: Item, linkIDs: Set<string>): void {
+    linkIDs.add(item.linkId);
+    if (item.item === undefined) return;
+    for (const element of item.item) {
+      this.getAllLinkIDsHelper(element, linkIDs);
+    }
+  }
+
+  getAllLinkIDs(item: Item): Set<string> {
+    const linkIDs = new Set<string>();
+    this.getAllLinkIDsHelper(item, linkIDs);
+    return linkIDs;
+  }
 
   getIndexItem(internalIDToBeRemove: string, arrayQuestions: Item[]): number {
     for (let i = 0; i < arrayQuestions.length; i++)
@@ -203,7 +217,24 @@ class EditorTools {
     return [];
   }
 
-  // TODO: Is LinkId always unique?
+  getBranchContainingInternalID(
+    internalID: string,
+    items: Item[],
+  ): [Item[], number] | undefined {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.__internalID === internalID) {
+        return [items, i];
+      }
+      if (item.item === undefined) continue;
+      const result = this.getBranchContainingInternalID(internalID, item.item);
+      if (result !== undefined) {
+        return result;
+      }
+    }
+    return undefined;
+  }
+
   getCurrentQuestionNodeByID(
     internalId: string,
     rootItem: Item[] = [],
