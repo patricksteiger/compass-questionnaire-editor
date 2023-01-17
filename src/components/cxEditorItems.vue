@@ -1570,14 +1570,13 @@ export default defineComponent({
         return;
       }
       if (e.__id === undefined) {
-        console.error("Answer-Option has undefined id");
+        console.error("AnswerOption has undefined id");
         return;
       }
-      const indexOfItemtoBeRemoved = this.editorTools.getIndexAnswer(
-        e.__id,
-        this.selectedItem.answerOption,
+      const indexOfItemtoBeRemoved = this.selectedItem.answerOption.findIndex(
+        (answer) => answer.__id === e.__id,
       );
-      if (indexOfItemtoBeRemoved === undefined) {
+      if (indexOfItemtoBeRemoved === -1) {
         console.error(`ID '${e.__id}' does not exist on any answer`);
         return;
       }

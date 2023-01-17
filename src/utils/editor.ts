@@ -415,20 +415,7 @@ class EditorTools {
         level++;
       }
     }
-    console.log(`LinkId: ${linkId}, length: ${level}`);
     return level;
-  }
-
-  getIndexAnswer(
-    internalIDToBeRemoved: number,
-    arrayAnswers: AnswerOption[],
-  ): number | undefined {
-    for (let i = arrayAnswers.length - 1; i >= 0; i--) {
-      if (arrayAnswers[i].__id === internalIDToBeRemoved) {
-        return i;
-      }
-    }
-    return undefined;
   }
 
   getNextID(currentID: string): string {

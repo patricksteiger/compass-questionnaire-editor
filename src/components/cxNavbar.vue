@@ -161,7 +161,6 @@ export default defineComponent({
     ...mapMutations([
       "resetQuestionnaire",
       "updateVersion",
-      "setFileImported",
       "setNameofQuestionnaireNEW",
     ]),
     ...mapActions(["uploadJSONQuestionnaire"]),

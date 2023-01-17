@@ -67,22 +67,6 @@ export const defaultQuestionnaire = (lang: Language): Questionnaire => {
 
 const qI: Questionnaire = defaultQuestionnaire(usedLocale);
 
-const q: Item = {
-  __active: false,
-  __icon: "",
-  __internalID: "",
-  __linkId: "",
-  __newQuestion: true,
-  __newDefinition: true,
-  __OldAnswerValueSet: "",
-  __answerValueSetCheck: false,
-  linkId: "",
-  text: "",
-  definition: "",
-  type: "group",
-  item: [],
-};
-
 const fI: File = {
   // Used as name of the Questionnaire
   name: "",
@@ -96,11 +80,9 @@ export const isSupportedLanguage = (lang: string): lang is Language => {
 };
 
 export type StoreState = {
-  questionnaire: Item;
   questionnaireImported: Questionnaire;
   questionnaireRepo: Map<Language, Questionnaire>;
   language: Language;
-  secondaryItemSelected: {};
   fileImported: File;
   settings: {
     answers: {
@@ -113,8 +95,6 @@ export type StoreState = {
 
 const store = createStore<StoreState>({
   state: {
-    questionnaire: q, // Only used in MainItems, can be deleted?
-    secondaryItemSelected: {}, // Only in MainItem, SecondaryItem, ...
     questionnaireImported: qI,
     language: qI.language,
     questionnaireRepo: new Map([[qI.language, qI]]),
@@ -190,39 +170,20 @@ const store = createStore<StoreState>({
     setChoice(state, payload) {
       state.settings.answers.choice = payload;
     },
-    setSecondItemSelected(state, payload = {}) {
-      state.secondaryItemSelected = payload;
-    },
     setQuestionnaireImportedJSON(state: StoreState, payload: Questionnaire) {
       state.language = payload.language;
       state.questionnaireImported = payload;
       state.questionnaireRepo.set(payload.language, payload);
     },
-    // in ImportScreen, cxNavbar but not used?
     setFileImported(state, payload = {}) {
       state.fileImported = payload;
     },
     // TODO: Only used to go back to Import: current QRE irrelevant?
+    // createNewEmptyQRE-method used instead coming from EditorScreen?
     resetQuestionnaire(state) {
-      state.questionnaire = {
-        __active: false,
-        __icon: "",
-        __internalID: "",
-        __linkId: "",
-        __newQuestion: true,
-        __newDefinition: true,
-        __OldAnswerValueSet: "",
-        __answerValueSetCheck: false,
-        linkId: "",
-        text: "",
-        definition: "",
-        type: "group",
-        item: [],
-      };
       const language = state.questionnaireImported.language || usedLocale;
       state.questionnaireImported = defaultQuestionnaire(language);
       state.questionnaireRepo.set(language, state.questionnaireImported);
-      state.secondaryItemSelected = {};
       state.fileImported = {
         name: "",
         file: new Blob(),
@@ -252,9 +213,6 @@ const store = createStore<StoreState>({
     getChoice(state) {
       return state.settings.answers.choice;
     },
-    getMainItem(state) {
-      return state.questionnaire.item;
-    },
     getQuestionnaireImportedJSON(state): Questionnaire {
       if (!state.questionnaireImported) {
         state.questionnaireImported = defaultQuestionnaire(usedLocale);
@@ -265,18 +223,16 @@ const store = createStore<StoreState>({
       return state.questionnaireImported;
     },
     getVersionQuestionnaire(state) {
-      if (state.questionnaireImported.version === undefined) {
-        state.questionnaireImported.version = "";
-      }
+      state.questionnaireImported.version ??= "";
       return state.questionnaireImported.version;
     },
     getFileImported(state) {
       return state.fileImported;
     },
     getNameofQuestionnaire(state) {
-      if (state?.fileImported?.name)
-        return state.fileImported.name.split(".json")[0];
-      else return "";
+      return state?.fileImported?.name
+        ? state.fileImported.name.split(".json")[0]
+        : "";
     },
   },
 });
