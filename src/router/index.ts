@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router";
-import importQuestionnaire from "../views/ImportScreen.vue";
 
 import store from "../store";
 
 import EditorScreen from "../views/EditorScreen.vue";
+import ImportScreen from "../views/ImportScreen.vue";
 
 const routes = [
   {
@@ -14,18 +14,20 @@ const routes = [
   {
     path: "/import",
     name: "Import",
-    component: importQuestionnaire,
+    component: ImportScreen,
   },
-];
+] as const;
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
 });
 
-router.beforeEach((to, from, next) => {
-  if (to.name !== "Import" && !store.getters.getNameofQuestionnaire)
+router.beforeEach((to, _from, next) => {
+  if (to.name !== "Import" && !store.getters.getNameofQuestionnaire) {
     next({ name: "Import" });
-  else next();
+  } else {
+    next();
+  }
 });
 export default router;
