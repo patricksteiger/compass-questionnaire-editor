@@ -408,17 +408,29 @@ class EditorTools {
     return item;
   }
 
+  getLevelFromLinkID(linkId: string): number {
+    // count root level
+    let level = 1;
+    for (const c of linkId) {
+      if (c === ".") {
+        level++;
+      }
+    }
+    console.log(`LinkId: ${linkId}, length: ${level}`);
+    return level;
+  }
+
   getIndexAnswer(
     internalIDToBeRemoved: number,
     arrayAnswers: AnswerOption[],
-  ): number {
+  ): number | undefined {
     for (let i = arrayAnswers.length - 1; i >= 0; i--) {
       if (arrayAnswers[i].__id === internalIDToBeRemoved) {
         return i;
       }
     }
     // TODO: Is default index of 1 sensible?
-    return 1;
+    return undefined;
   }
 
   getNextID(currentID: string): string {

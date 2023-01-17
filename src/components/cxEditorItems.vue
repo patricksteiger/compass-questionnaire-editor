@@ -1163,7 +1163,9 @@ export default defineComponent({
       const item = JSON.parse(JSON.stringify(input)) as Item; //create copy
       if (this.selected !== null && this.selectedItem !== undefined) {
         // only add questions in items type group
-        const selectedLevel = this.selectedItem.linkId.split(".").length;
+        const selectedLevel = this.editorTools.getLevelFromLinkID(
+          this.selectedItem.linkId,
+        );
         if (
           this.selectedItem.type !== "group" ||
           selectedLevel >= MAX_ALLOWED_LEVELS
@@ -1341,16 +1343,15 @@ export default defineComponent({
         //no allow more than 5 levels of items, nested Items
         const numLevel =
           this.editorTools.getNumbersMaxOfLevels(itemToBeMoved.item) + 1; //count parent
-        const totalOfLevelts = itemTarget.linkId.split(".").length + numLevel;
+        const totalOfLevelts =
+          this.editorTools.getLevelFromLinkID(itemTarget.linkId) + numLevel;
         if (totalOfLevelts > MAX_ALLOWED_LEVELS) {
           return;
         }
       }
 
-      if (
-        itemTarget.linkId.split(".").length >= MAX_ALLOWED_LEVELS &&
-        itemToBeMoved.__icon === "article"
-      ) {
+      const level = this.editorTools.getLevelFromLinkID(itemTarget.linkId);
+      if (level >= MAX_ALLOWED_LEVELS && itemToBeMoved.__icon === "article") {
         return; //no allow more than 5 levels of items
       }
 
@@ -1433,7 +1434,7 @@ export default defineComponent({
       //No allow add question more than 5 levels
       if (
         this.selectedItem !== undefined &&
-        this.selectedItem.linkId.split(".").length >=
+        this.editorTools.getLevelFromLinkID(this.selectedItem.linkId) >=
           MAX_ALLOWED_LEVELS_FOR_GROUPS &&
         e.name === this.questionTypes.group
       ) {
@@ -1473,7 +1474,8 @@ export default defineComponent({
       //No allow add question more than 5 levels
       if (
         this.selectedItem !== undefined &&
-        this.selectedItem.linkId.split(".").length >= MAX_ALLOWED_LEVELS
+        this.editorTools.getLevelFromLinkID(this.selectedItem.linkId) >=
+          MAX_ALLOWED_LEVELS
       ) {
         return;
       }
@@ -1576,6 +1578,10 @@ export default defineComponent({
         e.__id,
         this.selectedItem.answerOption,
       );
+      if (indexOfItemtoBeRemoved === undefined) {
+        console.error(`ID '${e.__id}' does not exist on any answer`);
+        return;
+      }
       this.selectedItem.answerOption.splice(indexOfItemtoBeRemoved, 1);
     },
     deleteItem(internalID: string) {

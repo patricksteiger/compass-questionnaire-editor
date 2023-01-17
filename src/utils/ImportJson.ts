@@ -8,6 +8,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { Question, Item } from "@/types";
 import { Questionnaire, isSupportedLanguage } from "@/store";
+import { editorTools } from "./editor";
 
 /* Error Exceptions obj */
 /*function QuestionnaireValidationException(message) {
@@ -166,7 +167,7 @@ class FHIRValidation {
     this.itemNodeRequiredFields(item);
 
     //Error if there is more than 6 levels
-    const linkIdLevel = item.linkId.split(".").length;
+    const linkIdLevel = editorTools.getLevelFromLinkID(item.linkId);
     if (linkIdLevel > MAX_ALLOWED_LEVELS) {
       const message = this.i18n.global.t(
         "messagesErrors.FHIRValidations.moreThan5Levels",
@@ -274,10 +275,8 @@ class FHIRValidation {
       element.__linkId = item.linkId + "." + idCount;
       this.validateItem(element);
       //deep inside no more that 5 levels
-      if (
-        element.item &&
-        element.__linkId.split(".").length <= MAX_ALLOWED_LEVELS
-      ) {
+      const level = editorTools.getLevelFromLinkID(element.__linkId);
+      if (element.item && level <= MAX_ALLOWED_LEVELS) {
         this.validateItems(element);
       }
     }
