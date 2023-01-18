@@ -103,7 +103,7 @@ class EditorTools {
       }
       if (element.item) {
         const newIds = this.assingNewItemIDs(element);
-        changedIdMap = new Map([...changedIdMap, ...(newIds || [])]);
+        changedIdMap = new Map([...changedIdMap, ...newIds]);
       }
     });
     return changedIdMap;
@@ -468,10 +468,6 @@ class EditorTools {
     return undefined;
   }
 
-  private objectKeys<T extends object>(obj: T): (keyof T)[] {
-    return Object.keys(obj) as (keyof T)[];
-  }
-
   setConditionDependence(item: Item[] = [], rootItem: Item[] = []): void {
     for (const element of item) {
       if (element.item !== undefined) {
@@ -490,25 +486,22 @@ class EditorTools {
           __linkId: "",
           __text: "",
         };
-        const keysEnableWhen = this.objectKeys(enableWhen);
         const condition: Question = {
-          __question: "",
+          __linkId: element.linkId,
+          __text: element.text,
+          __question: enableWhen.question,
+          __answer: enableWhen.answer,
+          __operator: enableWhen.operator,
+          __type: enableWhen.type,
+          __display: enableWhen.display,
+          __system: enableWhen.system,
+          __answerInteger: enableWhen.answerInteger,
+          __answerDecimal: enableWhen.answerDecimal,
+          __answerBoolean: enableWhen.answerBoolean,
+          __answerCoding: enableWhen.answerCoding,
+          __answerDate: enableWhen.answerDate,
+          __answerString: enableWhen.answerString,
         };
-        for (const key of keysEnableWhen) {
-          if (key === "answerCoding") {
-            condition[`__${key}`] = enableWhen[key];
-          } else if (key === "answerInteger" || key === "answerDecimal") {
-            condition[`__${key}`] = enableWhen[key];
-          } else if (key === "answerBoolean") {
-            condition[`__${key}`] = enableWhen[key];
-          } else if (key === "question") {
-            condition[`__${key}`] = enableWhen[key];
-          } else {
-            condition[`__${key}`] = enableWhen[key];
-          }
-        }
-        condition.__linkId = element.linkId;
-        condition.__text = element.text;
         itemToAppendCondition.__dependeceCondition.__questions.push(condition);
       }
     }

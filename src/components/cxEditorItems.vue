@@ -1191,6 +1191,7 @@ export default defineComponent({
           item.linkId = this.editorTools.getNextID(lastItem.linkId);
         } else {
           this.selectedItem.item ??= [];
+          // TODO: extract generating of ID
           item.__linkId = this.selected + "." + 1;
           item.linkId = item.__linkId;
         }
@@ -1222,7 +1223,9 @@ export default defineComponent({
         throw new Error("Remove can't be used with no conditions!");
       }
       if (index < 0 || index >= this.selectedItem.enableWhen.length) {
-        throw new Error("Out of bounds index removing condition!");
+        throw new Error(
+          `Out of bounds index removing condition! Size: ${this.selectedItem.enableWhen.length}, index: ${index}.`,
+        );
       }
       this.selectedItem.enableWhen.splice(index, 1);
     },

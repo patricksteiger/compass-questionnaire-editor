@@ -71,10 +71,6 @@ class FHIRValidation {
     this.itemsNode(this.questionnaire.item);
   }
 
-  private objectKeys<T extends object>(obj: T): (keyof T)[] {
-    return Object.keys(obj) as (keyof T)[];
-  }
-
   setConditionDependence(items: Item[] = []): void {
     for (const item of items) {
       this.setConditionDependence(item.item);
@@ -85,36 +81,30 @@ class FHIRValidation {
           enableWhen.question,
           this.questionnaire.item,
         );
-        if (itemToAppendCondition !== undefined) {
-          itemToAppendCondition.__dependeceCondition ??= {
-            __icon: "account_tree",
-            __questions: [],
-            __linkId: "",
-            __text: "",
-          };
-          const keysEnableWhen = this.objectKeys(enableWhen);
-          const condition: Question = {
-            __question: "",
-          };
-          for (const key of keysEnableWhen) {
-            if (key === "answerCoding") {
-              condition[`__${key}`] = enableWhen[key];
-            } else if (key === "answerInteger" || key === "answerDecimal") {
-              condition[`__${key}`] = enableWhen[key];
-            } else if (key === "answerBoolean") {
-              condition[`__${key}`] = enableWhen[key];
-            } else if (key === "question") {
-              condition[`__${key}`] = enableWhen[key];
-            } else {
-              condition[`__${key}`] = enableWhen[key];
-            }
-          }
-          condition.__linkId = item.linkId;
-          condition.__text = item.text;
-          itemToAppendCondition.__dependeceCondition.__questions.push(
-            condition,
-          );
-        }
+        if (itemToAppendCondition === undefined) continue;
+        itemToAppendCondition.__dependeceCondition ??= {
+          __icon: "account_tree",
+          __questions: [],
+          __linkId: "",
+          __text: "",
+        };
+        const condition: Question = {
+          __linkId: item.linkId,
+          __text: item.text,
+          __question: enableWhen.question,
+          __answer: enableWhen.answer,
+          __operator: enableWhen.operator,
+          __type: enableWhen.type,
+          __display: enableWhen.display,
+          __system: enableWhen.system,
+          __answerInteger: enableWhen.answerInteger,
+          __answerDecimal: enableWhen.answerDecimal,
+          __answerBoolean: enableWhen.answerBoolean,
+          __answerCoding: enableWhen.answerCoding,
+          __answerDate: enableWhen.answerDate,
+          __answerString: enableWhen.answerString,
+        };
+        itemToAppendCondition.__dependeceCondition.__questions.push(condition);
       }
     }
   }

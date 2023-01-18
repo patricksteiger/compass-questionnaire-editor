@@ -1,6 +1,6 @@
 import { QTree } from "quasar";
 
-export type Prop = {
+export type VueProp = {
   expanded: boolean;
   ticked: boolean;
   tree: QTree;
@@ -12,11 +12,11 @@ export type Prop = {
 
 export type QuestionType =
   | "group"
-  | "string"
+  | "open-choice"
   | "choice"
+  | "string"
   | "boolean"
   | "date"
-  | "open-choice"
   | "integer"
   | "decimal";
 
