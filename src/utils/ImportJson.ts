@@ -75,9 +75,12 @@ class FHIRValidation {
     for (const item of items) {
       this.setConditionDependence(item.item);
       if (item.enableWhen === undefined) continue;
-      // FIXME: Should enableWhen === null be allowed?
+      if (item.enableWhen === null) {
+        item.enableWhen = undefined;
+        continue;
+      }
       for (const enableWhen of item.enableWhen) {
-        const itemToAppendCondition = this.getItemNodeByInternalID(
+        const itemToAppendCondition = this.getItemNodeByLinkID(
           enableWhen.question,
           this.questionnaire.item,
         );
@@ -88,7 +91,7 @@ class FHIRValidation {
           __linkId: "",
           __text: "",
         };
-        const condition: Question = {
+        const question: Question = {
           __linkId: item.linkId,
           __text: item.text,
           __question: enableWhen.question,
@@ -104,18 +107,20 @@ class FHIRValidation {
           __answerDate: enableWhen.answerDate,
           __answerString: enableWhen.answerString,
         };
-        itemToAppendCondition.__dependeceCondition.__questions.push(condition);
+        itemToAppendCondition.__dependeceCondition.__questions.push(question);
       }
     }
   }
 
-  // FIXME: Why is it called InternalId but using linkId?
-  getItemNodeByInternalID(linkId: string, item: Item[] = []): Item | undefined {
+  private getItemNodeByLinkID(
+    linkId: string,
+    item: Item[] = [],
+  ): Item | undefined {
     for (const element of item) {
       if (element.linkId === linkId) {
         return element;
       }
-      const result = this.getItemNodeByInternalID(linkId, element.item);
+      const result = this.getItemNodeByLinkID(linkId, element.item);
       if (result !== undefined) {
         return result;
       }

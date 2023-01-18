@@ -451,8 +451,7 @@ class EditorTools {
     return maxLevel + 1;
   }
 
-  // FIXME: Is LinkId instead of InternalId correct here?
-  getItemNodeByInternalID(
+  private getItemNodeByLinkID(
     linkId: string,
     items: Item[] = [],
   ): Item | undefined {
@@ -460,7 +459,7 @@ class EditorTools {
       if (element.linkId === linkId) {
         return element;
       }
-      const result = this.getItemNodeByInternalID(linkId, element.item);
+      const result = this.getItemNodeByLinkID(linkId, element.item);
       if (result !== undefined) {
         return result;
       }
@@ -470,12 +469,10 @@ class EditorTools {
 
   setConditionDependence(item: Item[] = [], rootItem: Item[] = []): void {
     for (const element of item) {
-      if (element.item !== undefined) {
-        this.setConditionDependence(element.item, rootItem);
-      }
+      this.setConditionDependence(element.item, rootItem);
       if (element.enableWhen === undefined) continue;
       for (const enableWhen of element.enableWhen) {
-        const itemToAppendCondition = this.getItemNodeByInternalID(
+        const itemToAppendCondition = this.getItemNodeByLinkID(
           enableWhen.question,
           rootItem,
         );
@@ -486,7 +483,7 @@ class EditorTools {
           __linkId: "",
           __text: "",
         };
-        const condition: Question = {
+        const question: Question = {
           __linkId: element.linkId,
           __text: element.text,
           __question: enableWhen.question,
@@ -502,7 +499,7 @@ class EditorTools {
           __answerDate: enableWhen.answerDate,
           __answerString: enableWhen.answerString,
         };
-        itemToAppendCondition.__dependeceCondition.__questions.push(condition);
+        itemToAppendCondition.__dependeceCondition.__questions.push(question);
       }
     }
   }
