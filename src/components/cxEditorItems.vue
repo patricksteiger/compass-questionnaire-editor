@@ -994,7 +994,7 @@ import { mapGetters } from "vuex";
 import { v4 as uuidv4 } from "uuid";
 import cxEnableWhen from "../components/cxEnableWhen.vue";
 import cxAddGeccoItem from "../components/cxAddGeccoItem.vue";
-import { i18n } from "@/i18n";
+import { i18n, usedLocale } from "@/i18n";
 import {
   AnswerOption,
   EnableWhen,
@@ -1037,7 +1037,7 @@ export default defineComponent({
           answerOption.valueCoding.__oldDisplay || "";
       }
     };
-    // let language: Ref<Language> = ref(usedLocale);
+    const language: Ref<Language> = ref(usedLocale);
     const item: Ref<Item[]> = ref([]);
     return {
       triggerNegative,
@@ -1062,6 +1062,7 @@ export default defineComponent({
       answerTypeButton,
       operators,
       languages,
+      language,
     };
   },
   created() {
@@ -1075,7 +1076,6 @@ export default defineComponent({
       fabLeft: true,
       splitterModel: 40,
       limitsSpliter: [35, 100],
-      language: "de",
     };
   },
   methods: {
