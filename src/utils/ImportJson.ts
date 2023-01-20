@@ -6,8 +6,8 @@ import {
   questionType,
 } from "./constants";
 import { v4 as uuidv4 } from "uuid";
-import { Question, Item } from "@/types";
-import { Questionnaire, isSupportedLanguage } from "@/store";
+import { Question, Item, Questionnaire } from "@/types";
+import { isSupportedLanguage } from "@/store";
 import { editorTools } from "./editor";
 
 /* Error Exceptions obj */

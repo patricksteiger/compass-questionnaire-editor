@@ -5,7 +5,7 @@ import {
   QuestionIcon,
 } from "./constants";
 import { v4 as uuidv4 } from "uuid";
-import { GeccoNode } from "@/store/questionnaire";
+import { GeccoItem } from "@/store/questionnaire";
 import { Answer, AnswerOption, Question, Item, QuestionType } from "@/types";
 
 export const defaultNode: Item = {
@@ -253,8 +253,8 @@ class EditorTools {
 
   getCurrentGeccoQuestionNodeByID(
     internalId: string,
-    rootItem: GeccoNode[] = [],
-  ): GeccoNode | undefined {
+    rootItem: GeccoItem[] = [],
+  ): GeccoItem | undefined {
     for (const item of rootItem) {
       if (item.__internalID === internalId) {
         return item;

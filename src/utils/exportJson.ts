@@ -1,5 +1,4 @@
-import { Questionnaire } from "@/store";
-import { AnswerOption, Identifier, Item } from "@/types";
+import { AnswerOption, Identifier, Item, Questionnaire } from "@/types";
 import { i18n } from "../i18n";
 
 function getObjectWithoutItemsDisabled(

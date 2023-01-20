@@ -1,3 +1,4 @@
+import { Language } from "@/store";
 import { QTree } from "quasar";
 
 export type VueProp = {
@@ -121,9 +122,9 @@ export type Condition = {
 };
 
 export type Identifier = {
-  value?: string;
   use?: string;
   system?: string;
+  value?: string;
   period?: {
     start?: string;
     end?: string;
@@ -167,6 +168,23 @@ export type Item = {
   approvalDate?: string;
   lastReviewDate?: string;
   experimental?: boolean;
+};
+
+export type Questionnaire = {
+  language: Language;
+  identifier?: Identifier[];
+  url?: string;
+  name?: string;
+  version?: string;
+  title?: string;
+  status: "draft" | "active" | "retired" | "unknown";
+  publisher?: string;
+  date?: string;
+  approvalDate?: string;
+  lastReviewDate?: string;
+  experimental?: Boolean;
+  item: Item[];
+  resourceType: "Questionnaire";
 };
 
 export type File = {

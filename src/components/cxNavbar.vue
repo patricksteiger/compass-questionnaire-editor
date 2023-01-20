@@ -116,8 +116,8 @@ import { mapGetters, mapMutations, mapActions } from "vuex";
 import { useQuasar } from "quasar";
 import FileSaver from "file-saver";
 import { exportJsonQuestionnaire } from "../utils/exportJson";
-import { Questionnaire } from "@/store";
 import { i18n, usedLocale } from "@/i18n";
+import { Questionnaire } from "@/types";
 
 export default defineComponent({
   computed: {

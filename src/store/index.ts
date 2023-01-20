@@ -1,47 +1,10 @@
-import { usedLocale, i18n, Locale } from "@/i18n";
-import { File, Item } from "@/types";
+import { usedLocale, i18n, getLocaleFromLanguage } from "@/i18n";
+import { File, Questionnaire } from "@/types";
 import { createStore } from "vuex";
-
-type Identifier = {
-  use?: string;
-  system?: string;
-  value?: string;
-  period?: {
-    start?: string;
-    end?: string;
-  };
-  type?: {
-    coding?: {
-      system?: string;
-      version?: string;
-      code?: string;
-      display?: string;
-      userSelected?: boolean;
-    };
-    text?: string;
-  };
-};
-
-export type Questionnaire = {
-  language: Language;
-  identifier?: Identifier[];
-  url?: string;
-  name?: string;
-  version?: string;
-  title?: string;
-  status: "draft" | "active" | "retired" | "unknown";
-  publisher?: string;
-  date?: string;
-  approvalDate?: string;
-  lastReviewDate?: string;
-  experimental?: Boolean;
-  item: Item[];
-  resourceType: "Questionnaire";
-};
 
 // TODO: If fallback locale is needed, i18n should not log to console
 export const defaultQuestionnaire = (lang: Language): Questionnaire => {
-  const locale: Locale = lang as Locale;
+  const locale = getLocaleFromLanguage(lang);
   const name = i18n.global.t(
     "store.questionnaire.name",
     {},
@@ -112,13 +75,12 @@ const store = createStore<StoreState>({
       let qre;
       if (state.questionnaireRepo.has(payload)) {
         qre = state.questionnaireRepo.get(payload) as Questionnaire;
-        state.questionnaireImported = qre;
       } else {
         qre = defaultQuestionnaire(payload);
-        state.questionnaireRepo.set(payload, qre);
-        state.questionnaireImported = qre;
+        state.questionnaireRepo.set(qre.language, qre);
       }
-      state.language = payload;
+      state.questionnaireImported = qre;
+      state.language = qre.language;
     },
     //metaData
     // in cxNavbar

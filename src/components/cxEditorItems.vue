@@ -1001,8 +1001,9 @@ import {
   Item,
   SelectedQuestion,
   operators,
+  Questionnaire,
 } from "@/types";
-import { Language, languages, Questionnaire } from "@/store";
+import { Language, languages } from "@/store";
 
 // TODO: Replace with KeyboardEvent
 type CustomEvent = {

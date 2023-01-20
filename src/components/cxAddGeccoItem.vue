@@ -163,16 +163,22 @@
 <script lang="ts">
 import { defineComponent, Ref, ref } from "vue";
 import { editorTools } from "../utils/editor";
-import { Gecco, GeccoNode, geccoQuestionnaire } from "@/store/questionnaire";
+import {
+  GeccoQuestionnaire,
+  GeccoItem,
+  geccoQuestionnaire,
+} from "@/store/questionnaire";
 import { importJsonQuestionnaire } from "@/utils/ImportJson";
 import { AnswerOption } from "@/types";
 
 export default defineComponent({
   setup() {
     const filter = ref("de");
-    const questionaireGUI: Ref<Gecco> = ref({ ...geccoQuestionnaire });
-    const item: Ref<GeccoNode[]> = ref([]);
-    const selectedItem: Ref<GeccoNode | undefined> = ref(undefined);
+    const questionaireGUI: Ref<GeccoQuestionnaire> = ref({
+      ...geccoQuestionnaire,
+    });
+    const item: Ref<GeccoItem[]> = ref([]);
+    const selectedItem: Ref<GeccoItem | undefined> = ref(undefined);
     const selected: Ref<string | null> = ref(null);
     return {
       splitterModel: ref(50), // start at 50%
@@ -188,7 +194,7 @@ export default defineComponent({
     importJsonQuestionnaire.getValidateFHIRResource(this.questionaireGUI); //create __internal_ids
     // FIXME: fix type conversion
     this.item = this.questionaireGUI.item
-      ? (this.questionaireGUI.item as GeccoNode[])
+      ? (this.questionaireGUI.item as GeccoItem[])
       : [];
   },
   watch: {
@@ -204,7 +210,7 @@ export default defineComponent({
     },
   },
   methods: {
-    onSelectGECCOQuestion(questionSelected: GeccoNode | undefined): void {
+    onSelectGECCOQuestion(questionSelected: GeccoItem | undefined): void {
       if (
         questionSelected?.extension?.find(
           (it) =>
