@@ -735,6 +735,7 @@
                             dense
                           />
                           <!-- enableWhen boolean -->
+                          <!-- TODO: EnableWhen answer and operator is set through v-model? How to duplicate? -->
                           <q-select
                             v-if="
                               enableWhen.type === 'boolean' ||
@@ -960,7 +961,7 @@
       </q-card>
     </q-dialog>
     <!-- Condition Item Dialog -->
-    <q-dialog v-model="layout">
+    <q-dialog v-model="enableWhenLayout">
       <cx-enable-When
         v-if="selected !== null"
         :internalID="selected"
@@ -1004,6 +1005,7 @@ import {
   Questionnaire,
 } from "@/types";
 import { Language, languages } from "@/store";
+import { deepCopyObject } from "@/utils/exportJson";
 
 // TODO: Replace with KeyboardEvent
 type CustomEvent = {
@@ -1028,6 +1030,7 @@ export default defineComponent({
     const questionaireGUI: Ref<Questionnaire | undefined> = ref(undefined);
     const selectedItem: Ref<Item | undefined> = ref(undefined);
     const lastSelectedItem: Ref<Item | undefined> = ref(undefined);
+    // TODO: InternalID or LinkID? Is used to generate LinkID in onSelectedGECCOQuestion
     const selected: Ref<string | null> = ref(null);
     const lastSelected: Ref<string | null> = ref(null);
     const enableWhen: EnableWhen = { question: "", operator: "" };
@@ -1050,7 +1053,7 @@ export default defineComponent({
       lastSelectedItem,
       enableWhenItem,
       setDisplayToOld,
-      layout: ref(false),
+      enableWhenLayout: ref(false),
       geccoLayout: ref(false),
       alert: ref(false),
       itemsAnwers: ref(""),
@@ -1146,21 +1149,22 @@ export default defineComponent({
       } else if (e.__type === "string") {
         this.enableWhenItem.answer = e.valueString;
       }
-      this.layout = false;
+      this.enableWhenLayout = false;
     },
     onSelectedQuestion(e: SelectedQuestion): void {
       this.enableWhenItem.question = e.linkId || "";
       this.enableWhenItem.answer = "";
       // TODO: is it type or __type?
       this.enableWhenItem.type = e.type;
-      this.layout = false;
+      this.enableWhenLayout = false;
     },
+    // TODO: Should it be GeccoItem instead of Item?
     onSelectedGECCOQuestion(input: Item | undefined): void {
       this.geccoLayout = false;
       if (input === undefined) {
         return; // No question was selected
       }
-      const item = JSON.parse(JSON.stringify(input)) as Item; //create copy
+      const item = deepCopyObject(input);
       if (this.selected !== null && this.selectedItem !== undefined) {
         // only add questions in items type group
         const selectedLevel = this.editorTools.getLevelFromLinkID(
@@ -1207,6 +1211,7 @@ export default defineComponent({
     },
     onAddCondition() {
       if (this.selectedItem === undefined) {
+        console.error("Can't add condition with selecting an item.");
         return;
       }
       this.selectedItem.enableWhen ??= [];
@@ -1232,7 +1237,7 @@ export default defineComponent({
     },
     onShowQuestionsItems(enableWhen: EnableWhen): void {
       this.enableWhenItem = enableWhen;
-      this.layout = true;
+      this.enableWhenLayout = true;
     },
     answerValueSet(): void {
       if (this.selectedItem !== undefined) {

@@ -91,6 +91,35 @@
     </q-card>
   </q-dialog>
 
+  <!-- TODO: Error on invalid values -->
+  <q-dialog v-model="alertValidationError">
+    <q-card>
+      <q-card-section>
+        <div class="text-h6">
+          <q-icon name="warning" class="text-amber" style="font-size: 2rem" />
+          {{ $t("messagesErrors.warning") }}
+        </div>
+      </q-card-section>
+
+      <q-card-section class="q-pt-none">
+        <ul>
+          <li v-for="message in validationErrorMessages" :key="message">
+            {{ message }}
+          </li>
+        </ul>
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn
+          flat
+          :label="$t('components.navigationBar.warningLeaveDialog.continue')"
+          color="primary"
+          v-close-popup
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+
   <q-dialog v-model="alert">
     <q-card>
       <q-card-section>
@@ -111,7 +140,7 @@
   </q-dialog>
 </template>
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, Ref, ref } from "vue";
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import { useQuasar } from "quasar";
 import FileSaver from "file-saver";
@@ -135,6 +164,7 @@ export default defineComponent({
   },
   setup() {
     const $q = useQuasar();
+    const validationErrorMessages: Ref<string[]> = ref([]);
     return {
       exportJsonQuestionnaire,
       showLoading() {
@@ -144,6 +174,8 @@ export default defineComponent({
         $q.loading.hide();
       },
       alertWantToLeaveScreen: ref(false),
+      alertValidationError: ref(false),
+      validationErrorMessages,
       alertError: ref(false),
       alert: ref(false),
       alertMetadata: ref(false),
@@ -180,15 +212,19 @@ export default defineComponent({
       try {
         this.showLoading();
         const objToExport: Questionnaire = this.getQuestionnaireImportedJSON;
-        // TODO: Should handling version work like this? Isn't setting in Metadata enough?
-        if (this.version !== "") {
-          objToExport.version = this.version;
+        this.validationErrorMessages =
+          this.exportJsonQuestionnaire.validateQREWithSettings(
+            objToExport,
+            this.$store.state.settings,
+          );
+        if (this.validationErrorMessages.length > 0) {
+          this.hideLoading();
+          this.alertValidationError = true;
+          return;
         }
-        const objFinalToExport = JSON.stringify(
-          this.exportJsonQuestionnaire.getExportObject(objToExport),
-          null,
-          2,
-        );
+        const exportQuestionnaire =
+          this.exportJsonQuestionnaire.getExportObject(objToExport);
+        const objFinalToExport = JSON.stringify(exportQuestionnaire, null, 2);
         blob = new Blob([objFinalToExport], {
           type: "application/json;charset=utf-8",
         });

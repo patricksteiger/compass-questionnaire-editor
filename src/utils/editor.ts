@@ -6,7 +6,14 @@ import {
 } from "./constants";
 import { v4 as uuidv4 } from "uuid";
 import { GeccoItem } from "@/store/questionnaire";
-import { Answer, AnswerOption, Question, Item, QuestionType } from "@/types";
+import {
+  Answer,
+  AnswerOption,
+  Question,
+  Item,
+  QuestionType,
+  Questionnaire,
+} from "@/types";
 
 export const defaultNode: Item = {
   __active: true,

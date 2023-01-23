@@ -42,18 +42,20 @@ export const isSupportedLanguage = (lang: string): lang is Language => {
   return languages.includes(lang as Language);
 };
 
+export type Settings = {
+  answers: {
+    answersValueset: boolean;
+    openChoice: boolean;
+    choice: boolean;
+  };
+};
+
 export type StoreState = {
   questionnaireImported: Questionnaire;
   questionnaireRepo: Map<Language, Questionnaire>;
   language: Language;
   fileImported: File;
-  settings: {
-    answers: {
-      answersValueset: boolean;
-      openChoice: boolean;
-      choice: boolean;
-    };
-  };
+  settings: Settings;
 };
 
 const store = createStore<StoreState>({
@@ -72,10 +74,8 @@ const store = createStore<StoreState>({
   },
   mutations: {
     switchQuestionnaireByLang(state, payload: Language): void {
-      let qre;
-      if (state.questionnaireRepo.has(payload)) {
-        qre = state.questionnaireRepo.get(payload) as Questionnaire;
-      } else {
+      let qre = state.questionnaireRepo.get(payload);
+      if (qre === undefined) {
         qre = defaultQuestionnaire(payload);
         state.questionnaireRepo.set(qre.language, qre);
       }
