@@ -770,7 +770,7 @@
                             type="number"
                             dense
                           />
-                          <!-- FIXME: what is default type of enableWhen? -->
+                          <!-- TODO: Can there be validation for dates? -->
                           <q-input
                             v-else
                             :disable="!selectedItem.__active"
@@ -987,15 +987,16 @@ import {
   AnswerButtonType,
   QuestionIcon,
   MAX_ALLOWED_LEVELS_FOR_GROUPS,
+  COMPASS_GECCO_ITEM_URL,
 } from "../utils/constants";
 import { useQuasar } from "quasar";
 import { defineComponent, Ref, ref } from "vue";
 import { editorTools } from "../utils/editor";
 import { mapGetters } from "vuex";
 import { v4 as uuidv4 } from "uuid";
-import cxEnableWhen from "../components/cxEnableWhen.vue";
-import cxAddGeccoItem from "../components/cxAddGeccoItem.vue";
-import { i18n, usedLocale } from "@/i18n";
+import cxEnableWhen from "@/components/cxEnableWhen.vue";
+import cxAddGeccoItem from "@/components/cxAddGeccoItem.vue";
+import { i18n, defaultLanguage } from "@/i18n";
 import {
   AnswerOption,
   EnableWhen,
@@ -1006,13 +1007,6 @@ import {
 } from "@/types";
 import { Language, languages } from "@/store";
 import { deepCopyObject } from "@/utils/exportJson";
-
-// TODO: Replace with KeyboardEvent
-type CustomEvent = {
-  keyCode: number;
-  which: number;
-  preventDefault: () => void;
-};
 
 export default defineComponent({
   components: {
@@ -1034,14 +1028,14 @@ export default defineComponent({
     const selected: Ref<string | null> = ref(null);
     const lastSelected: Ref<string | null> = ref(null);
     const enableWhen: EnableWhen = { question: "", operator: "" };
-    const enableWhenItem = ref(enableWhen);
+    const enableWhenItem: Ref<EnableWhen> = ref(enableWhen);
     const setDisplayToOld = (answerOption: AnswerOption) => {
       if (answerOption.valueCoding !== undefined) {
         answerOption.valueCoding.display =
           answerOption.valueCoding.__oldDisplay || "";
       }
     };
-    const language: Ref<Language> = ref(usedLocale);
+    const language: Ref<Language> = ref(defaultLanguage);
     const item: Ref<Item[]> = ref([]);
     return {
       triggerNegative,
@@ -1116,22 +1110,17 @@ export default defineComponent({
         this.triggerNegative();
       }
     },
-    onlyNumberDec($event: CustomEvent) {
-      //keyCodes value
-      let keyCode = $event.keyCode ? $event.keyCode : $event.which;
-      if ((keyCode < 48 || keyCode > 57) && keyCode !== 46 && keyCode !== 44) {
-        // 46 is dot
+    onlyNumberDec($event: KeyboardEvent): void {
+      if (this.editorTools.isNotDecimalKey($event.code)) {
         $event.preventDefault();
       }
     },
-    onlyNumber($event: CustomEvent) {
-      //keyCodes value
-      let keyCode = $event.keyCode ? $event.keyCode : $event.which;
-      if (keyCode < 48 || keyCode > 57) {
+    onlyNumber($event: KeyboardEvent): void {
+      if (this.editorTools.isNotIntegerKey($event.code)) {
         $event.preventDefault();
       }
     },
-    onSelectedQuestionsAnswer(e: AnswerOption) {
+    onSelectedQuestionsAnswer(e: AnswerOption): void {
       this.enableWhenItem.question = e.linkId || "";
       this.enableWhenItem.type = e.__type;
       if (e.__type === "coding") {
@@ -1178,7 +1167,7 @@ export default defineComponent({
         }
         // only add group if there are enough levels (recursively)
         if (item.type === "group") {
-          const countGroupLevels = this.editorTools.getNumberOfGroupLevel(item);
+          const countGroupLevels = this.editorTools.getMaxLevelOfGroup(item);
           if (
             selectedLevel + countGroupLevels >
             MAX_ALLOWED_LEVELS_FOR_GROUPS
@@ -1433,10 +1422,7 @@ export default defineComponent({
     },
     onAddQuestion(e: QuestionIcon) {
       //No Add Question on Items disabled
-      if (
-        // this.selectedItem === undefined ||
-        this.selectedItem?.__active === false
-      ) {
+      if (this.selectedItem?.__active === false) {
         return;
       }
       //No allow add question more than 5 levels
@@ -1448,12 +1434,11 @@ export default defineComponent({
       ) {
         return;
       }
-      const item = this.editorTools.getTypeObjQuestion(e.name);
+      const item = this.editorTools.getQuestionWithType(e.name);
       item.text = this.$t("views.editor.newQuestion");
       if (this.selected !== null && this.selectedItem !== undefined) {
-        //only add questions in items type group
-        if (this.selectedItem.__icon !== "article") return;
-        // if (this.selectedItem.type !== this.questionTypes.group) return;
+        // only add questions in items with type group
+        if (this.selectedItem.type !== "group") return;
         if (
           this.selectedItem.item !== undefined &&
           this.selectedItem.item.length > 0
@@ -1517,18 +1502,12 @@ export default defineComponent({
     hasGeccoExtension(e: Item | undefined) {
       return (
         e?.extension &&
-        e.extension.some(
-          (it) =>
-            it.url ===
-            "https://num-compass.science/fhir/StructureDefinition/CompassGeccoItem",
-        )
+        e.extension.some((it) => it.url === COMPASS_GECCO_ITEM_URL)
       );
     },
     getGeccoExtensionValue(e: Item | undefined) {
       let extension = e?.extension?.find(
-        (it) =>
-          it.url ===
-          "https://num-compass.science/fhir/StructureDefinition/CompassGeccoItem",
+        (it) => it.url === COMPASS_GECCO_ITEM_URL,
       );
       return extension?.valueCoding?.code;
     },

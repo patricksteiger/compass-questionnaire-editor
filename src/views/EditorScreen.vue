@@ -30,9 +30,9 @@
   </q-tab-panels>
 </template>
 <script lang="ts">
-import cxEditorItems from "../components/cxEditorItems.vue";
-import cxMetadata from "../components/cxMetadata.vue";
-import cxSettings from "../components/cxSettings.vue";
+import cxEditorItems from "@/components/cxEditorItems.vue";
+import cxMetadata from "@/components/cxMetadata.vue";
+import cxSettings from "@/components/cxSettings.vue";
 import { defineComponent, ref } from "vue";
 
 export default defineComponent({

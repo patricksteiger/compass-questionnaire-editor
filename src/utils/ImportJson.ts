@@ -1,4 +1,4 @@
-import { i18n, usedLocale } from "../i18n";
+import { i18n, defaultLanguage } from "../i18n";
 import {
   answerType,
   MAX_ALLOWED_LEVELS,
@@ -34,12 +34,6 @@ abstract class Exception {
   }
 }
 
-class FHIRValidationException extends Exception {
-  constructor(message: string) {
-    super("FHIRValidationException", message);
-  }
-}
-
 class GeneralJSONValidationException extends Exception {
   constructor(message: string) {
     super("GeneralJSONValidationException", message);
@@ -48,7 +42,7 @@ class GeneralJSONValidationException extends Exception {
 
 /* Function Validations */
 const defaultQuestionnaire = (): Questionnaire => ({
-  language: usedLocale,
+  language: defaultLanguage,
   status: "unknown",
   item: [],
   resourceType: "Questionnaire",
@@ -186,14 +180,7 @@ class FHIRValidation {
           internalId: item.__linkId,
         },
       );
-      // FIXME: errorMessages or Exceptions? (unused Exception earlier)
-      throw new FHIRValidationException(message);
-      /* this.errorMessages.push(
-        this.i18n.global.t("messagesErrors.FHIRValidations.linkId", {
-          linkId: item.linkId,
-          internalId: item.__linkId,
-        })
-      ); */
+      this.errorMessages.push(message);
     }
 
     //format Answer

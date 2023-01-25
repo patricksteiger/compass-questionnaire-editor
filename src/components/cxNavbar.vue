@@ -91,13 +91,13 @@
     </q-card>
   </q-dialog>
 
-  <!-- TODO: Error on invalid values -->
+  <!-- Error on invalid values before exporting -->
   <q-dialog v-model="alertValidationError">
     <q-card>
       <q-card-section>
         <div class="text-h6">
-          <q-icon name="warning" class="text-amber" style="font-size: 2rem" />
-          {{ $t("messagesErrors.warning") }}
+          <q-icon name="error" class="text-red" style="font-size: 2rem" />
+          {{ $t("messagesErrors.error") }}
         </div>
       </q-card-section>
 
@@ -112,7 +112,7 @@
       <q-card-actions align="right">
         <q-btn
           flat
-          :label="$t('components.navigationBar.warningLeaveDialog.continue')"
+          :label="$t('components.navigationBar.warningLeaveDialog.cancel')"
           color="primary"
           v-close-popup
         />
@@ -145,7 +145,7 @@ import { mapGetters, mapMutations, mapActions } from "vuex";
 import { useQuasar } from "quasar";
 import FileSaver from "file-saver";
 import { exportJsonQuestionnaire } from "../utils/exportJson";
-import { i18n, usedLocale } from "@/i18n";
+import { i18n, defaultLanguage } from "@/i18n";
 import { Questionnaire } from "@/types";
 
 export default defineComponent({
@@ -213,7 +213,7 @@ export default defineComponent({
         this.showLoading();
         const objToExport: Questionnaire = this.getQuestionnaireImportedJSON;
         this.validationErrorMessages =
-          this.exportJsonQuestionnaire.validateQREWithSettings(
+          this.exportJsonQuestionnaire.validateQuestionnaire(
             objToExport,
             this.$store.state.settings,
           );
@@ -259,7 +259,7 @@ export default defineComponent({
     },
     createNewEmptyQRE() {
       const newQRE: Questionnaire = {
-        language: usedLocale,
+        language: defaultLanguage,
         resourceType: "Questionnaire",
         status: "draft",
         url: "https://num-compass.science/de/",

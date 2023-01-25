@@ -6,47 +6,37 @@ import {
 } from "./constants";
 import { v4 as uuidv4 } from "uuid";
 import { GeccoItem } from "@/store/questionnaire";
-import {
-  Answer,
-  AnswerOption,
-  Question,
-  Item,
-  QuestionType,
-  Questionnaire,
-} from "@/types";
+import { Answer, AnswerOption, Question, Item, QuestionType } from "@/types";
 
-export const defaultNode: Item = {
-  __active: true,
-  __icon: "",
-  __internalID: "",
-  __linkId: "",
-  __newQuestion: true,
-  __newDefinition: true,
-  disabled: true,
-  item: undefined,
-  linkId: "",
-  type: "group",
-  text: "",
-  definition: "",
-  answerOption: [],
-  __OldAnswerValueSet: "",
-  answerValueSet: "",
-  __answerValueSetCheck: false,
-  extension: [],
-};
+function getTypeQuestionIcon(type: QuestionType): QuestionIcon["icon"] {
+  const questionTypesIcon = questionTypesIcons.find((i) => i.name === type);
+  if (questionTypesIcon === undefined) {
+    throw new Error(`Invalid QuestionType: ${type}`);
+  }
+  return questionTypesIcon.icon;
+}
 
-// type Base<T> = {
-//   __internalID: string;
-//   item: T[] | undefined;
-// };
+function createNewItem(type: QuestionType): Item {
+  return {
+    type: type,
+    __icon: getTypeQuestionIcon(type),
+    __internalID: `${uuidv4()}-${Date.now()}`,
+    definition: uuidv4(),
+    __active: true,
+    __linkId: "",
+    __newQuestion: true,
+    __newDefinition: true,
+    disabled: false,
+    item: undefined,
+    linkId: "",
+    text: "",
+    extension: [],
+  };
+}
 
 class EditorTools {
   answerType = answerType;
   questionTypes = questionTypes;
-  // currentQuestionNodeByID = {
-  //   __internalID: defaultNode.__internalID,
-  //   item: undefined,
-  // };
 
   private getAllLinkIDsHelper(item: Item, linkIDs: Set<string>): void {
     linkIDs.add(item.linkId);
@@ -319,15 +309,6 @@ class EditorTools {
     }
   }
 
-  // TODO: Is there a case where QuestionType can be invalid? How to throw error?
-  getTypeQuestionIcon(type: QuestionType): QuestionIcon {
-    const icon = questionTypesIcons.find((item) => item.name === type);
-    if (icon === undefined) {
-      throw new Error(`Invalid QuestionType: ${type}`);
-    }
-    return icon;
-  }
-
   getNewAnswerValueCoding(
     answer: Answer,
     arrayAnswers: AnswerOption[] = [],
@@ -365,28 +346,13 @@ class EditorTools {
     return answerOption;
   }
 
-  getTypeObjQuestion(typeQuestion: QuestionType): Item {
-    const questionTypeIcon = this.getTypeQuestionIcon(typeQuestion);
-    const item: Item = {
-      ...defaultNode,
-      text: "",
-      type: typeQuestion,
-      __icon: questionTypeIcon.icon,
-      __active: true,
-      disabled: false,
-      __newQuestion: true,
-      __internalID: `${uuidv4()}-${Date.now()}`,
-      definition: uuidv4(),
-    };
-    if (
-      questionTypeIcon.name === this.questionTypes.choice ||
-      questionTypeIcon.name === this.questionTypes.openChoice
-    ) {
+  getQuestionWithType(questionType: QuestionType): Item {
+    const item = createNewItem(questionType);
+    if (item.type === "choice" || item.type === "open-choice") {
       item.answerOption = [];
       item.__OldAnswerValueSet = item.answerValueSet = "";
       item.__answerValueSetCheck = false;
-    }
-    if (item.type === this.questionTypes.integer) {
+    } else if (item.type === "integer") {
       item.extension = [
         {
           url: "http://hl7.org/fhir/StructureDefinition/questionnaire-sliderStepValue",
@@ -447,11 +413,14 @@ class EditorTools {
     return items.length > 0 ? this.currentMaxLevel(items, 1) : 0;
   }
 
-  getNumberOfGroupLevel(item: Item): number {
+  getMaxLevelOfGroup(item: Item): number {
     let maxLevel = 0;
-    for (const element of item.item || []) {
+    if (item.item === undefined) {
+      return maxLevel;
+    }
+    for (const element of item.item) {
       if (element.type === "group") {
-        const level = this.getNumberOfGroupLevel(element);
+        const level = this.getMaxLevelOfGroup(element);
         maxLevel = level > maxLevel ? level : maxLevel;
       }
     }
@@ -520,6 +489,20 @@ class EditorTools {
         delete element.__dependeceCondition;
       }
     });
+  }
+
+  isNotIntegerKey(code: string): boolean {
+    // Number-KeyCodes: "Digit0" - "Digit9"
+    return (
+      code.length !== 6 ||
+      !code.startsWith("Digit") ||
+      code[5] < "0" ||
+      code[5] > "9"
+    );
+  }
+
+  isNotDecimalKey(code: string): boolean {
+    return this.isNotIntegerKey(code) && code !== "Period" && code !== "Comma";
   }
 }
 

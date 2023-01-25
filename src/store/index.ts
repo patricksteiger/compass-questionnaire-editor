@@ -1,8 +1,7 @@
-import { usedLocale, i18n, getLocaleFromLanguage } from "@/i18n";
+import { defaultLanguage, i18n, getLocaleFromLanguage } from "@/i18n";
 import { File, Questionnaire } from "@/types";
 import { createStore } from "vuex";
 
-// TODO: If fallback locale is needed, i18n should not log to console
 export const defaultQuestionnaire = (lang: Language): Questionnaire => {
   const locale = getLocaleFromLanguage(lang);
   const name = i18n.global.t(
@@ -28,7 +27,7 @@ export const defaultQuestionnaire = (lang: Language): Questionnaire => {
   };
 };
 
-const qI: Questionnaire = defaultQuestionnaire(usedLocale);
+const qI: Questionnaire = defaultQuestionnaire(defaultLanguage);
 
 const fI: File = {
   // Used as name of the Questionnaire
@@ -143,7 +142,7 @@ const store = createStore<StoreState>({
     // TODO: Only used to go back to Import: current QRE irrelevant?
     // createNewEmptyQRE-method used instead coming from EditorScreen?
     resetQuestionnaire(state) {
-      const language = state.questionnaireImported.language || usedLocale;
+      const language = state.questionnaireImported.language || defaultLanguage;
       state.questionnaireImported = defaultQuestionnaire(language);
       state.questionnaireRepo.set(language, state.questionnaireImported);
       state.fileImported = {
@@ -177,8 +176,11 @@ const store = createStore<StoreState>({
     },
     getQuestionnaireImportedJSON(state): Questionnaire {
       if (!state.questionnaireImported) {
-        state.questionnaireImported = defaultQuestionnaire(usedLocale);
-        state.questionnaireRepo.set(usedLocale, state.questionnaireImported);
+        state.questionnaireImported = defaultQuestionnaire(defaultLanguage);
+        state.questionnaireRepo.set(
+          defaultLanguage,
+          state.questionnaireImported,
+        );
       } else if (!state.questionnaireImported.item) {
         state.questionnaireImported.item = [];
       }

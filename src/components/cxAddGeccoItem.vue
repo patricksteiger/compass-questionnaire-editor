@@ -192,7 +192,7 @@ export default defineComponent({
   },
   created() {
     importJsonQuestionnaire.getValidateFHIRResource(this.questionaireGUI); //create __internal_ids
-    // FIXME: fix type conversion
+    // TODO: fix type conversion
     this.item = this.questionaireGUI.item
       ? (this.questionaireGUI.item as GeccoItem[])
       : [];

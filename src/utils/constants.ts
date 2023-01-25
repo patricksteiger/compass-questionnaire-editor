@@ -64,3 +64,5 @@ export const COLORS = {
 
 export const MAX_ALLOWED_LEVELS = 5;
 export const MAX_ALLOWED_LEVELS_FOR_GROUPS = MAX_ALLOWED_LEVELS - 1;
+export const COMPASS_GECCO_ITEM_URL =
+  "https://num-compass.science/fhir/StructureDefinition/CompassGeccoItem";

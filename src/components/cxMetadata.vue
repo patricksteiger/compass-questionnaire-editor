@@ -271,6 +271,7 @@
 <script lang="ts">
 import { mapGetters } from "vuex";
 import { defineComponent, ref } from "vue";
+import { Identifier } from "@/types";
 
 export default defineComponent({
   setup() {
@@ -376,7 +377,7 @@ export default defineComponent({
   },
   methods: {
     addEmptyId() {
-      let newID = {
+      const newID: Identifier = {
         use: "",
         system: "",
         value: "",
@@ -395,9 +396,7 @@ export default defineComponent({
           text: "",
         },
       };
-      if (this.$store.state.questionnaireImported.identifier === undefined) {
-        this.$store.state.questionnaireImported.identifier = [];
-      }
+      this.$store.state.questionnaireImported.identifier ??= [];
       this.$store.state.questionnaireImported.identifier.push(newID);
     },
     removeID(indexID: number) {

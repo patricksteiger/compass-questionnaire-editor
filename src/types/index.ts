@@ -144,8 +144,8 @@ export type Item = {
   __newDefinition: boolean;
   __oldText?: string;
   __dependeceCondition?: Condition;
-  __OldAnswerValueSet: string;
-  __answerValueSetCheck: boolean;
+  __OldAnswerValueSet?: string;
+  __answerValueSetCheck?: boolean;
   disabled?: boolean;
   item?: Item[];
   identifier?: Identifier[];

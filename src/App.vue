@@ -9,10 +9,10 @@
   </q-layout>
 </template>
 
-<script>
-import { ref } from "vue";
-import cxNavbar from "./components/cxNavbar.vue";
-export default {
+<script lang="ts">
+import { defineComponent, ref } from "vue";
+import cxNavbar from "@/components/cxNavbar.vue";
+export default defineComponent({
   name: "LayoutDefault",
 
   components: {
@@ -24,5 +24,5 @@ export default {
       leftDrawerOpen: ref(false),
     };
   },
-};
+});
 </script>

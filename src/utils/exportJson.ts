@@ -83,6 +83,55 @@ function createQuestionnaireExportCopy(qre: Questionnaire): Questionnaire {
   return deepCopyFilteredObject(qre);
 }
 
+function forEach(items: Item[], tracer: (i: Item) => void): void {
+  for (const item of items) {
+    tracer(item);
+    if (item.item !== undefined) {
+      forEach(item.item, tracer);
+    }
+  }
+}
+
+// TODO: How to validate ValueSets?
+function validateQREWithSettings(
+  qre: Questionnaire,
+  settings: Settings,
+  errorMessages: string[],
+): void {
+  const forbidChoices = !settings.answers.choice;
+  if (forbidChoices) {
+    const choiceTracer = (item: Item) => {
+      if (item.type === "choice") {
+        errorMessages.push(`Node ${item.linkId} has deactivated type choice`);
+      }
+    };
+    forEach(qre.item, choiceTracer);
+  }
+  const forbidOpenChoices = !settings.answers.openChoice;
+  if (forbidOpenChoices) {
+    const openChoiceTracer = (item: Item) => {
+      if (item.type === "open-choice") {
+        errorMessages.push(
+          `Node ${item.linkId} has deactivated type open-choice`,
+        );
+      }
+    };
+    forEach(qre.item, openChoiceTracer);
+  }
+}
+
+function validateQREGroups(qre: Questionnaire, errorMessages: string[]): void {
+  const emptyGroupTracer = (item: Item) => {
+    if (
+      item.type === "group" &&
+      (item.item === undefined || item.item.length === 0)
+    ) {
+      errorMessages.push(`Node ${item.linkId} is an empty group`);
+    }
+  };
+  forEach(qre.item, emptyGroupTracer);
+}
+
 function getObjectWithoutItemsDisabled(
   jsonObject: Questionnaire,
 ): Questionnaire;
@@ -215,37 +264,10 @@ function getObjectWithoutItemsDisabled(
 }
 
 const exportJsonQuestionnaire = {
-  forEach(items: Item[], tracer: (i: Item) => void): void {
-    for (const item of items) {
-      tracer(item);
-      if (item.item !== undefined) {
-        this.forEach(item.item, tracer);
-      }
-    }
-  },
-  // TODO: How to validate ValueSets?
-  validateQREWithSettings(qre: Questionnaire, settings: Settings): string[] {
+  validateQuestionnaire(qre: Questionnaire, settings: Settings): string[] {
     const errorMessages: string[] = [];
-    const forbidChoices = !settings.answers.choice;
-    if (forbidChoices) {
-      const choiceTracer = (item: Item) => {
-        if (item.type === "choice") {
-          errorMessages.push(`Node ${item.linkId} has deactivated type choice`);
-        }
-      };
-      this.forEach(qre.item, choiceTracer);
-    }
-    const forbidOpenChoices = !settings.answers.openChoice;
-    if (forbidOpenChoices) {
-      const openChoiceTracer = (item: Item) => {
-        if (item.type === "open-choice") {
-          errorMessages.push(
-            `Node ${item.linkId} has deactivated type open-choice`,
-          );
-        }
-      };
-      this.forEach(qre.item, openChoiceTracer);
-    }
+    validateQREWithSettings(qre, settings, errorMessages);
+    validateQREGroups(qre, errorMessages);
     return errorMessages;
   },
   getExportObject(jsonObject: Questionnaire) {
