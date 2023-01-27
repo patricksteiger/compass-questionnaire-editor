@@ -200,7 +200,7 @@
                   :key="questionTypeIcon.name"
                   label-position="right"
                   color="primary"
-                  @click="onAddQuestion(questionTypeIcon)"
+                  @click="onAddQuestion(questionTypeIcon.name)"
                   :icon="questionTypeIcon.icon"
                   :label="questionTypeIcon.label"
                 />
@@ -1004,6 +1004,7 @@ import {
   SelectedQuestion,
   operators,
   Questionnaire,
+  QuestionType,
 } from "@/types";
 import { Language, languages } from "@/store";
 import { deepCopyObject } from "@/utils/exportJson";
@@ -1153,50 +1154,86 @@ export default defineComponent({
       if (input === undefined) {
         return; // No question was selected
       }
-      const item = deepCopyObject(input);
-      if (this.selected !== null && this.selectedItem !== undefined) {
-        // only add questions in items type group
-        const selectedLevel = this.editorTools.getLevelFromLinkID(
-          this.selectedItem.linkId,
-        );
-        if (
-          this.selectedItem.type !== "group" ||
-          selectedLevel >= MAX_ALLOWED_LEVELS
-        ) {
+      if (this.selectedItem === undefined) {
+        for (const questionnaire of this.getQuestionnaires) {
+          this.addGeccoQuestionToRootItem(questionnaire, input);
+        }
+        return;
+      }
+      // Only add questions in items type group
+      if (this.selectedItem.type !== "group") {
+        return;
+      }
+      const selectedLevel = this.editorTools.getLevelFromLinkID(
+        this.selectedItem.linkId,
+      );
+      // Don't add questions exceeding max allowed level
+      if (selectedLevel >= MAX_ALLOWED_LEVELS) {
+        return;
+      }
+      // only add group if there are enough levels (recursively)
+      if (input.type === "group") {
+        const countGroupLevels = this.editorTools.getMaxLevelOfGroup(input);
+        const maxGroupLevel = selectedLevel + countGroupLevels;
+        if (maxGroupLevel > MAX_ALLOWED_LEVELS_FOR_GROUPS) {
           return;
         }
-        // only add group if there are enough levels (recursively)
-        if (item.type === "group") {
-          const countGroupLevels = this.editorTools.getMaxLevelOfGroup(item);
-          if (
-            selectedLevel + countGroupLevels >
-            MAX_ALLOWED_LEVELS_FOR_GROUPS
-          ) {
-            return;
-          }
-        }
-        // Add new item at correct place
-        if (
-          this.selectedItem.item !== undefined &&
-          this.selectedItem.item.length > 0
-        ) {
-          const lastItem = this.selectedItem.item.at(-1) as Item; // undefined should never happen
-          item.__linkId = this.editorTools.getNextID(lastItem.__linkId);
-          item.linkId = this.editorTools.getNextID(lastItem.linkId);
-        } else {
-          this.selectedItem.item ??= [];
-          // TODO: extract generating of ID
-          item.__linkId = this.selected + "." + 1;
-          item.linkId = item.__linkId;
-        }
-        this.selectedItem.item.push(item);
-      } else {
-        // Add to root item
-        item.__linkId = this.item.length + 1 + "";
-        this.item.push(item);
       }
-      let changedIdMap = this.editorTools.regenerateLinkIds(this.item);
-      this.editorTools.regenerateConditionWhenIds(this.item, changedIdMap);
+      const selectedLinkId = this.selectedItem.linkId;
+      for (const questionnaire of this.getQuestionnaires) {
+        this.addGeccoQuestionToItem(questionnaire, selectedLinkId, input);
+      }
+    },
+    addGeccoQuestionToItem(
+      questionnaire: Questionnaire,
+      linkId: string,
+      geccoItem: Item,
+    ): void {
+      const item = this.editorTools.getCurrentQuestionNodeByLinkId(
+        linkId,
+        questionnaire.item,
+      );
+      if (item === undefined) {
+        console.error(
+          `LinkId ${linkId} does not exist in Questionnaire ${questionnaire.language}`,
+        );
+        return;
+      }
+      const newItem = deepCopyObject(geccoItem);
+      newItem.definition = uuidv4();
+      newItem.__newDefinition = true;
+      item.item ??= [];
+      const items = item.item;
+      if (items.length > 0) {
+        const lastItem = items.at(-1) as Item;
+        newItem.__linkId = this.editorTools.getNextID(lastItem.__linkId);
+      } else {
+        // TODO: linkID should be this.selected?
+        newItem.__linkId = `${item.linkId}.1`;
+      }
+      newItem.linkId = item.__linkId;
+      items.push(newItem);
+      const changedIdMap = this.editorTools.regenerateLinkIds(
+        questionnaire.item,
+      );
+      this.editorTools.regenerateConditionWhenIds(
+        questionnaire.item,
+        changedIdMap,
+      );
+    },
+    addGeccoQuestionToRootItem(
+      questionnaire: Questionnaire,
+      geccoItem: Item,
+    ): void {
+      const newItem = deepCopyObject(geccoItem);
+      const rootItems = questionnaire.item;
+      newItem.__linkId = (rootItems.length + 1).toString();
+      newItem.linkId = newItem.__linkId;
+      newItem.definition = uuidv4();
+      newItem.__newDefinition = true;
+      rootItems.push(newItem);
+      const changedIdMap = this.editorTools.regenerateLinkIds(rootItems);
+      this.editorTools.regenerateConditionWhenIds(rootItems, changedIdMap);
     },
     onAddCondition() {
       if (this.selectedItem === undefined) {
@@ -1420,44 +1457,68 @@ export default defineComponent({
           "",
       );
     },
-    onAddQuestion(e: QuestionIcon) {
-      //No Add Question on Items disabled
-      if (this.selectedItem?.__active === false) {
-        return;
-      }
-      //No allow add question more than 5 levels
-      if (
-        this.selectedItem !== undefined &&
-        this.editorTools.getLevelFromLinkID(this.selectedItem.linkId) >=
-          MAX_ALLOWED_LEVELS_FOR_GROUPS &&
-        e.name === this.questionTypes.group
-      ) {
-        return;
-      }
-      const item = this.editorTools.getQuestionWithType(e.name);
-      item.text = this.$t("views.editor.newQuestion");
-      if (this.selected !== null && this.selectedItem !== undefined) {
-        // only add questions in items with type group
-        if (this.selectedItem.type !== "group") return;
-        if (
-          this.selectedItem.item !== undefined &&
-          this.selectedItem.item.length > 0
-        ) {
-          const lastItem = this.selectedItem.item.at(-1) as Item;
-          item.__linkId = this.editorTools.getNextID(lastItem.__linkId);
-          item.linkId = this.editorTools.getNextID(lastItem.linkId);
-        } else {
-          this.selectedItem.item = [];
-          item.__linkId = this.selected + "." + 1;
-          item.linkId = item.__linkId;
+    onAddQuestion(questionType: QuestionType): void {
+      if (this.selectedItem === undefined) {
+        for (const questionnaire of this.getQuestionnaires) {
+          this.addQuestionToRootItem(questionnaire, questionType);
         }
-        this.selectedItem.item.push(item);
-      } else {
-        item.__linkId = this.item.length + 1 + "";
-        this.item.push(item);
+        return;
       }
-      const changedIdMap = this.editorTools.regenerateLinkIds(this.item);
-      this.editorTools.regenerateConditionWhenIds(this.item, changedIdMap);
+      if (!this.selectedItem.__active || this.selectedItem.type !== "group") {
+        return;
+      }
+      // Don't add group question to lowest level to avoid empty groups
+      if (questionType === "group") {
+        const currentLevel = this.editorTools.getLevelFromLinkID(
+          this.selectedItem.linkId,
+        );
+        if (currentLevel >= MAX_ALLOWED_LEVELS_FOR_GROUPS) {
+          return;
+        }
+      }
+      const selectedLinkId = this.selectedItem.linkId;
+      for (const questionnaire of this.getQuestionnaires) {
+        this.addQuestionToItem(questionnaire, selectedLinkId, questionType);
+      }
+    },
+    addQuestionToItem(
+      questionnaire: Questionnaire,
+      linkId: string,
+      type: QuestionType,
+    ): void {
+      const item = this.editorTools.getCurrentQuestionNodeByLinkId(
+        linkId,
+        questionnaire.item,
+      );
+      if (item === undefined) {
+        console.error(
+          `LinkID ${linkId} is not part of Questionnaire ${questionnaire.language}`,
+        );
+        return;
+      }
+      item.item ??= [];
+      const items = item.item;
+      const newItem = this.editorTools.createQuestionWithType(type);
+      newItem.text = this.$t("views.editor.newQuestion");
+      if (items.length > 0) {
+        const lastItem = items.at(-1) as Item;
+        newItem.__linkId = this.editorTools.getNextID(lastItem.__linkId);
+      } else {
+        newItem.__linkId = `${item.linkId}.1`;
+      }
+      newItem.linkId = newItem.__linkId;
+      items.push(newItem);
+    },
+    addQuestionToRootItem(
+      questionnaire: Questionnaire,
+      type: QuestionType,
+    ): void {
+      const newItem = this.editorTools.createQuestionWithType(type);
+      newItem.text = this.$t("views.editor.newQuestion");
+      const rootItems = questionnaire.item;
+      newItem.__linkId = (rootItems.length + 1).toString();
+      newItem.linkId = newItem.__linkId;
+      rootItems.push(newItem);
     },
     onAddGECCOQuestion(): void {
       //No Add Question on Items disabled
@@ -1621,6 +1682,7 @@ export default defineComponent({
       "getOpenChoice",
       "getChoice",
       "getLanguage",
+      "getQuestionnaires",
     ]),
     // TODO: Is this method needed?
     aAddAnswerButtonOptions() {

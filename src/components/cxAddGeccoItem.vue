@@ -182,7 +182,7 @@ export default defineComponent({
     const selected: Ref<string | null> = ref(null);
     return {
       splitterModel: ref(50), // start at 50%
-      edtiorTools: editorTools,
+      editorTools,
       filter,
       selected,
       selectedItem,
@@ -202,7 +202,7 @@ export default defineComponent({
       if (val === null) {
         this.selectedItem = undefined;
       } else {
-        this.selectedItem = this.edtiorTools.getCurrentGeccoQuestionNodeByID(
+        this.selectedItem = this.editorTools.getCurrentGeccoQuestionNodeByID(
           val,
           this.item,
         );

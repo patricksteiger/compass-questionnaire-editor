@@ -61,7 +61,11 @@ const store = createStore<StoreState>({
   state: {
     questionnaireImported: qI,
     language: qI.language,
-    questionnaireRepo: new Map([[qI.language, qI]]),
+    questionnaireRepo: new Map([
+      ["de", qI],
+      ["en", defaultQuestionnaire("en")],
+      ["es", defaultQuestionnaire("es")],
+    ]),
     fileImported: fI,
     settings: {
       answers: {
@@ -161,6 +165,9 @@ const store = createStore<StoreState>({
   },
   modules: {},
   getters: {
+    getQuestionnaires(state): Questionnaire[] {
+      return [...state.questionnaireRepo.values()];
+    },
     getLanguage(state) {
       return state.language;
     },

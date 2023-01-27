@@ -346,7 +346,7 @@ class EditorTools {
     return answerOption;
   }
 
-  getQuestionWithType(questionType: QuestionType): Item {
+  createQuestionWithType(questionType: QuestionType): Item {
     const item = createNewItem(questionType);
     if (item.type === "choice" || item.type === "open-choice") {
       item.answerOption = [];
