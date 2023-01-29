@@ -23,14 +23,13 @@
                 style="width: 100%"
                 :disable="prop.node.disabled"
               >
-                <!-- TODO: Replace drag methods so prefix is not needed -->
                 <div
                   class="row items-center justify-between"
                   style="width: 100%; height: 6px"
                   @dragover="onDragOver"
                   @dragleave="onDragLeave"
-                  @drop="onDrop"
-                  :id="'_' + prop.node.__internalID"
+                  @drop="onDrop($event, false)"
+                  :id="prop.node.__internalID"
                 ></div>
                 <div
                   class="row items-center justify-between"
@@ -1300,16 +1299,15 @@ export default defineComponent({
       const currentTarget = e.currentTarget as HTMLInputElement;
       currentTarget.style.backgroundColor = "";
     },
-    onDrop(e: DragEvent): void {
+    onDrop(e: DragEvent, droppedOnItemNode: boolean = true): void {
       e.preventDefault();
       if (e.currentTarget === null || e.dataTransfer === null) return;
       const currentTarget = e.currentTarget as HTMLInputElement;
       currentTarget.style.backgroundColor = "";
       currentTarget.style.cursor = "default";
-      const sourceInternalId = e.dataTransfer.getData("internalID");
 
-      const targetInternalId =
-        this.editorTools.getInternalIDFromDragTarget(currentTarget);
+      const sourceInternalId = e.dataTransfer.getData("internalID");
+      const targetInternalId = currentTarget.id;
 
       if (sourceInternalId === targetInternalId) {
         return; //No allow drag it in same Item
@@ -1329,7 +1327,6 @@ export default defineComponent({
         this.item,
       );
 
-      // TODO: Add to rootItems if source is undefined?
       // FIXME: Check for empty linkIds needed? Not __active?
       if (
         targetItem === undefined ||
@@ -1349,10 +1346,8 @@ export default defineComponent({
       }
 
       // Can only drag on active items that are groups
-      const draggedOnItemNode =
-        this.editorTools.draggedOnItemNode(currentTarget);
       if (
-        draggedOnItemNode &&
+        droppedOnItemNode &&
         (!targetItem.__active || targetItem.type !== "group")
       ) {
         return;
@@ -1376,7 +1371,7 @@ export default defineComponent({
           questionnaire,
           sourceInternalLinkId,
           targetInternalLinkId,
-          draggedOnItemNode,
+          droppedOnItemNode,
         );
       }
     },
@@ -1384,7 +1379,7 @@ export default defineComponent({
       questionnaire: Questionnaire,
       sourceInternalLinkId: string,
       targetInternalLinkId: string,
-      draggedOnGroupNode: boolean,
+      droppedOnGroupNode: boolean,
     ) {
       const sourceBranchWithIndex =
         this.editorTools.getBranchContainingInternalLinkID(
@@ -1414,7 +1409,7 @@ export default defineComponent({
       const targetItem = targetBranch[targetIndex];
 
       //Insert Inside Group Item: at the end
-      if (draggedOnGroupNode) {
+      if (droppedOnGroupNode) {
         sourceBranch.splice(sourceIndex, 1);
         targetItem.item ??= [];
         targetItem.item.push(sourceItem);

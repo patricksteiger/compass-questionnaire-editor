@@ -42,17 +42,6 @@ class EditorTools {
     return linkIDs;
   }
 
-  getInternalIDFromDragTarget(currentTarget: HTMLInputElement): string {
-    const splitId = currentTarget.id.split("_");
-    return splitId.length > 1 ? splitId[1] : currentTarget.id;
-  }
-
-  draggedOnItemNode(currentTarget: HTMLInputElement): boolean {
-    // If with prefix _ means that id has been dragged directly above the item question
-    const splitId = currentTarget.id.split("_");
-    return splitId.length !== 2;
-  }
-
   private assingNewItemInternalLinkIDs(item: Item): void {
     if (item.item === undefined) return;
     let idCount = 0;
