@@ -122,8 +122,7 @@ class FHIRValidation {
     return undefined;
   }
 
-  // TODO: Is new sortByLinkId accurate?
-  sortByLinkId(i1: Item, i2: Item): number {
+  private sortByLinkId(i1: Item, i2: Item): number {
     const nums1 = i1.linkId.split(".");
     const nums2 = i2.linkId.split(".");
     const last1 = nums1.at(-1);
@@ -134,7 +133,7 @@ class FHIRValidation {
     return parseInt(last1) - parseInt(last2);
   }
 
-  sortItems(items: Item[]): void {
+  private sortItems(items: Item[]): void {
     items.sort(this.sortByLinkId);
     for (const item of items) {
       if (item.item !== undefined) {
@@ -143,14 +142,14 @@ class FHIRValidation {
     }
   }
 
-  getSortItems(jsonFile: Questionnaire): Questionnaire {
+  private getSortItems(jsonFile: Questionnaire): Questionnaire {
     if (jsonFile.item !== undefined) {
       this.sortItems(jsonFile.item);
     }
     return jsonFile;
   }
 
-  validateItem(item: Item): void {
+  private validateItem(item: Item): void {
     this.addPropertiesNeededForGUIItemNode(item);
     //Validate if missing required fields of the Item
     this.itemNodeRequiredFields(item);
@@ -166,6 +165,7 @@ class FHIRValidation {
     }
 
     if (item.type === "group" && linkIdLevel > MAX_ALLOWED_LEVELS_FOR_GROUPS) {
+      // TODO: i18n for error
       const message = `LinkId ${item.linkId}: Group-level can't exceed ${MAX_ALLOWED_LEVELS_FOR_GROUPS}`;
       this.errorMessages.push(message);
     }
@@ -186,7 +186,7 @@ class FHIRValidation {
     //format Answer
     if (item.answerOption) {
       let idCountAnswer = 0;
-      item.answerOption.forEach((answerOpt) => {
+      for (const answerOpt of item.answerOption) {
         idCountAnswer++;
         answerOpt.__id = idCountAnswer;
         /*         if (answerOpt.valueString !== undefined) {
@@ -217,7 +217,7 @@ class FHIRValidation {
           answerOpt.__type = "string";
           answerOpt.__oldValueString = answerOpt.valueString;
         }
-      });
+      }
     }
 
     //AnswerValueSet
@@ -248,7 +248,7 @@ class FHIRValidation {
     }
   }
 
-  validateItems(item: Item): void {
+  private validateItems(item: Item): void {
     if (item.item === undefined) return;
     let idCount = 0;
     for (const element of item.item) {
@@ -258,13 +258,13 @@ class FHIRValidation {
       this.validateItem(element);
       //deep inside no more that 5 levels
       const level = editorTools.getLevelFromLinkID(element.__linkId);
-      if (element.item && level <= MAX_ALLOWED_LEVELS) {
+      if (level <= MAX_ALLOWED_LEVELS) {
         this.validateItems(element);
       }
     }
   }
 
-  itemNodeRequiredFields(item: Item) {
+  private itemNodeRequiredFields(item: Item) {
     //Error if missing required fields of the Item
     if (!item.linkId) {
       this.errorMessages.push(
@@ -309,7 +309,7 @@ class FHIRValidation {
     this.validateEnableWhen(item);
 
     if (item.type === "integer") {
-      item.extension = item.extension || [];
+      item.extension ??= [];
       const extensionSet = [
         {
           url: "http://hl7.org/fhir/StructureDefinition/questionnaire-sliderStepValue",
@@ -354,7 +354,7 @@ class FHIRValidation {
     }
   }
 
-  addPropertiesNeededForGUIItemNode(item: Item) {
+  private addPropertiesNeededForGUIItemNode(item: Item) {
     item.__active = true;
     item.disabled = false;
     item.__oldText = item.text;
@@ -364,22 +364,20 @@ class FHIRValidation {
         : this.questionType[item.type].icon;
   }
 
-  itemsNode(item: Item[] = []) {
+  private itemsNode(items: Item[] = []) {
     let idCount = 0;
-    item.forEach((element) => {
+    for (const item of items) {
       idCount++;
       //assign ID Item internal
-      element.__internalID = `${uuidv4()}-${Date.now()}`;
+      item.__internalID = `${uuidv4()}-${Date.now()}`;
 
-      element.__linkId = idCount.toString();
-      this.validateItem(element);
-      if (element.item) {
-        this.validateItems(element);
-      }
-    });
+      item.__linkId = idCount.toString();
+      this.validateItem(item);
+      this.validateItems(item);
+    }
   }
 
-  validateEnableWhen(item: Item): void {
+  private validateEnableWhen(item: Item): void {
     if (item.enableWhen === undefined) return;
     for (const enableWhen of item.enableWhen) {
       if (!enableWhen.question) {
@@ -444,7 +442,7 @@ class FHIRValidation {
     }
   }
 
-  statusNode(FHIRobj: Questionnaire): void {
+  private statusNode(FHIRobj: Questionnaire): void {
     if (!FHIRobj.status) {
       this.errorMessages.push(
         this.i18n.global.t("messagesErrors.FHIRValidations.nodeMissing", {
@@ -467,34 +465,27 @@ class FHIRValidation {
     }
   }
 
-  identifier(FHIRobj: Questionnaire): void {
-    if (FHIRobj.identifier && FHIRobj.identifier.length > 0) {
-      FHIRobj.identifier.forEach((id) => {
-        id.use = id.use === undefined ? "" : id.use;
-        id.system = id.system === undefined ? "" : id.system;
-        id.value = id.value === undefined ? "" : id.value;
-        id.period =
-          id.period === undefined ? { start: "", end: "" } : id.period;
-        id.type =
-          id.type === undefined
-            ? {
-                coding: {
-                  system: "",
-                  version: "",
-                  code: "",
-                  display: "",
-                  userSelected: false,
-                },
-                text: "",
-              }
-            : id.type;
-      });
-    } else {
-      FHIRobj.identifier = [];
+  private identifier(FHIRobj: Questionnaire): void {
+    FHIRobj.identifier ??= [];
+    for (const id of FHIRobj.identifier) {
+      id.use ??= "";
+      id.system ??= "";
+      id.value ??= "";
+      id.period ??= { start: "", end: "" };
+      id.type ??= {
+        coding: {
+          system: "",
+          version: "",
+          code: "",
+          display: "",
+          userSelected: false,
+        },
+        text: "",
+      };
     }
   }
 
-  supportedLanguage(qre: Questionnaire): void {
+  private supportedLanguage(qre: Questionnaire): void {
     if (!qre.language) {
       const message = this.i18n.global.t(
         "messagesErrors.FHIRValidations.languageMissing",
@@ -509,7 +500,7 @@ class FHIRValidation {
     }
   }
 
-  resourceType(FHIRobj: Questionnaire): void {
+  private resourceType(FHIRobj: Questionnaire): void {
     if (!FHIRobj.resourceType) {
       const message = this.i18n.global.t(
         "messagesErrors.FHIRValidations.nodeMissing",
@@ -543,28 +534,6 @@ const generalValidations = {
       throw new GeneralJSONValidationException(message);
     }
   },
-};
-
-const questionnaireSpecific = {};
-
-const importJsonQuestionnaire = {
-  FHIRValidations: new FHIRValidation(),
-  questionnaireSpecific: questionnaireSpecific,
-  generalValidations: generalValidations,
-  i18n: i18n,
-
-  from(
-    jsonFile: string | ArrayBuffer | null,
-  ): [Questionnaire | undefined, string[]] {
-    this.FHIRValidations.errorMessages = [];
-    const result = this.parseJson(jsonFile);
-    const errorMessages = this.getValidateFHIRResource(result);
-    this.FHIRValidations.errorMessages = [];
-    return [
-      errorMessages.length === 0 ? this.getQuestionnaireGUI() : undefined,
-      errorMessages,
-    ];
-  },
   parseJson(jsonFile: string | ArrayBuffer | null): object {
     if (jsonFile === null || typeof jsonFile !== "string") {
       throw new GeneralJSONValidationException(
@@ -573,15 +542,28 @@ const importJsonQuestionnaire = {
         ),
       );
     }
-    return this.generalValidations.json(jsonFile);
+    return this.json(jsonFile);
+  },
+};
+
+const FHIRValidations = new FHIRValidation();
+
+const importJsonQuestionnaire = {
+  from(
+    jsonFile: string | ArrayBuffer | null,
+  ): [Questionnaire | undefined, string[]] {
+    FHIRValidations.errorMessages = [];
+    const result = generalValidations.parseJson(jsonFile);
+    const errorMessages = this.getValidateFHIRResource(result);
+    return [
+      errorMessages.length === 0 ? FHIRValidations.questionnaire : undefined,
+      errorMessages,
+    ];
   },
   getValidateFHIRResource(jsonFile: object) {
-    this.FHIRValidations.validateFHIRResourceItems(jsonFile as Questionnaire);
-    const errors = this.FHIRValidations.errorMessages;
+    FHIRValidations.validateFHIRResourceItems(jsonFile as Questionnaire);
+    const errors = FHIRValidations.errorMessages;
     return errors;
-  },
-  getQuestionnaireGUI() {
-    return this.FHIRValidations.questionnaire;
   },
 };
 

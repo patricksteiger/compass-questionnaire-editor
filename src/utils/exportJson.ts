@@ -1,5 +1,5 @@
 import { Settings } from "@/store";
-import { AnswerOption, Identifier, Item, Questionnaire } from "@/types";
+import { Identifier, Item, Questionnaire } from "@/types";
 import { i18n } from "../i18n";
 
 function objectKeys<T extends object>(object: T): (keyof T)[] {
@@ -148,71 +148,71 @@ function getObjectWithoutItemsDisabled(
   );
 
   // For items within item
-  jsonObject.item.forEach((questionnaire: Item) => {
-    getObjectWithoutItemsDisabled(questionnaire);
+  for (const item of jsonObject.item) {
+    getObjectWithoutItemsDisabled(item);
 
-    if (questionnaire.extension !== undefined) {
-      for (let i = questionnaire.extension.length - 1; i >= 0; i--) {
-        const ext = questionnaire.extension[i];
+    if (item.extension !== undefined) {
+      for (let i = item.extension.length - 1; i >= 0; i--) {
+        const ext = item.extension[i];
         const isNotInteger = ext.valueInteger === undefined;
         const isNotString =
           ext.valueString === undefined || ext.valueString === "";
         const isNotCoding = ext.valueCoding === undefined;
         if (isNotInteger && isNotString && isNotCoding) {
-          questionnaire.extension.splice(i, 1);
+          item.extension.splice(i, 1);
         } else if (!isNotInteger) {
           ext.valueInteger = Number(ext.valueInteger);
         }
       }
 
-      if (questionnaire.extension.length === 0) {
-        delete questionnaire.extension;
+      if (item.extension.length === 0) {
+        delete item.extension;
       }
     }
 
     //convert to integer ValueInteger
-    if (questionnaire.answerOption !== undefined) {
-      questionnaire.answerOption.forEach((element: AnswerOption) => {
+    if (item.answerOption !== undefined) {
+      for (const answerOpt of item.answerOption) {
         if (
-          element.valueInteger !== undefined &&
-          typeof element.valueInteger === "string"
+          answerOpt.valueInteger !== undefined &&
+          typeof answerOpt.valueInteger === "string"
         ) {
-          element.valueInteger = parseInt(element.valueInteger);
+          answerOpt.valueInteger = parseInt(answerOpt.valueInteger);
         }
-      });
+      }
     }
 
     //answerOption and Value Set
-    if (questionnaire.answerValueSet !== "") {
-      delete questionnaire.answerOption;
+    if (item.answerValueSet !== "") {
+      delete item.answerOption;
     }
-    if (questionnaire.answerOption !== undefined) {
+    if (item.answerOption !== undefined) {
       //answerOption has data
-      if (questionnaire.answerOption.length > 0) {
-        delete questionnaire.answerValueSet;
+      if (item.answerOption.length > 0) {
+        delete item.answerValueSet;
       }
       //remove if is empty
-      if (questionnaire.answerOption.length === 0) {
-        delete questionnaire.answerOption;
+      if (item.answerOption.length === 0) {
+        delete item.answerOption;
       }
     }
 
     //remove disable Item property
-    delete questionnaire.disabled;
+    delete item.disabled;
 
     //remove empty answerValueSet
-    if (questionnaire.answerValueSet === "") {
-      delete questionnaire.answerValueSet;
+    if (item.answerValueSet === "") {
+      delete item.answerValueSet;
     }
 
-    if (questionnaire.enableWhen !== undefined) {
-      questionnaire.enableWhen = questionnaire.enableWhen.filter(
+    if (item.enableWhen !== undefined) {
+      item.enableWhen = item.enableWhen.filter(
         (enableWhen) =>
           enableWhen.operator !== "" &&
           enableWhen.question !== "" &&
           enableWhen.answer !== "",
       );
-      questionnaire.enableWhen.forEach((enableWhen) => {
+      for (const enableWhen of item.enableWhen) {
         if (enableWhen.operator === "exists") {
           enableWhen.answerBoolean = enableWhen.answer === "true";
         } else {
@@ -247,14 +247,14 @@ function getObjectWithoutItemsDisabled(
         delete enableWhen.display;
         delete enableWhen.answer;
         delete enableWhen.type;
-      });
-      if (questionnaire.enableWhen.length === 0) {
-        delete questionnaire.enableWhen;
+      }
+      if (item.enableWhen.length === 0) {
+        delete item.enableWhen;
       }
     } else {
-      delete questionnaire.enableWhen;
+      delete item.enableWhen;
     }
-  });
+  }
   // Item must be deleted when empty
   if (jsonObject.item.length === 0) {
     delete jsonObject.item;
@@ -317,9 +317,9 @@ const exportJsonQuestionnaire = {
       delete jsonObject.experimental;
     }
     //Identifier
-    if (jsonObject?.identifier && jsonObject.identifier.length > 0) {
+    if (jsonObject.identifier && jsonObject.identifier.length > 0) {
       const clearedId: Identifier[] = [];
-      jsonObject?.identifier.forEach((identifier) => {
+      for (const identifier of jsonObject.identifier) {
         let removeUserSelected = true;
         if (identifier) {
           identifier.use === "" ? delete identifier.use : "";
@@ -362,10 +362,10 @@ const exportJsonQuestionnaire = {
             ? clearedId.push(identifier)
             : "";
         }
-      });
+      }
       jsonObject.identifier = clearedId;
     }
-    if (jsonObject?.identifier?.length === 0) {
+    if (jsonObject.identifier?.length === 0) {
       delete jsonObject.identifier;
     }
     return jsonObject;

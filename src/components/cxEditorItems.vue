@@ -23,6 +23,7 @@
                 style="width: 100%"
                 :disable="prop.node.disabled"
               >
+                <!-- TODO: Replace drag methods so prefix is not needed -->
                 <div
                   class="row items-center justify-between"
                   style="width: 100%; height: 6px"
@@ -1216,6 +1217,7 @@ export default defineComponent({
       const changedIdMap = this.editorTools.regenerateLinkIds(
         questionnaire.item,
       );
+      this.editorTools.regenerateInternalLinkIDs(questionnaire.item);
       this.editorTools.regenerateConditionWhenIds(
         questionnaire.item,
         changedIdMap,
@@ -1233,6 +1235,7 @@ export default defineComponent({
       newItem.__newDefinition = true;
       rootItems.push(newItem);
       const changedIdMap = this.editorTools.regenerateLinkIds(rootItems);
+      this.editorTools.regenerateInternalLinkIDs(questionnaire.item);
       this.editorTools.regenerateConditionWhenIds(rootItems, changedIdMap);
     },
     onAddCondition() {
@@ -1282,7 +1285,7 @@ export default defineComponent({
     },
     onDragStart(e: DragEvent, node: Item): void {
       if (e.dataTransfer !== null) {
-        e.dataTransfer.setData("text", node.__internalID);
+        e.dataTransfer.setData("internalID", node.__internalID);
       } else {
         console.error(`DataTransfer is null: ${node.__internalID}`);
       }
@@ -1300,131 +1303,141 @@ export default defineComponent({
     onDrop(e: DragEvent): void {
       e.preventDefault();
       if (e.currentTarget === null || e.dataTransfer === null) return;
-      // TODO: check how styling of currentTarget is needed/works
       const currentTarget = e.currentTarget as HTMLInputElement;
       currentTarget.style.backgroundColor = "";
       currentTarget.style.cursor = "default";
-      const draggedId = e.dataTransfer.getData("text");
+      const sourceInternalId = e.dataTransfer.getData("internalID");
 
-      const itemSource = this.editorTools.getCurrentQuestionNodeByID(
-        draggedId,
-        this.item,
-      );
+      const targetInternalId =
+        this.editorTools.getInternalIDFromDragTarget(currentTarget);
 
-      if (itemSource === undefined || Object.keys(itemSource).length === 0) {
-        //No valid source Item
-        return;
+      if (sourceInternalId === targetInternalId) {
+        return; //No allow drag it in same Item
       }
 
-      const internalIDTarget = this.editorTools.getInternalIDFromEhandler(e);
-
-      if (draggedId === internalIDTarget) return; //No allow drag it in same Item
-
-      const itemTarget = this.editorTools.getCurrentQuestionNodeByID(
-        internalIDTarget,
+      const sourceItem = this.editorTools.getCurrentQuestionNodeByID(
+        sourceInternalId,
         this.item,
       );
 
+      if (sourceItem === undefined) {
+        return; //No valid source Item
+      }
+
+      const targetItem = this.editorTools.getCurrentQuestionNodeByID(
+        targetInternalId,
+        this.item,
+      );
+
+      // TODO: Add to rootItems if source is undefined?
+      // FIXME: Check for empty linkIds needed? Not __active?
       if (
-        itemTarget === undefined ||
-        itemTarget.linkId === "" ||
-        itemSource.linkId === ""
+        targetItem === undefined ||
+        targetItem.linkId === "" ||
+        sourceItem.linkId === ""
       ) {
         return;
       }
 
-      //check if source Item Is the parent for target-> Not Allow
+      // Check if sourceItem is the parent for target -> Not allowed
       const itemNodeChild = this.editorTools.getCurrentQuestionNodeByID(
-        itemTarget.__internalID,
-        itemSource.item,
+        targetItem.__internalID,
+        sourceItem.item,
       );
       if (itemNodeChild !== undefined) {
         return;
       }
 
-      if (Object.keys(itemTarget).length === 0) {
-        //No valid target Item
-        return;
-      }
-
-      if (!itemTarget.__active && !this.editorTools.isPreviousQuestion(e)) {
-        return; //No allow  drag it in items inactives
-      }
-
+      // Can only drag on active items that are groups
+      const draggedOnItemNode =
+        this.editorTools.draggedOnItemNode(currentTarget);
       if (
-        itemTarget.__icon !== "article" &&
-        !this.editorTools.isPreviousQuestion(e)
+        draggedOnItemNode &&
+        (!targetItem.__active || targetItem.type !== "group")
       ) {
-        return; //only question can be drag in group questions
-      }
-
-      const aitemParentSource = this.editorTools.getArraySource(
-        draggedId,
-        this.item,
-      );
-
-      const itemToBeMoved = this.editorTools.getCurrentQuestionNodeByID(
-        draggedId,
-        this.item,
-      );
-
-      if (itemToBeMoved === undefined) {
-        console.error("Moved item was not found by id");
         return;
       }
 
-      if (itemToBeMoved.item) {
-        //no allow more than 5 levels of items, nested Items
-        const numLevel =
-          this.editorTools.getNumbersMaxOfLevels(itemToBeMoved.item) + 1; //count parent
-        const totalOfLevelts =
-          this.editorTools.getLevelFromLinkID(itemTarget.linkId) + numLevel;
-        if (totalOfLevelts > MAX_ALLOWED_LEVELS) {
-          return;
-        }
+      // Don't allow more than 5 levels of nested items
+      const targetLevel = this.editorTools.getLevelFromLinkID(
+        targetItem.__linkId,
+      );
+      const sourceLevel = this.editorTools.getMaxLevel(sourceItem);
+      const totalLevels = targetLevel + sourceLevel;
+      if (totalLevels > MAX_ALLOWED_LEVELS) {
+        return;
       }
 
-      const level = this.editorTools.getLevelFromLinkID(itemTarget.linkId);
-      if (level >= MAX_ALLOWED_LEVELS && itemToBeMoved.__icon === "article") {
-        return; //no allow more than 5 levels of items
+      const targetInternalLinkId = targetItem.__linkId;
+      const sourceInternalLinkId = sourceItem.__linkId;
+
+      for (const questionnaire of this.getQuestionnaires) {
+        this.dragItem(
+          questionnaire,
+          sourceInternalLinkId,
+          targetInternalLinkId,
+          draggedOnItemNode,
+        );
       }
-
-      const aitemParentTarget = this.editorTools.getArraySource(
-        internalIDTarget,
-        this.item,
-      );
-
-      const indexOfItemtoBeInsert = this.editorTools.getIndexItem(
-        internalIDTarget,
-        aitemParentTarget,
-      );
-
-      let indexOfItemtoBeRemoved = this.editorTools.getIndexItem(
-        draggedId,
-        aitemParentSource,
-      );
+    },
+    dragItem(
+      questionnaire: Questionnaire,
+      sourceInternalLinkId: string,
+      targetInternalLinkId: string,
+      draggedOnGroupNode: boolean,
+    ) {
+      const sourceBranchWithIndex =
+        this.editorTools.getBranchContainingInternalLinkID(
+          sourceInternalLinkId,
+          questionnaire.item,
+        );
+      if (sourceBranchWithIndex === undefined) {
+        console.error(
+          `Internal LinkId ${sourceInternalLinkId} is not part of questionnaire`,
+        );
+        return;
+      }
+      const targetBranchWithIndex =
+        this.editorTools.getBranchContainingInternalLinkID(
+          targetInternalLinkId,
+          questionnaire.item,
+        );
+      if (targetBranchWithIndex === undefined) {
+        console.error(
+          `Internal LinkId ${targetInternalLinkId} is not part of questionnaire`,
+        );
+        return;
+      }
+      let [sourceBranch, sourceIndex] = sourceBranchWithIndex;
+      const sourceItem = sourceBranch[sourceIndex];
+      const [targetBranch, targetIndex] = targetBranchWithIndex;
+      const targetItem = targetBranch[targetIndex];
 
       //Insert Inside Group Item: at the end
-      // if (e.currentTarget.id.split("_").length === 1) {
-      if (currentTarget.id.split("_").length === 1) {
-        if (!itemTarget.item) {
-          itemTarget.item = [];
-        }
-        itemTarget.item.push(itemToBeMoved);
+      if (draggedOnGroupNode) {
+        sourceBranch.splice(sourceIndex, 1);
+        targetItem.item ??= [];
+        targetItem.item.push(sourceItem);
       } else {
-        //Insert before Item
-        aitemParentTarget.splice(indexOfItemtoBeInsert, 0, itemToBeMoved);
-
-        if (aitemParentSource === aitemParentTarget) {
-          if (indexOfItemtoBeInsert < indexOfItemtoBeRemoved) {
-            indexOfItemtoBeRemoved++;
-          }
+        // Insert above targetItem (is small box above node in editor)
+        targetBranch.splice(targetIndex, 0, sourceItem);
+        if (
+          this.editorTools.itemsInSameBranch(sourceItem, targetItem) &&
+          targetIndex < sourceIndex
+        ) {
+          sourceIndex++;
         }
+        sourceBranch.splice(sourceIndex, 1);
       }
-      aitemParentSource.splice(indexOfItemtoBeRemoved, 1);
-      let changedIdMap = this.editorTools.regenerateLinkIds(this.item);
-      this.editorTools.regenerateInternalIDs(this.item);
-      this.editorTools.regenerateConditionWhenIds(this.item, changedIdMap);
+
+      const changedIdMap = this.editorTools.regenerateLinkIds(
+        questionnaire.item,
+      );
+      this.editorTools.regenerateInternalLinkIDs(questionnaire.item);
+      this.editorTools.regenerateConditionWhenIds(
+        questionnaire.item,
+        changedIdMap,
+      );
     },
     onToggle(id: string) {
       const currentNode = this.editorTools.getCurrentQuestionNodeByID(
@@ -1447,7 +1460,7 @@ export default defineComponent({
       }
 
       this.editorTools.disableEntireItemQuestion(id, this.item);
-      let changedIdMap = this.editorTools.regenerateLinkIds(this.item);
+      const changedIdMap = this.editorTools.regenerateLinkIds(this.item);
       this.editorTools.regenerateConditionWhenIds(this.item, changedIdMap);
     },
     isCondition(id: string) {
@@ -1499,7 +1512,6 @@ export default defineComponent({
       item.item ??= [];
       const items = item.item;
       const newItem = this.editorTools.createQuestionWithType(type);
-      newItem.text = this.$t("views.editor.newQuestion");
       if (items.length > 0) {
         const lastItem = items.at(-1) as Item;
         newItem.__linkId = this.editorTools.getNextID(lastItem.__linkId);
@@ -1514,7 +1526,6 @@ export default defineComponent({
       type: QuestionType,
     ): void {
       const newItem = this.editorTools.createQuestionWithType(type);
-      newItem.text = this.$t("views.editor.newQuestion");
       const rootItems = questionnaire.item;
       newItem.__linkId = (rootItems.length + 1).toString();
       newItem.linkId = newItem.__linkId;
@@ -1655,7 +1666,7 @@ export default defineComponent({
       branch.splice(position, 1); // Delete item
       this.deleteEnableWhenWithQuestionID(this.item, linkIDs);
       const changedIdMap = this.editorTools.regenerateLinkIds(this.item);
-      this.editorTools.regenerateInternalIDs(this.item);
+      this.editorTools.regenerateInternalLinkIDs(this.item);
       this.editorTools.regenerateConditionWhenIds(this.item, changedIdMap);
     },
     deleteEnableWhenWithQuestionID(items: Item[], linkIDs: Set<string>) {

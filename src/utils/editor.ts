@@ -1,19 +1,12 @@
-import {
-  questionTypesIcons,
-  questionTypes,
-  answerType,
-  QuestionIcon,
-} from "./constants";
+import { questionTypesIcons, answerType, QuestionIcon } from "./constants";
 import { v4 as uuidv4 } from "uuid";
 import { GeccoItem } from "@/store/questionnaire";
 import { Answer, AnswerOption, Question, Item, QuestionType } from "@/types";
+import { i18n } from "@/i18n";
 
 function getTypeQuestionIcon(type: QuestionType): QuestionIcon["icon"] {
   const questionTypesIcon = questionTypesIcons.find((i) => i.name === type);
-  if (questionTypesIcon === undefined) {
-    throw new Error(`Invalid QuestionType: ${type}`);
-  }
-  return questionTypesIcon.icon;
+  return (questionTypesIcon as QuestionIcon).icon;
 }
 
 function createNewItem(type: QuestionType): Item {
@@ -29,15 +22,12 @@ function createNewItem(type: QuestionType): Item {
     disabled: false,
     item: undefined,
     linkId: "",
-    text: "",
+    text: i18n.global.t("views.editor.newQuestion"),
     extension: [],
   };
 }
 
 class EditorTools {
-  answerType = answerType;
-  questionTypes = questionTypes;
-
   private getAllLinkIDsHelper(item: Item, linkIDs: Set<string>): void {
     linkIDs.add(item.linkId);
     if (item.item === undefined) return;
@@ -52,42 +42,32 @@ class EditorTools {
     return linkIDs;
   }
 
-  getIndexItem(internalIDToBeRemove: string, arrayQuestions: Item[]): number {
-    for (let i = 0; i < arrayQuestions.length; i++)
-      if (arrayQuestions[i].__internalID === internalIDToBeRemove) return i;
-    return 1;
-  }
-
-  getInternalIDFromEhandler(e: DragEvent): string {
-    const currentTarget = e.currentTarget as HTMLInputElement;
+  getInternalIDFromDragTarget(currentTarget: HTMLInputElement): string {
     const splitId = currentTarget.id.split("_");
     return splitId.length > 1 ? splitId[1] : currentTarget.id;
   }
 
-  isPreviousQuestion(e: DragEvent): boolean {
-    //if with prefix _ means that id has been dragged before the item question
-    const currentTarget = e.currentTarget as HTMLInputElement;
-    return currentTarget.id.split("_").length == 2;
+  draggedOnItemNode(currentTarget: HTMLInputElement): boolean {
+    // If with prefix _ means that id has been dragged directly above the item question
+    const splitId = currentTarget.id.split("_");
+    return splitId.length !== 2;
   }
 
-  assingNewItemInternalIDs(item: Item): void {
-    if (item.item) {
-      let idCount = 0;
-      item.item.forEach((element: Item) => {
-        idCount++;
-        element.__linkId = item.__linkId + "." + idCount;
-        if (element.item) {
-          this.assingNewItemInternalIDs(element);
-        }
-      });
+  private assingNewItemInternalLinkIDs(item: Item): void {
+    if (item.item === undefined) return;
+    let idCount = 0;
+    for (const element of item.item) {
+      idCount++;
+      element.__linkId = `${item.__linkId}.${idCount}`;
+      this.assingNewItemInternalLinkIDs(element);
     }
   }
 
-  assingNewItemIDs(item: Item): Map<string, string> {
+  private assingNewItemIDs(item: Item): Map<string, string> {
     let changedIdMap = new Map<string, string>();
     if (item.item === undefined) return changedIdMap;
     let idCount = 0;
-    item.item.forEach((element) => {
+    for (const element of item.item) {
       if (element.__active) {
         idCount++;
         const oldLinkId = element.linkId;
@@ -102,64 +82,58 @@ class EditorTools {
         const newIds = this.assingNewItemIDs(element);
         changedIdMap = new Map([...changedIdMap, ...newIds]);
       }
-    });
+    }
     return changedIdMap;
   }
 
-  regenerateInternalIDs(item: Item[]): void {
+  regenerateInternalLinkIDs(items: Item[]): void {
     let idCount = 0;
-    item.forEach((element) => {
+    for (const item of items) {
       idCount++;
-      element.__linkId = idCount.toString();
-      if (element.item) {
-        this.assingNewItemInternalIDs(element);
-      }
-    });
+      item.__linkId = idCount.toString();
+      this.assingNewItemInternalLinkIDs(item);
+    }
   }
 
-  regenerateLinkIds(item?: Item[]): Map<string, string> {
+  regenerateLinkIds(items?: Item[]): Map<string, string> {
     let changedIdMap = new Map<string, string>();
-    if (item === undefined) return changedIdMap;
+    if (items === undefined) return changedIdMap;
     let idCount = 0;
-    item.forEach((element) => {
-      if (element.__active) {
+    for (const item of items) {
+      if (item.__active) {
         idCount++;
-        const oldLinkId = element.linkId;
+        const oldLinkId = item.linkId;
         const newLinkId = idCount + "";
         changedIdMap.set(oldLinkId, newLinkId);
-        element.linkId = newLinkId;
+        item.linkId = newLinkId;
       } else {
-        changedIdMap.set(element.linkId, "");
-        element.linkId = "";
+        changedIdMap.set(item.linkId, "");
+        item.linkId = "";
       }
-      if (element.item) {
-        const newIds = this.assingNewItemIDs(element);
-        changedIdMap = new Map([...changedIdMap, ...(newIds || [])]);
+      if (item.item) {
+        const newIds = this.assingNewItemIDs(item);
+        changedIdMap = new Map([...changedIdMap, ...newIds]);
       }
-    });
+    }
     return changedIdMap;
   }
 
   regenerateConditionWhenIds(
-    item: Item[] | undefined,
+    items: Item[] | undefined,
     changedIdMap: Map<string, string>,
   ): void {
-    if (item === undefined) return;
-    item.forEach((element) => {
+    if (items === undefined) return;
+    for (const element of items) {
       if (element.type === "group") {
         this.regenerateConditionWhenIds(element.item, changedIdMap);
       }
-      if (element.enableWhen !== undefined) {
-        element.enableWhen.forEach((condition) => {
-          if (
-            condition.question !== "" &&
-            changedIdMap.has(condition.question)
-          ) {
-            condition.question = changedIdMap.get(condition.question) || "";
-          }
-        });
+      if (element.enableWhen === undefined) continue;
+      for (const condition of element.enableWhen) {
+        if (condition.question !== "" && changedIdMap.has(condition.question)) {
+          condition.question = changedIdMap.get(condition.question) ?? "";
+        }
       }
-    });
+    }
   }
 
   isEnableWhenCondition(item: Item[], linkId: string): boolean {
@@ -186,7 +160,7 @@ class EditorTools {
     return false;
   }
 
-  disableItem(item: Item, toggleValue: boolean): void {
+  private disableItem(item: Item, toggleValue: boolean): void {
     if (item.item) {
       for (const element of item.item) {
         element.__active = toggleValue;
@@ -197,21 +171,18 @@ class EditorTools {
     item.__active = toggleValue;
   }
 
-  getArraySource(internalID: string, rootItem: Item[]): Item[] {
-    const includesId = rootItem.some(
-      (item) => item.__internalID === internalID,
-    );
-    if (includesId) {
-      return rootItem;
-    }
-    for (const item of rootItem) {
-      if (item.item === undefined) continue;
-      const result = this.getArraySource(internalID, item.item);
-      if (result.length > 0) {
-        return result;
+  itemsInSameBranch(item1: Item, item2: Item): boolean {
+    const id1 = item1.__linkId;
+    const id2 = item2.__linkId;
+    const lastDot1 = id1.lastIndexOf(".");
+    const lastDot2 = id2.lastIndexOf(".");
+    if (lastDot1 !== lastDot2) return false;
+    for (let i = 0; i < lastDot1; i++) {
+      if (id1[i] !== id2[i]) {
+        return false;
       }
     }
-    return [];
+    return true;
   }
 
   getBranchContainingInternalID(
@@ -225,6 +196,24 @@ class EditorTools {
       }
       if (item.item === undefined) continue;
       const result = this.getBranchContainingInternalID(internalID, item.item);
+      if (result !== undefined) {
+        return result;
+      }
+    }
+    return undefined;
+  }
+
+  getBranchContainingInternalLinkID(
+    linkID: string,
+    items: Item[],
+  ): [Item[], number] | undefined {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.__linkId === linkID) {
+        return [items, i];
+      }
+      if (item.item === undefined) continue;
+      const result = this.getBranchContainingInternalLinkID(linkID, item.item);
       if (result !== undefined) {
         return result;
       }
@@ -295,15 +284,16 @@ class EditorTools {
       return;
     }
     if (oItemQuestionTodisabled.item) {
-      oItemQuestionTodisabled.item.forEach((element) => {
+      for (const element of oItemQuestionTodisabled.item) {
         this.disableItem(element, oItemQuestionTodisabled.__active);
-      });
+      }
     } else {
       this.disableItem(
         oItemQuestionTodisabled,
         oItemQuestionTodisabled.__active,
       );
     }
+    // FIXME: Is this always true?
     if (id === oItemQuestionTodisabled.__internalID) {
       oItemQuestionTodisabled.disabled = false;
     }
@@ -323,13 +313,14 @@ class EditorTools {
     const answerOption: AnswerOption = {
       __id: id,
       __type: "coding",
-      __icon: this.answerType.choice.icon,
+      __icon: answerType.choice.icon,
       __newAnswer: true,
       valueCoding: newAnswer,
     };
     return answerOption;
   }
 
+  // TODO: AnswerValueSet correct method-name?
   getNewAnswerValueString(
     answer: Answer,
     arrayAnswers: AnswerOption[] = [],
@@ -339,7 +330,7 @@ class EditorTools {
     const answerOption: AnswerOption = {
       __id: id,
       __type: type,
-      __icon: this.answerType.open_choice.icon,
+      __icon: answerType.open_choice.icon,
       __newAnswer: true,
       valueString: text,
     };
@@ -381,8 +372,7 @@ class EditorTools {
   }
 
   getLevelFromLinkID(linkId: string): number {
-    // count root level
-    let level = 1;
+    let level = 1; // count root level
     for (const c of linkId) {
       if (c === ".") {
         level++;
@@ -399,32 +389,25 @@ class EditorTools {
     return acurrentID.join(".");
   }
 
-  private currentMaxLevel(items: Item[], currLevel: number): number {
-    let maxLevel = currLevel;
-    for (const element of items) {
-      if (element.item === undefined || element.item.length === 0) continue;
-      const level = this.currentMaxLevel(element.item, currLevel + 1);
-      maxLevel = level > maxLevel ? level : maxLevel;
+  getMaxLevel(item: Item): number {
+    let maxChildLevel = 0;
+    for (const element of item.item ?? []) {
+      const childLevel = this.getMaxLevelOfGroup(element);
+      maxChildLevel = Math.max(maxChildLevel, childLevel);
     }
-    return maxLevel;
+    return maxChildLevel + 1;
   }
 
-  getNumbersMaxOfLevels(items: Item[]): number {
-    return items.length > 0 ? this.currentMaxLevel(items, 1) : 0;
-  }
-
+  // Expects to be called only on items with type group
   getMaxLevelOfGroup(item: Item): number {
-    let maxLevel = 0;
-    if (item.item === undefined) {
-      return maxLevel;
-    }
-    for (const element of item.item) {
+    let maxChildLevel = 0;
+    for (const element of item.item ?? []) {
       if (element.type === "group") {
-        const level = this.getMaxLevelOfGroup(element);
-        maxLevel = level > maxLevel ? level : maxLevel;
+        const childLevel = this.getMaxLevelOfGroup(element);
+        maxChildLevel = Math.max(maxChildLevel, childLevel);
       }
     }
-    return maxLevel + 1;
+    return maxChildLevel + 1;
   }
 
   private getItemNodeByLinkID(
@@ -480,15 +463,15 @@ class EditorTools {
     }
   }
 
-  removeConditionDependence(item: Item[] = []): void {
-    item.forEach((element) => {
-      if (element.item) {
-        this.removeConditionDependence(element.item);
+  removeConditionDependence(items: Item[] = []): void {
+    for (const item of items) {
+      if (item.item) {
+        this.removeConditionDependence(item.item);
       }
-      if (element.__dependeceCondition) {
-        delete element.__dependeceCondition;
+      if (item.__dependeceCondition) {
+        delete item.__dependeceCondition;
       }
-    });
+    }
   }
 
   isNotIntegerKey(code: string): boolean {
