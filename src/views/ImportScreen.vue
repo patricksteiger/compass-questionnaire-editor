@@ -2,7 +2,6 @@
   <q-page class="q-pa-md" style="min-height: 80vh">
     <div class="row items-center justify-center example-drag">
       <div class="upload">
-        <!-- TODO: remove any type -->
         <div
           v-show="$refs.upload && ($refs.upload as any).dropActive"
           class="drop-active"
@@ -69,7 +68,6 @@
 </template>
 
 <script lang="ts">
-// @ is an alias to /src
 import FileUpload, { VueUploadItem } from "vue-upload-component";
 import { mapMutations, mapActions, mapGetters } from "vuex";
 import { useQuasar } from "quasar";

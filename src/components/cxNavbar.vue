@@ -205,7 +205,6 @@ export default defineComponent({
     continueLeavingEditionScreen() {
       this.resetQuestionnaire();
       this.$router.push("Import");
-      // TODO: spanish? resetear los objetos de las preguntas
     },
     async exporting() {
       let blob = undefined;

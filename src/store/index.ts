@@ -143,7 +143,7 @@ const store = createStore<StoreState>({
     setFileImported(state, payload = {}) {
       state.fileImported = payload;
     },
-    // TODO: Only used to go back to Import: current QRE irrelevant?
+    // TODO: Only used to go back to Import: current QREs should be reset?
     // createNewEmptyQRE-method used instead coming from EditorScreen?
     resetQuestionnaire(state) {
       const language = state.questionnaireImported.language || defaultLanguage;

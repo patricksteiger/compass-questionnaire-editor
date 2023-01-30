@@ -165,8 +165,10 @@ class FHIRValidation {
     }
 
     if (item.type === "group" && linkIdLevel > MAX_ALLOWED_LEVELS_FOR_GROUPS) {
-      // TODO: i18n for error
-      const message = `LinkId ${item.linkId}: Group-level can't exceed ${MAX_ALLOWED_LEVELS_FOR_GROUPS}`;
+      const message = this.i18n.global.t(
+        "messagesErrors.FHIRValidations.exceededGroupLevel",
+        { linkId: item.linkId },
+      );
       this.errorMessages.push(message);
     }
 

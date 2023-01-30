@@ -102,7 +102,11 @@ function validateQREWithSettings(
   if (forbidChoices) {
     const choiceTracer = (item: Item) => {
       if (item.type === "choice") {
-        errorMessages.push(`Node ${item.linkId} has deactivated type choice`);
+        const message = i18n.global.t(
+          "messagesErrors.ExportValidation.deactivatedChoice",
+          { linkId: item.linkId },
+        );
+        errorMessages.push(message);
       }
     };
     forEach(qre.item, choiceTracer);
@@ -111,9 +115,11 @@ function validateQREWithSettings(
   if (forbidOpenChoices) {
     const openChoiceTracer = (item: Item) => {
       if (item.type === "open-choice") {
-        errorMessages.push(
-          `Node ${item.linkId} has deactivated type open-choice`,
+        const message = i18n.global.t(
+          "messagesErrors.ExportValidation.deactivatedOpenChoice",
+          { linkId: item.linkId },
         );
+        errorMessages.push(message);
       }
     };
     forEach(qre.item, openChoiceTracer);
@@ -126,7 +132,11 @@ function validateQREGroups(qre: Questionnaire, errorMessages: string[]): void {
       item.type === "group" &&
       (item.item === undefined || item.item.length === 0)
     ) {
-      errorMessages.push(`Node ${item.linkId} is an empty group`);
+      const message = i18n.global.t(
+        "messagesErrors.ExportValidation.emptyGroup",
+        { linkId: item.linkId },
+      );
+      errorMessages.push(message);
     }
   };
   forEach(qre.item, emptyGroupTracer);

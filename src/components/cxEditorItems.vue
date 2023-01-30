@@ -101,7 +101,6 @@
                         </q-tooltip></q-toggle
                       >
                     </div>
-                    <!-- @click="deleteItem(prop)" -->
                     <div style="width: 30px">
                       <q-btn
                         flat
@@ -770,7 +769,18 @@
                             type="number"
                             dense
                           />
-                          <!-- TODO: Can there be validation for dates? -->
+                          <!-- TODO: Allow only year/month to be selected -->
+                          <!-- <q-input -->
+                          <!--   v-else-if="enableWhen.type === 'date'" -->
+                          <!--   :disable="!selectedItem.__active" -->
+                          <!--   :label="$t('views.editor.answer')" -->
+                          <!--   :stack-label="true" -->
+                          <!--   class="col-4" -->
+                          <!--   v-model="enableWhen.answer" -->
+                          <!--   mask="'YYYY-MM-DD'" -->
+                          <!--   :type="'date'" -->
+                          <!--   dense -->
+                          <!-- /> -->
                           <q-input
                             v-else
                             :disable="!selectedItem.__active"

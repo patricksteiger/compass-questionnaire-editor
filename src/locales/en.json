@@ -150,6 +150,7 @@
       "typeNodeNoValAllow": "Item {linkId} {type} type value is not allowed.",
       "posiblesValues": "{currentValue} value is no allowed in {node}.",
       "moreThan5Levels": "Item {linkId} has more that 5 levels.",
+      "exceededGroupLevel": "Item {linkId} has more that 4 levels.",
       "answerOptionAndValueSetNoAllow": "Item {linkId} has [answerOption] and [answerValueSet], both are not allowed.",
       "linkId": "Item: [{linkId} - {text}] has an error, it doesn't follow the right sequence of LinkId. Link ID should be {internalId} instead if {linkId}."
     },
@@ -158,6 +159,11 @@
       "fileNoJSONType": "File {nameFile} imported is no a JSON File. Only JSON Files are allowed.",
       "jsonFileIsNotString": "JSON-File is not of type string",
       "NoJSONFILEStructure": "Content of file loaded has no a properly structure of a JSON. "
+    },
+    "ExportValidation": {
+      "deactivatedChoice": "Item {linkId} has deactivated type choice.",
+      "deactivatedOpenChoice": "Item {linkId} has deactivated type open-choice.",
+      "emptyGroup": "Item {linkId} is an empty group."
     }
   }
 }

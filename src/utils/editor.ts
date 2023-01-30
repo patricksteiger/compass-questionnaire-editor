@@ -309,7 +309,6 @@ class EditorTools {
     return answerOption;
   }
 
-  // TODO: AnswerValueSet correct method-name?
   getNewAnswerValueString(
     answer: Answer,
     arrayAnswers: AnswerOption[] = [],

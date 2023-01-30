@@ -150,6 +150,7 @@
       "typeNodeNoValAllow": "Element {linkId} hat nicht unterstützten Typ: {type}",
       "posiblesValues": "Wert {currentValue} ist nicht erlaubt in {node}.",
       "moreThan5Levels": "Element {linkId} hat mehr als 5 Level.",
+      "exceededGroupLevel": "Element {linkId} hat mehr als 4 Level.",
       "answerOptionAndValueSetNoAllow": "Element {linkId} hat [answerOption] und [answerValueSet], beide sind nicht gleichzeitig erlaubt.",
       "linkId": "Element: [{linkId} - {text}] hat eine ungültige Sequenz in der LinkId. LinkId sollte stattdessen {internalId} sein, falls {linkId}."
     },
@@ -158,6 +159,11 @@
       "fileNoJSONType": "Importierte Datei {nameFile} ist keine JSON-Datei. Nur JSON-Dateien sind erlaubt.",
       "jsonFileIsNotString": "JSON-Datei hat nicht den Typ string",
       "NoJSONFILEStructure": "Inhalt der geladenen Datei hat eine ungültige JSON-Struktur."
+    },
+    "ExportValidation": {
+      "deactivatedChoice": "Element {linkId} hat deaktivierten Typ choice.",
+      "deactivatedOpenChoice": "Element {linkId} hat deaktivierten Typ open-choice.",
+      "emptyGroup": "Element {linkId} ist eine leere Gruppe."
     }
   }
 }
