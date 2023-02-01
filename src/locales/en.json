@@ -28,6 +28,7 @@
       },
       "ImportJSONBtn": "Import JSON",
       "ExportJSONBtn": "Export JSON",
+      "ExportBundleJSONBtn": "Export Bundle-JSON",
       "createNewQRE": "Create new questionnaire",
       "warningLeaveDialog": {
         "title": "Warning",

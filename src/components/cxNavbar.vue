@@ -19,8 +19,17 @@
       flat
       stack
       no-caps
-      @click="exporting"
+      @click="exportQuestionnaire"
       >{{ $t("components.navigationBar.ExportJSONBtn") }}</q-btn
+    >
+    <q-btn
+      v-if="$route.name !== 'Import'"
+      icon="download_file"
+      flat
+      stack
+      no-caps
+      @click="exportQuestionnaireBundle"
+      >{{ $t("components.navigationBar.ExportBundleJSONBtn") }}</q-btn
     >
     <q-btn
       v-if="$route.name === 'Import'"
@@ -154,6 +163,7 @@ export default defineComponent({
       "getNameofQuestionnaire",
       "getQuestionnaireImportedJSON",
       "getVersionQuestionnaire",
+      "getQuestionnaires",
     ]),
   },
   data() {
@@ -206,7 +216,30 @@ export default defineComponent({
       this.resetQuestionnaire();
       this.$router.push("Import");
     },
-    async exporting() {
+    exportQuestionnaireBundle() {
+      this.showLoading();
+      const focusedQuestionnaire = this.getQuestionnaireImportedJSON;
+      this.validationErrorMessages =
+        this.exportJsonQuestionnaire.validateQuestionnaire(
+          focusedQuestionnaire,
+          this.$store.state.settings,
+        );
+      if (this.validationErrorMessages.length > 0) {
+        this.hideLoading();
+        this.alertValidationError = true;
+        return;
+      }
+      const questionnaires = this.getQuestionnaires;
+      const exportBundle =
+        this.exportJsonQuestionnaire.getExportBundle(questionnaires);
+      const exportBundleJson = JSON.stringify(exportBundle, null, 2);
+      const blob = new Blob([exportBundleJson], {
+        type: "application/json;charset=utf-8",
+      });
+      this.FileSaver.saveAs(blob, `${this.getNameofQuestionnaire}-Bundle.json`);
+      this.hideLoading();
+    },
+    async exportQuestionnaire() {
       let blob = undefined;
       try {
         this.showLoading();

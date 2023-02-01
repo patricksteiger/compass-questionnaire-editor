@@ -1,7 +1,14 @@
 import { questionTypesIcons, answerType, QuestionIcon } from "./constants";
 import { v4 as uuidv4 } from "uuid";
 import { GeccoItem } from "@/store/questionnaire";
-import { Answer, AnswerOption, Question, Item, QuestionType } from "@/types";
+import {
+  Answer,
+  AnswerOption,
+  Question,
+  Item,
+  QuestionType,
+  Questionnaire,
+} from "@/types";
 import { i18n } from "@/i18n";
 
 function getTypeQuestionIcon(type: QuestionType): QuestionIcon["icon"] {
@@ -19,7 +26,7 @@ function createNewItem(type: QuestionType): Item {
     __linkId: "",
     __newQuestion: true,
     __newDefinition: true,
-    disabled: false,
+    __disabled: false,
     item: undefined,
     linkId: "",
     text: i18n.global.t("views.editor.newQuestion"),
@@ -28,11 +35,38 @@ function createNewItem(type: QuestionType): Item {
 }
 
 class EditorTools {
+  private enableWhenDependsOnHelper(
+    items: Item[],
+    linkIDs: Set<string>,
+  ): boolean {
+    for (const item of items) {
+      for (const enableWhen of item.enableWhen ?? []) {
+        if (linkIDs.has(enableWhen.question)) {
+          return true;
+        }
+      }
+      if (item.item) {
+        const result = this.enableWhenDependsOnHelper(item.item, linkIDs);
+        if (result) return true;
+      }
+    }
+    return false;
+  }
+
+  enableWhenDependsOn(
+    questionnaire: Questionnaire,
+    linkIDs: Set<string>,
+  ): boolean {
+    return this.enableWhenDependsOnHelper(questionnaire.item, linkIDs);
+  }
+
   private getAllLinkIDsHelper(item: Item, linkIDs: Set<string>): void {
+    if (item.linkId === "") return;
     linkIDs.add(item.linkId);
-    if (item.item === undefined) return;
-    for (const element of item.item) {
-      this.getAllLinkIDsHelper(element, linkIDs);
+    if (item.item !== undefined) {
+      for (const element of item.item) {
+        this.getAllLinkIDsHelper(element, linkIDs);
+      }
     }
   }
 
@@ -42,19 +76,30 @@ class EditorTools {
     return linkIDs;
   }
 
-  private assingNewItemInternalLinkIDs(item: Item): void {
+  private assingNewInternalLinkIDsToChildren(item: Item): void {
     if (item.item === undefined) return;
     let idCount = 0;
     for (const element of item.item) {
       idCount++;
       element.__linkId = `${item.__linkId}.${idCount}`;
-      this.assingNewItemInternalLinkIDs(element);
+      this.assingNewInternalLinkIDsToChildren(element);
     }
   }
 
-  private assingNewItemIDs(item: Item): Map<string, string> {
-    let changedIdMap = new Map<string, string>();
-    if (item.item === undefined) return changedIdMap;
+  regenerateInternalLinkIDs(items: Item[]): void {
+    let idCount = 0;
+    for (const item of items) {
+      idCount++;
+      item.__linkId = idCount.toString();
+      this.assingNewInternalLinkIDsToChildren(item);
+    }
+  }
+
+  private assingNewItemIDs(
+    item: Item,
+    changedIdMap: Map<string, string>,
+  ): void {
+    if (item.item === undefined) return;
     let idCount = 0;
     for (const element of item.item) {
       if (element.__active) {
@@ -67,42 +112,25 @@ class EditorTools {
         changedIdMap.set(element.linkId, "");
         element.linkId = "";
       }
-      if (element.item) {
-        const newIds = this.assingNewItemIDs(element);
-        changedIdMap = new Map([...changedIdMap, ...newIds]);
-      }
-    }
-    return changedIdMap;
-  }
-
-  regenerateInternalLinkIDs(items: Item[]): void {
-    let idCount = 0;
-    for (const item of items) {
-      idCount++;
-      item.__linkId = idCount.toString();
-      this.assingNewItemInternalLinkIDs(item);
+      this.assingNewItemIDs(element, changedIdMap);
     }
   }
 
-  regenerateLinkIds(items?: Item[]): Map<string, string> {
-    let changedIdMap = new Map<string, string>();
-    if (items === undefined) return changedIdMap;
+  regenerateLinkIds(items: Item[]): Map<string, string> {
+    const changedIdMap = new Map<string, string>();
     let idCount = 0;
     for (const item of items) {
       if (item.__active) {
         idCount++;
         const oldLinkId = item.linkId;
-        const newLinkId = idCount + "";
+        const newLinkId = idCount.toString();
         changedIdMap.set(oldLinkId, newLinkId);
         item.linkId = newLinkId;
       } else {
         changedIdMap.set(item.linkId, "");
         item.linkId = "";
       }
-      if (item.item) {
-        const newIds = this.assingNewItemIDs(item);
-        changedIdMap = new Map([...changedIdMap, ...newIds]);
-      }
+      this.assingNewItemIDs(item, changedIdMap);
     }
     return changedIdMap;
   }
@@ -147,17 +175,6 @@ class EditorTools {
       }
     }
     return false;
-  }
-
-  private disableItem(item: Item, toggleValue: boolean): void {
-    if (item.item) {
-      for (const element of item.item) {
-        element.__active = toggleValue;
-        this.disableItem(element, toggleValue);
-      }
-    }
-    item.disabled = !toggleValue;
-    item.__active = toggleValue;
   }
 
   itemsInSameBranch(item1: Item, item2: Item): boolean {
@@ -261,30 +278,40 @@ class EditorTools {
     return undefined;
   }
 
-  disableEntireItemQuestion(id: string, rootItem: Item[]): void {
-    const oItemQuestionTodisabled = this.getCurrentQuestionNodeByID(
-      id,
-      rootItem,
-    );
-    if (
-      oItemQuestionTodisabled === undefined ||
-      oItemQuestionTodisabled.disabled
-    ) {
+  getItemByInternalLinkId(id: string, rootItem: Item[]): Item | undefined {
+    for (const item of rootItem) {
+      if (item.__linkId === id) {
+        return item;
+      }
+      if (!item.item) continue;
+      const result = this.getItemByInternalLinkId(id, item.item);
+      if (result !== undefined) return result;
+    }
+    return undefined;
+  }
+
+  toggleEntireItem(
+    id: string,
+    rootItem: Item[],
+    activateToggle: boolean,
+  ): void {
+    const disableItem = this.getItemByInternalLinkId(id, rootItem);
+    if (disableItem === undefined || disableItem.__disabled) {
       return;
     }
-    if (oItemQuestionTodisabled.item) {
-      for (const element of oItemQuestionTodisabled.item) {
-        this.disableItem(element, oItemQuestionTodisabled.__active);
-      }
-    } else {
-      this.disableItem(
-        oItemQuestionTodisabled,
-        oItemQuestionTodisabled.__active,
-      );
+    disableItem.__active = activateToggle;
+    if (disableItem.item) {
+      this.toggleChildren(disableItem.item, activateToggle);
     }
-    // FIXME: Is this always true?
-    if (id === oItemQuestionTodisabled.__internalID) {
-      oItemQuestionTodisabled.disabled = false;
+  }
+
+  private toggleChildren(items: Item[], activate: boolean): void {
+    for (const item of items) {
+      item.__active = activate;
+      item.__disabled = !activate;
+      if (item.item) {
+        this.toggleChildren(item.item, activate);
+      }
     }
   }
 
@@ -325,7 +352,7 @@ class EditorTools {
     return answerOption;
   }
 
-  createQuestionWithType(questionType: QuestionType): Item {
+  createItemWithType(questionType: QuestionType): Item {
     const item = createNewItem(questionType);
     if (item.type === "choice" || item.type === "open-choice") {
       item.answerOption = [];
@@ -369,12 +396,13 @@ class EditorTools {
     return level;
   }
 
-  getNextID(currentID: string): string {
-    const acurrentID = currentID.split(".");
-    const nextID = Number(acurrentID.at(-1)) + 1;
-    acurrentID.pop();
-    acurrentID.push(nextID.toString());
-    return acurrentID.join(".");
+  // Example: 1.13.5
+  getNextLinkID(linkId: string): string {
+    const numbers = linkId.split(".");
+    const nextLinkId = Number(numbers.at(-1)) + 1;
+    numbers.pop();
+    numbers.push(nextLinkId.toString());
+    return numbers.join(".");
   }
 
   getMaxLevel(item: Item): number {
@@ -396,6 +424,51 @@ class EditorTools {
       }
     }
     return maxChildLevel + 1;
+  }
+
+  addItemAndSetLinkIDs(newItem: Item, parent: Item): void {
+    parent.item ??= [];
+    const items = parent.item;
+    if (items.length > 0) {
+      const lastItem = items.at(-1) as Item;
+      newItem.__linkId = this.getNextLinkID(lastItem.__linkId);
+      if (lastItem.__active) {
+        newItem.linkId = this.getNextLinkID(lastItem.linkId);
+      } else {
+        const lastActiveItem = this.getLastActiveItem(items);
+        if (lastActiveItem !== undefined) {
+          newItem.linkId = this.getNextLinkID(lastActiveItem.linkId);
+        } else {
+          newItem.linkId = `${parent.linkId}.1`;
+        }
+      }
+    } else {
+      // linkID was this.selected for adding GeccoItem (not to root), relevant?
+      newItem.__linkId = `${parent.__linkId}.1`;
+      newItem.linkId = `${parent.linkId}.1`;
+    }
+    items.push(newItem);
+  }
+
+  addItemToRootAndSetLinkIDs(newItem: Item, rootItems: Item[]): void {
+    newItem.__linkId = (rootItems.length + 1).toString();
+    const lastActiveItem = this.getLastActiveItem(rootItems);
+    if (lastActiveItem !== undefined) {
+      newItem.linkId = this.getNextLinkID(lastActiveItem.linkId);
+    } else {
+      newItem.linkId = "1";
+    }
+    rootItems.push(newItem);
+  }
+
+  getLastActiveItem(items: Item[]): Item | undefined {
+    for (let i = items.length - 1; i >= 0; i--) {
+      const item = items[i];
+      if (item.__active) {
+        return item;
+      }
+    }
+    return undefined;
   }
 
   private getItemNodeByLinkID(
@@ -424,7 +497,7 @@ class EditorTools {
           rootItem,
         );
         if (itemToAppendCondition === undefined) continue;
-        itemToAppendCondition.__dependeceCondition ??= {
+        itemToAppendCondition.__dependenceCondition ??= {
           __icon: "account_tree",
           __questions: [],
           __linkId: "",
@@ -446,7 +519,7 @@ class EditorTools {
           __answerDate: enableWhen.answerDate,
           __answerString: enableWhen.answerString,
         };
-        itemToAppendCondition.__dependeceCondition.__questions.push(question);
+        itemToAppendCondition.__dependenceCondition.__questions.push(question);
       }
     }
   }
@@ -456,8 +529,8 @@ class EditorTools {
       if (item.item) {
         this.removeConditionDependence(item.item);
       }
-      if (item.__dependeceCondition) {
-        delete item.__dependeceCondition;
+      if (item.__dependenceCondition) {
+        delete item.__dependenceCondition;
       }
     }
   }

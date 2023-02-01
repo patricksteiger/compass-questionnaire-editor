@@ -135,20 +135,30 @@ export type Identifier = {
   };
 };
 
+/*
+ * Fields with "__"-prefix are used for internal state management
+ */
 export type Item = {
   __active: boolean;
+  /*
+   * __disabled items can't be selected in GUI
+   * __disabled === !__active, unless inactive Item still needs to be selectable (to enable it again)
+   */
+  __disabled: boolean;
   __icon: string;
+  // unique ID based on uuidv4 and Date
   __internalID: string;
-  __linkId: string;
   __newQuestion: boolean;
   __newDefinition: boolean;
   __oldText?: string;
-  __dependeceCondition?: Condition;
+  __dependenceCondition?: Condition;
   __OldAnswerValueSet?: string;
   __answerValueSetCheck?: boolean;
-  disabled?: boolean;
   item?: Item[];
   identifier?: Identifier[];
+  // tracks position of item regardless whether it's active or not
+  __linkId: string;
+  // tracks position of active items, linkId === "" if inactive/disabled
   linkId: string;
   maxLength?: number;
   type: QuestionType;

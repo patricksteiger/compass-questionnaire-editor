@@ -79,7 +79,7 @@ class FHIRValidation {
           this.questionnaire.item,
         );
         if (itemToAppendCondition === undefined) continue;
-        itemToAppendCondition.__dependeceCondition ??= {
+        itemToAppendCondition.__dependenceCondition ??= {
           __icon: "account_tree",
           __questions: [],
           __linkId: "",
@@ -101,7 +101,7 @@ class FHIRValidation {
           __answerDate: enableWhen.answerDate,
           __answerString: enableWhen.answerString,
         };
-        itemToAppendCondition.__dependeceCondition.__questions.push(question);
+        itemToAppendCondition.__dependenceCondition.__questions.push(question);
       }
     }
   }
@@ -358,7 +358,7 @@ class FHIRValidation {
 
   private addPropertiesNeededForGUIItemNode(item: Item) {
     item.__active = true;
-    item.disabled = false;
+    item.__disabled = false;
     item.__oldText = item.text;
     item.__icon =
       item.type === "open-choice"

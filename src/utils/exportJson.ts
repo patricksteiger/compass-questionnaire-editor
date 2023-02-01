@@ -2,6 +2,16 @@ import { Settings } from "@/store";
 import { Identifier, Item, Questionnaire } from "@/types";
 import { i18n } from "../i18n";
 
+export type QuestionnaireBundleEntry = {
+  resource: Questionnaire;
+};
+
+export type QuestionnaireBundle = {
+  resourceType: "Bundle";
+  type: "collection";
+  entry: QuestionnaireBundleEntry[];
+};
+
 function objectKeys<T extends object>(object: T): (keyof T)[] {
   return Object.keys(object) as (keyof T)[];
 }
@@ -207,9 +217,6 @@ function getObjectWithoutItemsDisabled(
       }
     }
 
-    //remove disable Item property
-    delete item.disabled;
-
     //remove empty answerValueSet
     if (item.answerValueSet === "") {
       delete item.answerValueSet;
@@ -274,6 +281,7 @@ function getObjectWithoutItemsDisabled(
 }
 
 const exportJsonQuestionnaire = {
+  // FIXME: consider inactive items
   validateQuestionnaire(qre: Questionnaire, settings: Settings): string[] {
     const errorMessages: string[] = [];
     validateQREWithSettings(qre, settings, errorMessages);
@@ -285,6 +293,18 @@ const exportJsonQuestionnaire = {
     const objWithoutItemsDisabled = getObjectWithoutItemsDisabled(cloneObject);
     const finalObj = this.clearMetadataFields(objWithoutItemsDisabled);
     return finalObj;
+  },
+  getExportBundle(questionnaires: Questionnaire[]): QuestionnaireBundle {
+    const entries = questionnaires.map((qre) => {
+      const exportQuestionnaire = this.getExportObject(qre);
+      return { resource: exportQuestionnaire };
+    });
+    const bundle: QuestionnaireBundle = {
+      resourceType: "Bundle",
+      type: "collection",
+      entry: entries,
+    };
+    return bundle;
   },
   clearMetadataFields(jsonObject: Questionnaire) {
     //Version

@@ -21,7 +21,7 @@
               <div
                 class="col items-center justify-between"
                 style="width: 100%"
-                :disable="prop.node.disabled"
+                :disable="prop.node.__disabled"
               >
                 <div
                   class="row items-center justify-between"
@@ -86,12 +86,12 @@
                         resource</q-tooltip
                       ></q-badge
                     >
-                    <div v-if="!prop.node.disabled">
+                    <div v-if="!prop.node.__disabled">
                       <q-toggle
                         size="xs"
                         v-model="prop.node.__active"
-                        :disable="prop.node.disabled"
-                        @click="onToggle(prop.node.__internalID)"
+                        :disable="prop.node.__disabled"
+                        @click="toggleItem(prop.node.__internalID)"
                         ><q-tooltip>
                           {{
                             prop.node.__active
@@ -261,14 +261,14 @@
                   {{ $t("components.fieldEmpty") }}
                 </template></q-input
               >
-              <!-- Show Depedence Condition -->
+              <!-- Show Dependence Condition -->
               <q-btn
                 flat
                 round
                 color="primary"
                 icon="device_hub"
                 @click="alert = true"
-                v-if="selectedItem?.__dependeceCondition"
+                v-if="selectedItem?.__dependenceCondition"
                 ><q-tooltip>
                   {{ $t("views.editor.conditionFulfilled") }}
                 </q-tooltip></q-btn
@@ -932,7 +932,7 @@
 
         <q-card-section class="q-pt-none">
           <div
-            v-for="(question, index) in selectedItem?.__dependeceCondition
+            v-for="(question, index) in selectedItem?.__dependenceCondition
               ?.__questions"
             :key="index"
           >
@@ -1189,63 +1189,10 @@ export default defineComponent({
           return;
         }
       }
-      const selectedLinkId = this.selectedItem.linkId;
+      const selectedLinkId = this.selectedItem.__linkId;
       for (const questionnaire of this.getQuestionnaires) {
         this.addGeccoQuestionToItem(questionnaire, selectedLinkId, input);
       }
-    },
-    addGeccoQuestionToItem(
-      questionnaire: Questionnaire,
-      linkId: string,
-      geccoItem: Item,
-    ): void {
-      const item = this.editorTools.getCurrentQuestionNodeByLinkId(
-        linkId,
-        questionnaire.item,
-      );
-      if (item === undefined) {
-        console.error(
-          `LinkId ${linkId} does not exist in Questionnaire ${questionnaire.language}`,
-        );
-        return;
-      }
-      const newItem = deepCopyObject(geccoItem);
-      newItem.definition = uuidv4();
-      newItem.__newDefinition = true;
-      item.item ??= [];
-      const items = item.item;
-      if (items.length > 0) {
-        const lastItem = items.at(-1) as Item;
-        newItem.__linkId = this.editorTools.getNextID(lastItem.__linkId);
-      } else {
-        // TODO: linkID should be this.selected?
-        newItem.__linkId = `${item.linkId}.1`;
-      }
-      newItem.linkId = item.__linkId;
-      items.push(newItem);
-      const changedIdMap = this.editorTools.regenerateLinkIds(
-        questionnaire.item,
-      );
-      this.editorTools.regenerateInternalLinkIDs(questionnaire.item);
-      this.editorTools.regenerateConditionWhenIds(
-        questionnaire.item,
-        changedIdMap,
-      );
-    },
-    addGeccoQuestionToRootItem(
-      questionnaire: Questionnaire,
-      geccoItem: Item,
-    ): void {
-      const newItem = deepCopyObject(geccoItem);
-      const rootItems = questionnaire.item;
-      newItem.__linkId = (rootItems.length + 1).toString();
-      newItem.linkId = newItem.__linkId;
-      newItem.definition = uuidv4();
-      newItem.__newDefinition = true;
-      rootItems.push(newItem);
-      const changedIdMap = this.editorTools.regenerateLinkIds(rootItems);
-      this.editorTools.regenerateInternalLinkIDs(questionnaire.item);
-      this.editorTools.regenerateConditionWhenIds(rootItems, changedIdMap);
     },
     onAddCondition() {
       if (this.selectedItem === undefined) {
@@ -1444,29 +1391,60 @@ export default defineComponent({
         changedIdMap,
       );
     },
-    onToggle(id: string) {
+    toggleItem(internalId: string) {
       const currentNode = this.editorTools.getCurrentQuestionNodeByID(
-        id,
+        internalId,
         this.item,
       );
       if (currentNode === undefined) {
-        console.error("Toggled node was not found by id");
+        console.error(
+          `InternalId ${internalId} does not exist in questionnaire`,
+        );
         return;
       }
-      const linkId = currentNode.linkId;
+      const questionnaires: Questionnaire[] = this.getQuestionnaires;
 
-      if (this.editorTools.isEnableWhenCondition(this.item, linkId)) {
-        alert(
-          "There are one or more question that depend on the one you deactivated. " +
-            "Keeping the LinkID on these conditions would harm the logical integrety of the questionnaire. " +
-            "They were therefore removed. \n" +
-            "Please be aware that if you reactivate the question you have to relink these conditions.",
+      if (!currentNode.__active) {
+        const linkIDs = this.editorTools.getAllLinkIDs(currentNode);
+        const errorLangs: Language[] = [];
+        for (const questionnaire of questionnaires) {
+          if (this.editorTools.enableWhenDependsOn(questionnaire, linkIDs)) {
+            errorLangs.push(questionnaire.language);
+          }
+        }
+        if (errorLangs.length > 0) {
+          const answer = confirm(
+            `Questionnaires with languages [${errorLangs}] have questions that depend on at least one of the questions you want to deactivate. ` +
+              "Keeping the LinkId on these conditions would harm the logical integrity of the questionnaire. " +
+              "They will therefore be removed. \n" +
+              "Please be aware that if you reactivate the question you have to relink these conditions.",
+          );
+          if (!answer) {
+            currentNode.__active = true;
+            currentNode.__disabled = false;
+            return;
+          }
+          for (const questionnaire of questionnaires) {
+            this.deleteEnableWhenWithQuestionID(questionnaire.item, linkIDs);
+          }
+        }
+      }
+      const internalLinkId = currentNode.__linkId;
+      const toggle = currentNode.__active;
+      for (const questionnaire of questionnaires) {
+        this.editorTools.toggleEntireItem(
+          internalLinkId,
+          questionnaire.item,
+          toggle,
+        );
+        const changedIdMap = this.editorTools.regenerateLinkIds(
+          questionnaire.item,
+        );
+        this.editorTools.regenerateConditionWhenIds(
+          questionnaire.item,
+          changedIdMap,
         );
       }
-
-      this.editorTools.disableEntireItemQuestion(id, this.item);
-      const changedIdMap = this.editorTools.regenerateLinkIds(this.item);
-      this.editorTools.regenerateConditionWhenIds(this.item, changedIdMap);
     },
     isCondition(id: string) {
       return this.editorTools.isEnableWhenCondition(
@@ -1494,47 +1472,77 @@ export default defineComponent({
           return;
         }
       }
-      const selectedLinkId = this.selectedItem.linkId;
+      const selectedLinkId = this.selectedItem.__linkId;
       for (const questionnaire of this.getQuestionnaires) {
         this.addQuestionToItem(questionnaire, selectedLinkId, questionType);
       }
     },
     addQuestionToItem(
       questionnaire: Questionnaire,
-      linkId: string,
+      internalLinkId: string,
       type: QuestionType,
     ): void {
-      const item = this.editorTools.getCurrentQuestionNodeByLinkId(
-        linkId,
+      const item = this.editorTools.getItemByInternalLinkId(
+        internalLinkId,
         questionnaire.item,
       );
       if (item === undefined) {
         console.error(
-          `LinkID ${linkId} is not part of Questionnaire ${questionnaire.language}`,
+          `LinkID ${internalLinkId} is not part of Questionnaire ${questionnaire.language}`,
         );
         return;
       }
-      item.item ??= [];
-      const items = item.item;
-      const newItem = this.editorTools.createQuestionWithType(type);
-      if (items.length > 0) {
-        const lastItem = items.at(-1) as Item;
-        newItem.__linkId = this.editorTools.getNextID(lastItem.__linkId);
-      } else {
-        newItem.__linkId = `${item.linkId}.1`;
-      }
-      newItem.linkId = newItem.__linkId;
-      items.push(newItem);
+      const newItem = this.editorTools.createItemWithType(type);
+      this.editorTools.addItemAndSetLinkIDs(newItem, item);
     },
     addQuestionToRootItem(
       questionnaire: Questionnaire,
       type: QuestionType,
     ): void {
-      const newItem = this.editorTools.createQuestionWithType(type);
+      const newItem = this.editorTools.createItemWithType(type);
       const rootItems = questionnaire.item;
-      newItem.__linkId = (rootItems.length + 1).toString();
-      newItem.linkId = newItem.__linkId;
-      rootItems.push(newItem);
+      this.editorTools.addItemToRootAndSetLinkIDs(newItem, rootItems);
+    },
+    addGeccoQuestionToItem(
+      questionnaire: Questionnaire,
+      linkId: string,
+      geccoItem: Item,
+    ): void {
+      const item = this.editorTools.getItemByInternalLinkId(
+        linkId,
+        questionnaire.item,
+      );
+      if (item === undefined) {
+        console.error(
+          `LinkId ${linkId} does not exist in Questionnaire ${questionnaire.language}`,
+        );
+        return;
+      }
+      const newItem = deepCopyObject(geccoItem);
+      newItem.definition = uuidv4();
+      newItem.__newDefinition = true;
+      this.editorTools.addItemAndSetLinkIDs(newItem, item);
+      const changedIdMap = this.editorTools.regenerateLinkIds(
+        questionnaire.item,
+      );
+      this.editorTools.regenerateInternalLinkIDs(questionnaire.item);
+      this.editorTools.regenerateConditionWhenIds(
+        questionnaire.item,
+        changedIdMap,
+      );
+    },
+    addGeccoQuestionToRootItem(
+      questionnaire: Questionnaire,
+      geccoItem: Item,
+    ): void {
+      const newItem = deepCopyObject(geccoItem);
+      newItem.definition = uuidv4();
+      newItem.__newDefinition = true;
+      const rootItems = questionnaire.item;
+      this.editorTools.addItemToRootAndSetLinkIDs(newItem, rootItems);
+      const changedIdMap = this.editorTools.regenerateLinkIds(rootItems);
+      this.editorTools.regenerateInternalLinkIDs(rootItems);
+      this.editorTools.regenerateConditionWhenIds(rootItems, changedIdMap);
     },
     onAddGECCOQuestion(): void {
       //No Add Question on Items disabled
@@ -1648,31 +1656,51 @@ export default defineComponent({
       this.selectedItem.answerOption.splice(indexOfItemtoBeRemoved, 1);
     },
     deleteItem(internalID: string) {
-      if (!internalID) {
-        console.error("Empty internalID can't be deleted");
-        return;
-      }
       const answer = confirm(i18n.global.t("views.editor.deleteItemDialogue"));
       if (!answer) {
         return;
       }
-      const branchWithPosition = this.editorTools.getBranchContainingInternalID(
+      const item = this.editorTools.getCurrentQuestionNodeByID(
         internalID,
         this.item,
       );
-      if (branchWithPosition === undefined) {
+      if (item === undefined) {
+        console.error(`InternalId '${internalID}' does not exist`);
+        return;
+      }
+      for (const questionnaire of this.getQuestionnaires) {
+        this.deleteItemWithInternalLinkId(questionnaire, item.__linkId);
+      }
+    },
+    deleteItemWithInternalLinkId(
+      questionnaire: Questionnaire,
+      internalLinkId: string,
+    ) {
+      const branchWithIndex =
+        this.editorTools.getBranchContainingInternalLinkID(
+          internalLinkId,
+          questionnaire.item,
+        );
+      if (branchWithIndex === undefined) {
         console.error(
-          `InternalID ${internalID} doesn't exist in Questionnaire`,
+          `LinkId ${internalLinkId} does not exist in questionnaire ${questionnaire.language}`,
         );
         return;
       }
-      const [branch, position] = branchWithPosition;
-      const linkIDs = this.editorTools.getAllLinkIDs(branch[position]);
-      branch.splice(position, 1); // Delete item
-      this.deleteEnableWhenWithQuestionID(this.item, linkIDs);
-      const changedIdMap = this.editorTools.regenerateLinkIds(this.item);
-      this.editorTools.regenerateInternalLinkIDs(this.item);
-      this.editorTools.regenerateConditionWhenIds(this.item, changedIdMap);
+      const [branch, index] = branchWithIndex;
+      const linkIDs = this.editorTools.getAllLinkIDs(branch[index]);
+      branch.splice(index, 1); // Delete item
+      if (linkIDs.size > 0) {
+        this.deleteEnableWhenWithQuestionID(questionnaire.item, linkIDs);
+      }
+      const changedIdMap = this.editorTools.regenerateLinkIds(
+        questionnaire.item,
+      );
+      this.editorTools.regenerateInternalLinkIDs(questionnaire.item);
+      this.editorTools.regenerateConditionWhenIds(
+        questionnaire.item,
+        changedIdMap,
+      );
     },
     deleteEnableWhenWithQuestionID(items: Item[], linkIDs: Set<string>) {
       for (const item of items) {
