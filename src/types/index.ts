@@ -154,12 +154,11 @@ export type Item = {
   __dependenceCondition?: Condition;
   __OldAnswerValueSet?: string;
   __answerValueSetCheck?: boolean;
-  item?: Item[];
-  identifier?: Identifier[];
   // tracks position of item regardless whether it's active or not
   __linkId: string;
   // tracks position of active items, linkId === "" if inactive/disabled
   linkId: string;
+  item?: Item[];
   maxLength?: number;
   type: QuestionType;
   enableWhen?: EnableWhen[];
@@ -168,16 +167,6 @@ export type Item = {
   answerOption?: AnswerOption[];
   answerValueSet?: string;
   extension?: Extension[];
-  url?: string;
-  name?: string;
-  version?: string;
-  title?: string;
-  status?: string;
-  publisher?: string;
-  date?: string;
-  approvalDate?: string;
-  lastReviewDate?: string;
-  experimental?: boolean;
 };
 
 export type Questionnaire = {

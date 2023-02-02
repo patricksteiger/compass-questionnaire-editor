@@ -150,11 +150,10 @@
 </template>
 <script lang="ts">
 import { defineComponent, Ref, ref } from "vue";
-import { mapGetters, mapMutations, mapActions } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 import { useQuasar } from "quasar";
 import FileSaver from "file-saver";
 import { exportJsonQuestionnaire } from "../utils/exportJson";
-import { i18n, defaultLanguage } from "@/i18n";
 import { Questionnaire } from "@/types";
 
 export default defineComponent({
@@ -203,9 +202,8 @@ export default defineComponent({
     ...mapMutations([
       "resetQuestionnaire",
       "updateVersion",
-      "setNameofQuestionnaireNEW",
+      "setNewEmptyQuestionnaire",
     ]),
-    ...mapActions(["uploadJSONQuestionnaire"]),
     importing() {
       this.alertWantToLeaveScreen = true;
     },
@@ -290,18 +288,7 @@ export default defineComponent({
       }
     },
     createNewEmptyQRE() {
-      const newQRE: Questionnaire = {
-        language: defaultLanguage,
-        resourceType: "Questionnaire",
-        status: "draft",
-        url: "https://num-compass.science/de/",
-        version: "1.0",
-        name: i18n.global.t("store.questionnaire.name"),
-        title: i18n.global.t("store.questionnaire.name"),
-        item: [],
-      };
-      this.uploadJSONQuestionnaire(newQRE);
-      this.setNameofQuestionnaireNEW();
+      this.setNewEmptyQuestionnaire();
       this.$router.push("/");
     },
   },

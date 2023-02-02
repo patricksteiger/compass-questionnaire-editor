@@ -9,7 +9,7 @@ import {
   QuestionType,
   Questionnaire,
 } from "@/types";
-import { i18n } from "@/i18n";
+import { itemTools } from "./item";
 
 function getTypeQuestionIcon(type: QuestionType): QuestionIcon["icon"] {
   const questionTypesIcon = questionTypesIcons.find((i) => i.name === type);
@@ -20,7 +20,7 @@ function createNewItem(type: QuestionType): Item {
   return {
     type: type,
     __icon: getTypeQuestionIcon(type),
-    __internalID: `${uuidv4()}-${Date.now()}`,
+    __internalID: itemTools.createInternalId(),
     definition: uuidv4(),
     __active: true,
     __linkId: "",
@@ -29,7 +29,7 @@ function createNewItem(type: QuestionType): Item {
     __disabled: false,
     item: undefined,
     linkId: "",
-    text: i18n.global.t("views.editor.newQuestion"),
+    text: itemTools.getDefaultText(),
     extension: [],
   };
 }

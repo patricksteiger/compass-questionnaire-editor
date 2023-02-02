@@ -127,12 +127,15 @@
                     </div>
                   </div>
                 </div>
+                <!-- FIXME: remove internal linkId -->
                 <div
                   class="row items-center justify-between text-caption text-grey-8 non-selectable"
                   style="width: 100%"
                 >
                   <span>
-                    {{ prop.node.type }}:{{ prop.node.linkId }}
+                    {{ prop.node.type }}:{{ prop.node.linkId }} | __{{
+                      prop.node.__linkId
+                    }}
                     <q-tooltip>
                       {{ $t("components.linkId") }}
                     </q-tooltip>
@@ -702,7 +705,7 @@
                       <q-card-section>
                         <div class="row">
                           <div class="col-1">
-                            <!-- Go to question Item  -->
+                            <!-- Go to question Item -->
                             <q-btn
                               :disable="!selectedItem.__active"
                               v-if="enableWhen.question !== ''"
@@ -998,6 +1001,7 @@ import {
   QuestionIcon,
   MAX_ALLOWED_LEVELS_FOR_GROUPS,
   COMPASS_GECCO_ITEM_URL,
+  DRAG_KEY_INTERNAL_ID,
 } from "../utils/constants";
 import { useQuasar } from "quasar";
 import { defineComponent, Ref, ref } from "vue";
@@ -1241,9 +1245,9 @@ export default defineComponent({
     },
     onDragStart(e: DragEvent, node: Item): void {
       if (e.dataTransfer !== null) {
-        e.dataTransfer.setData("internalID", node.__internalID);
+        e.dataTransfer.setData(DRAG_KEY_INTERNAL_ID, node.__internalID);
       } else {
-        console.error(`DataTransfer is null: ${node.__internalID}`);
+        console.error(`DataTransfer is null: ${node.linkId}`);
       }
     },
     onDragOver(e: DragEvent): void {
@@ -1263,7 +1267,7 @@ export default defineComponent({
       currentTarget.style.backgroundColor = "";
       currentTarget.style.cursor = "default";
 
-      const sourceInternalId = e.dataTransfer.getData("internalID");
+      const sourceInternalId = e.dataTransfer.getData(DRAG_KEY_INTERNAL_ID);
       const targetInternalId = currentTarget.id;
 
       if (sourceInternalId === targetInternalId) {

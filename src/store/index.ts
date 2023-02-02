@@ -1,5 +1,6 @@
 import { defaultLanguage, i18n, getLocaleFromLanguage } from "@/i18n";
 import { File, Questionnaire } from "@/types";
+import { languageTools } from "@/utils/language";
 import { createStore } from "vuex";
 
 export const defaultQuestionnaire = (lang: Language): Questionnaire => {
@@ -57,15 +58,14 @@ export type StoreState = {
   settings: Settings;
 };
 
+// ["de", qI],
+// ["en", defaultQuestionnaire("en")],
+// ["es", defaultQuestionnaire("es")],
 const store = createStore<StoreState>({
   state: {
     questionnaireImported: qI,
     language: qI.language,
-    questionnaireRepo: new Map([
-      ["de", qI],
-      ["en", defaultQuestionnaire("en")],
-      ["es", defaultQuestionnaire("es")],
-    ]),
+    questionnaireRepo: new Map(),
     fileImported: fI,
     settings: {
       answers: {
@@ -79,11 +79,28 @@ const store = createStore<StoreState>({
     switchQuestionnaireByLang(state, payload: Language): void {
       let qre = state.questionnaireRepo.get(payload);
       if (qre === undefined) {
-        qre = defaultQuestionnaire(payload);
+        qre = languageTools.createCloneForLang(
+          state.questionnaireImported,
+          payload,
+        );
         state.questionnaireRepo.set(qre.language, qre);
       }
       state.questionnaireImported = qre;
       state.language = qre.language;
+    },
+    setNewEmptyQuestionnaire(state) {
+      const qre = defaultQuestionnaire(defaultLanguage);
+      state.language = qre.language;
+      state.questionnaireImported = qre;
+      state.questionnaireRepo.clear();
+      state.questionnaireRepo.set(qre.language, qre);
+      state.fileImported.name = `${i18n.global.t(
+        "store.questionnaire.name",
+      )}.json`;
+      state.fileImported.file = new Blob();
+      state.settings.answers.answersValueset = false;
+      state.settings.answers.openChoice = true;
+      state.settings.answers.choice = true;
     },
     //metaData
     // in cxNavbar

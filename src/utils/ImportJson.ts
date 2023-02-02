@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Question, Item, Questionnaire } from "@/types";
 import { isSupportedLanguage } from "@/store";
 import { editorTools } from "./editor";
+import { itemTools } from "./item";
 
 /* Error Exceptions obj */
 /*function QuestionnaireValidationException(message) {
@@ -255,7 +256,7 @@ class FHIRValidation {
     let idCount = 0;
     for (const element of item.item) {
       idCount++;
-      element.__internalID = `${uuidv4()}-${Date.now()}`;
+      element.__internalID = itemTools.createInternalId();
       element.__linkId = item.linkId + "." + idCount;
       this.validateItem(element);
       //deep inside no more that 5 levels
@@ -371,7 +372,7 @@ class FHIRValidation {
     for (const item of items) {
       idCount++;
       //assign ID Item internal
-      item.__internalID = `${uuidv4()}-${Date.now()}`;
+      item.__internalID = itemTools.createInternalId();
 
       item.__linkId = idCount.toString();
       this.validateItem(item);
