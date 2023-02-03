@@ -58,7 +58,7 @@ export default defineComponent({
   computed: {
     answerValueset: {
       get() {
-        return this.$store.state.settings.answers.answersValueset;
+        return this.$store.state.settings.answers.answerValueSet;
       },
       set(value: Boolean) {
         this.$store.commit("setAnswerValueSet", value);

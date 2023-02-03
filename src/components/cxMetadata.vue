@@ -288,7 +288,7 @@ export default defineComponent({
     ]),
     version: {
       get() {
-        return this.$store.state.questionnaireImported.version;
+        return this.$store.state.questionnaire.version;
       },
       set(value: string) {
         this.$store.commit("setVersion", value);
@@ -296,7 +296,7 @@ export default defineComponent({
     },
     identifier: {
       get() {
-        return this.$store.state.questionnaireImported.identifier;
+        return this.$store.state.questionnaire.identifier;
       },
       set(value: string) {
         this.$store.commit("setIdentifier", value);
@@ -304,7 +304,7 @@ export default defineComponent({
     },
     URL: {
       get() {
-        return this.$store.state.questionnaireImported.url;
+        return this.$store.state.questionnaire.url;
       },
       set(value: string) {
         this.$store.commit("setURL", value);
@@ -312,7 +312,7 @@ export default defineComponent({
     },
     name: {
       get() {
-        return this.$store.state.questionnaireImported.name;
+        return this.$store.state.questionnaire.name;
       },
       set(value: string) {
         this.$store.commit("setName", value);
@@ -320,7 +320,7 @@ export default defineComponent({
     },
     title: {
       get() {
-        return this.$store.state.questionnaireImported.title;
+        return this.$store.state.questionnaire.title;
       },
       set(value: string) {
         this.$store.commit("setTitle", value);
@@ -328,7 +328,7 @@ export default defineComponent({
     },
     status: {
       get() {
-        return this.$store.state.questionnaireImported.status;
+        return this.$store.state.questionnaire.status;
       },
       set(value: string) {
         this.$store.commit("setStatus", value);
@@ -336,7 +336,7 @@ export default defineComponent({
     },
     publisher: {
       get() {
-        return this.$store.state.questionnaireImported.publisher;
+        return this.$store.state.questionnaire.publisher;
       },
       set(value: string) {
         this.$store.commit("setPublisher", value);
@@ -344,7 +344,7 @@ export default defineComponent({
     },
     date: {
       get() {
-        return this.$store.state.questionnaireImported.date;
+        return this.$store.state.questionnaire.date;
       },
       set(value: string) {
         this.$store.commit("setDate", value);
@@ -352,7 +352,7 @@ export default defineComponent({
     },
     approvalDate: {
       get() {
-        return this.$store.state.questionnaireImported.approvalDate;
+        return this.$store.state.questionnaire.approvalDate;
       },
       set(value: string) {
         this.$store.commit("setApprovalDate", value);
@@ -360,7 +360,7 @@ export default defineComponent({
     },
     lastReviewDate: {
       get() {
-        return this.$store.state.questionnaireImported.lastReviewDate;
+        return this.$store.state.questionnaire.lastReviewDate;
       },
       set(value: string) {
         this.$store.commit("setLastReviewDate", value);
@@ -368,7 +368,7 @@ export default defineComponent({
     },
     experimental: {
       get() {
-        return this.$store.state.questionnaireImported.experimental;
+        return this.$store.state.questionnaire.experimental;
       },
       set(value: boolean) {
         this.$store.commit("setExperimental", value);
@@ -396,11 +396,11 @@ export default defineComponent({
           text: "",
         },
       };
-      this.$store.state.questionnaireImported.identifier ??= [];
-      this.$store.state.questionnaireImported.identifier.push(newID);
+      this.$store.state.questionnaire.identifier ??= [];
+      this.$store.state.questionnaire.identifier.push(newID);
     },
     removeID(indexID: number) {
-      this.$store.state.questionnaireImported.identifier?.splice(indexID, 1);
+      this.$store.state.questionnaire.identifier?.splice(indexID, 1);
     },
   },
 });

@@ -69,7 +69,7 @@
 
 <script lang="ts">
 import FileUpload, { VueUploadItem } from "vue-upload-component";
-import { mapMutations, mapActions, mapGetters } from "vuex";
+import { mapMutations, mapGetters } from "vuex";
 import { useQuasar } from "quasar";
 import { importJsonQuestionnaire } from "../utils/ImportJson";
 import { defineComponent, Ref, ref } from "vue";
@@ -101,8 +101,7 @@ export default defineComponent({
     };
   },
   methods: {
-    ...mapMutations(["setFileImported"]),
-    ...mapActions(["uploadJSONQuestionnaire"]),
+    ...mapMutations(["setFileImported", "setQuestionnaireImportedJSON"]),
     /**
      * Has changed
      * @param  Object|undefined   newFile   Read only
@@ -124,7 +123,7 @@ export default defineComponent({
           this.hideLoading();
           if (questionnaire !== undefined) {
             this.setFileImported(newFile);
-            this.uploadJSONQuestionnaire(questionnaire);
+            this.setQuestionnaireImportedJSON(questionnaire);
             this.$router.push("/");
           } else {
             this.messageErrorFHIR = errors;

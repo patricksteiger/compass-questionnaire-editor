@@ -1,5 +1,5 @@
 import { Item, Questionnaire } from "../types";
-import { defaultQuestionnaire, Language } from "../store";
+import { getDefaultQuestionnaire, Language } from "../store";
 import { v4 as uuidv4 } from "uuid";
 import { itemTools } from "./item";
 
@@ -25,7 +25,7 @@ class LanguageTools {
     questionnaire: Questionnaire,
     language: Language,
   ): Questionnaire {
-    const newQRE = defaultQuestionnaire(language);
+    const newQRE = getDefaultQuestionnaire(language);
     const items: Item[] = JSON.parse(JSON.stringify(questionnaire.item));
     newQRE.item = items;
     this.uniquifyItems(newQRE.item);

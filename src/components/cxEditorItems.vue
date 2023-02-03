@@ -146,13 +146,7 @@
           </q-tree>
 
           <!-- Change language button -->
-          <div
-            v-if="
-              selected === null ||
-              selectedItem === undefined ||
-              Object.keys(selectedItem).length === 0
-            "
-          >
+          <div v-if="selected === null || selectedItem === undefined">
             <q-page-sticky position="bottom-left" :offset="[240, 18]">
               <q-fab
                 vertical-actions-align="left"
@@ -182,7 +176,6 @@
             v-if="
               selected === null ||
               selectedItem === undefined ||
-              Object.keys(selectedItem).length === 0 ||
               (selectedItem.__active && selectedItem.type === 'group')
             "
           >
