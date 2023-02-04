@@ -188,6 +188,7 @@ export default defineComponent({
       alertError: ref(false),
       alert: ref(false),
       alertMetadata: ref(false),
+      languageLayout: ref(false),
       version: ref(""),
       FileSaver,
       useQuasar,

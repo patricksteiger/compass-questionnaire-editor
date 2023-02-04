@@ -72,12 +72,37 @@ const store = createStore<StoreState>({
   },
   mutations: {
     switchQuestionnaireByLang(state, payload: Language): void {
-      let qre = state.questionnaireRepo.get(payload);
+      const qre = state.questionnaireRepo.get(payload);
       if (qre === undefined) {
-        qre = languageTools.createCloneForLang(state.questionnaire, payload);
-        state.questionnaireRepo.set(qre.language, qre);
+        console.error(`Language ${payload} does not exist!`);
+        return;
       }
       state.questionnaire = qre;
+    },
+    removeLanguage(state, payload: Language): void {
+      if (state.questionnaire.language === payload) {
+        const questionnaires: Questionnaire[] = [
+          ...state.questionnaireRepo.values(),
+        ];
+        const otherQRE = questionnaires.find((qre) => qre.language !== payload);
+        if (otherQRE === undefined) {
+          console.error(`Can't delete the last questionnaire!`);
+          return;
+        }
+        state.questionnaire = otherQRE;
+      }
+      state.questionnaireRepo.delete(payload);
+    },
+    addLanguage(state, payload: Language): void {
+      if (state.questionnaireRepo.has(payload)) {
+        console.error(`Language ${payload} already exists!`);
+        return;
+      }
+      const newQRE = languageTools.createCloneForLang(
+        state.questionnaire,
+        payload,
+      );
+      state.questionnaireRepo.set(newQRE.language, newQRE);
     },
     setNewEmptyQuestionnaire(state) {
       const qre = getDefaultQuestionnaire(defaultLanguage);

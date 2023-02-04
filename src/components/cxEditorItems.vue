@@ -146,7 +146,7 @@
           </q-tree>
 
           <!-- Change language button -->
-          <div v-if="selected === null || selectedItem === undefined">
+          <div>
             <q-page-sticky position="bottom-left" :offset="[240, 18]">
               <q-fab
                 vertical-actions-align="left"
@@ -155,16 +155,17 @@
                 icon="keyboard_arrow_up"
                 direction="up"
                 padding="none xl"
+                :hide-icon="getUsedLanguages.length <= 1"
                 :label="
                   $t('views.editor.changeLanguage', { language: language })
                 "
               >
                 <q-fab-action
-                  v-for="lang in languages.filter((l) => l !== language)"
+                  v-for="lang in getUsedLanguages.filter((l: Language) => l !== language)"
                   :key="lang"
                   label-position="right"
                   color="purple"
-                  @click="onLanguageChoice(lang)"
+                  @click="switchLanguage(lang)"
                   :label="lang"
                 />
               </q-fab>
@@ -981,6 +982,81 @@
       </cx-add-gecco-item>
     </q-dialog>
   </div>
+
+  <!-- LanguageHub -->
+  <div>
+    <q-page-sticky position="bottom-right" :offset="[18, 18]">
+      <q-btn
+        icon="language"
+        color="purple"
+        @click="() => (languageLayout = !languageLayout)"
+      />
+    </q-page-sticky>
+  </div>
+
+  <q-dialog v-model="languageLayout">
+    <q-layout view="Lhh lpR fff" container class="bg-white">
+      <q-page-container>
+        <q-page padding>
+          <q-splitter
+            v-model="languageSplitter"
+            style="height: 80vh"
+            :limits="languageSplitterLimits"
+            horizontal
+          >
+            <template v-slot:before>
+              <q-toolbar class="bg-primary text-white shadow-2">
+                <q-toolbar-title>Ausgewählte Sprachen</q-toolbar-title>
+              </q-toolbar>
+              <div class="q-pa-md">
+                <q-list bordered separator>
+                  <q-item v-for="lang in getUsedLanguages" :key="lang" v-ripple>
+                    <q-item-section>
+                      <q-btn
+                        style="width: 50%"
+                        icon="delete"
+                        :disable="getUsedLanguages.length <= 1"
+                        @click="deleteLanguage(lang)"
+                      />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label> {{ lang }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </div>
+            </template>
+            <template v-slot:after>
+              <q-toolbar class="bg-primary text-white shadow-2">
+                <q-toolbar-title>Weitere Sprachen</q-toolbar-title>
+              </q-toolbar>
+              <div class="q-pa-md">
+                <q-list bordered separator>
+                  <q-item
+                    v-for="lang in languages.filter(
+                      (l) => !getUsedLanguages.includes(l),
+                    )"
+                    :key="lang"
+                  >
+                    <q-item-section icon>
+                      <q-btn
+                        style="width: 50%"
+                        icon="add task"
+                        @click="addLanguage(lang)"
+                      />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>{{ lang }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </div>
+            </template>
+          </q-splitter>
+        </q-page>
+      </q-page-container>
+    </q-layout>
+  </q-dialog>
 </template>
 <script lang="ts">
 import {
@@ -1035,6 +1111,8 @@ export default defineComponent({
     // TODO: InternalID or LinkID? Is used to generate LinkID in onSelectedGECCOQuestion
     const selected: Ref<string | null> = ref(null);
     const lastSelected: Ref<string | null> = ref(null);
+    const language: Ref<Language> = ref(defaultLanguage);
+    const item: Ref<Item[]> = ref([]);
     const enableWhen: EnableWhen = { question: "", operator: "" };
     const enableWhenItem: Ref<EnableWhen> = ref(enableWhen);
     const setDisplayToOld = (answerOption: AnswerOption) => {
@@ -1043,9 +1121,10 @@ export default defineComponent({
           answerOption.valueCoding.__oldDisplay || "";
       }
     };
-    const language: Ref<Language> = ref(defaultLanguage);
-    const item: Ref<Item[]> = ref([]);
     return {
+      languageLayout: ref(false),
+      languageSplitter: ref(40),
+      languageSplitterLimits: ref([30, 60]),
       triggerNegative,
       questionaireGUI,
       item,
@@ -1085,11 +1164,29 @@ export default defineComponent({
     };
   },
   methods: {
-    onLanguageChoice(language: Language): void {
+    deleteLanguage(language: Language): void {
+      this.$store.commit("removeLanguage", language);
+      const deletedCurrentQRE = this.language === language;
+      if (deletedCurrentQRE) {
+        this.refreshQuestionnaire();
+      }
+    },
+    addLanguage(language: Language): void {
+      this.$store.commit("addLanguage", language);
+    },
+    switchLanguage(language: Language): void {
       // language is filtered at button and always != to current language
       this.$store.commit("switchQuestionnaireByLang", language);
+      this.refreshQuestionnaire();
+    },
+    refreshQuestionnaire(): void {
+      this.questionaireGUI = this.getQuestionnaireImportedJSON;
       this.item = this.getQuestionnaireImportedJSON.item;
       this.language = this.getLanguage;
+      this.selected = null;
+      this.selectedItem = undefined;
+      this.lastSelected = null;
+      this.lastSelectedItem = undefined;
     },
     onBackLastSelectedItem(): void {
       if (this.lastSelected) {
@@ -1724,6 +1821,7 @@ export default defineComponent({
       "getChoice",
       "getLanguage",
       "getQuestionnaires",
+      "getUsedLanguages",
     ]),
     // TODO: Is this method needed?
     aAddAnswerButtonOptions() {
