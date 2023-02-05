@@ -120,7 +120,6 @@ export default defineComponent({
           const [questionnaire, errors] = this.importJsonQuestionnaire.from(
             reader.result,
           );
-          this.hideLoading();
           if (questionnaire !== undefined) {
             this.setFileImported(newFile);
             this.setQuestionnaireImportedJSON(questionnaire);
@@ -132,6 +131,7 @@ export default defineComponent({
         } catch (error: any) {
           this.messageError = error.message;
           this.alertError = true;
+        } finally {
           this.hideLoading();
         }
       };

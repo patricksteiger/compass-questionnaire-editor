@@ -39,6 +39,12 @@
     }
   },
   "views": {
+    "languages": {
+      "buttonTooltip": "Sprachen Hub",
+      "selectedLanguages": "Ausgewählte Sprachen",
+      "notSelectedLanguages": "Weitere Sprachen",
+      "confirmDeletion": "Soll der Fragebogen mit der Sprache '{language}' gelöscht werden und der Fortschritt verloren gehen?"
+    },
     "import": {
       "dropFile": "Lege eine Datei hier ab",
       "instructions": "Lade Fragebogen-Datei im JSON-Format hoch. Ziehe die Datei in diesen Bereich oder klicke hier um eine auszuwählen.",

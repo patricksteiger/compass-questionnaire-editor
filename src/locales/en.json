@@ -39,6 +39,12 @@
     }
   },
   "views": {
+    "languages": {
+      "buttonTooltip": "Language Hub",
+      "selectedLanguages": "Selected languages",
+      "notSelectedLanguages": "More languages",
+      "confirmDeletion": "Do you wish to delete the questionnaire with language '{language}', losing all progress?"
+    },
     "import": {
       "dropFile": "Drop a file here",
       "instructions": "Please upload a Questionnaire JSON file that you would like to edit. Drag & drop the file on this area or click here to select a file.",

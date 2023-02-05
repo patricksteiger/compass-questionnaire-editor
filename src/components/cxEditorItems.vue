@@ -990,7 +990,9 @@
         icon="language"
         color="purple"
         @click="() => (languageLayout = !languageLayout)"
-      />
+      >
+        <q-tooltip>{{ $t("views.languages.buttonTooltip") }}</q-tooltip>
+      </q-btn>
     </q-page-sticky>
   </div>
 
@@ -1000,27 +1002,36 @@
         <q-page padding>
           <q-splitter
             v-model="languageSplitter"
-            style="height: 80vh"
+            style="height: 87vh"
             :limits="languageSplitterLimits"
             horizontal
           >
             <template v-slot:before>
               <q-toolbar class="bg-primary text-white shadow-2">
-                <q-toolbar-title>Ausgewählte Sprachen</q-toolbar-title>
+                <q-toolbar-title>{{
+                  $t("views.languages.selectedLanguages")
+                }}</q-toolbar-title>
               </q-toolbar>
               <div class="q-pa-md">
                 <q-list bordered separator>
-                  <q-item v-for="lang in getUsedLanguages" :key="lang" v-ripple>
+                  <q-item
+                    v-for="lang in getUsedLanguages"
+                    :key="lang"
+                    v-ripple
+                    clickable
+                    @click="switchFromLanguageHub(lang)"
+                  >
                     <q-item-section>
                       <q-btn
                         style="width: 50%"
                         icon="delete"
                         :disable="getUsedLanguages.length <= 1"
                         @click="deleteLanguage(lang)"
-                      />
+                      >
+                      </q-btn>
                     </q-item-section>
                     <q-item-section>
-                      <q-item-label> {{ lang }}</q-item-label>
+                      <q-item-label>{{ lang }}</q-item-label>
                     </q-item-section>
                   </q-item>
                 </q-list>
@@ -1028,20 +1039,23 @@
             </template>
             <template v-slot:after>
               <q-toolbar class="bg-primary text-white shadow-2">
-                <q-toolbar-title>Weitere Sprachen</q-toolbar-title>
+                <q-toolbar-title>{{
+                  $t("views.languages.notSelectedLanguages")
+                }}</q-toolbar-title>
               </q-toolbar>
               <div class="q-pa-md">
                 <q-list bordered separator>
                   <q-item
-                    v-for="lang in languages.filter(
-                      (l) => !getUsedLanguages.includes(l),
-                    )"
+                    v-for="lang in getUnusedLanguages()"
                     :key="lang"
+                    v-ripple
+                    clickable
+                    @click="addAndSwitchFromLanguageHub(lang)"
                   >
                     <q-item-section icon>
                       <q-btn
                         style="width: 50%"
-                        icon="add task"
+                        icon="add"
                         @click="addLanguage(lang)"
                       />
                     </q-item-section>
@@ -1165,6 +1179,12 @@ export default defineComponent({
   },
   methods: {
     deleteLanguage(language: Language): void {
+      const accepted = confirm(
+        this.$t("views.languages.confirmDeletion", { language }),
+      );
+      if (!accepted) {
+        return;
+      }
       this.$store.commit("removeLanguage", language);
       const deletedCurrentQRE = this.language === language;
       if (deletedCurrentQRE) {
@@ -1174,10 +1194,20 @@ export default defineComponent({
     addLanguage(language: Language): void {
       this.$store.commit("addLanguage", language);
     },
+    addAndSwitchFromLanguageHub(language: Language): void {
+      this.addLanguage(language);
+      this.switchFromLanguageHub(language);
+    },
     switchLanguage(language: Language): void {
       // language is filtered at button and always != to current language
       this.$store.commit("switchQuestionnaireByLang", language);
       this.refreshQuestionnaire();
+    },
+    switchFromLanguageHub(language: Language): void {
+      if (this.language !== language) {
+        this.switchLanguage(language);
+      }
+      this.languageLayout = false;
     },
     refreshQuestionnaire(): void {
       this.questionaireGUI = this.getQuestionnaireImportedJSON;
@@ -1187,6 +1217,9 @@ export default defineComponent({
       this.selectedItem = undefined;
       this.lastSelected = null;
       this.lastSelectedItem = undefined;
+    },
+    getUnusedLanguages(): Language[] {
+      return languages.filter((lang) => !this.getUsedLanguages.includes(lang));
     },
     onBackLastSelectedItem(): void {
       if (this.lastSelected) {
