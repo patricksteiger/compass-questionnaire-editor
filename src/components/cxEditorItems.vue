@@ -1213,10 +1213,36 @@ export default defineComponent({
       this.questionaireGUI = this.getQuestionnaireImportedJSON;
       this.item = this.getQuestionnaireImportedJSON.item;
       this.language = this.getLanguage;
-      this.selected = null;
-      this.selectedItem = undefined;
-      this.lastSelected = null;
-      this.lastSelectedItem = undefined;
+      if (this.selectedItem !== undefined) {
+        const internalLinkId = this.selectedItem.__linkId;
+        const newItem = this.editorTools.getItemByInternalLinkId(
+          internalLinkId,
+          this.item,
+        );
+        if (newItem !== undefined) {
+          this.selectedItem = newItem;
+          this.selected = newItem.__internalID;
+        } else {
+          console.error(
+            `Internal LinkId ${internalLinkId} of selected does not exist in selected questionnaire!`,
+          );
+        }
+      }
+      if (this.lastSelectedItem !== undefined) {
+        const internalLinkId = this.lastSelectedItem.__linkId;
+        const newItem = this.editorTools.getItemByInternalLinkId(
+          internalLinkId,
+          this.item,
+        );
+        if (newItem !== undefined) {
+          this.lastSelectedItem = newItem;
+          this.lastSelected = newItem.__internalID;
+        } else {
+          console.error(
+            `Internal LinkId ${internalLinkId} of last selected does not exist in selected questionnaire!`,
+          );
+        }
+      }
     },
     getUnusedLanguages(): Language[] {
       return languages.filter((lang) => !this.getUsedLanguages.includes(lang));
