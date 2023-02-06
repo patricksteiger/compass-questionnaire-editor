@@ -1,6 +1,5 @@
 import { i18n, defaultLanguage } from "../i18n";
 import {
-  answerType,
   MAX_ALLOWED_LEVELS,
   MAX_ALLOWED_LEVELS_FOR_GROUPS,
   questionType,
@@ -10,6 +9,7 @@ import { Question, Item, Questionnaire } from "@/types";
 import { isSupportedLanguage } from "@/store";
 import { editorTools } from "./editor";
 import { itemTools } from "./item";
+import { QuestionnaireBundle, QuestionnaireBundleEntry } from "./exportJson";
 
 /* Error Exceptions obj */
 /*function QuestionnaireValidationException(message) {
@@ -50,22 +50,29 @@ const defaultQuestionnaire = (): Questionnaire => ({
 });
 
 class FHIRValidation {
-  errorMessages: string[] = [];
+  private errorMessages: string[] = [];
   questionnaire: Questionnaire = defaultQuestionnaire();
-  i18n = i18n;
-  answerType = answerType;
-  questionType = questionType;
 
-  validateFHIRResourceItems(JSONFHIRQuestionnaire: Questionnaire) {
+  validateQuestionnaireResource(
+    JSONFHIRQuestionnaire: Questionnaire,
+  ): string[] {
     this.errorMessages = [];
-    this.questionnaire = this.getSortItems(JSONFHIRQuestionnaire);
+    this.questionnaire = JSONFHIRQuestionnaire;
     this.resourceType(this.questionnaire);
     this.supportedLanguage(this.questionnaire);
     this.statusNode(this.questionnaire);
     this.identifier(this.questionnaire);
-    this.itemsNode(this.questionnaire.item);
+    this.items(this.questionnaire);
+    return this.errorMessages;
   }
 
+  private items(qre: Questionnaire): void {
+    qre.item ??= [];
+    this.getSortItems(qre);
+    this.itemsNode(qre.item);
+  }
+
+  // FIXME: method setConditionDependence is not used?
   setConditionDependence(items: Item[] = []): void {
     for (const item of items) {
       this.setConditionDependence(item.item);
@@ -143,11 +150,9 @@ class FHIRValidation {
     }
   }
 
-  private getSortItems(jsonFile: Questionnaire): Questionnaire {
-    if (jsonFile.item !== undefined) {
-      this.sortItems(jsonFile.item);
-    }
-    return jsonFile;
+  // TODO: validate that qre has item-property
+  private getSortItems(jsonFile: Questionnaire): void {
+    this.sortItems(jsonFile.item);
   }
 
   private validateItem(item: Item): void {
@@ -158,7 +163,7 @@ class FHIRValidation {
     //Error if there is more than 6 levels
     const linkIdLevel = editorTools.getLevelFromLinkID(item.linkId);
     if (linkIdLevel > MAX_ALLOWED_LEVELS) {
-      const message = this.i18n.global.t(
+      const message = i18n.global.t(
         "messagesErrors.FHIRValidations.moreThan5Levels",
         { linkId: item.linkId },
       );
@@ -166,7 +171,7 @@ class FHIRValidation {
     }
 
     if (item.type === "group" && linkIdLevel > MAX_ALLOWED_LEVELS_FOR_GROUPS) {
-      const message = this.i18n.global.t(
+      const message = i18n.global.t(
         "messagesErrors.FHIRValidations.exceededGroupLevel",
         { linkId: item.linkId },
       );
@@ -175,14 +180,11 @@ class FHIRValidation {
 
     //Error no follow the linkId logic stucture
     if (item.linkId !== item.__linkId && item.linkId !== "") {
-      const message = this.i18n.global.t(
-        "messagesErrors.FHIRValidations.linkId",
-        {
-          text: item.text,
-          linkId: item.linkId,
-          internalId: item.__linkId,
-        },
-      );
+      const message = i18n.global.t("messagesErrors.FHIRValidations.linkId", {
+        text: item.text,
+        linkId: item.linkId,
+        internalId: item.__linkId,
+      });
       this.errorMessages.push(message);
     }
 
@@ -226,7 +228,7 @@ class FHIRValidation {
     //AnswerValueSet
     if (item.answerOption && item.answerValueSet) {
       this.errorMessages.push(
-        this.i18n.global.t(
+        i18n.global.t(
           "messagesErrors.FHIRValidations.answerOptionAndValueSetNoAllow",
           {
             linkId: item.linkId,
@@ -271,7 +273,7 @@ class FHIRValidation {
     //Error if missing required fields of the Item
     if (!item.linkId) {
       this.errorMessages.push(
-        this.i18n.global.t("messagesErrors.FHIRValidations.nodeMissing", {
+        i18n.global.t("messagesErrors.FHIRValidations.nodeMissing", {
           node: "linkId",
           item: item,
         }),
@@ -280,7 +282,7 @@ class FHIRValidation {
 
     if (!item.type) {
       this.errorMessages.push(
-        this.i18n.global.t("messagesErrors.FHIRValidations.nodeMissing", {
+        i18n.global.t("messagesErrors.FHIRValidations.nodeMissing", {
           node: "type",
           item: item,
         }),
@@ -299,13 +301,10 @@ class FHIRValidation {
       item.type !== "display"
     ) {
       this.errorMessages.push(
-        this.i18n.global.t(
-          "messagesErrors.FHIRValidations.typeNodeNoValAllow",
-          {
-            linkId: item.linkId,
-            type: item.type,
-          },
-        ),
+        i18n.global.t("messagesErrors.FHIRValidations.typeNodeNoValAllow", {
+          linkId: item.linkId,
+          type: item.type,
+        }),
       );
     }
 
@@ -363,11 +362,11 @@ class FHIRValidation {
     item.__oldText = item.text;
     item.__icon =
       item.type === "open-choice"
-        ? this.questionType.open_choice.icon
-        : this.questionType[item.type].icon;
+        ? questionType.open_choice.icon
+        : questionType[item.type].icon;
   }
 
-  private itemsNode(items: Item[] = []) {
+  private itemsNode(items: Item[]) {
     let idCount = 0;
     for (const item of items) {
       idCount++;
@@ -385,7 +384,7 @@ class FHIRValidation {
     for (const enableWhen of item.enableWhen) {
       if (!enableWhen.question) {
         this.errorMessages.push(
-          this.i18n.global.t("messagesErrors.FHIRValidations.nodeMissingItem", {
+          i18n.global.t("messagesErrors.FHIRValidations.nodeMissingItem", {
             node: "enableWhen.question",
             linkId: item.linkId,
           }),
@@ -393,7 +392,7 @@ class FHIRValidation {
       }
       if (!enableWhen.operator) {
         this.errorMessages.push(
-          this.i18n.global.t("messagesErrors.FHIRValidations.nodeMissingItem", {
+          i18n.global.t("messagesErrors.FHIRValidations.nodeMissingItem", {
             node: "enableWhen.operator",
             linkId: item.linkId,
           }),
@@ -409,7 +408,7 @@ class FHIRValidation {
         enableWhen.answerString === undefined
       ) {
         this.errorMessages.push(
-          this.i18n.global.t("messagesErrors.FHIRValidations.nodeMissingItem", {
+          i18n.global.t("messagesErrors.FHIRValidations.nodeMissingItem", {
             node: "enableWhen.answer[x]",
             linkId: item.linkId,
           }),
@@ -448,7 +447,7 @@ class FHIRValidation {
   private statusNode(FHIRobj: Questionnaire): void {
     if (!FHIRobj.status) {
       this.errorMessages.push(
-        this.i18n.global.t("messagesErrors.FHIRValidations.nodeMissing", {
+        i18n.global.t("messagesErrors.FHIRValidations.nodeMissing", {
           node: "status",
         }),
       );
@@ -460,7 +459,7 @@ class FHIRValidation {
       FHIRobj.status !== "unknown"
     ) {
       this.errorMessages.push(
-        this.i18n.global.t("messagesErrors.FHIRValidations.posiblesValues", {
+        i18n.global.t("messagesErrors.FHIRValidations.posiblesValues", {
           currentValue: FHIRobj.status,
           node: "status",
         }),
@@ -490,12 +489,12 @@ class FHIRValidation {
 
   private supportedLanguage(qre: Questionnaire): void {
     if (!qre.language) {
-      const message = this.i18n.global.t(
+      const message = i18n.global.t(
         "messagesErrors.FHIRValidations.languageMissing",
       );
       this.errorMessages.push(message);
     } else if (!isSupportedLanguage(qre.language)) {
-      const message = this.i18n.global.t(
+      const message = i18n.global.t(
         "messagesErrors.FHIRValidations.unsupportedLanguage",
         { language: qre.language },
       );
@@ -505,7 +504,7 @@ class FHIRValidation {
 
   private resourceType(FHIRobj: Questionnaire): void {
     if (!FHIRobj.resourceType) {
-      const message = this.i18n.global.t(
+      const message = i18n.global.t(
         "messagesErrors.FHIRValidations.nodeMissing",
         {
           node: "resourceType",
@@ -513,7 +512,7 @@ class FHIRValidation {
       );
       this.errorMessages.push(message);
     } else if (FHIRobj.resourceType !== "Questionnaire") {
-      const message = this.i18n.global.t(
+      const message = i18n.global.t(
         "messagesErrors.FHIRValidations.resourceImportedNoAllow",
         { resource: FHIRobj.resourceType },
       );
@@ -523,14 +522,12 @@ class FHIRValidation {
 }
 
 const generalValidations = {
-  i18n: i18n,
-
   //Validata that is a right JSON Structure
   json(jsonFileString: string): object {
     try {
       return JSON.parse(jsonFileString);
     } catch (error: any) {
-      const message = `${this.i18n.global.t(
+      const message = `${i18n.global.t(
         "messagesErrors.GeneralJSONValidations.NoJSONFILEStructure",
       )}
       ${error.message}`;
@@ -540,7 +537,7 @@ const generalValidations = {
   parseJson(jsonFile: string | ArrayBuffer | null): object {
     if (jsonFile === null || typeof jsonFile !== "string") {
       throw new GeneralJSONValidationException(
-        this.i18n.global.t(
+        i18n.global.t(
           "messagesErrors.GeneralJSONValidations.jsonFileIsNotString",
         ),
       );
@@ -551,23 +548,146 @@ const generalValidations = {
 
 const FHIRValidations = new FHIRValidation();
 
-const importJsonQuestionnaire = {
-  from(
-    jsonFile: string | ArrayBuffer | null,
+export const importJsonQuestionnaire = {
+  validateJson(jsonFile: string | ArrayBuffer | null): object {
+    return generalValidations.parseJson(jsonFile);
+  },
+  validateQuestionnaire(
+    jsonFile: object,
   ): [Questionnaire | undefined, string[]] {
-    FHIRValidations.errorMessages = [];
-    const result = generalValidations.parseJson(jsonFile);
-    const errorMessages = this.getValidateFHIRResource(result);
+    const errorMessages = this.validateQuestionnaireResource(jsonFile);
     return [
       errorMessages.length === 0 ? FHIRValidations.questionnaire : undefined,
       errorMessages,
     ];
   },
-  getValidateFHIRResource(jsonFile: object) {
-    FHIRValidations.validateFHIRResourceItems(jsonFile as Questionnaire);
-    const errors = FHIRValidations.errorMessages;
+  validateBundle(jsonFile: object): [Questionnaire[] | undefined, string[]] {
+    const errorMessages: string[] = [];
+    const result = this.validateBundleResource(
+      jsonFile as QuestionnaireBundle,
+      errorMessages,
+    );
+    return [result, errorMessages];
+  },
+  isQuestionnaireResource(resource: object): boolean {
+    return (resource as any).resourceType === "Questionnaire";
+  },
+  isBundleResource(resource: object): boolean {
+    return (resource as any).resourceType === "Bundle";
+  },
+  validateQuestionnaireResource(jsonFile: object): string[] {
+    const errors = FHIRValidations.validateQuestionnaireResource(
+      jsonFile as Questionnaire,
+    );
     return errors;
+  },
+  validateBundleResource(
+    jsonBundle: QuestionnaireBundle,
+    errorMessages: string[],
+  ): Questionnaire[] | undefined {
+    const initLength = errorMessages.length;
+    if (jsonBundle.resourceType !== "Bundle") {
+      errorMessages.push(
+        `Bundle has wrong resource type: ${jsonBundle.resourceType}.`,
+      );
+    }
+    if (jsonBundle.type !== "collection") {
+      errorMessages.push(`Bundle has wrong type: ${jsonBundle.type}.`);
+    }
+    if (!jsonBundle.entry || !Array.isArray(jsonBundle.entry)) {
+      errorMessages.push(
+        `Bundle has invalid entry. Must to be non-empty array.`,
+      );
+    }
+    return initLength === errorMessages.length
+      ? validateBundleEntries(jsonBundle.entry, errorMessages)
+      : undefined;
   },
 };
 
-export { importJsonQuestionnaire };
+function validateBundleEntries(
+  entries: QuestionnaireBundleEntry[],
+  errorMessages: string[],
+): Questionnaire[] | undefined {
+  if (entries.length === 0) {
+    errorMessages.push("Bundle has no entries.");
+    return undefined;
+  }
+  let noError = true;
+  for (let i = 0; i < entries.length; i++) {
+    const resource = entries[i].resource;
+    if (!resource) {
+      errorMessages.push(
+        `Bundle entry at index ${i} does not have a defined resource.`,
+      );
+      noError = false;
+    } else if (typeof resource !== "object" || Array.isArray(resource)) {
+      errorMessages.push(`Bundle entry at index ${i} is not an object.`);
+      noError = false;
+    }
+  }
+  return noError
+    ? validateQuestionnaireEntries(
+        entries.map((e) => e.resource),
+        errorMessages,
+      )
+    : undefined;
+}
+
+function validateQuestionnaireEntries(
+  entries: Questionnaire[],
+  errorMessages: string[],
+): Questionnaire[] | undefined {
+  for (const entry of entries) {
+    const errors = FHIRValidations.validateQuestionnaireResource(entry);
+    if (errors.length !== 0) {
+      errorMessages.push(...errors);
+      return undefined;
+    }
+  }
+  // TODO: validate same structure of items
+  const referenceItems = entries[0].item;
+  const startLength = errorMessages.length;
+  for (let i = 1; i < entries.length; i++) {
+    validateItemStructure(referenceItems, entries[i].item, errorMessages);
+    if (startLength !== errorMessages.length) {
+      return undefined;
+    }
+  }
+  return entries;
+}
+
+function validateItemStructure(
+  qre1: Item[] | undefined,
+  qre2: Item[] | undefined,
+  errorMessages: string[],
+): void {
+  if (!qre1 && !qre2) return;
+  if (!qre1 || !qre2) {
+    errorMessages.push("Can't have undefined items if others are defined.");
+    return;
+  }
+  if (qre1.length !== qre2.length) {
+    errorMessages.push("All Items need to have the same length");
+    return;
+  }
+  for (let i = 0; i < qre1.length; i++) {
+    validateItem(qre1[i], qre2[i], errorMessages);
+  }
+}
+
+function validateItem(item1: Item, item2: Item, errorMessages: string[]): void {
+  if (item1.linkId !== item2.linkId) {
+    errorMessages.push(
+      `LinkIDs '${item1.linkId} and ${item2.linkId}' are incompatible.`,
+    );
+    return;
+  }
+  if (item1.type !== item2.type) {
+    errorMessages.push(
+      `Types '${item1.type}' and '${item2.type}' are incompatible.`,
+    );
+    return;
+  }
+  validateItemStructure(item1.item, item2.item, errorMessages);
+}

@@ -170,7 +170,19 @@ const store = createStore<StoreState>({
     // Used for imported files?
     setQuestionnaireImportedJSON(state: StoreState, payload: Questionnaire) {
       state.questionnaire = payload;
+      state.questionnaireRepo.clear();
       state.questionnaireRepo.set(payload.language, payload);
+    },
+    setQuestionnaireBundle(state: StoreState, payload: Questionnaire[]): void {
+      if (payload.length === 0) {
+        console.error("Can't set empty questionnaires");
+        return;
+      }
+      state.questionnaire = payload[0];
+      state.questionnaireRepo.clear();
+      for (const qre of payload) {
+        state.questionnaireRepo.set(qre.language, qre);
+      }
     },
     setFileImported(state, payload: File) {
       state.importedFile = payload;

@@ -101,7 +101,11 @@ export default defineComponent({
     };
   },
   methods: {
-    ...mapMutations(["setFileImported", "setQuestionnaireImportedJSON"]),
+    ...mapMutations([
+      "setFileImported",
+      "setQuestionnaireImportedJSON",
+      "setQuestionnaireBundle",
+    ]),
     /**
      * Has changed
      * @param  Object|undefined   newFile   Read only
@@ -117,16 +121,37 @@ export default defineComponent({
       reader.readAsText(newFile.file);
       reader.onload = () => {
         try {
-          const [questionnaire, errors] = this.importJsonQuestionnaire.from(
+          const jsonFile = this.importJsonQuestionnaire.validateJson(
             reader.result,
           );
-          if (questionnaire !== undefined) {
-            this.setFileImported(newFile);
-            this.setQuestionnaireImportedJSON(questionnaire);
-            this.$router.push("/");
+          if (this.importJsonQuestionnaire.isQuestionnaireResource(jsonFile)) {
+            const [questionnaire, errors] =
+              this.importJsonQuestionnaire.validateQuestionnaire(jsonFile);
+            if (questionnaire !== undefined) {
+              this.setFileImported(newFile);
+              this.setQuestionnaireImportedJSON(questionnaire);
+              this.$router.push("/");
+            } else {
+              this.messageErrorFHIR = errors;
+              this.alertError = true;
+            }
+          } else if (this.importJsonQuestionnaire.isBundleResource(jsonFile)) {
+            const [questionnaires, errors] =
+              this.importJsonQuestionnaire.validateBundle(jsonFile);
+            if (questionnaires !== undefined) {
+              this.setFileImported(newFile);
+              this.setQuestionnaireBundle(questionnaires);
+              this.$router.push("/");
+            } else {
+              this.messageErrorFHIR = errors;
+              this.alertError = true;
+            }
           } else {
-            this.messageErrorFHIR = errors;
-            this.alertError = true;
+            throw new Error(
+              `Invalid resourceType: ${
+                (jsonFile as any).resourceType
+              }! Only Bundle and Questionnaire are allowed.`,
+            );
           }
         } catch (error: any) {
           this.messageError = error.message;
