@@ -73,7 +73,6 @@ import { mapMutations, mapGetters } from "vuex";
 import { useQuasar } from "quasar";
 import { importJsonQuestionnaire } from "../utils/ImportJson";
 import { defineComponent, Ref, ref } from "vue";
-import { File } from "@/types";
 import { i18n } from "@/i18n";
 
 export default defineComponent({
@@ -112,12 +111,15 @@ export default defineComponent({
      * @param  Object|undefined   oldFile   Read only
      * @return undefined
      */
-    inputFile(newFile: File | undefined): void {
+    inputFile(newFile: VueUploadItem | undefined): void {
       if (!newFile) return;
       this.messageError = "";
       this.messageErrorFHIR = [];
       this.showLoading();
       const reader = new FileReader();
+      if (newFile.file === undefined) {
+        throw new Error(`Couldn't read file: ${newFile.name}`);
+      }
       reader.readAsText(newFile.file);
       reader.onload = () => {
         try {
@@ -125,27 +127,9 @@ export default defineComponent({
             reader.result,
           );
           if (this.importJsonQuestionnaire.isQuestionnaireResource(jsonFile)) {
-            const [questionnaire, errors] =
-              this.importJsonQuestionnaire.validateQuestionnaire(jsonFile);
-            if (questionnaire !== undefined) {
-              this.setFileImported(newFile);
-              this.setQuestionnaireImportedJSON(questionnaire);
-              this.$router.push("/");
-            } else {
-              this.messageErrorFHIR = errors;
-              this.alertError = true;
-            }
+            this.handleQuestionnaireResource(newFile, jsonFile);
           } else if (this.importJsonQuestionnaire.isBundleResource(jsonFile)) {
-            const [questionnaires, errors] =
-              this.importJsonQuestionnaire.validateBundle(jsonFile);
-            if (questionnaires !== undefined) {
-              this.setFileImported(newFile);
-              this.setQuestionnaireBundle(questionnaires);
-              this.$router.push("/");
-            } else {
-              this.messageErrorFHIR = errors;
-              this.alertError = true;
-            }
+            this.handleBundleResource(newFile, jsonFile);
           } else {
             throw new Error(
               `Invalid resourceType: ${
@@ -168,6 +152,33 @@ export default defineComponent({
         this.hideLoading();
       };
     },
+    handleQuestionnaireResource(
+      newFile: VueUploadItem,
+      jsonFile: object,
+    ): void {
+      const [questionnaire, errors] =
+        this.importJsonQuestionnaire.validateQuestionnaire(jsonFile);
+      if (questionnaire !== undefined) {
+        this.setFileImported(newFile);
+        this.setQuestionnaireImportedJSON(questionnaire);
+        this.$router.push("/");
+      } else {
+        this.messageErrorFHIR = errors;
+        this.alertError = true;
+      }
+    },
+    handleBundleResource(newFile: VueUploadItem, jsonFile: object): void {
+      const [questionnaires, errors] =
+        this.importJsonQuestionnaire.validateBundle(jsonFile);
+      if (questionnaires !== undefined) {
+        this.setFileImported(newFile);
+        this.setQuestionnaireBundle(questionnaires);
+        this.$router.push("/");
+      } else {
+        this.messageErrorFHIR = errors;
+        this.alertError = true;
+      }
+    },
     /**
      * Pretreatment
      * @param  Object|undefined   newFile   Read and write
@@ -176,11 +187,14 @@ export default defineComponent({
      * @return undefined
      */
     inputFilter: function (
-      newFile: File | undefined,
-      oldFile: File | undefined,
+      newFile: VueUploadItem | undefined,
+      oldFile: VueUploadItem | undefined,
       prevent: () => boolean,
     ): boolean {
       if (newFile !== undefined && oldFile === undefined) {
+        if (newFile.name === undefined) {
+          throw new Error("empty file name for new file");
+        }
         // Filter non-json file
         if (!/\.(json)$/i.test(newFile.name)) {
           this.messageError = this.$t(

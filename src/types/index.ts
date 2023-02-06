@@ -141,6 +141,10 @@ export type EnableBehavior = typeof enableBehaviors[number];
 /*
  * Fields with "__"-prefix are used for internal state management
  */
+// TODO: add required-field
+// TODO: add repeats-field
+// TODO: add initial-field
+// TODO: rework answerValueSet-field
 export type Item = {
   __active: boolean;
   /*
@@ -188,9 +192,4 @@ export type Questionnaire = {
   experimental?: Boolean;
   item: Item[];
   resourceType: "Questionnaire";
-};
-
-export type File = {
-  name: string;
-  file: Blob;
 };

@@ -1,6 +1,7 @@
 import { defaultLanguage, i18n, getLocaleFromLanguage } from "@/i18n";
-import { File, Questionnaire } from "@/types";
+import { Questionnaire } from "@/types";
 import { languageTools } from "@/utils/language";
+import { VueUploadItem } from "vue-upload-component";
 import { createStore } from "vuex";
 
 export const getDefaultQuestionnaire = (lang: Language): Questionnaire => {
@@ -30,8 +31,9 @@ export const getDefaultQuestionnaire = (lang: Language): Questionnaire => {
 
 const defaultQuestionnaire = getDefaultQuestionnaire(defaultLanguage);
 
-const emptyFile: File = {
+const emptyFile: VueUploadItem = {
   // Used as name of the Questionnaire
+  id: "",
   name: "",
   file: new Blob(),
 };
@@ -53,7 +55,7 @@ export type Settings = {
 export type StoreState = {
   questionnaire: Questionnaire;
   questionnaireRepo: Map<Language, Questionnaire>;
-  importedFile: File;
+  importedFile: VueUploadItem;
   settings: Settings;
 };
 
@@ -184,7 +186,7 @@ const store = createStore<StoreState>({
         state.questionnaireRepo.set(qre.language, qre);
       }
     },
-    setFileImported(state, payload: File) {
+    setFileImported(state, payload: VueUploadItem) {
       state.importedFile = payload;
     },
     // TODO: Only used to go back to Import: current QREs should be reset?
@@ -194,6 +196,7 @@ const store = createStore<StoreState>({
       state.questionnaire = getDefaultQuestionnaire(language);
       state.questionnaireRepo.set(language, state.questionnaire);
       state.importedFile = {
+        id: "",
         name: "",
         file: new Blob(),
       };
