@@ -135,6 +135,9 @@ export type Identifier = {
   };
 };
 
+export const enableBehaviors = ["all", "any"] as const;
+export type EnableBehavior = typeof enableBehaviors[number];
+
 /*
  * Fields with "__"-prefix are used for internal state management
  */
@@ -162,6 +165,7 @@ export type Item = {
   maxLength?: number;
   type: QuestionType;
   enableWhen?: EnableWhen[];
+  enableBehavior?: EnableBehavior;
   text: string;
   definition: string;
   answerOption?: AnswerOption[];

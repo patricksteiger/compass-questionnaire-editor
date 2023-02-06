@@ -5,7 +5,13 @@ import {
   questionType,
 } from "./constants";
 import { v4 as uuidv4 } from "uuid";
-import { Question, Item, Questionnaire } from "@/types";
+import {
+  Question,
+  Item,
+  Questionnaire,
+  enableBehaviors,
+  EnableBehavior,
+} from "@/types";
 import { isSupportedLanguage } from "@/store";
 import { editorTools } from "./editor";
 import { itemTools } from "./item";
@@ -380,6 +386,23 @@ class FHIRValidation {
   }
 
   private validateEnableWhen(item: Item): void {
+    item.enableBehavior ??= undefined; // filter null
+    if (item.enableWhen && item.enableWhen.length > 1) {
+      if (!enableBehaviors.includes(item.enableBehavior as EnableBehavior)) {
+        this.errorMessages.push(
+          `If item has more than 1 conditions, enableBehavior can't be '${item.enableBehavior}' and has to be one of [${enableBehaviors}].`,
+        );
+      }
+    } else {
+      if (
+        item.enableBehavior !== undefined &&
+        !enableBehaviors.includes(item.enableBehavior as EnableBehavior)
+      ) {
+        this.errorMessages.push(
+          `enableBehavior can't be '${item.enableBehavior}'; Has to be undefined or one of [${enableBehaviors}].`,
+        );
+      }
+    }
     if (item.enableWhen === undefined) return;
     for (const enableWhen of item.enableWhen) {
       if (!enableWhen.question) {

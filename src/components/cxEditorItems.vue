@@ -815,6 +815,44 @@
                       :label="$t('views.editor.addNewCondition')"
                       @click="onAddCondition"
                     />
+                    <q-fab
+                      v-if="selectedItem.__active"
+                      vertical-actions-align="left"
+                      color="purple"
+                      push
+                      icon="keyboard_arrow_up"
+                      direction="up"
+                      padding="none xl"
+                      :label="
+                        selectedItem.enableBehavior
+                          ? `Behavior: ${selectedItem.enableBehavior}`
+                          : 'Select Behavior'
+                      "
+                    >
+                      <q-fab-action
+                        v-if="
+                          selectedItem.enableBehavior &&
+                          (!selectedItem.enableWhen ||
+                            selectedItem.enableWhen.length <= 1)
+                        "
+                        key="clear"
+                        icon="delete"
+                        label-position="right"
+                        label="Behavior"
+                        color="red"
+                        @click="onChangeConditionBehavior(undefined)"
+                      />
+                      <q-fab-action
+                        v-for="behavior in enableBehaviors.filter(
+                          (b) => b !== selectedItem?.enableBehavior,
+                        )"
+                        :key="behavior"
+                        label-position="right"
+                        color="purple"
+                        @click="onChangeConditionBehavior(behavior)"
+                        :label="behavior"
+                      />
+                    </q-fab>
                     <!--</q-page-sticky>-->
                   </div>
                 </q-card>
@@ -1102,6 +1140,8 @@ import {
   operators,
   Questionnaire,
   QuestionType,
+  EnableBehavior,
+  enableBehaviors,
 } from "@/types";
 import { Language, languages } from "@/store";
 import { deepCopyObject } from "@/utils/exportJson";
@@ -1135,6 +1175,7 @@ export default defineComponent({
           answerOption.valueCoding.__oldDisplay || "";
       }
     };
+    // const clearableEnableBehaviors = ["", ...enableBehaviors] as const;
     return {
       languageLayout: ref(false),
       languageSplitter: ref(40),
@@ -1147,6 +1188,7 @@ export default defineComponent({
       lastSelected,
       lastSelectedItem,
       enableWhenItem,
+      enableBehaviors,
       setDisplayToOld,
       enableWhenLayout: ref(false),
       geccoLayout: ref(false),
@@ -1347,6 +1389,13 @@ export default defineComponent({
         this.addGeccoQuestionToItem(questionnaire, selectedLinkId, input);
       }
     },
+    onChangeConditionBehavior(behavior: EnableBehavior | undefined): void {
+      if (this.selectedItem === undefined) {
+        console.error("Can't change enableWhen behavior of no selected item");
+        return;
+      }
+      this.selectedItem.enableBehavior = behavior;
+    },
     onAddCondition() {
       if (this.selectedItem === undefined) {
         console.error("Can't add condition with selecting an item.");
@@ -1358,6 +1407,9 @@ export default defineComponent({
         operator: "",
         answer: "",
       });
+      if (this.selectedItem.enableWhen.length > 1) {
+        this.selectedItem.enableBehavior ??= "any";
+      }
     },
     onRemoveCondition(index: number): void {
       if (
