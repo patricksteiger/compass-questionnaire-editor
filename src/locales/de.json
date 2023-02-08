@@ -170,7 +170,8 @@
     "ExportValidation": {
       "deactivatedChoice": "Element {linkId} hat deaktivierten Typ choice.",
       "deactivatedOpenChoice": "Element {linkId} hat deaktivierten Typ open-choice.",
-      "emptyGroup": "Element {linkId} ist eine leere Gruppe."
+      "emptyGroup": "Element {linkId} ist eine leere Gruppe.",
+      "onlyInactiveItems": "Gruppe {linkId} hat keine aktiven Elemente."
     }
   }
 }

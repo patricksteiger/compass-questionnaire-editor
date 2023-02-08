@@ -170,7 +170,8 @@
     "ExportValidation": {
       "deactivatedChoice": "Item {linkId} has deactivated type choice.",
       "deactivatedOpenChoice": "Item {linkId} has deactivated type open-choice.",
-      "emptyGroup": "Item {linkId} is an empty group."
+      "emptyGroup": "Item {linkId} is an empty group.",
+      "onlyInactiveItems": "Group {linkId} has no active items."
     }
   }
 }

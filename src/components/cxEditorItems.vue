@@ -744,7 +744,6 @@
                             :label="$t('views.editor.answer')"
                             dense
                           />
-                          <!-- TODO: type conversion correct? enableWhen integer -->
                           <q-input
                             v-else-if="enableWhen.type === 'integer'"
                             @keypress="onlyNumber"
@@ -1162,7 +1161,6 @@ export default defineComponent({
     const questionaireGUI: Ref<Questionnaire | undefined> = ref(undefined);
     const selectedItem: Ref<Item | undefined> = ref(undefined);
     const lastSelectedItem: Ref<Item | undefined> = ref(undefined);
-    // TODO: InternalID or LinkID? Is used to generate LinkID in onSelectedGECCOQuestion
     const selected: Ref<string | null> = ref(null);
     const lastSelected: Ref<string | null> = ref(null);
     const language: Ref<Language> = ref(defaultLanguage);
@@ -1349,7 +1347,6 @@ export default defineComponent({
     onSelectedQuestion(e: SelectedQuestion): void {
       this.enableWhenItem.question = e.linkId || "";
       this.enableWhenItem.answer = "";
-      // TODO: is it type or __type?
       this.enableWhenItem.type = e.type;
       this.enableWhenLayout = false;
     },
@@ -1479,22 +1476,15 @@ export default defineComponent({
         sourceInternalId,
         this.item,
       );
-
-      if (sourceItem === undefined) {
-        return; //No valid source Item
+      if (sourceItem === undefined || !sourceItem.__active) {
+        return;
       }
 
       const targetItem = this.editorTools.getCurrentQuestionNodeByID(
         targetInternalId,
         this.item,
       );
-
-      // FIXME: Check for empty linkIds needed? Not __active?
-      if (
-        targetItem === undefined ||
-        targetItem.linkId === "" ||
-        sourceItem.linkId === ""
-      ) {
+      if (targetItem === undefined || !targetItem.__active) {
         return;
       }
 
@@ -1764,31 +1754,6 @@ export default defineComponent({
       }
       this.geccoLayout = true;
     },
-    // TODO: Is this method needed?
-    onClickAddAnswerOpenChoice(e: any): void {
-      if (this.selectedItem === undefined) {
-        console.error("Selected item should not be undefined");
-        return;
-      }
-      //only choise answer are allowed to open-choise questions
-      let answerOption: AnswerOption = {};
-      if (e.type === "choice") {
-        answerOption = this.editorTools.getNewAnswerValueCoding(
-          { text: "", type: e.type },
-          this.selectedItem.answerOption,
-        );
-      }
-      if (e.type === "open-choice") {
-        answerOption = this.editorTools.getNewAnswerValueString(
-          { text: "Answer", type: e.type },
-          this.selectedItem.answerOption,
-        );
-      }
-      if (!this.selectedItem.answerOption) {
-        this.selectedItem.answerOption = [];
-      }
-      this.selectedItem.answerOption.push(answerOption);
-    },
     hasGeccoExtension(e: Item | undefined) {
       return (
         e?.extension &&
@@ -1934,26 +1899,6 @@ export default defineComponent({
       "getQuestionnaires",
       "getUsedLanguages",
     ]),
-    // TODO: Is this method needed?
-    aAddAnswerButtonOptions() {
-      const that = this;
-      let optionsAnswers: any[] = [];
-      if (this.answerType.open_choice.name === this.selectedItem?.type) {
-        optionsAnswers = [
-          {
-            text: that.$t("views.editor.optionsAnswers.open"),
-            __icon: that.answerType.open_choice.icon,
-            type: that.answerType.open_choice.name,
-          },
-          {
-            text: that.$t("views.editor.optionsAnswers.choice"),
-            __icon: that.answerType.choice.icon,
-            type: that.answerType.choice.name,
-          },
-        ];
-      }
-      return optionsAnswers;
-    },
     answerTypeField() {
       let type = "";
       if (this.selectedItem === undefined) {

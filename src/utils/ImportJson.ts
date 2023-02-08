@@ -5,45 +5,22 @@ import {
   questionType,
 } from "./constants";
 import { v4 as uuidv4 } from "uuid";
-import {
-  Question,
-  Item,
-  Questionnaire,
-  enableBehaviors,
-  EnableBehavior,
-} from "@/types";
+import { Item, Questionnaire, enableBehaviors, EnableBehavior } from "@/types";
 import { isSupportedLanguage, Language } from "@/store";
 import { editorTools } from "./editor";
 import { itemTools } from "./item";
 import { QuestionnaireBundle, QuestionnaireBundleEntry } from "./exportJson";
 
-/* Error Exceptions obj */
-/*function QuestionnaireValidationException(message) {
-  this.message = message;
-  this.name = "QuestionnaireValidationException";
-}
-
-QuestionnaireValidationException.prototype.toString = function () {
-  return `${this.name}: "${this.message}"`;
-};*/
-
-abstract class Exception {
-  private name: string;
+class GeneralJSONValidationException {
+  private readonly name = "GeneralJSONValidationException";
   private message: string;
 
-  constructor(name: string, message: string) {
-    this.name = name;
+  constructor(message: string) {
     this.message = message;
   }
 
   toString() {
     return `${this.name}: "${this.message}"`;
-  }
-}
-
-class GeneralJSONValidationException extends Exception {
-  constructor(message: string) {
-    super("GeneralJSONValidationException", message);
   }
 }
 
@@ -78,64 +55,6 @@ class FHIRValidation {
     this.itemsNode(qre.item);
   }
 
-  // FIXME: method setConditionDependence is not used?
-  setConditionDependence(items: Item[] = []): void {
-    for (const item of items) {
-      this.setConditionDependence(item.item);
-      if (item.enableWhen === undefined) continue;
-      if (item.enableWhen === null) {
-        item.enableWhen = undefined;
-        continue;
-      }
-      for (const enableWhen of item.enableWhen) {
-        const itemToAppendCondition = this.getItemNodeByLinkID(
-          enableWhen.question,
-          this.questionnaire.item,
-        );
-        if (itemToAppendCondition === undefined) continue;
-        itemToAppendCondition.__dependenceCondition ??= {
-          __icon: "account_tree",
-          __questions: [],
-          __linkId: "",
-          __text: "",
-        };
-        const question: Question = {
-          __linkId: item.linkId,
-          __text: item.text,
-          __question: enableWhen.question,
-          __answer: enableWhen.answer,
-          __operator: enableWhen.operator,
-          __type: enableWhen.type,
-          __display: enableWhen.display,
-          __system: enableWhen.system,
-          __answerInteger: enableWhen.answerInteger,
-          __answerDecimal: enableWhen.answerDecimal,
-          __answerBoolean: enableWhen.answerBoolean,
-          __answerCoding: enableWhen.answerCoding,
-          __answerDate: enableWhen.answerDate,
-          __answerString: enableWhen.answerString,
-        };
-        itemToAppendCondition.__dependenceCondition.__questions.push(question);
-      }
-    }
-  }
-
-  private getItemNodeByLinkID(
-    linkId: string,
-    item: Item[] = [],
-  ): Item | undefined {
-    for (const element of item) {
-      if (element.linkId === linkId) {
-        return element;
-      }
-      const result = this.getItemNodeByLinkID(linkId, element.item);
-      if (result !== undefined) {
-        return result;
-      }
-    }
-    return undefined;
-  }
-
   private sortByLinkId(i1: Item, i2: Item): number {
     const nums1 = i1.linkId.split(".");
     const nums2 = i2.linkId.split(".");
@@ -156,7 +75,6 @@ class FHIRValidation {
     }
   }
 
-  // TODO: validate that qre has item-property
   private getSortItems(jsonFile: Questionnaire): void {
     this.sortItems(jsonFile.item);
   }

@@ -137,16 +137,26 @@ function validateQREWithSettings(
 }
 
 function validateQREGroups(qre: Questionnaire, errorMessages: string[]): void {
-  const emptyGroupTracer = (item: Item) => {
-    if (
-      item.type === "group" &&
-      (item.item === undefined || item.item.length === 0)
-    ) {
-      const message = i18n.global.t(
-        "messagesErrors.ExportValidation.emptyGroup",
-        { linkId: item.linkId },
-      );
-      errorMessages.push(message);
+  const emptyGroupTracer = (item: Item): void => {
+    if (item.type === "group") {
+      if (item.item === undefined || item.item.length === 0) {
+        const message = i18n.global.t(
+          "messagesErrors.ExportValidation.emptyGroup",
+          { linkId: item.linkId },
+        );
+        errorMessages.push(message);
+      } else {
+        for (const i of item.item) {
+          if (i.__active) {
+            return; // group has at least 1 active item
+          }
+        }
+        const message = i18n.global.t(
+          "messagesErrors.ExportValidation.onlyInactiveItems",
+          { linkId: item.linkId },
+        );
+        errorMessages.push(message);
+      }
     }
   };
   forEach(qre.item, emptyGroupTracer);
@@ -281,7 +291,6 @@ function getObjectWithoutItemsDisabled(
 }
 
 const exportJsonQuestionnaire = {
-  // FIXME: consider inactive items
   validateQuestionnaire(qre: Questionnaire, settings: Settings): string[] {
     const errorMessages: string[] = [];
     validateQREWithSettings(qre, settings, errorMessages);
