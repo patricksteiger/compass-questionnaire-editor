@@ -12,7 +12,7 @@ import {
   enableBehaviors,
   EnableBehavior,
 } from "@/types";
-import { isSupportedLanguage } from "@/store";
+import { isSupportedLanguage, Language } from "@/store";
 import { editorTools } from "./editor";
 import { itemTools } from "./item";
 import { QuestionnaireBundle, QuestionnaireBundleEntry } from "./exportJson";
@@ -661,18 +661,24 @@ function validateQuestionnaireEntries(
   entries: Questionnaire[],
   errorMessages: string[],
 ): Questionnaire[] | undefined {
+  const usedLanguages: Language[] = [];
   for (const entry of entries) {
     const errors = FHIRValidations.validateQuestionnaireResource(entry);
+    if (usedLanguages.includes(entry.language)) {
+      errors.push(
+        `Languages can't be used multiple times. Duplicate: ${entry.language}.`,
+      );
+    } else {
+      usedLanguages.push(entry.language);
+    }
     if (errors.length !== 0) {
       errorMessages.push(...errors);
       return undefined;
     }
   }
-  // TODO: validate same structure of items
-  const referenceItems = entries[0].item;
   const startLength = errorMessages.length;
   for (let i = 1; i < entries.length; i++) {
-    validateItemStructure(referenceItems, entries[i].item, errorMessages);
+    validateItemStructure(entries[i - 1].item, entries[i].item, errorMessages);
     if (startLength !== errorMessages.length) {
       return undefined;
     }
