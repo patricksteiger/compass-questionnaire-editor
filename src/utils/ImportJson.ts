@@ -175,6 +175,21 @@ class FHIRValidation {
     } else {
       item.__newDefinition = false;
     }
+
+    // required
+    item.required ??= false;
+    if (typeof item.required !== "boolean") {
+      this.errorMessages.push(
+        `Item ${item.linkId}: required has to be a boolean.`,
+      );
+    }
+    // repeats
+    item.repeats ??= false;
+    if (typeof item.repeats !== "boolean") {
+      this.errorMessages.push(
+        `Item ${item.linkId}: repeats has to be a boolean.`,
+      );
+    }
   }
 
   private validateItems(item: Item): void {

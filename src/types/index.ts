@@ -141,8 +141,6 @@ export type EnableBehavior = typeof enableBehaviors[number];
 /*
  * Fields with "__"-prefix are used for internal state management
  */
-// TODO: add required-field
-// TODO: add repeats-field
 // TODO: add initial-field
 // TODO: rework answerValueSet-field
 export type Item = {
@@ -175,6 +173,8 @@ export type Item = {
   answerOption?: AnswerOption[];
   answerValueSet?: string;
   extension?: Extension[];
+  required: boolean;
+  repeats: boolean;
 };
 
 export type Questionnaire = {

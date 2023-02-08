@@ -31,6 +31,8 @@ function createNewItem(type: QuestionType): Item {
     linkId: "",
     text: itemTools.getDefaultText(),
     extension: [],
+    required: false,
+    repeats: false,
   };
 }
 

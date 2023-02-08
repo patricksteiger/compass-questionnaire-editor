@@ -238,6 +238,7 @@
               class="row items-center justify-between text-bold text-h5 q-mb-md"
             >
               <!-- Question text -->
+              <!-- TODO: properly support resetting to old text -->
               <q-input
                 autogrow
                 v-if="selectedItem !== undefined"
@@ -275,6 +276,24 @@
                 >{{ selectedItem?.linkId || "empty linkID"
                 }}<q-tooltip> {{ $t("components.linkId") }} </q-tooltip></span
               >
+            </div>
+            <div class="row items-center text-bold text-h5 q-mb-md">
+              <!-- required toggle -->
+              <q-toggle
+                left-label
+                label="required"
+                color="purple"
+                keep-color
+                v-model="requiredItem"
+              />
+              <!-- repeats toggle -->
+              <q-toggle
+                left-label
+                label="repeats"
+                color="purple"
+                keep-color
+                v-model="repeatedItem"
+              />
             </div>
             <div
               class="row items-center justify-between text-bold text-h5 q-mb-md"
@@ -1713,9 +1732,7 @@ export default defineComponent({
         );
         return;
       }
-      const newItem = deepCopyObject(geccoItem);
-      newItem.definition = uuidv4();
-      newItem.__newDefinition = true;
+      const newItem = this.createGeccoClone(geccoItem);
       this.editorTools.addItemAndSetLinkIDs(newItem, item);
       const changedIdMap = this.editorTools.regenerateLinkIds(
         questionnaire.item,
@@ -1730,14 +1747,20 @@ export default defineComponent({
       questionnaire: Questionnaire,
       geccoItem: Item,
     ): void {
-      const newItem = deepCopyObject(geccoItem);
-      newItem.definition = uuidv4();
-      newItem.__newDefinition = true;
+      const newItem = this.createGeccoClone(geccoItem);
       const rootItems = questionnaire.item;
       this.editorTools.addItemToRootAndSetLinkIDs(newItem, rootItems);
       const changedIdMap = this.editorTools.regenerateLinkIds(rootItems);
       this.editorTools.regenerateInternalLinkIDs(rootItems);
       this.editorTools.regenerateConditionWhenIds(rootItems, changedIdMap);
+    },
+    createGeccoClone(geccoItem: Item): Item {
+      const newItem = deepCopyObject(geccoItem);
+      newItem.definition = uuidv4();
+      newItem.__newDefinition = true;
+      newItem.required ??= false;
+      newItem.repeats ??= false;
+      return newItem;
     },
     onAddGECCOQuestion(): void {
       //No Add Question on Items disabled
@@ -1838,6 +1861,12 @@ export default defineComponent({
         console.error(`InternalId '${internalID}' does not exist`);
         return;
       }
+      if (this.selectedItem?.__internalID === internalID) {
+        this.selected = null;
+        this.selectedItem = undefined;
+        this.lastSelected = null;
+        this.lastSelectedItem = undefined;
+      }
       for (const questionnaire of this.getQuestionnaires) {
         this.deleteItemWithInternalLinkId(questionnaire, item.__linkId);
       }
@@ -1914,6 +1943,34 @@ export default defineComponent({
         type = "number";
       }
       return type;
+    },
+    requiredItem: {
+      get(): boolean | null {
+        if (this.selectedItem === undefined) {
+          return null;
+        }
+        return this.selectedItem.required;
+      },
+      set(val: boolean): void {
+        if (this.selectedItem === undefined) {
+          return;
+        }
+        this.selectedItem.required = val;
+      },
+    },
+    repeatedItem: {
+      get(): boolean | null {
+        if (this.selectedItem === undefined) {
+          return null;
+        }
+        return this.selectedItem.repeats;
+      },
+      set(val: boolean): void {
+        if (this.selectedItem === undefined) {
+          return;
+        }
+        this.selectedItem.repeats = val;
+      },
     },
     enabledQuestionTypes() {
       // const allowedQuestions = (q) =>
