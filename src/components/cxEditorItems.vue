@@ -277,7 +277,10 @@
                 }}<q-tooltip> {{ $t("components.linkId") }} </q-tooltip></span
               >
             </div>
-            <div class="row items-center text-bold text-h5 q-mb-md">
+            <div
+              v-if="selectedItem !== undefined"
+              class="row items-center text-bold text-h5 q-mb-md"
+            >
               <!-- required toggle -->
               <q-toggle
                 left-label
@@ -823,7 +826,6 @@
                     </q-item-section>
                   </q-list>
                   <div class="q-pa-sm">
-                    <!--<q-page-sticky position="bottom-right" :offset="[18, 10]">-->
                     <q-btn
                       padding="none xl"
                       v-if="selectedItem.__active"
@@ -833,6 +835,7 @@
                       :label="$t('views.editor.addNewCondition')"
                       @click="onAddCondition"
                     />
+                    <!-- enableWhen behavior -->
                     <q-fab
                       v-if="selectedItem.__active"
                       vertical-actions-align="left"
@@ -871,7 +874,6 @@
                         :label="behavior"
                       />
                     </q-fab>
-                    <!--</q-page-sticky>-->
                   </div>
                 </q-card>
               </q-expansion-item>
@@ -1319,10 +1321,7 @@ export default defineComponent({
         //no value Item to go
         return;
       }
-      const itemSelected = this.editorTools.getCurrentQuestionNodeByLinkId(
-        $event,
-        this.item,
-      );
+      const itemSelected = this.editorTools.getItemByLinkId($event, this.item);
       if (itemSelected !== undefined) {
         this.lastSelected = this.selected;
         this.lastSelectedItem = this.selectedItem;
@@ -1491,7 +1490,7 @@ export default defineComponent({
         return; //No allow drag it in same Item
       }
 
-      const sourceItem = this.editorTools.getCurrentQuestionNodeByID(
+      const sourceItem = this.editorTools.getItemByInternalId(
         sourceInternalId,
         this.item,
       );
@@ -1499,7 +1498,7 @@ export default defineComponent({
         return;
       }
 
-      const targetItem = this.editorTools.getCurrentQuestionNodeByID(
+      const targetItem = this.editorTools.getItemByInternalId(
         targetInternalId,
         this.item,
       );
@@ -1508,7 +1507,7 @@ export default defineComponent({
       }
 
       // Check if sourceItem is the parent for target -> Not allowed
-      const itemNodeChild = this.editorTools.getCurrentQuestionNodeByID(
+      const itemNodeChild = this.editorTools.getItemByInternalId(
         targetItem.__internalID,
         sourceItem.item,
       );
@@ -1606,7 +1605,7 @@ export default defineComponent({
       );
     },
     toggleItem(internalId: string) {
-      const currentNode = this.editorTools.getCurrentQuestionNodeByID(
+      const currentNode = this.editorTools.getItemByInternalId(
         internalId,
         this.item,
       );
@@ -1663,8 +1662,7 @@ export default defineComponent({
     isCondition(id: string) {
       return this.editorTools.isEnableWhenCondition(
         this.item,
-        this.editorTools.getCurrentQuestionNodeByID(id, this.item)?.linkId ||
-          "",
+        this.editorTools.getItemByInternalId(id, this.item)?.linkId || "",
       );
     },
     onAddQuestion(questionType: QuestionType): void {
@@ -1853,10 +1851,7 @@ export default defineComponent({
       if (!answer) {
         return;
       }
-      const item = this.editorTools.getCurrentQuestionNodeByID(
-        internalID,
-        this.item,
-      );
+      const item = this.editorTools.getItemByInternalId(internalID, this.item);
       if (item === undefined) {
         console.error(`InternalId '${internalID}' does not exist`);
         return;
@@ -1993,10 +1988,7 @@ export default defineComponent({
         this.selectedItem = undefined;
         return;
       }
-      this.selectedItem = this.editorTools.getCurrentQuestionNodeByID(
-        val,
-        this.item,
-      );
+      this.selectedItem = this.editorTools.getItemByInternalId(val, this.item);
     },
     lastSelected(val: string | undefined) {
       if (val !== undefined && val !== "") {

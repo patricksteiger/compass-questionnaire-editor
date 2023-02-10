@@ -38,7 +38,7 @@ const emptyFile: VueUploadItem = {
   file: new Blob(),
 };
 
-export const languages = ["de", "en", "es"] as const;
+export const languages = ["de", "en", "es", "fr"] as const;
 export type Language = typeof languages[number];
 export const isSupportedLanguage = (lang: string): lang is Language => {
   return languages.includes(lang as Language);

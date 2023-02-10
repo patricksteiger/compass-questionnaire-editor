@@ -242,7 +242,7 @@ export default defineComponent({
         this.selectedItem = undefined;
         return;
       }
-      const item = this.edtiorTools.getCurrentQuestionNodeByID(val, this.item);
+      const item = this.edtiorTools.getItemByInternalId(val, this.item);
       if (item === undefined) {
         console.error(`LinkId ${val} is not on an available Node`);
         return;

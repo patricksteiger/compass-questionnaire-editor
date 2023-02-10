@@ -229,7 +229,7 @@ class EditorTools {
     return undefined;
   }
 
-  getCurrentQuestionNodeByID(
+  getItemByInternalId(
     internalId: string,
     rootItem: Item[] = [],
   ): Item | undefined {
@@ -237,7 +237,7 @@ class EditorTools {
       if (item.__internalID === internalId) {
         return item;
       }
-      const result = this.getCurrentQuestionNodeByID(internalId, item.item);
+      const result = this.getItemByInternalId(internalId, item.item);
       if (result !== undefined) {
         return result;
       }
@@ -245,6 +245,7 @@ class EditorTools {
     return undefined;
   }
 
+  // TODO: method for GeccoItem not needed if GeccoItem -> Item?
   getCurrentGeccoQuestionNodeByID(
     internalId: string,
     rootItem: GeccoItem[] = [],
@@ -264,15 +265,12 @@ class EditorTools {
     return undefined;
   }
 
-  getCurrentQuestionNodeByLinkId(
-    linkId: string,
-    rootItem: Item[] = [],
-  ): Item | undefined {
+  getItemByLinkId(linkId: string, rootItem: Item[] = []): Item | undefined {
     for (const item of rootItem) {
       if (item.linkId === linkId) {
         return item;
       }
-      const result = this.getCurrentQuestionNodeByLinkId(linkId, item.item);
+      const result = this.getItemByLinkId(linkId, item.item);
       if (result !== undefined) {
         return result;
       }
@@ -445,7 +443,7 @@ class EditorTools {
         }
       }
     } else {
-      // linkID was this.selected for adding GeccoItem (not to root), relevant?
+      // FIXME: linkID was this.selected for adding GeccoItem (not to root), relevant?
       newItem.__linkId = `${parent.__linkId}.1`;
       newItem.linkId = `${parent.linkId}.1`;
     }
@@ -473,28 +471,12 @@ class EditorTools {
     return undefined;
   }
 
-  private getItemNodeByLinkID(
-    linkId: string,
-    items: Item[] = [],
-  ): Item | undefined {
-    for (const element of items) {
-      if (element.linkId === linkId) {
-        return element;
-      }
-      const result = this.getItemNodeByLinkID(linkId, element.item);
-      if (result !== undefined) {
-        return result;
-      }
-    }
-    return undefined;
-  }
-
   setConditionDependence(item: Item[] = [], rootItem: Item[] = []): void {
     for (const element of item) {
       this.setConditionDependence(element.item, rootItem);
       if (element.enableWhen === undefined) continue;
       for (const enableWhen of element.enableWhen) {
-        const itemToAppendCondition = this.getItemNodeByLinkID(
+        const itemToAppendCondition = this.getItemByLinkId(
           enableWhen.question,
           rootItem,
         );
