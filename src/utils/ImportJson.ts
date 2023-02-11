@@ -559,6 +559,11 @@ export const importJsonQuestionnaire = {
       ? validateBundleEntries(jsonBundle.entry, errorMessages)
       : undefined;
   },
+  validateItemStructure(items1: Item[], items2: Item[]): string[] {
+    const errorMessages: string[] = [];
+    itemStructure(items1, items2, errorMessages);
+    return errorMessages;
+  },
 };
 
 function validateBundleEntries(
@@ -611,7 +616,7 @@ function validateQuestionnaireEntries(
   }
   const startLength = errorMessages.length;
   for (let i = 1; i < entries.length; i++) {
-    validateItemStructure(entries[i - 1].item, entries[i].item, errorMessages);
+    itemStructure(entries[i - 1].item, entries[i].item, errorMessages);
     if (startLength !== errorMessages.length) {
       return undefined;
     }
@@ -619,7 +624,7 @@ function validateQuestionnaireEntries(
   return entries;
 }
 
-function validateItemStructure(
+function itemStructure(
   qre1: Item[] | undefined,
   qre2: Item[] | undefined,
   errorMessages: string[],
@@ -651,5 +656,5 @@ function validateItem(item1: Item, item2: Item, errorMessages: string[]): void {
     );
     return;
   }
-  validateItemStructure(item1.item, item2.item, errorMessages);
+  itemStructure(item1.item, item2.item, errorMessages);
 }

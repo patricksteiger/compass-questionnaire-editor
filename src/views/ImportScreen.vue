@@ -18,6 +18,7 @@
             :drop="true"
             v-model="files"
             ref="upload"
+            :multiple="true"
             put-action="/put.method"
             @input-file="inputFile"
             @input-filter="inputFilter"
@@ -30,6 +31,24 @@
               </p>
             </div>
           </file-upload>
+        </div>
+        <div>
+          <q-list v-if="uploadedFiles.length > 0" bordered separator>
+            <q-item v-for="(file, index) in uploadedFiles" :key="file.uuid">
+              {{ index + 1 }}. {{ file.file.name }} | {{ file.languages }} |
+              <q-btn dense icon="delete" @click="deleteFile(index)" />
+            </q-item>
+          </q-list>
+        </div>
+        <div>
+          <q-btn
+            icon="upload"
+            label="Create questionnaire"
+            :disable="
+              uploadedQuestionnaires.size === 0 || duplicateLangugesExist()
+            "
+            @click="createQuestionnaires()"
+          />
         </div>
       </div>
     </div>
@@ -74,6 +93,15 @@ import { useQuasar } from "quasar";
 import { importJsonQuestionnaire } from "../utils/ImportJson";
 import { defineComponent, Ref, ref } from "vue";
 import { i18n } from "@/i18n";
+import { Questionnaire } from "@/types";
+import { Language } from "@/store";
+import { v4 as uuidv4 } from "uuid";
+
+type FileInfo = {
+  uuid: string;
+  file: VueUploadItem;
+  languages: Language[];
+};
 
 export default defineComponent({
   components: {
@@ -84,6 +112,10 @@ export default defineComponent({
     const messageErrorFHIR: Ref<string[]> = ref([]);
     const files: Ref<VueUploadItem[]> = ref([]);
     const messageError = ref("");
+    const uploadedQuestionnaires: Ref<Map<string, Questionnaire[]>> = ref(
+      new Map(),
+    );
+    const uploadedFiles: Ref<FileInfo[]> = ref([]);
 
     return {
       showLoading() {
@@ -97,6 +129,8 @@ export default defineComponent({
       messageErrorFHIR,
       messageError,
       files,
+      uploadedQuestionnaires,
+      uploadedFiles,
     };
   },
   methods: {
@@ -159,9 +193,7 @@ export default defineComponent({
       const [questionnaire, errors] =
         this.importJsonQuestionnaire.validateQuestionnaire(jsonFile);
       if (questionnaire !== undefined) {
-        this.setFileImported(newFile);
-        this.setQuestionnaireImportedJSON(questionnaire);
-        this.$router.push("/");
+        this.validateCompatibleQuestionnaire(newFile, [questionnaire]);
       } else {
         this.messageErrorFHIR = errors;
         this.alertError = true;
@@ -171,13 +203,74 @@ export default defineComponent({
       const [questionnaires, errors] =
         this.importJsonQuestionnaire.validateBundle(jsonFile);
       if (questionnaires !== undefined) {
-        this.setFileImported(newFile);
-        this.setQuestionnaireBundle(questionnaires);
-        this.$router.push("/");
+        this.validateCompatibleQuestionnaire(newFile, questionnaires);
       } else {
         this.messageErrorFHIR = errors;
         this.alertError = true;
       }
+    },
+    validateCompatibleQuestionnaire(
+      newFile: VueUploadItem,
+      questionnaires: Questionnaire[],
+    ): void {
+      if (this.uploadedQuestionnaires.size > 0) {
+        const referenceQRE: Questionnaire = [
+          ...this.uploadedQuestionnaires.values(),
+        ][0][0];
+        const errors = this.importJsonQuestionnaire.validateItemStructure(
+          referenceQRE.item,
+          questionnaires[0].item,
+        );
+        if (errors.length > 0) {
+          this.messageErrorFHIR = errors;
+          this.alertError = true;
+          return;
+        }
+      }
+      this.setFileImported(newFile);
+      const languages: Language[] = questionnaires.map((qre) => qre.language);
+      const file: FileInfo = {
+        uuid: uuidv4(),
+        file: newFile,
+        languages,
+      };
+      this.uploadedQuestionnaires.set(file.uuid, questionnaires);
+      this.uploadedFiles.push(file);
+    },
+    createQuestionnaires(): void {
+      if (this.uploadedQuestionnaires.size === 0) {
+        console.error("No questionnaires were uploaded");
+        return;
+      }
+      const qres: Questionnaire[] = [];
+      for (const qre of this.uploadedQuestionnaires.values()) {
+        qres.push(...qre);
+      }
+      this.setQuestionnaireBundle(qres);
+      this.$router.push("/");
+    },
+    findDuplicateLanguage(file: FileInfo): boolean {
+      for (const other of this.uploadedFiles) {
+        if (other.uuid === file.uuid) continue;
+        for (const lang of file.languages) {
+          if (other.languages.includes(lang)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    },
+    duplicateLangugesExist(): boolean {
+      for (const file of this.uploadedFiles) {
+        if (this.findDuplicateLanguage(file)) {
+          return true;
+        }
+      }
+      return false;
+    },
+    deleteFile(index: number) {
+      const [deletedFile] = this.uploadedFiles.splice(index, 1);
+      this.uploadedQuestionnaires.delete(deletedFile.uuid);
     },
     /**
      * Pretreatment

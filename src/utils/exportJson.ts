@@ -136,6 +136,7 @@ function validateQREWithSettings(
   }
 }
 
+// FIXME: required groups must have at least 1 required child?
 function validateQREGroups(qre: Questionnaire, errorMessages: string[]): void {
   const emptyGroupTracer = (item: Item): void => {
     if (item.type === "group") {
