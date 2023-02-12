@@ -29,7 +29,7 @@
       "ImportJSONBtn": "Import JSON",
       "ExportJSONBtn": "Export JSON",
       "ExportBundleJSONBtn": "Export Bundle-JSON",
-      "createNewQRE": "Create new questionnaire",
+      "createNewQRE": "Create empty questionnaire",
       "warningLeaveDialog": {
         "title": "Warning",
         "instructions": "Are you sure that you want to leave the edition questionnaire screen without exporting first?",
@@ -48,6 +48,7 @@
     "import": {
       "dropFile": "Drop a file here",
       "instructions": "Please upload a Questionnaire JSON file that you would like to edit. Drag & drop the file on this area or click here to select a file.",
+      "createQRE": "Create questionnaire",
       "errorOcurred": "An error has occurred"
     },
     "editor": {

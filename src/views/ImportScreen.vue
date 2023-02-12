@@ -32,22 +32,60 @@
             </div>
           </file-upload>
         </div>
-        <div>
-          <q-list v-if="uploadedFiles.length > 0" bordered separator>
-            <q-item v-for="(file, index) in uploadedFiles" :key="file.uuid">
-              {{ index + 1 }}. {{ file.file.name }} | {{ file.languages }} |
-              <q-btn dense icon="delete" @click="deleteFile(index)" />
-            </q-item>
-          </q-list>
-        </div>
-        <div>
+        <q-card>
+          <div v-if="uploadedFiles.length > 0" class="q-pa-md">
+            <q-list dense bordered separator>
+              <q-item v-for="(file, index) in uploadedFiles" :key="file.uuid">
+                <div>
+                  <q-btn dense icon="delete" @click="deleteFile(index)" />
+                  {{ index + 1 }}. {{ file.file.name }}
+                </div>
+                <q-separator vertical spaced />
+                <q-expansion-item
+                  expand-separator
+                  dense
+                  v-if="file.languages.length > 0"
+                  :header-class="
+                    file.languages.some((f) => f.included)
+                      ? findDuplicateLanguage(file)
+                        ? 'text-red'
+                        : 'text-purple'
+                      : 'text-grey'
+                  "
+                  icon="languages"
+                  :label="'Languages'"
+                >
+                  <div class="q-pa-md">
+                    <q-list separator dense multiline>
+                      <q-item
+                        v-for="lang in file.languages"
+                        :key="lang.language"
+                        :class="
+                          lang.included
+                            ? languageHasDuplicate(lang.language, file)
+                              ? 'bg-red text-white justify-center'
+                              : 'justify-center bg-white'
+                            : 'bg-grey justify-center'
+                        "
+                        clickable
+                        @click="toggleLanguage(lang.language, file)"
+                      >
+                        {{ lang.language }}
+                      </q-item>
+                    </q-list>
+                    <q-separator />
+                  </div>
+                </q-expansion-item>
+              </q-item>
+            </q-list>
+          </div>
+        </q-card>
+        <div class="q-pa-md">
           <q-btn
             icon="upload"
-            label="Create questionnaire"
-            :disable="
-              uploadedQuestionnaires.size === 0 || duplicateLangugesExist()
-            "
-            @click="createQuestionnaires()"
+            :label="$t('views.import.createQRE')"
+            :disable="duplicateLanguagesExist() || noIncludedLanguageExists()"
+            @click="createAndUploadQuestionnaires()"
           />
         </div>
       </div>
@@ -97,10 +135,15 @@ import { Questionnaire } from "@/types";
 import { Language } from "@/store";
 import { v4 as uuidv4 } from "uuid";
 
+type LanguageInfo = {
+  language: Language;
+  included: boolean;
+};
+
 type FileInfo = {
   uuid: string;
   file: VueUploadItem;
-  languages: Language[];
+  languages: LanguageInfo[];
 };
 
 export default defineComponent({
@@ -228,7 +271,10 @@ export default defineComponent({
         }
       }
       this.setFileImported(newFile);
-      const languages: Language[] = questionnaires.map((qre) => qre.language);
+      const languages: LanguageInfo[] = questionnaires.map((qre) => ({
+        language: qre.language,
+        included: true,
+      }));
       const file: FileInfo = {
         uuid: uuidv4(),
         file: newFile,
@@ -237,14 +283,22 @@ export default defineComponent({
       this.uploadedQuestionnaires.set(file.uuid, questionnaires);
       this.uploadedFiles.push(file);
     },
-    createQuestionnaires(): void {
+    createAndUploadQuestionnaires(): void {
       if (this.uploadedQuestionnaires.size === 0) {
         console.error("No questionnaires were uploaded");
         return;
       }
       const qres: Questionnaire[] = [];
-      for (const qre of this.uploadedQuestionnaires.values()) {
-        qres.push(...qre);
+      for (const file of this.uploadedFiles) {
+        const uploadedQREs = this.uploadedQuestionnaires.get(file.uuid);
+        for (const qre of uploadedQREs ?? []) {
+          const qreIsIncluded = file.languages.some(
+            (info) => info.included && info.language === qre.language,
+          );
+          if (qreIsIncluded) {
+            qres.push(qre);
+          }
+        }
       }
       this.setQuestionnaireBundle(qres);
       this.$router.push("/");
@@ -253,20 +307,49 @@ export default defineComponent({
       for (const other of this.uploadedFiles) {
         if (other.uuid === file.uuid) continue;
         for (const lang of file.languages) {
-          if (other.languages.includes(lang)) {
+          if (lang.included && this.languageHasDuplicate(lang.language, file)) {
             return true;
           }
         }
       }
       return false;
     },
-    duplicateLangugesExist(): boolean {
+    languageHasDuplicate(lang: Language, file: FileInfo): boolean {
+      for (const other of this.uploadedFiles) {
+        if (other.uuid === file.uuid) continue;
+        for (const info of other.languages) {
+          if (info.included && info.language === lang) {
+            return true;
+          }
+        }
+      }
+      return false;
+    },
+    duplicateLanguagesExist(): boolean {
       for (const file of this.uploadedFiles) {
         if (this.findDuplicateLanguage(file)) {
           return true;
         }
       }
       return false;
+    },
+    noIncludedLanguageExists(): boolean {
+      for (const file of this.uploadedFiles) {
+        for (const langInfo of file.languages) {
+          if (langInfo.included) {
+            return false;
+          }
+        }
+      }
+      return true;
+    },
+    toggleLanguage(lang: Language, file: FileInfo): void {
+      for (const info of file.languages) {
+        if (info.language === lang) {
+          info.included = !info.included;
+          break;
+        }
+      }
     },
     deleteFile(index: number) {
       const [deletedFile] = this.uploadedFiles.splice(index, 1);

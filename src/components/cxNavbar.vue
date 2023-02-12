@@ -1,9 +1,10 @@
 <template>
   <q-toolbar>
     <q-img src="@/assets/logo.png" width="120px" class="toolbar_logo" />
-    <q-toolbar-title class="text-center">{{
-      getNameofQuestionnaire
-    }}</q-toolbar-title>
+    <q-toolbar-title v-if="$route.name !== 'Import'" class="text-center">
+      {{ getNameofQuestionnaire }}
+    </q-toolbar-title>
+    <q-toolbar-title v-else />
     <q-btn
       icon="upload_file"
       flat

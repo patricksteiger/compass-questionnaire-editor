@@ -29,7 +29,7 @@
       "ImportJSONBtn": "Importiere JSON",
       "ExportJSONBtn": "Exportiere JSON",
       "ExportBundleJSONBtn": "Exportiere Bundle-JSON",
-      "createNewQRE": "Erstelle neuen Fragebogen",
+      "createNewQRE": "Erstelle leeren Fragebogen",
       "warningLeaveDialog": {
         "title": "Warnung",
         "instructions": "Seite verlassen ohne zu Exportieren?",
@@ -48,6 +48,7 @@
     "import": {
       "dropFile": "Lege eine Datei hier ab",
       "instructions": "Lade Fragebogen-Datei im JSON-Format hoch. Ziehe die Datei in diesen Bereich oder klicke hier um eine auszuwählen.",
+      "createQRE": "Erstelle Fragebogen",
       "errorOcurred": "Ein Fehler ist aufgetreten"
     },
     "editor": {

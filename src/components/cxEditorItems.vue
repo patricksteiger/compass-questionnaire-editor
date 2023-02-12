@@ -657,8 +657,8 @@
                               </div>
                             </div>
                           </q-item-section>
-                        </q-item></q-list
-                      >
+                        </q-item>
+                      </q-list>
 
                       <!--  button add new Answer -->
                       <!--<q-page-sticky
