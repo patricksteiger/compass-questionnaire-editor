@@ -1,8 +1,8 @@
 <template>
   <q-toolbar>
     <q-img src="@/assets/logo.png" width="120px" class="toolbar_logo" />
-    <q-toolbar-title v-if="$route.name !== 'Import'" class="text-center">
-      {{ getNameofQuestionnaire }}
+    <q-toolbar-title v-if="inEditorScreen()" class="text-center">
+      {{ getNameOfQuestionnaire }}
     </q-toolbar-title>
     <q-toolbar-title v-else />
     <q-btn
@@ -10,12 +10,12 @@
       flat
       stack
       no-caps
-      v-if="$route.name !== 'Import'"
+      v-if="inEditorScreen()"
       @click="importing"
       >{{ $t("components.navigationBar.ImportJSONBtn") }}</q-btn
     >
     <q-btn
-      v-if="$route.name !== 'Import'"
+      v-if="inEditorScreen()"
       icon="download_file"
       flat
       stack
@@ -24,7 +24,7 @@
       >{{ $t("components.navigationBar.ExportJSONBtn") }}</q-btn
     >
     <q-btn
-      v-if="$route.name !== 'Import'"
+      v-if="inEditorScreen()"
       icon="download_file"
       flat
       stack
@@ -33,7 +33,7 @@
       >{{ $t("components.navigationBar.ExportBundleJSONBtn") }}</q-btn
     >
     <q-btn
-      v-if="$route.name === 'Import'"
+      v-if="inImportScreen()"
       icon="post_add"
       flat
       stack
@@ -160,10 +160,11 @@ import { Questionnaire } from "@/types";
 export default defineComponent({
   computed: {
     ...mapGetters([
-      "getNameofQuestionnaire",
+      "getNameOfQuestionnaire",
       "getQuestionnaireImportedJSON",
       "getVersionQuestionnaire",
       "getQuestionnaires",
+      "getCurrentScreen",
     ]),
   },
   data() {
@@ -206,6 +207,12 @@ export default defineComponent({
       "updateVersion",
       "setNewEmptyQuestionnaire",
     ]),
+    inEditorScreen(): boolean {
+      return this.getCurrentScreen === "editor";
+    },
+    inImportScreen(): boolean {
+      return this.getCurrentScreen === "import";
+    },
     importing() {
       this.alertWantToLeaveScreen = true;
     },
@@ -219,6 +226,7 @@ export default defineComponent({
     exportQuestionnaireBundle() {
       this.showLoading();
       const focusedQuestionnaire = this.getQuestionnaireImportedJSON;
+      // FIXME: required groups must have at least 1 required child?
       this.validationErrorMessages =
         this.exportJsonQuestionnaire.validateQuestionnaire(
           focusedQuestionnaire,
@@ -236,7 +244,7 @@ export default defineComponent({
       const blob = new Blob([exportBundleJson], {
         type: "application/json;charset=utf-8",
       });
-      this.FileSaver.saveAs(blob, `${this.getNameofQuestionnaire}-Bundle.json`);
+      this.FileSaver.saveAs(blob, `${this.getNameOfQuestionnaire}-Bundle.json`);
       this.hideLoading();
     },
     async exportQuestionnaire() {
@@ -261,7 +269,7 @@ export default defineComponent({
           type: "application/json;charset=utf-8",
         });
         const opts = {
-          suggestedName: this.getNameofQuestionnaire,
+          suggestedName: this.getNameOfQuestionnaire,
           types: [
             {
               description: "JSON",
@@ -284,7 +292,7 @@ export default defineComponent({
         if (e.message !== "The user aborted a request." && blob !== undefined) {
           this.messageError = this.$t("messagesErrors.fileNoExported");
           this.alertError = true;
-          this.FileSaver.saveAs(blob, `${this.getNameofQuestionnaire}.json`);
+          this.FileSaver.saveAs(blob, `${this.getNameOfQuestionnaire}.json`);
         }
         this.hideLoading();
       }

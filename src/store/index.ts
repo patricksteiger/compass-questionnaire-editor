@@ -52,14 +52,29 @@ export type Settings = {
   };
 };
 
+// TODO: remove importedFile and use title for name of QRE
 export type StoreState = {
   questionnaire: Questionnaire;
   questionnaireRepo: Map<Language, Questionnaire>;
   importedFile: VueUploadItem;
   settings: Settings;
+  currentScreen: Screen;
 };
 
-const store = createStore<StoreState>({
+// Init is used for the first switch from "/"-path to "import"-path in router.
+// Switching between screens is done when creating Screen-components (see ImportScreen, EditorScreen)
+export type Screen = "init" | "import" | "editor";
+
+const screenMutations = {
+  switchToEditorScreen(state: StoreState): void {
+    state.currentScreen = "editor";
+  },
+  switchToImportScreen(state: StoreState): void {
+    state.currentScreen = "import";
+  },
+};
+
+export const store = createStore<StoreState>({
   state: {
     questionnaire: defaultQuestionnaire,
     questionnaireRepo: new Map(),
@@ -71,6 +86,7 @@ const store = createStore<StoreState>({
         choice: true,
       },
     },
+    currentScreen: "init",
   },
   mutations: {
     switchQuestionnaireByLang(state, payload: Language): void {
@@ -104,7 +120,7 @@ const store = createStore<StoreState>({
         state.questionnaire,
         payload,
       );
-      state.questionnaireRepo.set(newQRE.language, newQRE);
+      state.questionnaireRepo.set(payload, newQRE);
     },
     setNewEmptyQuestionnaire(state) {
       const qre = getDefaultQuestionnaire(defaultLanguage);
@@ -119,13 +135,8 @@ const store = createStore<StoreState>({
       state.settings.answers.openChoice = true;
       state.settings.answers.choice = true;
     },
+    ...screenMutations,
     //metaData
-    // in cxNavbar
-    setNameofQuestionnaireNEW(state) {
-      state.importedFile.name = `${i18n.global.t(
-        "store.questionnaire.name",
-      )}.json`;
-    },
     setVersion(state, payload) {
       state.questionnaire.version = payload;
     },
@@ -169,12 +180,6 @@ const store = createStore<StoreState>({
     setChoice(state, payload) {
       state.settings.answers.choice = payload;
     },
-    // Used for imported files?
-    setQuestionnaireImportedJSON(state: StoreState, payload: Questionnaire) {
-      state.questionnaire = payload;
-      state.questionnaireRepo.clear();
-      state.questionnaireRepo.set(payload.language, payload);
-    },
     setQuestionnaireBundle(state: StoreState, payload: Questionnaire[]): void {
       if (payload.length === 0) {
         console.error("Can't set empty questionnaires");
@@ -211,35 +216,34 @@ const store = createStore<StoreState>({
     getUsedLanguages(state): Language[] {
       return [...state.questionnaireRepo.keys()];
     },
-    getLanguage(state) {
+    getLanguage(state): Language {
       return state.questionnaire.language;
     },
     //Settings
     getAnswerValueSet(state) {
       return state.settings.answers.answerValueSet;
     },
-    getOpenChoice(state) {
+    getOpenChoice(state): boolean {
       return state.settings.answers.openChoice;
     },
-    getChoice(state) {
+    getChoice(state): boolean {
       return state.settings.answers.choice;
     },
     getQuestionnaireImportedJSON(state): Questionnaire {
       return state.questionnaire;
     },
-    getVersionQuestionnaire(state) {
+    getCurrentScreen(state): Screen {
+      return state.currentScreen;
+    },
+    getVersionQuestionnaire(state): string {
       state.questionnaire.version ??= "";
       return state.questionnaire.version;
     },
-    getFileImported(state) {
-      return state.importedFile;
-    },
-    getNameofQuestionnaire(state) {
-      return state?.importedFile?.name
-        ? state.importedFile.name.split(".json")[0]
-        : "";
+    getNameOfQuestionnaire(state) {
+      return (
+        state.questionnaire.title ||
+        i18n.global.t("store.questionnaire.noTitle")
+      );
     },
   },
 });
-
-export default store;

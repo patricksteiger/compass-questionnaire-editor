@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-import store from "../store";
+import { Screen, store } from "../store";
 
 import EditorScreen from "../views/EditorScreen.vue";
 import ImportScreen from "../views/ImportScreen.vue";
@@ -24,7 +24,8 @@ const router = createRouter({
 });
 
 router.beforeEach((to, _from, next) => {
-  if (to.name !== "Import" && !store.getters.getNameofQuestionnaire) {
+  const currentScreen: Screen = store.getters.getCurrentScreen;
+  if (to.name !== "Import" && currentScreen === "init") {
     next({ name: "Import" });
   } else {
     next();

@@ -34,6 +34,7 @@ import cxEditorItems from "@/components/cxEditorItems.vue";
 import cxMetadata from "@/components/cxMetadata.vue";
 import cxSettings from "@/components/cxSettings.vue";
 import { defineComponent, ref } from "vue";
+import { mapMutations } from "vuex";
 
 export default defineComponent({
   components: {
@@ -46,7 +47,12 @@ export default defineComponent({
       tab: ref("editor"),
     };
   },
-  created() {},
+  created() {
+    this.switchToEditorScreen();
+  },
+  methods: {
+    ...mapMutations(["switchToEditorScreen"]),
+  },
   data() {
     return {};
   },

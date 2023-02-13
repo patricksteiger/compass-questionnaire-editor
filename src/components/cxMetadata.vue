@@ -282,7 +282,7 @@ export default defineComponent({
   },
   computed: {
     ...mapGetters([
-      "getNameofQuestionnaire",
+      "getNameOfQuestionnaire",
       "getQuestionnaireImportedJSON",
       "getVersionQuestionnaire",
     ]),

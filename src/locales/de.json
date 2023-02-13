@@ -2,7 +2,8 @@
   "lang": "de",
   "store": {
     "questionnaire": {
-      "name": "Neuer Fragebogen"
+      "name": "Neuer Fragebogen",
+      "noTitle": "Kein Titel"
     }
   },
   "components": {
@@ -29,7 +30,7 @@
       "ImportJSONBtn": "Importiere JSON",
       "ExportJSONBtn": "Exportiere JSON",
       "ExportBundleJSONBtn": "Exportiere Bundle-JSON",
-      "createNewQRE": "Erstelle leeren Fragebogen",
+      "createNewQRE": "Erstelle neuen Fragebogen",
       "warningLeaveDialog": {
         "title": "Warnung",
         "instructions": "Seite verlassen ohne zu Exportieren?",

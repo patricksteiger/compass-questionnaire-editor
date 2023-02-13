@@ -136,7 +136,6 @@ function validateQREWithSettings(
   }
 }
 
-// FIXME: required groups must have at least 1 required child?
 function validateQREGroups(qre: Questionnaire, errorMessages: string[]): void {
   const emptyGroupTracer = (item: Item): void => {
     if (item.type === "group") {
@@ -292,6 +291,7 @@ function getObjectWithoutItemsDisabled(
 }
 
 const exportJsonQuestionnaire = {
+  // FIXME: required groups must have at least 1 required child?
   validateQuestionnaire(qre: Questionnaire, settings: Settings): string[] {
     const errorMessages: string[] = [];
     validateQREWithSettings(qre, settings, errorMessages);

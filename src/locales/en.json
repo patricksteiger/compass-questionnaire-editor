@@ -2,7 +2,8 @@
   "lang": "en",
   "store": {
     "questionnaire": {
-      "name": "New Questionnaire"
+      "name": "New Questionnaire",
+      "noTitle": "No title"
     }
   },
   "components": {
@@ -29,7 +30,7 @@
       "ImportJSONBtn": "Import JSON",
       "ExportJSONBtn": "Export JSON",
       "ExportBundleJSONBtn": "Export Bundle-JSON",
-      "createNewQRE": "Create empty questionnaire",
+      "createNewQRE": "Create new questionnaire",
       "warningLeaveDialog": {
         "title": "Warning",
         "instructions": "Are you sure that you want to leave the edition questionnaire screen without exporting first?",

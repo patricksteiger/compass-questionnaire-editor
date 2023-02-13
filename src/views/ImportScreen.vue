@@ -176,11 +176,14 @@ export default defineComponent({
       uploadedFiles,
     };
   },
+  created() {
+    this.switchToImportScreen();
+  },
   methods: {
     ...mapMutations([
       "setFileImported",
-      "setQuestionnaireImportedJSON",
       "setQuestionnaireBundle",
+      "switchToImportScreen",
     ]),
     /**
      * Has changed
