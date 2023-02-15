@@ -214,7 +214,7 @@
         </div>
       </template>
 
-      <!-- Edtion question selected -->
+      <!-- Editor: question selected -->
       <template v-slot:after>
         <q-tab-panels v-model="selected">
           <q-tab-panel :name="selected">
@@ -357,8 +357,8 @@
             <div
               class="row"
               v-if="
-                selectedItem?.__icon === 'toc' || //choice
-                selectedItem?.__icon === 'horizontal_split' //open-choice
+                selectedItem?.type === 'choice' ||
+                selectedItem?.type === 'open-choice'
               "
             >
               <div v-if="getAnswerValueSet">
@@ -395,8 +395,8 @@
                 v-if="
                   selectedItem !== undefined &&
                   !selectedItem.__answerValueSetCheck &&
-                  (selectedItem.__icon === 'toc' || //choice
-                    selectedItem.__icon === 'horizontal_split') //open-choice
+                  (selectedItem.type === 'choice' ||
+                    selectedItem.type === 'open-choice')
                 "
                 :disable="!selectedItem.__active"
                 expand-separator
@@ -408,8 +408,8 @@
                   <!-- Multiple asnwers -->
                   <div
                     v-if="
-                      selectedItem.__icon === 'toc' || //choice
-                      selectedItem.__icon === 'horizontal_split' //open-choice
+                      selectedItem.type === 'choice' ||
+                      selectedItem.type === 'open-choice'
                     "
                   >
                     <div class="q-pa-md" style="width: 100%">
@@ -1967,17 +1967,11 @@ export default defineComponent({
         this.selectedItem.repeats = val;
       },
     },
-    enabledQuestionTypes() {
-      // const allowedQuestions = (q) =>
-      //   !(!this.getChoice && q.name == "choice") &&
-      //   !(!this.getOpenChoice && q.name == "open-choice");
-      const allowedQuestions = (q: QuestionIcon) =>
-        !(
-          (!this.getChoice && q.name === "choice") ||
-          (!this.getOpenChoice && q.name === "open-choice")
-        );
-      const result = questionTypesIcons.filter(allowedQuestions);
-      return result;
+    enabledQuestionTypes(): QuestionIcon[] {
+      const allowedQuestion = (q: QuestionIcon): boolean =>
+        (this.getChoice || q.name !== "choice") &&
+        (this.getOpenChoice || q.name !== "open-choice");
+      return questionTypesIcons.filter(allowedQuestion);
     },
   },
   watch: {
