@@ -281,11 +281,7 @@ export default defineComponent({
     };
   },
   computed: {
-    ...mapGetters([
-      "getNameOfQuestionnaire",
-      "getQuestionnaireImportedJSON",
-      "getVersionQuestionnaire",
-    ]),
+    ...mapGetters(["getNameOfQuestionnaire", "getQuestionnaireImportedJSON"]),
     version: {
       get() {
         return this.$store.state.questionnaire.version;

@@ -177,6 +177,8 @@ export type Item = {
   repeats: boolean;
 };
 
+export type Status = "draft" | "active" | "retired" | "unknown";
+
 export type Questionnaire = {
   language: Language;
   identifier?: Identifier[];
@@ -184,7 +186,7 @@ export type Questionnaire = {
   name?: string;
   version?: string;
   title?: string;
-  status: "draft" | "active" | "retired" | "unknown";
+  status: Status;
   publisher?: string;
   date?: string;
   approvalDate?: string;

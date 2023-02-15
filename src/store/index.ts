@@ -1,7 +1,6 @@
 import { defaultLanguage, i18n, getLocaleFromLanguage } from "@/i18n";
-import { Questionnaire } from "@/types";
+import { Identifier, Questionnaire, Status } from "@/types";
 import { languageTools } from "@/utils/language";
-import { VueUploadItem } from "vue-upload-component";
 import { createStore } from "vuex";
 
 export const getDefaultQuestionnaire = (lang: Language): Questionnaire => {
@@ -31,13 +30,6 @@ export const getDefaultQuestionnaire = (lang: Language): Questionnaire => {
 
 const defaultQuestionnaire = getDefaultQuestionnaire(defaultLanguage);
 
-const emptyFile: VueUploadItem = {
-  // Used as name of the Questionnaire
-  id: "",
-  name: "",
-  file: new Blob(),
-};
-
 export const languages = ["de", "en", "es", "fr"] as const;
 export type Language = typeof languages[number];
 export const isSupportedLanguage = (lang: string): lang is Language => {
@@ -52,18 +44,16 @@ export type Settings = {
   };
 };
 
-// TODO: remove importedFile and use title for name of QRE
-export type StoreState = {
-  questionnaire: Questionnaire;
-  questionnaireRepo: Map<Language, Questionnaire>;
-  importedFile: VueUploadItem;
-  settings: Settings;
-  currentScreen: Screen;
-};
-
 // Init is used for the first switch from "/"-path to "import"-path in router.
 // Switching between screens is done when creating Screen-components (see ImportScreen, EditorScreen)
 export type Screen = "init" | "import" | "editor";
+
+export type StoreState = {
+  questionnaire: Questionnaire;
+  questionnaireRepo: Map<Language, Questionnaire>;
+  settings: Settings;
+  currentScreen: Screen;
+};
 
 const screenMutations = {
   switchToEditorScreen(state: StoreState): void {
@@ -74,11 +64,126 @@ const screenMutations = {
   },
 };
 
+const metadataMutations = {
+  setVersion(state: StoreState, payload: string) {
+    state.questionnaire.version = payload;
+  },
+  setIdentifier(state: StoreState, payload: Identifier[]) {
+    state.questionnaire.identifier = payload;
+  },
+  setURL(state: StoreState, payload: string) {
+    state.questionnaire.url = payload;
+  },
+  setName(state: StoreState, payload: string) {
+    state.questionnaire.name = payload;
+  },
+  setTitle(state: StoreState, payload: string) {
+    state.questionnaire.title = payload;
+  },
+  setDate(state: StoreState, payload: string) {
+    state.questionnaire.date = payload;
+  },
+  setStatus(state: StoreState, payload: Status) {
+    state.questionnaire.status = payload;
+  },
+  setPublisher(state: StoreState, payload: string) {
+    state.questionnaire.publisher = payload;
+  },
+  setApprovalDate(state: StoreState, payload: string) {
+    state.questionnaire.approvalDate = payload;
+  },
+  setLastReviewDate(state: StoreState, payload: string) {
+    state.questionnaire.lastReviewDate = payload;
+  },
+  setExperimental(state: StoreState, payload: boolean) {
+    state.questionnaire.experimental = payload;
+  },
+};
+
+const settingsMutations = {
+  setAnswerValueSet(state: StoreState, payload: boolean) {
+    state.settings.answers.answerValueSet = payload;
+  },
+  setOpenChoice(state: StoreState, payload: boolean) {
+    state.settings.answers.openChoice = payload;
+  },
+  setChoice(state: StoreState, payload: boolean) {
+    state.settings.answers.choice = payload;
+  },
+};
+
+const setQuestionnaireMutations = {
+  setNewEmptyQuestionnaire(state: StoreState): void {
+    const qre = getDefaultQuestionnaire(defaultLanguage);
+    state.questionnaire = qre;
+    state.questionnaireRepo.clear();
+    state.questionnaireRepo.set(qre.language, qre);
+    state.settings.answers.answerValueSet = false;
+    state.settings.answers.openChoice = true;
+    state.settings.answers.choice = true;
+  },
+  setQuestionnaireBundle(state: StoreState, payload: Questionnaire[]): void {
+    if (payload.length === 0) {
+      console.error("Can't set empty questionnaires");
+      return;
+    }
+    state.questionnaire = payload[0];
+    state.questionnaireRepo.clear();
+    for (const qre of payload) {
+      state.questionnaireRepo.set(qre.language, qre);
+    }
+  },
+  resetQuestionnaire(state: StoreState): void {
+    const language = state.questionnaire.language || defaultLanguage;
+    state.questionnaire = getDefaultQuestionnaire(language);
+    state.questionnaireRepo.clear();
+    state.questionnaireRepo.set(language, state.questionnaire);
+    state.settings.answers.answerValueSet = false;
+    state.settings.answers.openChoice = true;
+    state.settings.answers.choice = true;
+  },
+};
+
+const languageMutations = {
+  switchQuestionnaireByLang(state: StoreState, payload: Language): void {
+    const qre = state.questionnaireRepo.get(payload);
+    if (qre === undefined) {
+      console.error(`Language ${payload} does not exist!`);
+      return;
+    }
+    state.questionnaire = qre;
+  },
+  removeLanguage(state: StoreState, payload: Language): void {
+    if (state.questionnaire.language === payload) {
+      const questionnaires: Questionnaire[] = [
+        ...state.questionnaireRepo.values(),
+      ];
+      const otherQRE = questionnaires.find((qre) => qre.language !== payload);
+      if (otherQRE === undefined) {
+        console.error(`Can't delete the last questionnaire!`);
+        return;
+      }
+      state.questionnaire = otherQRE;
+    }
+    state.questionnaireRepo.delete(payload);
+  },
+  addLanguage(state: StoreState, payload: Language): void {
+    if (state.questionnaireRepo.has(payload)) {
+      console.error(`Language ${payload} already exists!`);
+      return;
+    }
+    const newQRE = languageTools.createCloneForLang(
+      state.questionnaire,
+      payload,
+    );
+    state.questionnaireRepo.set(payload, newQRE);
+  },
+};
+
 export const store = createStore<StoreState>({
   state: {
     questionnaire: defaultQuestionnaire,
     questionnaireRepo: new Map(),
-    importedFile: emptyFile,
     settings: {
       answers: {
         answerValueSet: false,
@@ -89,123 +194,11 @@ export const store = createStore<StoreState>({
     currentScreen: "init",
   },
   mutations: {
-    switchQuestionnaireByLang(state, payload: Language): void {
-      const qre = state.questionnaireRepo.get(payload);
-      if (qre === undefined) {
-        console.error(`Language ${payload} does not exist!`);
-        return;
-      }
-      state.questionnaire = qre;
-    },
-    removeLanguage(state, payload: Language): void {
-      if (state.questionnaire.language === payload) {
-        const questionnaires: Questionnaire[] = [
-          ...state.questionnaireRepo.values(),
-        ];
-        const otherQRE = questionnaires.find((qre) => qre.language !== payload);
-        if (otherQRE === undefined) {
-          console.error(`Can't delete the last questionnaire!`);
-          return;
-        }
-        state.questionnaire = otherQRE;
-      }
-      state.questionnaireRepo.delete(payload);
-    },
-    addLanguage(state, payload: Language): void {
-      if (state.questionnaireRepo.has(payload)) {
-        console.error(`Language ${payload} already exists!`);
-        return;
-      }
-      const newQRE = languageTools.createCloneForLang(
-        state.questionnaire,
-        payload,
-      );
-      state.questionnaireRepo.set(payload, newQRE);
-    },
-    setNewEmptyQuestionnaire(state) {
-      const qre = getDefaultQuestionnaire(defaultLanguage);
-      state.questionnaire = qre;
-      state.questionnaireRepo.clear();
-      state.questionnaireRepo.set(qre.language, qre);
-      state.importedFile.name = `${i18n.global.t(
-        "store.questionnaire.name",
-      )}.json`;
-      state.importedFile.file = new Blob();
-      state.settings.answers.answerValueSet = false;
-      state.settings.answers.openChoice = true;
-      state.settings.answers.choice = true;
-    },
+    ...setQuestionnaireMutations,
+    ...languageMutations,
+    ...metadataMutations,
+    ...settingsMutations,
     ...screenMutations,
-    //metaData
-    setVersion(state, payload) {
-      state.questionnaire.version = payload;
-    },
-    setIdentifier(state, payload) {
-      state.questionnaire.identifier = payload;
-    },
-    setURL(state, payload) {
-      state.questionnaire.url = payload;
-    },
-    setName(state, payload) {
-      state.questionnaire.name = payload;
-    },
-    setTitle(state, payload) {
-      state.questionnaire.title = payload;
-    },
-    setDate(state, payload) {
-      state.questionnaire.date = payload;
-    },
-    setStatus(state, payload) {
-      state.questionnaire.status = payload;
-    },
-    setPublisher(state, payload) {
-      state.questionnaire.publisher = payload;
-    },
-    setApprovalDate(state, payload) {
-      state.questionnaire.approvalDate = payload;
-    },
-    setLastReviewDate(state, payload) {
-      state.questionnaire.lastReviewDate = payload;
-    },
-    setExperimental(state, payload) {
-      state.questionnaire.experimental = payload;
-    },
-    //Settings
-    setAnswerValueSet(state, payload) {
-      state.settings.answers.answerValueSet = payload;
-    },
-    setOpenChoice(state, payload) {
-      state.settings.answers.openChoice = payload;
-    },
-    setChoice(state, payload) {
-      state.settings.answers.choice = payload;
-    },
-    setQuestionnaireBundle(state: StoreState, payload: Questionnaire[]): void {
-      if (payload.length === 0) {
-        console.error("Can't set empty questionnaires");
-        return;
-      }
-      state.questionnaire = payload[0];
-      state.questionnaireRepo.clear();
-      for (const qre of payload) {
-        state.questionnaireRepo.set(qre.language, qre);
-      }
-    },
-    setFileImported(state, payload: VueUploadItem) {
-      state.importedFile = payload;
-    },
-    // TODO: Only used to go back to Import: current QREs should be reset?
-    // createNewEmptyQRE-method used instead coming from EditorScreen?
-    resetQuestionnaire(state) {
-      const language = state.questionnaire.language || defaultLanguage;
-      state.questionnaire = getDefaultQuestionnaire(language);
-      state.questionnaireRepo.set(language, state.questionnaire);
-      state.importedFile = {
-        id: "",
-        name: "",
-        file: new Blob(),
-      };
-    },
   },
   actions: {},
   modules: {},
@@ -234,10 +227,6 @@ export const store = createStore<StoreState>({
     },
     getCurrentScreen(state): Screen {
       return state.currentScreen;
-    },
-    getVersionQuestionnaire(state): string {
-      state.questionnaire.version ??= "";
-      return state.questionnaire.version;
     },
     getNameOfQuestionnaire(state) {
       return (

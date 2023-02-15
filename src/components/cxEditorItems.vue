@@ -621,11 +621,6 @@
                       </q-list>
 
                       <!--  button add new Answer -->
-                      <!--<q-page-sticky
-                        position="bottom-right"
-                        :offset="[18, 35]"
-                        v-if="selectedItem.__active"
-                      > -->
                       <q-fab
                         padding="none xl"
                         fab
@@ -635,7 +630,6 @@
                         color="primary"
                         v-if="!selectedItem.__answerValueSetCheck"
                       >
-                        <!-- FIXME: what is this? -->
                         <template>
                           <q-fab-action
                             v-for="answerType in answerTypeButton"

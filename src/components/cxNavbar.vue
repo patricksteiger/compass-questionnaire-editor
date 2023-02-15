@@ -162,7 +162,6 @@ export default defineComponent({
     ...mapGetters([
       "getNameOfQuestionnaire",
       "getQuestionnaireImportedJSON",
-      "getVersionQuestionnaire",
       "getQuestionnaires",
       "getCurrentScreen",
     ]),

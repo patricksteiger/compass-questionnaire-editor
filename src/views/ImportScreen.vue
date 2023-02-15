@@ -180,11 +180,7 @@ export default defineComponent({
     this.switchToImportScreen();
   },
   methods: {
-    ...mapMutations([
-      "setFileImported",
-      "setQuestionnaireBundle",
-      "switchToImportScreen",
-    ]),
+    ...mapMutations(["setQuestionnaireBundle", "switchToImportScreen"]),
     /**
      * Has changed
      * @param  Object|undefined   newFile   Read only
@@ -273,7 +269,6 @@ export default defineComponent({
           return;
         }
       }
-      this.setFileImported(newFile);
       const languages: LanguageInfo[] = questionnaires.map((qre) => ({
         language: qre.language,
         included: true,
