@@ -77,15 +77,6 @@
                         </q-tooltip></q-btn
                       >
                     </div>
-                    <q-badge
-                      label="GECCO"
-                      color="red"
-                      v-if="hasGeccoExtension(prop.node)"
-                      ><q-tooltip
-                        >This item will be mapped to the corresponding FHIR
-                        resource</q-tooltip
-                      ></q-badge
-                    >
                     <div v-if="!prop.node.__disabled">
                       <q-toggle
                         size="xs"
@@ -199,14 +190,6 @@
                   @click="onAddQuestion(questionTypeIcon.name)"
                   :icon="questionTypeIcon.icon"
                   :label="questionTypeIcon.label"
-                />
-                <q-fab-action
-                  key="Import GECCO item..."
-                  label-position="right"
-                  color="red"
-                  @click="onAddGECCOQuestion"
-                  icon="coronavirus"
-                  label="Import GECCO item(s)..."
                 />
               </q-fab>
             </q-page-sticky>
@@ -323,20 +306,6 @@
                     </q-tooltip></q-btn
                   >
                 </template>
-              </q-input>
-            </div>
-            <div
-              class="row items-center justify-between text-bold text-h5 q-mb-md"
-              v-if="hasGeccoExtension(selectedItem)"
-            >
-              <q-input
-                :model-value="getGeccoExtensionValue(selectedItem)"
-                label="GECCO-Mapping"
-                disable
-                dense
-                class="col-8"
-                color="black"
-              >
               </q-input>
             </div>
             <div
@@ -616,10 +585,7 @@
                                 "
                               >
                                 <q-input
-                                  :disable="
-                                    !selectedItem.__active ||
-                                    hasGeccoExtension(selectedItem)
-                                  "
+                                  :disable="!selectedItem.__active"
                                   :label="$t('views.editor.code')"
                                   outlined
                                   dense
@@ -627,10 +593,7 @@
                                   v-model="answerOption.valueCoding.code"
                                 ></q-input
                                 ><q-input
-                                  :disable="
-                                    !selectedItem.__active ||
-                                    hasGeccoExtension(selectedItem)
-                                  "
+                                  :disable="!selectedItem.__active"
                                   :label="$t('views.editor.system')"
                                   outlined
                                   dense
@@ -645,10 +608,7 @@
                                   round
                                   color="grey-6"
                                   icon="highlight_off"
-                                  :disable="
-                                    !selectedItem.__active ||
-                                    hasGeccoExtension(selectedItem)
-                                  "
+                                  :disable="!selectedItem.__active"
                                   @click="onRemoveAnswer(answerOption)"
                                   ><q-tooltip>
                                     {{ $t("components.remove") }}
@@ -675,7 +635,8 @@
                         color="primary"
                         v-if="!selectedItem.__answerValueSetCheck"
                       >
-                        <template v-if="!hasGeccoExtension(selectedItem)">
+                        <!-- FIXME: what is this? -->
+                        <template>
                           <q-fab-action
                             v-for="answerType in answerTypeButton"
                             :key="answerType.name"
@@ -684,12 +645,6 @@
                             :label="answerType.label"
                             @click="onClickAddAnswer(answerType)"
                           />
-                        </template>
-                        <template v-else>
-                          <q-fab-action
-                            label="Not available for GECCO items"
-                            disable
-                          ></q-fab-action>
                         </template>
                       </q-fab>
                       <!--</q-page-sticky> -->
@@ -1035,10 +990,6 @@
       >
       </cx-enable-When>
     </q-dialog>
-    <q-dialog v-model="geccoLayout">
-      <cx-add-gecco-item v-on:question="onSelectedGECCOQuestion">
-      </cx-add-gecco-item>
-    </q-dialog>
   </div>
 
   <!-- LanguageHub -->
@@ -1141,7 +1092,6 @@ import {
   AnswerButtonType,
   QuestionIcon,
   MAX_ALLOWED_LEVELS_FOR_GROUPS,
-  COMPASS_GECCO_ITEM_URL,
   DRAG_KEY_INTERNAL_ID,
 } from "../utils/constants";
 import { useQuasar } from "quasar";
@@ -1150,7 +1100,6 @@ import { editorTools } from "../utils/editor";
 import { mapGetters } from "vuex";
 import { v4 as uuidv4 } from "uuid";
 import cxEnableWhen from "@/components/cxEnableWhen.vue";
-import cxAddGeccoItem from "@/components/cxAddGeccoItem.vue";
 import { i18n, defaultLanguage } from "@/i18n";
 import {
   AnswerOption,
@@ -1164,11 +1113,9 @@ import {
   enableBehaviors,
 } from "@/types";
 import { Language, languages } from "@/store";
-import { deepCopyObject } from "@/utils/exportJson";
 
 export default defineComponent({
   components: {
-    cxAddGeccoItem,
     cxEnableWhen,
   },
   setup() {
@@ -1210,7 +1157,6 @@ export default defineComponent({
       enableBehaviors,
       setDisplayToOld,
       enableWhenLayout: ref(false),
-      geccoLayout: ref(false),
       alert: ref(false),
       itemsAnwers: ref(""),
       editorTools,
@@ -1367,42 +1313,6 @@ export default defineComponent({
       this.enableWhenItem.answer = "";
       this.enableWhenItem.type = e.type;
       this.enableWhenLayout = false;
-    },
-    // TODO: Should it be GeccoItem instead of Item?
-    onSelectedGECCOQuestion(input: Item | undefined): void {
-      this.geccoLayout = false;
-      if (input === undefined) {
-        return; // No question was selected
-      }
-      if (this.selectedItem === undefined) {
-        for (const questionnaire of this.getQuestionnaires) {
-          this.addGeccoQuestionToRootItem(questionnaire, input);
-        }
-        return;
-      }
-      // Only add questions in items type group
-      if (this.selectedItem.type !== "group") {
-        return;
-      }
-      const selectedLevel = this.editorTools.getLevelFromLinkID(
-        this.selectedItem.linkId,
-      );
-      // Don't add questions exceeding max allowed level
-      if (selectedLevel >= MAX_ALLOWED_LEVELS) {
-        return;
-      }
-      // only add group if there are enough levels (recursively)
-      if (input.type === "group") {
-        const countGroupLevels = this.editorTools.getMaxLevelOfGroup(input);
-        const maxGroupLevel = selectedLevel + countGroupLevels;
-        if (maxGroupLevel > MAX_ALLOWED_LEVELS_FOR_GROUPS) {
-          return;
-        }
-      }
-      const selectedLinkId = this.selectedItem.__linkId;
-      for (const questionnaire of this.getQuestionnaires) {
-        this.addGeccoQuestionToItem(questionnaire, selectedLinkId, input);
-      }
     },
     onChangeConditionBehavior(behavior: EnableBehavior | undefined): void {
       if (this.selectedItem === undefined) {
@@ -1715,78 +1625,6 @@ export default defineComponent({
       const rootItems = questionnaire.item;
       this.editorTools.addItemToRootAndSetLinkIDs(newItem, rootItems);
     },
-    addGeccoQuestionToItem(
-      questionnaire: Questionnaire,
-      linkId: string,
-      geccoItem: Item,
-    ): void {
-      const item = this.editorTools.getItemByInternalLinkId(
-        linkId,
-        questionnaire.item,
-      );
-      if (item === undefined) {
-        console.error(
-          `LinkId ${linkId} does not exist in Questionnaire ${questionnaire.language}`,
-        );
-        return;
-      }
-      const newItem = this.createGeccoClone(geccoItem);
-      this.editorTools.addItemAndSetLinkIDs(newItem, item);
-      const changedIdMap = this.editorTools.regenerateLinkIds(
-        questionnaire.item,
-      );
-      this.editorTools.regenerateInternalLinkIDs(questionnaire.item);
-      this.editorTools.regenerateConditionWhenIds(
-        questionnaire.item,
-        changedIdMap,
-      );
-    },
-    addGeccoQuestionToRootItem(
-      questionnaire: Questionnaire,
-      geccoItem: Item,
-    ): void {
-      const newItem = this.createGeccoClone(geccoItem);
-      const rootItems = questionnaire.item;
-      this.editorTools.addItemToRootAndSetLinkIDs(newItem, rootItems);
-      const changedIdMap = this.editorTools.regenerateLinkIds(rootItems);
-      this.editorTools.regenerateInternalLinkIDs(rootItems);
-      this.editorTools.regenerateConditionWhenIds(rootItems, changedIdMap);
-    },
-    createGeccoClone(geccoItem: Item): Item {
-      const newItem = deepCopyObject(geccoItem);
-      newItem.definition = uuidv4();
-      newItem.__newDefinition = true;
-      newItem.required ??= false;
-      newItem.repeats ??= false;
-      return newItem;
-    },
-    onAddGECCOQuestion(): void {
-      //No Add Question on Items disabled
-      if (this.selectedItem?.__active === false) {
-        return;
-      }
-      //No allow add question more than 5 levels
-      if (
-        this.selectedItem !== undefined &&
-        this.editorTools.getLevelFromLinkID(this.selectedItem.linkId) >=
-          MAX_ALLOWED_LEVELS
-      ) {
-        return;
-      }
-      this.geccoLayout = true;
-    },
-    hasGeccoExtension(e: Item | undefined) {
-      return (
-        e?.extension &&
-        e.extension.some((it) => it.url === COMPASS_GECCO_ITEM_URL)
-      );
-    },
-    getGeccoExtensionValue(e: Item | undefined) {
-      let extension = e?.extension?.find(
-        (it) => it.url === COMPASS_GECCO_ITEM_URL,
-      );
-      return extension?.valueCoding?.code;
-    },
     onClickAddAnswer(e: AnswerButtonType) {
       if (this.selectedItem === undefined) {
         console.error("Selected item should not be undefined");
@@ -1915,7 +1753,6 @@ export default defineComponent({
   computed: {
     ...mapGetters([
       "getQuestionnaireImportedJSON",
-      "getQuestionnaireGECCO",
       "getAnswerValueSet",
       "getOpenChoice",
       "getChoice",

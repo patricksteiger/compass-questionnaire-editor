@@ -1,6 +1,5 @@
 import { questionTypesIcons, answerType, QuestionIcon } from "./constants";
 import { v4 as uuidv4 } from "uuid";
-import { GeccoItem } from "@/store/questionnaire";
 import {
   Answer,
   AnswerOption,
@@ -245,26 +244,6 @@ class EditorTools {
     return undefined;
   }
 
-  // TODO: method for GeccoItem not needed if GeccoItem -> Item?
-  getCurrentGeccoQuestionNodeByID(
-    internalId: string,
-    rootItem: GeccoItem[] = [],
-  ): GeccoItem | undefined {
-    for (const item of rootItem) {
-      if (item.__internalID === internalId) {
-        return item;
-      }
-      const result = this.getCurrentGeccoQuestionNodeByID(
-        internalId,
-        item.item,
-      );
-      if (result !== undefined) {
-        return result;
-      }
-    }
-    return undefined;
-  }
-
   getItemByLinkId(linkId: string, rootItem: Item[] = []): Item | undefined {
     for (const item of rootItem) {
       if (item.linkId === linkId) {
@@ -443,7 +422,6 @@ class EditorTools {
         }
       }
     } else {
-      // FIXME: linkID was this.selected for adding GeccoItem (not to root), relevant?
       newItem.__linkId = `${parent.__linkId}.1`;
       newItem.linkId = `${parent.linkId}.1`;
     }
