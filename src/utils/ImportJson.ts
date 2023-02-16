@@ -2,7 +2,7 @@ import { i18n, defaultLanguage } from "../i18n";
 import {
   MAX_ALLOWED_LEVELS,
   MAX_ALLOWED_LEVELS_FOR_GROUPS,
-  questionType,
+  getTypeQuestionIcon,
 } from "./constants";
 import { v4 as uuidv4 } from "uuid";
 import { Item, Questionnaire, enableBehaviors, EnableBehavior } from "@/types";
@@ -299,10 +299,7 @@ class FHIRValidation {
     item.__active = true;
     item.__disabled = false;
     item.__oldText = item.text;
-    item.__icon =
-      item.type === "open-choice"
-        ? questionType.open_choice.icon
-        : questionType[item.type].icon;
+    item.__icon = getTypeQuestionIcon(item.type);
   }
 
   private itemsNode(items: Item[]) {

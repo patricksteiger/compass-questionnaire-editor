@@ -1,4 +1,5 @@
 import { Language } from "@/store";
+import { ItemType } from "@/utils/constants";
 import { QTree } from "quasar";
 
 export type VueProp = {
@@ -11,19 +12,9 @@ export type VueProp = {
   dark: boolean;
 };
 
-export type QuestionType =
-  | "group"
-  | "open-choice"
-  | "choice"
-  | "string"
-  | "boolean"
-  | "date"
-  | "integer"
-  | "decimal";
-
 // Exclude determined in cxEnableWhen when adding condition
 export type SelectableQuestion = Exclude<
-  QuestionType,
+  ItemType,
   "group" | "open-choice" | "choice"
 >;
 
@@ -165,7 +156,7 @@ export type Item = {
   linkId: string;
   item?: Item[];
   maxLength?: number;
-  type: QuestionType;
+  type: ItemType;
   enableWhen?: EnableWhen[];
   enableBehavior?: EnableBehavior;
   text: string;

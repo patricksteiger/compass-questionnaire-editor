@@ -620,7 +620,7 @@
                         </q-item>
                       </q-list>
 
-                      <!--  button add new Answer -->
+                      <!-- Add answerOption -->
                       <q-fab
                         padding="none xl"
                         fab
@@ -630,18 +630,15 @@
                         color="primary"
                         v-if="!selectedItem.__answerValueSetCheck"
                       >
-                        <template>
-                          <q-fab-action
-                            v-for="answerType in answerTypeButton"
-                            :key="answerType.name"
-                            color="primary"
-                            :icon="answerType.icon"
-                            :label="answerType.label"
-                            @click="onClickAddAnswer(answerType)"
-                          />
-                        </template>
+                        <q-fab-action
+                          v-for="answerType in answerOptionButtons"
+                          :key="answerType.name"
+                          color="primary"
+                          :icon="answerType.icon"
+                          :label="answerType.label"
+                          @click="onClickAddAnswer(answerType)"
+                        />
                       </q-fab>
-                      <!--</q-page-sticky> -->
                     </div>
                   </div>
                 </q-card>
@@ -1077,16 +1074,15 @@
 </template>
 <script lang="ts">
 import {
-  questionTypesIcons,
-  questionTypes,
-  answerType,
-  answerTypeButton,
+  itemTypeIcons,
+  answerOptionButtons,
   COLORS,
   MAX_ALLOWED_LEVELS,
-  AnswerButtonType,
-  QuestionIcon,
+  AnswerOptionButton,
+  ItemTypeIcon,
   MAX_ALLOWED_LEVELS_FOR_GROUPS,
   DRAG_KEY_INTERNAL_ID,
+  ItemType,
 } from "../utils/constants";
 import { useQuasar } from "quasar";
 import { defineComponent, Ref, ref } from "vue";
@@ -1102,7 +1098,6 @@ import {
   SelectedQuestion,
   operators,
   Questionnaire,
-  QuestionType,
   EnableBehavior,
   enableBehaviors,
 } from "@/types";
@@ -1135,7 +1130,6 @@ export default defineComponent({
           answerOption.valueCoding.__oldDisplay || "";
       }
     };
-    // const clearableEnableBehaviors = ["", ...enableBehaviors] as const;
     return {
       languageLayout: ref(false),
       languageSplitter: ref(40),
@@ -1154,12 +1148,9 @@ export default defineComponent({
       alert: ref(false),
       itemsAnwers: ref(""),
       editorTools,
-      questionTypesIcons,
-      questionTypes,
-      answerType,
       COLORS,
       uuidv4,
-      answerTypeButton,
+      answerOptionButtons,
       operators,
       languages,
       language,
@@ -1569,7 +1560,7 @@ export default defineComponent({
         this.editorTools.getItemByInternalId(id, this.item)?.linkId || "",
       );
     },
-    onAddQuestion(questionType: QuestionType): void {
+    onAddQuestion(questionType: ItemType): void {
       if (this.selectedItem === undefined) {
         for (const questionnaire of this.getQuestionnaires) {
           this.addQuestionToRootItem(questionnaire, questionType);
@@ -1596,7 +1587,7 @@ export default defineComponent({
     addQuestionToItem(
       questionnaire: Questionnaire,
       internalLinkId: string,
-      type: QuestionType,
+      type: ItemType,
     ): void {
       const item = this.editorTools.getItemByInternalLinkId(
         internalLinkId,
@@ -1611,24 +1602,19 @@ export default defineComponent({
       const newItem = this.editorTools.createItemWithType(type);
       this.editorTools.addItemAndSetLinkIDs(newItem, item);
     },
-    addQuestionToRootItem(
-      questionnaire: Questionnaire,
-      type: QuestionType,
-    ): void {
+    addQuestionToRootItem(questionnaire: Questionnaire, type: ItemType): void {
       const newItem = this.editorTools.createItemWithType(type);
       const rootItems = questionnaire.item;
       this.editorTools.addItemToRootAndSetLinkIDs(newItem, rootItems);
     },
-    onClickAddAnswer(e: AnswerButtonType) {
+    onClickAddAnswer(e: AnswerOptionButton) {
       if (this.selectedItem === undefined) {
         console.error("Selected item should not be undefined");
         return;
       }
       let newItemAnswer: AnswerOption;
 
-      if (!this.selectedItem.answerOption) {
-        this.selectedItem.answerOption = [];
-      }
+      this.selectedItem.answerOption ??= [];
 
       if (e.name === "coding") {
         newItemAnswer = this.editorTools.getNewAnswerValueCoding(
@@ -1798,11 +1784,11 @@ export default defineComponent({
         this.selectedItem.repeats = val;
       },
     },
-    enabledQuestionTypes(): QuestionIcon[] {
-      const allowedQuestion = (q: QuestionIcon): boolean =>
+    enabledQuestionTypes(): ItemTypeIcon[] {
+      const allowedQuestion = (q: ItemTypeIcon): boolean =>
         (this.getChoice || q.name !== "choice") &&
         (this.getOpenChoice || q.name !== "open-choice");
-      return questionTypesIcons.filter(allowedQuestion);
+      return itemTypeIcons.filter(allowedQuestion);
     },
   },
   watch: {

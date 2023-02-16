@@ -1,21 +1,16 @@
-import { questionTypesIcons, answerType, QuestionIcon } from "./constants";
+import { ItemType, getTypeQuestionIcon } from "./constants";
 import { v4 as uuidv4 } from "uuid";
 import {
   Answer,
   AnswerOption,
   Question,
   Item,
-  QuestionType,
   Questionnaire,
+  Coding,
 } from "@/types";
 import { itemTools } from "./item";
 
-function getTypeQuestionIcon(type: QuestionType): QuestionIcon["icon"] {
-  const questionTypesIcon = questionTypesIcons.find((i) => i.name === type);
-  return (questionTypesIcon as QuestionIcon).icon;
-}
-
-function createNewItem(type: QuestionType): Item {
+function createNewItem(type: ItemType): Item {
   return {
     type: type,
     __icon: getTypeQuestionIcon(type),
@@ -296,11 +291,11 @@ class EditorTools {
 
   getNewAnswerValueCoding(
     answer: Answer,
-    arrayAnswers: AnswerOption[] = [],
+    arrayAnswers: AnswerOption[],
   ): AnswerOption {
     const id = arrayAnswers.length + 1;
     const { text } = answer;
-    const newAnswer = {
+    const newAnswer: Coding = {
       code: "",
       system: "",
       display: text,
@@ -308,30 +303,14 @@ class EditorTools {
     const answerOption: AnswerOption = {
       __id: id,
       __type: "coding",
-      __icon: answerType.choice.icon,
+      __icon: "radio_button_unchecked",
       __newAnswer: true,
       valueCoding: newAnswer,
     };
     return answerOption;
   }
 
-  getNewAnswerValueString(
-    answer: Answer,
-    arrayAnswers: AnswerOption[] = [],
-  ): AnswerOption {
-    const id = arrayAnswers.length + 1;
-    const { text, type } = answer;
-    const answerOption: AnswerOption = {
-      __id: id,
-      __type: type,
-      __icon: answerType.open_choice.icon,
-      __newAnswer: true,
-      valueString: text,
-    };
-    return answerOption;
-  }
-
-  createItemWithType(questionType: QuestionType): Item {
+  createItemWithType(questionType: ItemType): Item {
     const item = createNewItem(questionType);
     if (item.type === "choice" || item.type === "open-choice") {
       item.answerOption = [];
