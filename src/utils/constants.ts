@@ -8,11 +8,37 @@ export const answerOptionButtons = [
 ] as const;
 export type AnswerOptionButton = typeof answerOptionButtons[number];
 
+const itemTypes = [
+  "group",
+  "string",
+  "choice",
+  "open-choice",
+  "boolean",
+  "decimal",
+  "integer",
+  "date",
+  "text",
+] as const;
+export type ItemType = typeof itemTypes[number];
+export function isInvalidItemType(type: unknown): boolean {
+  return !itemTypes.includes(type as ItemType);
+}
+// TODO: Add url
+export function isSimpleItemType(type: ItemType): boolean {
+  return (
+    type === "boolean" ||
+    type === "decimal" ||
+    type === "integer" ||
+    type === "string" ||
+    type === "text" ||
+    type === "open-choice"
+  );
+}
+
 // TODO: Add display
 // TODO: Add time
 // TODO: Add dateTime
 // TODO: Add url
-// TODO: Add text
 // TODO: Add quantity
 // TODO: Add reference
 // TODO: Add attachment
@@ -25,9 +51,9 @@ export const itemTypeIcons = [
   { name: "open-choice", icon: "horizontal_split", label: "Open-Choice" },
   { name: "integer", icon: "pin", label: "Integer" },
   { name: "decimal", icon: "pin", label: "Decimal" },
+  { name: "text", icon: "input", label: "Text" },
 ] as const;
 export type ItemTypeIcon = typeof itemTypeIcons[number];
-export type ItemType = ItemTypeIcon["name"];
 
 const itemTypeIconsMap = {
   group: "group_work",
@@ -40,6 +66,7 @@ const itemTypeIconsMap = {
   string: "text_fields",
   choice: "toc",
   ["open-choice"]: "horizontal_split",
+  text: "input",
 } as const;
 
 export function getTypeQuestionIcon(type: ItemType): ItemTypeIcon["icon"] {

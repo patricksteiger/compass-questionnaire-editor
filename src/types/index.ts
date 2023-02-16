@@ -31,7 +31,8 @@ export type AnswerType =
   | "string"
   | "choice"
   | "coding"
-  | "open-choice";
+  | "open-choice"
+  | "text";
 
 export const operators = ["exists", "=", "!=", ">", "<", ">=", "<="] as const;
 export type Operator = typeof operators[number] | "";

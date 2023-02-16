@@ -173,9 +173,7 @@ function getObjectWithoutItemsDisabled(
     return jsonObject;
   }
   // To only keep items with linkId
-  jsonObject.item = jsonObject.item.filter(
-    (element: Item) => element.linkId !== "",
-  );
+  jsonObject.item = jsonObject.item.filter((item) => item.linkId !== "");
 
   // For items within item
   for (const item of jsonObject.item) {
@@ -281,6 +279,11 @@ function getObjectWithoutItemsDisabled(
     } else {
       delete item.enableWhen;
     }
+
+    // Clearing input field in GUI sets value to empty string
+    if (typeof item.maxLength === "string") {
+      delete item.maxLength;
+    }
   }
   // Item must be deleted when empty
   if (jsonObject.item.length === 0) {
@@ -298,7 +301,7 @@ const exportJsonQuestionnaire = {
     validateQREGroups(qre, errorMessages);
     return errorMessages;
   },
-  getExportObject(jsonObject: Questionnaire) {
+  getExportObject(jsonObject: Questionnaire): Questionnaire {
     const cloneObject = createQuestionnaireExportCopy(jsonObject);
     const objWithoutItemsDisabled = getObjectWithoutItemsDisabled(cloneObject);
     const finalObj = this.clearMetadataFields(objWithoutItemsDisabled);

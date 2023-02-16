@@ -3,6 +3,7 @@ import {
   MAX_ALLOWED_LEVELS,
   MAX_ALLOWED_LEVELS_FOR_GROUPS,
   getTypeQuestionIcon,
+  isInvalidItemType,
 } from "./constants";
 import { v4 as uuidv4 } from "uuid";
 import { Item, Questionnaire, enableBehaviors, EnableBehavior } from "@/types";
@@ -228,17 +229,7 @@ class FHIRValidation {
       );
     }
 
-    if (
-      item.type !== "group" &&
-      item.type !== "string" &&
-      item.type !== "choice" &&
-      item.type !== "boolean" &&
-      item.type !== "date" &&
-      item.type !== "open-choice" &&
-      item.type !== "integer" &&
-      item.type !== "decimal" &&
-      item.type !== "display"
-    ) {
+    if (isInvalidItemType(item.type)) {
       this.errorMessages.push(
         i18n.global.t("messagesErrors.FHIRValidations.typeNodeNoValAllow", {
           linkId: item.linkId,
@@ -279,6 +270,7 @@ class FHIRValidation {
         },
       ] as const;
 
+      // FIXME: What is going on here?
       for (const { url, targetIdx, type } of extensionSet) {
         const index = item.extension.findIndex((e) => e.url === url);
         if (index === -1) {
@@ -368,6 +360,7 @@ class FHIRValidation {
         );
       }
 
+      // FIXME: get type from linkId. exist maps to type boolean
       if (enableWhen.answerDecimal) {
         enableWhen.answer = enableWhen.answerDecimal.toString();
         enableWhen.type = "decimal";
@@ -376,6 +369,7 @@ class FHIRValidation {
         enableWhen.answer = enableWhen.answerInteger.toString();
         enableWhen.type = "integer";
       }
+      // FIXME: When can answerCoding be the type?
       if (enableWhen.answerCoding) {
         enableWhen.answer = enableWhen.answerCoding.code;
         enableWhen.type = "choice";

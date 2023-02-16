@@ -183,7 +183,7 @@
                 :label="$t('views.editor.addItem')"
               >
                 <q-fab-action
-                  v-for="questionTypeIcon in enabledQuestionTypes"
+                  v-for="questionTypeIcon in enabledItemTypes"
                   :key="questionTypeIcon.name"
                   label-position="right"
                   color="primary"
@@ -313,13 +313,16 @@
             >
               <!-- Max Length-->
               <q-input
-                v-if="selectedItem?.type === 'string'"
+                v-if="
+                  selectedItem !== undefined &&
+                  isSimpleItemType(selectedItem.type)
+                "
                 :disable="!selectedItem.__active"
                 :label="$t('views.editor.maxLength')"
                 dense
                 type="number"
                 @keypress="onlyNumber"
-                v-model="selectedItem.maxLength"
+                v-model.number="selectedItem.maxLength"
               ></q-input>
             </div>
             <!-- AnswerValueSet -->
@@ -1083,6 +1086,7 @@ import {
   MAX_ALLOWED_LEVELS_FOR_GROUPS,
   DRAG_KEY_INTERNAL_ID,
   ItemType,
+  isSimpleItemType,
 } from "../utils/constants";
 import { useQuasar } from "quasar";
 import { defineComponent, Ref, ref } from "vue";
@@ -1154,6 +1158,7 @@ export default defineComponent({
       operators,
       languages,
       language,
+      isSimpleItemType,
     };
   },
   created() {
@@ -1288,7 +1293,7 @@ export default defineComponent({
         }
       } else if (e.__type === "date") {
         this.enableWhenItem.answer = e.valueDate;
-      } else if (e.__type === "string") {
+      } else if (e.__type === "string" || e.__type === "text") {
         this.enableWhenItem.answer = e.valueString;
       }
       this.enableWhenLayout = false;
@@ -1784,7 +1789,7 @@ export default defineComponent({
         this.selectedItem.repeats = val;
       },
     },
-    enabledQuestionTypes(): ItemTypeIcon[] {
+    enabledItemTypes(): ItemTypeIcon[] {
       const allowedQuestion = (q: ItemTypeIcon): boolean =>
         (this.getChoice || q.name !== "choice") &&
         (this.getOpenChoice || q.name !== "open-choice");
