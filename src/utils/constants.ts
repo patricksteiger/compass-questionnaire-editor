@@ -18,12 +18,12 @@ const itemTypes = [
   "integer",
   "date",
   "text",
+  "url",
 ] as const;
 export type ItemType = typeof itemTypes[number];
 export function isInvalidItemType(type: unknown): boolean {
   return !itemTypes.includes(type as ItemType);
 }
-// TODO: Add url
 export function isSimpleItemType(type: ItemType): boolean {
   return (
     type === "boolean" ||
@@ -31,14 +31,14 @@ export function isSimpleItemType(type: ItemType): boolean {
     type === "integer" ||
     type === "string" ||
     type === "text" ||
-    type === "open-choice"
+    type === "open-choice" ||
+    type === "url"
   );
 }
 
 // TODO: Add display
 // TODO: Add time
 // TODO: Add dateTime
-// TODO: Add url
 // TODO: Add quantity
 // TODO: Add reference
 // TODO: Add attachment
@@ -52,6 +52,7 @@ export const itemTypeIcons = [
   { name: "integer", icon: "pin", label: "Integer" },
   { name: "decimal", icon: "pin", label: "Decimal" },
   { name: "text", icon: "input", label: "Text" },
+  { name: "url", icon: "link", label: "URL" },
 ] as const;
 export type ItemTypeIcon = typeof itemTypeIcons[number];
 
@@ -67,6 +68,7 @@ const itemTypeIconsMap = {
   choice: "toc",
   ["open-choice"]: "horizontal_split",
   text: "input",
+  url: "link",
 } as const;
 
 export function getTypeQuestionIcon(type: ItemType): ItemTypeIcon["icon"] {

@@ -253,7 +253,11 @@ function getObjectWithoutItemsDisabled(
           if (enableWhen.type === "boolean") {
             enableWhen.answerBoolean = enableWhen.answer === "true";
           }
-          if (enableWhen.type === "string") {
+          if (
+            enableWhen.type === "string" ||
+            enableWhen.type === "text" ||
+            enableWhen.type === "url"
+          ) {
             enableWhen.answerString = enableWhen.answer;
           }
           if (

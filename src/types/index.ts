@@ -32,7 +32,8 @@ export type AnswerType =
   | "choice"
   | "coding"
   | "open-choice"
-  | "text";
+  | "text"
+  | "url";
 
 export const operators = ["exists", "=", "!=", ">", "<", ">=", "<="] as const;
 export type Operator = typeof operators[number] | "";

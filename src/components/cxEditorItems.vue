@@ -1279,7 +1279,7 @@ export default defineComponent({
       }
     },
     onSelectedQuestionsAnswer(e: AnswerOption): void {
-      this.enableWhenItem.question = e.linkId || "";
+      this.enableWhenItem.question = e.linkId ?? "";
       this.enableWhenItem.type = e.__type;
       if (e.__type === "coding") {
         this.enableWhenItem.answer = e.valueCoding?.code;
@@ -1293,7 +1293,11 @@ export default defineComponent({
         }
       } else if (e.__type === "date") {
         this.enableWhenItem.answer = e.valueDate;
-      } else if (e.__type === "string" || e.__type === "text") {
+      } else if (
+        e.__type === "string" ||
+        e.__type === "text" ||
+        e.__type === "url"
+      ) {
         this.enableWhenItem.answer = e.valueString;
       }
       this.enableWhenLayout = false;
