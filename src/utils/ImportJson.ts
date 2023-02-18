@@ -2,7 +2,7 @@ import { i18n, defaultLanguage } from "../i18n";
 import {
   MAX_ALLOWED_LEVELS,
   MAX_ALLOWED_LEVELS_FOR_GROUPS,
-  getTypeQuestionIcon,
+  getItemTypeIcon,
   isInvalidItemType,
 } from "./constants";
 import { v4 as uuidv4 } from "uuid";
@@ -81,9 +81,9 @@ class FHIRValidation {
   }
 
   private validateItem(item: Item): void {
-    this.addPropertiesNeededForGUIItemNode(item);
     //Validate if missing required fields of the Item
     this.itemNodeRequiredFields(item);
+    this.addPropertiesNeededForGUIItemNode(item);
 
     //Error if there is more than 6 levels
     const linkIdLevel = editorTools.getLevelFromLinkID(item.linkId);
@@ -300,7 +300,7 @@ class FHIRValidation {
     item.__active = true;
     item.__disabled = false;
     item.__oldText = item.text;
-    item.__icon = getTypeQuestionIcon(item.type);
+    item.__icon = getItemTypeIcon(item.type);
   }
 
   private itemsNode(items: Item[]) {

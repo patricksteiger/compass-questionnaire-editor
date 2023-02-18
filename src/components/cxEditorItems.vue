@@ -738,18 +738,17 @@
                             type="number"
                             dense
                           />
-                          <!-- TODO: Allow only year/month to be selected -->
-                          <!-- <q-input -->
-                          <!--   v-else-if="enableWhen.type === 'date'" -->
-                          <!--   :disable="!selectedItem.__active" -->
-                          <!--   :label="$t('views.editor.answer')" -->
-                          <!--   :stack-label="true" -->
-                          <!--   class="col-4" -->
-                          <!--   v-model="enableWhen.answer" -->
-                          <!--   mask="'YYYY-MM-DD'" -->
-                          <!--   :type="'date'" -->
-                          <!--   dense -->
-                          <!-- /> -->
+                          <!-- enableWhen date -->
+                          <q-input
+                            v-else-if="enableWhen.type === 'date'"
+                            :disable="!selectedItem.__active"
+                            :label="$t('views.editor.answer')"
+                            class="col-4"
+                            v-model="enableWhen.answer"
+                            :type="'text'"
+                            dense
+                            :rules="[isDate]"
+                          />
                           <q-input
                             v-else
                             :disable="!selectedItem.__active"
@@ -1089,6 +1088,7 @@ import {
   DRAG_KEY_INTERNAL_ID,
   ItemType,
   isSimpleItemType,
+  DATE_REGEXP,
 } from "@/utils/constants";
 import { useQuasar } from "quasar";
 import { defineComponent, Ref, ref } from "vue";
@@ -1149,6 +1149,7 @@ export default defineComponent({
       lastSelectedItem,
       enableWhenItem,
       enableBehaviors,
+      DATE_REGEXP,
       setDisplayToOld,
       enableWhenLayout: ref(false),
       alert: ref(false),
@@ -1207,6 +1208,10 @@ export default defineComponent({
         this.switchLanguage(language);
       }
       this.languageLayout = false;
+    },
+    isDate(s: string): boolean {
+      const match = s.match(DATE_REGEXP);
+      return match !== null ? s.length === match[0].length : false;
     },
     refreshQuestionnaire(): void {
       this.questionaireGUI = this.getQuestionnaireImportedJSON;
