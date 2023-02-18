@@ -15,7 +15,7 @@ export type VueProp = {
 // Exclude determined in cxEnableWhen when adding condition
 export type SelectableQuestion = Exclude<
   ItemType,
-  "group" | "open-choice" | "choice"
+  "display" | "group" | "open-choice" | "choice"
 >;
 
 export type SelectedQuestion = {
@@ -166,13 +166,14 @@ export type Item = {
   answerOption?: AnswerOption[];
   answerValueSet?: string;
   extension?: Extension[];
-  required: boolean;
-  repeats: boolean;
+  required: boolean | undefined;
+  repeats: boolean | undefined;
 };
 
 export type Status = "draft" | "active" | "retired" | "unknown";
 
 export type Questionnaire = {
+  resourceType: "Questionnaire";
   language: Language;
   identifier?: Identifier[];
   url?: string;
@@ -186,5 +187,4 @@ export type Questionnaire = {
   lastReviewDate?: string;
   experimental?: Boolean;
   item: Item[];
-  resourceType: "Questionnaire";
 };

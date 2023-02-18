@@ -19,6 +19,7 @@ const itemTypes = [
   "date",
   "text",
   "url",
+  "display",
 ] as const;
 export type ItemType = typeof itemTypes[number];
 export function isInvalidItemType(type: unknown): boolean {
@@ -53,6 +54,7 @@ export const itemTypeIcons = [
   { name: "decimal", icon: "pin", label: "Decimal" },
   { name: "text", icon: "input", label: "Text" },
   { name: "url", icon: "link", label: "URL" },
+  { name: "display", icon: "description", label: "Display" },
 ] as const;
 export type ItemTypeIcon = typeof itemTypeIcons[number];
 
@@ -69,6 +71,7 @@ const itemTypeIconsMap = {
   ["open-choice"]: "horizontal_split",
   text: "input",
   url: "link",
+  display: "description",
 } as const;
 
 export function getTypeQuestionIcon(type: ItemType): ItemTypeIcon["icon"] {

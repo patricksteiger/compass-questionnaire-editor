@@ -103,6 +103,30 @@ class FHIRValidation {
       this.errorMessages.push(message);
     }
 
+    if (item.type === "display") {
+      item.required = undefined;
+      item.repeats = undefined;
+      if (item.item && item.item.length > 0) {
+        const message = `Display-Item ${item.linkId} must not have children`;
+        this.errorMessages.push(message);
+      }
+    } else {
+      // required
+      item.required ??= false;
+      if (typeof item.required !== "boolean") {
+        this.errorMessages.push(
+          `Item ${item.linkId}: required has to be a boolean.`,
+        );
+      }
+      // repeats
+      item.repeats ??= false;
+      if (typeof item.repeats !== "boolean") {
+        this.errorMessages.push(
+          `Item ${item.linkId}: repeats has to be a boolean.`,
+        );
+      }
+    }
+
     //Error no follow the linkId logic stucture
     if (item.linkId !== item.__linkId && item.linkId !== "") {
       const message = i18n.global.t("messagesErrors.FHIRValidations.linkId", {
@@ -175,21 +199,6 @@ class FHIRValidation {
       item.__newDefinition = true;
     } else {
       item.__newDefinition = false;
-    }
-
-    // required
-    item.required ??= false;
-    if (typeof item.required !== "boolean") {
-      this.errorMessages.push(
-        `Item ${item.linkId}: required has to be a boolean.`,
-      );
-    }
-    // repeats
-    item.repeats ??= false;
-    if (typeof item.repeats !== "boolean") {
-      this.errorMessages.push(
-        `Item ${item.linkId}: repeats has to be a boolean.`,
-      );
     }
   }
 

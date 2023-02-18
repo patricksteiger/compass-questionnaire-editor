@@ -164,6 +164,7 @@
         :offset="[18, 18]"
         v-if="
           selectedItem !== undefined &&
+          selectedItem.type !== 'display' &&
           selectedItem.type !== 'group' &&
           selectedItem.type !== 'open-choice' &&
           selectedItem.type !== 'choice' &&
@@ -255,7 +256,11 @@ export default defineComponent({
       this.$emit("question", questionSelected);
     },
     filterItemToBeShown(node: Item): boolean {
-      return node.__active && node.__internalID !== this.internalID;
+      return (
+        node.__active &&
+        node.type !== "display" &&
+        node.__internalID !== this.internalID
+      );
     },
     onSelectAnswer(answerOption: AnswerOption): void {
       this.$emit("choiceQuestion", answerOption);

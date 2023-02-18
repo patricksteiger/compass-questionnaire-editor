@@ -25,8 +25,8 @@ function createNewItem(type: ItemType): Item {
     linkId: "",
     text: itemTools.getDefaultText(),
     extension: [],
-    required: false,
-    repeats: false,
+    required: itemTools.getDefaultRequired(type),
+    repeats: itemTools.getDefaultRepeats(type),
   };
 }
 

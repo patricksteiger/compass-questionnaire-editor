@@ -261,7 +261,9 @@
               >
             </div>
             <div
-              v-if="selectedItem !== undefined"
+              v-if="
+                selectedItem !== undefined && selectedItem.type !== 'display'
+              "
               class="row items-center text-bold text-h5 q-mb-md"
             >
               <!-- required toggle -->
@@ -701,7 +703,7 @@
                             :label="$t('views.editor.operator')"
                             dense
                           />
-                          <!-- enableWhen boolean -->
+                          <!-- enableWhen answer input -->
                           <!-- TODO: EnableWhen answer and operator is set through v-model? How to duplicate? -->
                           <q-select
                             v-if="
@@ -1087,21 +1089,21 @@ import {
   DRAG_KEY_INTERNAL_ID,
   ItemType,
   isSimpleItemType,
-} from "../utils/constants";
+} from "@/utils/constants";
 import { useQuasar } from "quasar";
 import { defineComponent, Ref, ref } from "vue";
-import { editorTools } from "../utils/editor";
+import { editorTools } from "@/utils/editor";
 import { mapGetters } from "vuex";
 import { v4 as uuidv4 } from "uuid";
 import cxEnableWhen from "@/components/cxEnableWhen.vue";
 import { i18n, defaultLanguage } from "@/i18n";
 import {
   AnswerOption,
-  EnableWhen,
   Item,
   SelectedQuestion,
   operators,
   Questionnaire,
+  EnableWhen,
   EnableBehavior,
   enableBehaviors,
 } from "@/types";
@@ -1770,6 +1772,10 @@ export default defineComponent({
         if (this.selectedItem === undefined) {
           return null;
         }
+        if (this.selectedItem.required === undefined) {
+          console.error("Required should not be undefined.");
+          return false;
+        }
         return this.selectedItem.required;
       },
       set(val: boolean): void {
@@ -1783,6 +1789,10 @@ export default defineComponent({
       get(): boolean | null {
         if (this.selectedItem === undefined) {
           return null;
+        }
+        if (this.selectedItem.repeats === undefined) {
+          console.error("Required should not be undefined.");
+          return false;
         }
         return this.selectedItem.repeats;
       },
