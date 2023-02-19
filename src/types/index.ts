@@ -33,7 +33,8 @@ export type AnswerType =
   | "coding"
   | "open-choice"
   | "text"
-  | "url";
+  | "url"
+  | "time";
 
 export const operators = ["exists", "=", "!=", ">", "<", ">=", "<="] as const;
 export type Operator = typeof operators[number] | "";
@@ -50,6 +51,7 @@ export type EnableWhen = {
   answerDate?: string;
   answerBoolean?: boolean;
   answerString?: string;
+  answerTime?: string;
   answerCoding?: Coding;
 };
 
@@ -81,6 +83,7 @@ export type AnswerOption = {
   valueString?: string;
   valueInteger?: string | number;
   valueDate?: string;
+  valueTime?: string;
 };
 
 export type Extension = {

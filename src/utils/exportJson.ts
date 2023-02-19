@@ -243,24 +243,19 @@ function getObjectWithoutItemsDisabled(
         } else {
           if (enableWhen.type === "decimal") {
             enableWhen.answerDecimal = parseFloat(enableWhen.answer || "");
-          }
-          if (enableWhen.type === "integer") {
+          } else if (enableWhen.type === "integer") {
             enableWhen.answerInteger = parseInt(enableWhen.answer || "");
-          }
-          if (enableWhen.type === "date") {
+          } else if (enableWhen.type === "date") {
             enableWhen.answerDate = enableWhen.answer;
-          }
-          if (enableWhen.type === "boolean") {
+          } else if (enableWhen.type === "boolean") {
             enableWhen.answerBoolean = enableWhen.answer === "true";
-          }
-          if (
+          } else if (
             enableWhen.type === "string" ||
             enableWhen.type === "text" ||
             enableWhen.type === "url"
           ) {
             enableWhen.answerString = enableWhen.answer;
-          }
-          if (
+          } else if (
             enableWhen.type === "choice" ||
             enableWhen.type === "open-choice" ||
             enableWhen.type === "coding"
@@ -270,6 +265,8 @@ function getObjectWithoutItemsDisabled(
               display: enableWhen.display || "",
               system: enableWhen.system || "",
             };
+          } else if (enableWhen.type === "time") {
+            enableWhen.answerTime = enableWhen.answer;
           }
         }
         delete enableWhen.system;

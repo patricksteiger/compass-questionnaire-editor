@@ -103,23 +103,19 @@ class FHIRValidation {
       this.errorMessages.push(message);
     }
 
+    item.required ??= itemTools.getDefaultRequired(item.type);
+    item.repeats ??= itemTools.getDefaultRepeats(item.type);
     if (item.type === "display") {
-      item.required = undefined;
-      item.repeats = undefined;
       if (item.item && item.item.length > 0) {
         const message = `Display-Item ${item.linkId} must not have children`;
         this.errorMessages.push(message);
       }
     } else {
-      // required
-      item.required ??= false;
       if (typeof item.required !== "boolean") {
         this.errorMessages.push(
           `Item ${item.linkId}: required has to be a boolean.`,
         );
       }
-      // repeats
-      item.repeats ??= false;
       if (typeof item.repeats !== "boolean") {
         this.errorMessages.push(
           `Item ${item.linkId}: repeats has to be a boolean.`,
@@ -352,14 +348,15 @@ class FHIRValidation {
           }),
         );
       }
-      //missing  answer
+      // missing answer
       if (
         enableWhen.answerDecimal === undefined &&
         enableWhen.answerInteger === undefined &&
-        enableWhen.answerCoding === undefined && //openChoice || choice
+        enableWhen.answerCoding === undefined && // open-choice && choice
         enableWhen.answerDate === undefined &&
         enableWhen.answerBoolean === undefined &&
-        enableWhen.answerString === undefined
+        enableWhen.answerString === undefined &&
+        enableWhen.answerTime === undefined
       ) {
         this.errorMessages.push(
           i18n.global.t("messagesErrors.FHIRValidations.nodeMissingItem", {
@@ -396,6 +393,10 @@ class FHIRValidation {
       if (enableWhen.answerString) {
         enableWhen.answer = enableWhen.answerString;
         enableWhen.type = "string";
+      }
+      if (enableWhen.answerTime) {
+        enableWhen.answer = enableWhen.answerTime;
+        enableWhen.type = "time";
       }
     }
   }

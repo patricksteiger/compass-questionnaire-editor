@@ -747,7 +747,17 @@
                             v-model="enableWhen.answer"
                             :type="'text'"
                             dense
-                            :rules="[isDate]"
+                            :rules="[dateTools.isDate]"
+                          />
+                          <q-input
+                            v-else-if="enableWhen.type === 'time'"
+                            :disable="!selectedItem.__active"
+                            :label="$t('views.editor.answer')"
+                            class="col-4"
+                            v-model="enableWhen.answer"
+                            :type="'text'"
+                            dense
+                            :rules="[dateTools.isTime]"
                           />
                           <q-input
                             v-else
@@ -1083,16 +1093,16 @@ import {
   COLORS,
   MAX_ALLOWED_LEVELS,
   AnswerOptionButton,
-  ItemTypeIcon,
+  ItemTypeLabel,
   MAX_ALLOWED_LEVELS_FOR_GROUPS,
   DRAG_KEY_INTERNAL_ID,
   ItemType,
   isSimpleItemType,
-  DATE_REGEXP,
 } from "@/utils/constants";
 import { useQuasar } from "quasar";
 import { defineComponent, Ref, ref } from "vue";
 import { editorTools } from "@/utils/editor";
+import { dateTools } from "@/utils/date";
 import { mapGetters } from "vuex";
 import { v4 as uuidv4 } from "uuid";
 import cxEnableWhen from "@/components/cxEnableWhen.vue";
@@ -1149,7 +1159,6 @@ export default defineComponent({
       lastSelectedItem,
       enableWhenItem,
       enableBehaviors,
-      DATE_REGEXP,
       setDisplayToOld,
       enableWhenLayout: ref(false),
       alert: ref(false),
@@ -1162,6 +1171,7 @@ export default defineComponent({
       languages,
       language,
       isSimpleItemType,
+      dateTools,
     };
   },
   created() {
@@ -1208,10 +1218,6 @@ export default defineComponent({
         this.switchLanguage(language);
       }
       this.languageLayout = false;
-    },
-    isDate(s: string): boolean {
-      const match = s.match(DATE_REGEXP);
-      return match !== null ? s.length === match[0].length : false;
     },
     refreshQuestionnaire(): void {
       this.questionaireGUI = this.getQuestionnaireImportedJSON;
@@ -1306,6 +1312,8 @@ export default defineComponent({
         e.__type === "url"
       ) {
         this.enableWhenItem.answer = e.valueString;
+      } else if (e.__type === "time") {
+        this.enableWhenItem.answer = e.valueTime;
       }
       this.enableWhenLayout = false;
     },
@@ -1808,8 +1816,8 @@ export default defineComponent({
         this.selectedItem.repeats = val;
       },
     },
-    enabledItemTypes(): ItemTypeIcon[] {
-      const allowedQuestion = (q: ItemTypeIcon): boolean =>
+    enabledItemTypes(): ItemTypeLabel[] {
+      const allowedQuestion = (q: ItemTypeLabel): boolean =>
         (this.getChoice || q.name !== "choice") &&
         (this.getOpenChoice || q.name !== "open-choice");
       return itemTypeIcons.filter(allowedQuestion);
