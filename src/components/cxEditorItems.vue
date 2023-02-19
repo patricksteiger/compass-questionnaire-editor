@@ -138,13 +138,13 @@
 
           <!-- Change language button -->
           <div>
-            <q-page-sticky position="bottom-left" :offset="[240, 18]">
+            <q-page-sticky position="top-left" :offset="[10, 38]">
               <q-fab
                 vertical-actions-align="left"
                 color="purple"
                 push
-                icon="keyboard_arrow_up"
-                direction="up"
+                icon="keyboard_arrow_right"
+                direction="right"
                 padding="none xl"
                 :hide-icon="getUsedLanguages.length <= 1"
                 :label="
@@ -180,10 +180,40 @@
                 icon="keyboard_arrow_up"
                 direction="up"
                 padding="none xl"
-                :label="$t('views.editor.addItem')"
+                :label="$t('views.editor.addComplexItem')"
               >
                 <q-fab-action
-                  v-for="questionTypeIcon in enabledItemTypes"
+                  v-for="questionTypeIcon in enabledComplexItemTypes"
+                  :key="questionTypeIcon.name"
+                  label-position="right"
+                  color="primary"
+                  @click="onAddQuestion(questionTypeIcon.name)"
+                  :icon="questionTypeIcon.icon"
+                  :label="questionTypeIcon.label"
+                />
+              </q-fab>
+            </q-page-sticky>
+          </div>
+          <div
+            v-if="
+              selected === null ||
+              selectedItem === undefined ||
+              (selectedItem.__active && selectedItem.type === 'group')
+            "
+          >
+            <q-page-sticky position="bottom-left" :offset="[250, 18]">
+              <q-fab
+                v-model="fabSimple"
+                vertical-actions-align="left"
+                color="primary"
+                push
+                icon="keyboard_arrow_up"
+                direction="up"
+                padding="none xl"
+                :label="$t('views.editor.addSimpleItem')"
+              >
+                <q-fab-action
+                  v-for="questionTypeIcon in enabledSimpleItemTypes"
                   :key="questionTypeIcon.name"
                   label-position="right"
                   color="primary"
@@ -1098,6 +1128,8 @@ import {
   DRAG_KEY_INTERNAL_ID,
   ItemType,
   isSimpleItemType,
+  complexItemTypeIcons,
+  simpleItemTypeIcons,
 } from "@/utils/constants";
 import { useQuasar } from "quasar";
 import { defineComponent, Ref, ref } from "vue";
@@ -1183,6 +1215,7 @@ export default defineComponent({
   data() {
     return {
       fabLeft: true,
+      fabSimple: true,
       splitterModel: 40,
       limitsSpliter: [35, 100],
     };
@@ -1821,6 +1854,15 @@ export default defineComponent({
         (this.getChoice || q.name !== "choice") &&
         (this.getOpenChoice || q.name !== "open-choice");
       return itemTypeIcons.filter(allowedQuestion);
+    },
+    enabledComplexItemTypes(): ItemTypeLabel[] {
+      const allowedQuestion = (q: ItemTypeLabel): boolean =>
+        (this.getChoice || q.name !== "choice") &&
+        (this.getOpenChoice || q.name !== "open-choice");
+      return complexItemTypeIcons.filter(allowedQuestion);
+    },
+    enabledSimpleItemTypes(): readonly ItemTypeLabel[] {
+      return simpleItemTypeIcons;
     },
   },
   watch: {

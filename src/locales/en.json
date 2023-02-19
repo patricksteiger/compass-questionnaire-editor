@@ -64,6 +64,8 @@
       "itemConditions": "Conditions",
       "addNewCondition": "Add New Condition",
       "addItem": "New Item",
+      "addComplexItem": "Complex Item",
+      "addSimpleItem": "Simple Item",
       "changeLanguage": "Language: {language}",
       "deleteItem": "Delete Item",
       "deleteItemDialogue": "Do you really want to delete this item and all of its child items?",

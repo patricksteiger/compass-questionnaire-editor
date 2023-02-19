@@ -59,6 +59,23 @@ export const itemTypeIcons = [
 export type ItemTypeLabel = typeof itemTypeIcons[number];
 export type ItemTypeIcon = ItemTypeLabel["icon"];
 
+export const complexItemTypeIcons = [
+  { name: "group", icon: "group_work", label: "Group" },
+  { name: "choice", icon: "toc", label: "Choice" },
+  { name: "open-choice", icon: "horizontal_split", label: "Open-Choice" },
+  { name: "display", icon: "description", label: "Display" },
+] as const;
+export const simpleItemTypeIcons = [
+  { name: "text", icon: "input", label: "Text" },
+  { name: "string", icon: "text_fields", label: "String" },
+  { name: "url", icon: "link", label: "URL" },
+  { name: "boolean", icon: "toggle_off", label: "Boolean" },
+  { name: "integer", icon: "pin", label: "Integer" },
+  { name: "decimal", icon: "pin", label: "Decimal" },
+  { name: "date", icon: "event", label: "Date" },
+  { name: "time", icon: "schedule", label: "Time" },
+] as const;
+
 export function getItemTypeIcon(type: ItemType): ItemTypeIcon {
   const icon = itemTypeIcons.find((i) => i.name === type);
   if (icon === undefined) {
