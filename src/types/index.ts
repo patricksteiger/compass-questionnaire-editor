@@ -34,7 +34,8 @@ export type AnswerType =
   | "open-choice"
   | "text"
   | "url"
-  | "time";
+  | "time"
+  | "dateTime";
 
 export const operators = ["exists", "=", "!=", ">", "<", ">=", "<="] as const;
 export type Operator = typeof operators[number] | "";
@@ -52,6 +53,7 @@ export type EnableWhen = {
   answerBoolean?: boolean;
   answerString?: string;
   answerTime?: string;
+  answerDateTime?: string;
   answerCoding?: Coding;
 };
 
@@ -84,6 +86,7 @@ export type AnswerOption = {
   valueInteger?: string | number;
   valueDate?: string;
   valueTime?: string;
+  valueDateTime?: string;
 };
 
 export type Extension = {

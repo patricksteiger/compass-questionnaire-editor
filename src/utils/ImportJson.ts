@@ -356,7 +356,8 @@ class FHIRValidation {
         enableWhen.answerDate === undefined &&
         enableWhen.answerBoolean === undefined &&
         enableWhen.answerString === undefined &&
-        enableWhen.answerTime === undefined
+        enableWhen.answerTime === undefined &&
+        enableWhen.answerDateTime === undefined
       ) {
         this.errorMessages.push(
           i18n.global.t("messagesErrors.FHIRValidations.nodeMissingItem", {
@@ -397,6 +398,10 @@ class FHIRValidation {
       if (enableWhen.answerTime) {
         enableWhen.answer = enableWhen.answerTime;
         enableWhen.type = "time";
+      }
+      if (enableWhen.answerDateTime) {
+        enableWhen.answer = enableWhen.answerDateTime;
+        enableWhen.type = "dateTime";
       }
     }
   }

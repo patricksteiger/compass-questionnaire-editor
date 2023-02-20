@@ -163,7 +163,7 @@
             </q-page-sticky>
           </div>
 
-          <!-- Button new question first Item -->
+          <!-- Add new item buttons -->
           <div
             v-if="
               selected === null ||
@@ -790,6 +790,16 @@
                             :rules="[dateTools.isTime]"
                           />
                           <q-input
+                            v-else-if="enableWhen.type === 'dateTime'"
+                            :disable="!selectedItem.__active"
+                            :label="$t('views.editor.answer')"
+                            class="col-4"
+                            v-model="enableWhen.answer"
+                            :type="'text'"
+                            dense
+                            :rules="[dateTools.isDateTime]"
+                          />
+                          <q-input
                             v-else
                             :disable="!selectedItem.__active"
                             :label="$t('views.editor.answer')"
@@ -1347,7 +1357,10 @@ export default defineComponent({
         this.enableWhenItem.answer = e.valueString;
       } else if (e.__type === "time") {
         this.enableWhenItem.answer = e.valueTime;
+      } else if (e.__type === "dateTime") {
+        this.enableWhenItem.answer = e.valueDateTime;
       }
+
       this.enableWhenLayout = false;
     },
     onSelectedQuestion(e: SelectedQuestion): void {

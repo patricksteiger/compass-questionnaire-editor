@@ -267,6 +267,8 @@ function getObjectWithoutItemsDisabled(
             };
           } else if (enableWhen.type === "time") {
             enableWhen.answerTime = enableWhen.answer;
+          } else if (enableWhen.type === "dateTime") {
+            enableWhen.answerDateTime = enableWhen.answer;
           }
         }
         delete enableWhen.system;
