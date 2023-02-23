@@ -718,11 +718,12 @@
                           <q-input
                             :disable="!selectedItem.__active"
                             :label="`${$t('views.editor.question')}: ${
-                              enableWhen.type || ''
+                              enableWhen.type ?? ''
                             }`"
                             dense
                             v-model="enableWhen.question"
                             @click="onShowQuestionsItems(enableWhen)"
+                            :rules="[validItemId]"
                           >
                           </q-input>
                           <q-select
@@ -732,6 +733,7 @@
                             :options="operators"
                             :label="$t('views.editor.operator')"
                             dense
+                            :rules="[validOperator]"
                           />
                           <!-- enableWhen answer input -->
                           <!-- TODO: EnableWhen answer and operator is set through v-model? How to duplicate? -->
@@ -746,6 +748,7 @@
                             :options="['true', 'false']"
                             :label="$t('views.editor.answer')"
                             dense
+                            :rules="[validExistsAnswer]"
                           />
                           <q-input
                             v-else-if="enableWhen.type === 'integer'"
@@ -1299,6 +1302,15 @@ export default defineComponent({
     },
     getUnusedLanguages(): Language[] {
       return languages.filter((lang) => !this.getUsedLanguages.includes(lang));
+    },
+    validItemId(s: string): boolean {
+      return s.length > 0;
+    },
+    validOperator(s: string): boolean {
+      return s.length > 0;
+    },
+    validExistsAnswer(answer: string): boolean {
+      return answer === "true" || answer === "false";
     },
     onBackLastSelectedItem(): void {
       if (this.lastSelected) {

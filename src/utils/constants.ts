@@ -39,7 +39,6 @@ export function isSimpleItemType(type: ItemType): boolean {
   );
 }
 
-// TODO: Add dateTime
 // TODO: Add quantity
 // TODO: Add reference
 // TODO: Add attachment
