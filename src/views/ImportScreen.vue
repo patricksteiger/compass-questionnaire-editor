@@ -134,6 +134,7 @@ import { i18n } from "@/i18n";
 import { Questionnaire } from "@/types";
 import { Language } from "@/store";
 import { v4 as uuidv4 } from "uuid";
+import { validator } from "@/utils/importing/validator";
 
 type LanguageInfo = {
   language: Language;
@@ -232,6 +233,8 @@ export default defineComponent({
       newFile: VueUploadItem,
       jsonFile: object,
     ): void {
+      const result = validator.questionnaire(jsonFile);
+      console.log(`Result: ${JSON.stringify(result, null, 2)}`);
       const [questionnaire, errors] =
         this.importJsonQuestionnaire.validateQuestionnaire(jsonFile);
       if (questionnaire !== undefined) {

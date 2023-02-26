@@ -95,7 +95,7 @@ const metadataMutations = {
   setLastReviewDate(state: StoreState, payload: string) {
     state.questionnaire.lastReviewDate = payload;
   },
-  setExperimental(state: StoreState, payload: boolean) {
+  setExperimental(state: StoreState, payload: boolean | null) {
     state.questionnaire.experimental = payload;
   },
 };

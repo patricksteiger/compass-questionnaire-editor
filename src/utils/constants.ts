@@ -8,7 +8,7 @@ export const answerOptionButtons = [
 ] as const;
 export type AnswerOptionButton = typeof answerOptionButtons[number];
 
-const itemTypes = [
+export const allItemTypes = [
   "group",
   "string",
   "choice",
@@ -23,9 +23,9 @@ const itemTypes = [
   "time",
   "dateTime",
 ] as const;
-export type ItemType = typeof itemTypes[number];
+export type ItemType = typeof allItemTypes[number];
 export function isInvalidItemType(type: unknown): boolean {
-  return !itemTypes.includes(type as ItemType);
+  return !allItemTypes.includes(type as ItemType);
 }
 export function isSimpleItemType(type: ItemType): boolean {
   return (

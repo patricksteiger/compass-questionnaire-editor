@@ -366,7 +366,7 @@ export default defineComponent({
       get() {
         return this.$store.state.questionnaire.experimental;
       },
-      set(value: boolean) {
+      set(value: boolean | null) {
         this.$store.commit("setExperimental", value);
       },
     },

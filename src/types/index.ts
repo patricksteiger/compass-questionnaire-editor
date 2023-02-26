@@ -191,6 +191,6 @@ export type Questionnaire = {
   date?: string;
   approvalDate?: string;
   lastReviewDate?: string;
-  experimental?: Boolean;
+  experimental?: boolean | null;
   item: Item[];
 };
