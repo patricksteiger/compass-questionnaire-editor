@@ -96,14 +96,14 @@
 
   <q-dialog v-model="alertError">
     <q-card style="width: 700px; max-width: 80vw">
-      <q-card-section>
+      <q-card-section v-if="messageErrorFHIR.length > 0">
         <div class="text-h6">
           <q-icon name="error" class="text-red" style="font-size: 2rem" />
           {{ $t("messagesErrors.error") }}
         </div>
       </q-card-section>
 
-      <q-card-section class="q-pt-none">
+      <q-card-section class="q-pt-none" v-if="messageErrorFHIR.length > 0">
         {{ messageError }}
         <ul>
           <li v-for="message in messageErrorFHIR" :key="message">
@@ -111,6 +111,27 @@
           </li>
         </ul>
       </q-card-section>
+      <q-separator v-if="messageErrorFHIR.length > 0"></q-separator>
+
+      <q-card-section v-if="warnings.length > 0">
+        <div class="text-h6">
+          <q-icon name="error" class="text-yellow" style="font-size: 2rem" />
+          {{ $t("messagesErrors.warning") }}
+        </div>
+      </q-card-section>
+
+      <q-card-section class="q-pt-none" v-if="warnings.length > 0">
+        <ul>
+          <li v-for="message in warnings" :key="message">
+            {{ message }}
+          </li>
+        </ul>
+      </q-card-section>
+      <q-separator v-if="warnings.length > 0"></q-separator>
+
+      <div v-if="messageErrorFHIR.length > 0">
+        File contents could not be uploaded due to errors above.
+      </div>
 
       <q-card-actions align="right">
         <q-btn
@@ -154,6 +175,7 @@ export default defineComponent({
   setup() {
     const $q = useQuasar();
     const messageErrorFHIR: Ref<string[]> = ref([]);
+    const warnings: Ref<string[]> = ref([]);
     const files: Ref<VueUploadItem[]> = ref([]);
     const messageError = ref("");
     const uploadedQuestionnaires: Ref<Map<string, Questionnaire[]>> = ref(
@@ -170,6 +192,7 @@ export default defineComponent({
       },
       importJsonQuestionnaire,
       alertError: ref(false),
+      warnings,
       messageErrorFHIR,
       messageError,
       files,
@@ -190,8 +213,10 @@ export default defineComponent({
      */
     inputFile(newFile: VueUploadItem | undefined): void {
       if (!newFile) return;
+      this.alertError = false;
       this.messageError = "";
       this.messageErrorFHIR = [];
+      this.warnings = [];
       this.showLoading();
       const reader = new FileReader();
       if (newFile.file === undefined) {
@@ -234,7 +259,17 @@ export default defineComponent({
       jsonFile: object,
     ): void {
       const result = validator.questionnaire(jsonFile);
-      console.log(`Result: ${JSON.stringify(result, null, 2)}`);
+      console.log(JSON.stringify(result, null, 2));
+      if (result.state === "error") {
+        this.messageErrorFHIR = result.errors;
+        this.warnings = result.warnings;
+        this.alertError = true;
+        return;
+      } else if (result.state === "warning") {
+        this.warnings = result.warnings;
+        this.alertError = true;
+        return;
+      }
       const [questionnaire, errors] =
         this.importJsonQuestionnaire.validateQuestionnaire(jsonFile);
       if (questionnaire !== undefined) {

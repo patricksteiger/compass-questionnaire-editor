@@ -47,7 +47,18 @@ export const enableWhenSchema = z
     answerString: optionalStringSchema,
     answerCoding: optionalCodingSchema,
   })
-  .passthrough();
+  .refine((val) => {
+    let count = 0;
+    if (val.answerBoolean !== undefined) count++;
+    if (val.answerDecimal !== undefined) count++;
+    if (val.answerInteger !== undefined) count++;
+    if (val.answerTime !== undefined) count++;
+    if (val.answerDate !== undefined) count++;
+    if (val.answerDateTime !== undefined) count++;
+    if (val.answerString !== undefined) count++;
+    if (val.answerCoding !== undefined) count++;
+    return count <= 1;
+  });
 
 export type FHIREnableWhen = z.infer<typeof enableWhenSchema>;
 

@@ -11,33 +11,6 @@ const optionalStringSchema = z
   .string()
   .nullish()
   .transform((val): string | undefined => (val === null ? undefined : val));
-const nullishToBooleanSchema = z
-  .boolean()
-  .nullish()
-  .transform((val): boolean => val ?? false);
-
-const definition = optionalStringSchema;
-const text = optionalStringSchema;
-const type = z.enum(allItemTypes);
-
-const enableWhen = enableWhenSchema
-  .array()
-  .nullish()
-  .transform((val): FHIREnableWhen[] | undefined =>
-    val === null ? undefined : val,
-  );
-
-const enableBehavior = z
-  .enum([...enableBehaviors, ""])
-  .nullish()
-  .transform((val): EnableBehavior => val || "any");
-const required = nullishToBooleanSchema;
-const repeats = nullishToBooleanSchema;
-const maxLength = z
-  .number()
-  .nullish()
-  .transform((val): number | undefined => (val === null ? undefined : val));
-
 const optionalBooleanSchema = z
   .boolean()
   .nullish()
@@ -57,14 +30,47 @@ const optionalCodingSchema = z
   .nullish()
   .transform((val) => (val === null ? undefined : val));
 
-const answerOptionSchema = z.object({
-  valueInteger: optionalNumberSchema,
-  valueDate: optionalStringSchema,
-  valueTime: optionalStringSchema,
-  valueString: optionalStringSchema,
-  valueCoding: optionalCodingSchema,
-  initialSelected: optionalBooleanSchema,
-});
+const definition = optionalStringSchema;
+const text = optionalStringSchema;
+const type = z.enum(allItemTypes);
+
+const enableWhen = enableWhenSchema
+  .array()
+  .nullish()
+  .transform((val): FHIREnableWhen[] | undefined =>
+    val === null ? undefined : val,
+  );
+
+const enableBehavior = z
+  .enum([...enableBehaviors, ""])
+  .nullish()
+  .transform((val): EnableBehavior | undefined => val || undefined);
+const required = optionalBooleanSchema;
+const repeats = optionalBooleanSchema;
+const maxLength = z
+  .number()
+  .nullish()
+  .transform((val): number | undefined => (val === null ? undefined : val));
+
+const answerOptionSchema = z
+  .object({
+    valueInteger: optionalNumberSchema,
+    valueDate: optionalStringSchema,
+    valueTime: optionalStringSchema,
+    valueString: optionalStringSchema,
+    valueCoding: optionalCodingSchema,
+    initialSelected: optionalBooleanSchema,
+  })
+  .refine((val) => {
+    let count = 0;
+    if (val.valueInteger !== undefined) count++;
+    if (val.valueDate !== undefined) count++;
+    if (val.valueTime !== undefined) count++;
+    if (val.valueString !== undefined) count++;
+    if (val.valueCoding !== undefined) count++;
+    return count === 1;
+  });
+
 type ParsableCoding = {
   system?: string | null;
   version?: string | null;
@@ -89,8 +95,27 @@ const answerOption = answerOptionSchema
 
 const answerValueSet = optionalStringSchema;
 
+// Valid examples:   "1", "1.13.2"
+// Invalid examples: "", "1..2", ".1", "."
+function validLinkId(linkId: string): boolean {
+  let dotIsAllowed = false;
+  for (const digit of linkId) {
+    if (digit >= "0" && digit <= "9") {
+      dotIsAllowed = true;
+    } else if (digit === ".") {
+      if (!dotIsAllowed) return false;
+      dotIsAllowed = false;
+    } else {
+      return false;
+    }
+  }
+  return linkId.length > 0 && dotIsAllowed;
+}
+
+const linkId = z.string().refine(validLinkId);
+
 const baseItemSchema = z.object({
-  linkId: z.string(),
+  linkId,
   definition,
   text,
   type,
