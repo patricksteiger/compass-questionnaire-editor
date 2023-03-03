@@ -68,8 +68,10 @@ const answerOptionSchema = z
     if (val.valueTime !== undefined) count++;
     if (val.valueString !== undefined) count++;
     if (val.valueCoding !== undefined) count++;
-    return count === 1;
+    return count <= 1;
   });
+
+export type FHIRAnswerOption = z.infer<typeof answerOptionSchema>;
 
 type ParsableCoding = {
   system?: string | null;

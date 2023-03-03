@@ -96,6 +96,8 @@ const identifierSchema = z
   })
   .passthrough();
 
+export type FHIRIdentifier = z.infer<typeof identifierSchema>;
+
 const identifier = identifierSchema
   .array()
   .nullish()

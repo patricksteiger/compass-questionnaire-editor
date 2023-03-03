@@ -268,16 +268,16 @@ export default defineComponent({
       } else if (result.state === "warning") {
         this.warnings = result.warnings;
         this.alertError = true;
-        return;
       }
-      const [questionnaire, errors] =
-        this.importJsonQuestionnaire.validateQuestionnaire(jsonFile);
-      if (questionnaire !== undefined) {
-        this.validateCompatibleQuestionnaire(newFile, [questionnaire]);
-      } else {
-        this.messageErrorFHIR = errors;
-        this.alertError = true;
-      }
+      this.validateCompatibleQuestionnaire(newFile, [result.data]);
+      // const [questionnaire, errors] =
+      //   this.importJsonQuestionnaire.validateQuestionnaire(jsonFile);
+      // if (questionnaire !== undefined) {
+      //   this.validateCompatibleQuestionnaire(newFile, [questionnaire]);
+      // } else {
+      //   this.messageErrorFHIR = errors;
+      //   this.alertError = true;
+      // }
     },
     handleBundleResource(newFile: VueUploadItem, jsonFile: object): void {
       const [questionnaires, errors] =

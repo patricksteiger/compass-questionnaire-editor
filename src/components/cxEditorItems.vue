@@ -124,9 +124,7 @@
                   style="width: 100%"
                 >
                   <span>
-                    {{ prop.node.type }}:{{ prop.node.linkId }} | __{{
-                      prop.node.__linkId
-                    }}
+                    {{ prop.node.type }}:{{ prop.node.linkId }}
                     <q-tooltip>
                       {{ $t("components.linkId") }}
                     </q-tooltip>
@@ -1346,6 +1344,7 @@ export default defineComponent({
         $event.preventDefault();
       }
     },
+    // FIXME: connection between answerOption and enableWhen?
     onSelectedQuestionsAnswer(e: AnswerOption): void {
       this.enableWhenItem.question = e.linkId ?? "";
       this.enableWhenItem.type = e.__type;

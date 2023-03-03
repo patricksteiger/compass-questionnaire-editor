@@ -120,6 +120,11 @@ export type Condition = {
   __text: string;
 };
 
+export type IdentifierType = {
+  coding?: Coding;
+  text?: string;
+};
+
 export type Identifier = {
   use?: string;
   system?: string;
@@ -128,10 +133,7 @@ export type Identifier = {
     start?: string;
     end?: string;
   };
-  type?: {
-    coding?: Coding;
-    text?: string;
-  };
+  type?: IdentifierType;
 };
 
 export const enableBehaviors = ["all", "any"] as const;
