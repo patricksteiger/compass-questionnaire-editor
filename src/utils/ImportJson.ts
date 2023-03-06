@@ -485,7 +485,7 @@ class FHIRValidation {
 
 const generalValidations = {
   //Validata that is a right JSON Structure
-  json(jsonFileString: string): object {
+  json(jsonFileString: string): unknown {
     try {
       return JSON.parse(jsonFileString);
     } catch (error: any) {
@@ -496,7 +496,7 @@ const generalValidations = {
       throw new GeneralJSONValidationException(message);
     }
   },
-  parseJson(jsonFile: string | ArrayBuffer | null): object {
+  parseJson(jsonFile: string | ArrayBuffer | null): unknown {
     if (jsonFile === null || typeof jsonFile !== "string") {
       throw new GeneralJSONValidationException(
         i18n.global.t(
@@ -511,7 +511,7 @@ const generalValidations = {
 const FHIRValidations = new FHIRValidation();
 
 export const importJsonQuestionnaire = {
-  validateJson(jsonFile: string | ArrayBuffer | null): object {
+  validateJson(jsonFile: string | ArrayBuffer | null): unknown {
     return generalValidations.parseJson(jsonFile);
   },
   validateQuestionnaire(

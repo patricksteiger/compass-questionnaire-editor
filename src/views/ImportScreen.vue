@@ -96,15 +96,20 @@
 
   <q-dialog v-model="alertError">
     <q-card style="width: 700px; max-width: 80vw">
-      <q-card-section v-if="messageErrorFHIR.length > 0">
+      <q-card-section
+        v-if="messageError.length > 0 || messageErrorFHIR.length > 0"
+      >
         <div class="text-h6">
           <q-icon name="error" class="text-red" style="font-size: 2rem" />
           {{ $t("messagesErrors.error") }}
         </div>
       </q-card-section>
 
-      <q-card-section class="q-pt-none" v-if="messageErrorFHIR.length > 0">
+      <q-card-section v-if="messageError !== ''">
         {{ messageError }}
+      </q-card-section>
+
+      <q-card-section class="q-pt-none" v-if="messageErrorFHIR.length > 0">
         <ul>
           <li v-for="message in messageErrorFHIR" :key="message">
             {{ message }}
@@ -220,7 +225,10 @@ export default defineComponent({
       this.showLoading();
       const reader = new FileReader();
       if (newFile.file === undefined) {
-        throw new Error(`Couldn't read file: ${newFile.name}`);
+        this.messageError = `Couldn't read file: ${newFile.name}`;
+        this.alertError = true;
+        this.hideLoading();
+        return;
       }
       reader.readAsText(newFile.file);
       reader.onload = () => {
@@ -228,15 +236,13 @@ export default defineComponent({
           const jsonFile = this.importJsonQuestionnaire.validateJson(
             reader.result,
           );
-          if (this.importJsonQuestionnaire.isQuestionnaireResource(jsonFile)) {
+          if (validator.isQuestionnaireResource(jsonFile)) {
             this.handleQuestionnaireResource(newFile, jsonFile);
-          } else if (this.importJsonQuestionnaire.isBundleResource(jsonFile)) {
+          } else if (validator.isBundleResource(jsonFile)) {
             this.handleBundleResource(newFile, jsonFile);
           } else {
             throw new Error(
-              `Invalid resourceType: ${
-                (jsonFile as any).resourceType
-              }! Only Bundle and Questionnaire are allowed.`,
+              "File has to have resourceType equal to Questionnaire or Bundle.",
             );
           }
         } catch (error: any) {
@@ -256,10 +262,9 @@ export default defineComponent({
     },
     handleQuestionnaireResource(
       newFile: VueUploadItem,
-      jsonFile: object,
+      jsonFile: unknown,
     ): void {
       const result = validator.questionnaire(jsonFile);
-      console.log(JSON.stringify(result, null, 2));
       if (result.state === "error") {
         this.messageErrorFHIR = result.errors;
         this.warnings = result.warnings;
@@ -270,24 +275,19 @@ export default defineComponent({
         this.alertError = true;
       }
       this.validateCompatibleQuestionnaire(newFile, [result.data]);
-      // const [questionnaire, errors] =
-      //   this.importJsonQuestionnaire.validateQuestionnaire(jsonFile);
-      // if (questionnaire !== undefined) {
-      //   this.validateCompatibleQuestionnaire(newFile, [questionnaire]);
-      // } else {
-      //   this.messageErrorFHIR = errors;
-      //   this.alertError = true;
-      // }
     },
-    handleBundleResource(newFile: VueUploadItem, jsonFile: object): void {
-      const [questionnaires, errors] =
-        this.importJsonQuestionnaire.validateBundle(jsonFile);
-      if (questionnaires !== undefined) {
-        this.validateCompatibleQuestionnaire(newFile, questionnaires);
-      } else {
-        this.messageErrorFHIR = errors;
+    handleBundleResource(newFile: VueUploadItem, jsonFile: unknown): void {
+      const result = validator.bundle(jsonFile);
+      if (result.state === "error") {
+        this.messageErrorFHIR = result.errors;
+        this.warnings = result.warnings;
+        this.alertError = true;
+        return;
+      } else if (result.state === "warning") {
+        this.warnings = result.warnings;
         this.alertError = true;
       }
+      this.validateCompatibleQuestionnaire(newFile, result.data);
     },
     validateCompatibleQuestionnaire(
       newFile: VueUploadItem,
@@ -297,14 +297,18 @@ export default defineComponent({
         const referenceQRE: Questionnaire = [
           ...this.uploadedQuestionnaires.values(),
         ][0][0];
-        const errors = this.importJsonQuestionnaire.validateItemStructure(
-          referenceQRE.item,
-          questionnaires[0].item,
-        );
-        if (errors.length > 0) {
-          this.messageErrorFHIR = errors;
-          this.alertError = true;
-          return;
+        for (const qre of questionnaires) {
+          const errors = this.importJsonQuestionnaire.validateItemStructure(
+            referenceQRE.item,
+            qre.item,
+          );
+          if (errors.length > 0) {
+            this.messageError =
+              "File contains questionnaire with incompatible structure.";
+            this.messageErrorFHIR = errors;
+            this.alertError = true;
+            return;
+          }
         }
       }
       const languages: LanguageInfo[] = questionnaires.map((qre) => ({
