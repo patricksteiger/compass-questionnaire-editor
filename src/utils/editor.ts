@@ -7,6 +7,7 @@ import {
   Item,
   Questionnaire,
   Coding,
+  Quantity,
 } from "@/types";
 import { itemTools } from "./item";
 
@@ -489,6 +490,28 @@ class EditorTools {
 
   isNotDecimalKey(code: string): boolean {
     return this.isNotIntegerKey(code) && code !== "Period" && code !== "Comma";
+  }
+
+  formatQuantity(quantity: Quantity): string {
+    let result: string = "";
+    if (quantity.comparator) {
+      result += quantity.comparator;
+    }
+    if (quantity.value) {
+      const prefix = result.length > 0 ? " " : "";
+      result += prefix + quantity.value;
+    }
+    if (quantity.unit) {
+      const prefix = result.length > 0 ? " " : "";
+      result += prefix + quantity.unit;
+      if (quantity.code) {
+        result += ` (${quantity.code})`;
+      }
+    } else if (quantity.code) {
+      const prefix = result.length > 0 ? " " : "";
+      result += prefix + `(${quantity.code})`;
+    }
+    return result;
   }
 }
 

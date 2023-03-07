@@ -7,6 +7,7 @@ import {
   Questionnaire,
 } from "@/types";
 import { getItemTypeIcon } from "../constants";
+import { editorTools } from "../editor";
 import { itemTools } from "../item";
 import { FHIREnableWhen } from "./enableWhen";
 import { FHIRAnswerOption, FHIRItem } from "./item";
@@ -159,6 +160,8 @@ export class QuestionnaireBuilder {
       result.answer = enableWhen.answerCoding.code;
       result.system = enableWhen.answerCoding.system;
       result.display = enableWhen.answerCoding.display;
+    } else if (enableWhen.answerQuantity !== undefined) {
+      result.answer = editorTools.formatQuantity(enableWhen.answerQuantity);
     }
     return result;
   }

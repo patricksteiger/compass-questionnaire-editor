@@ -762,10 +762,10 @@
                           <q-input
                             v-else-if="enableWhen.type === 'decimal'"
                             :disable="!selectedItem.__active"
-                            @keypress="onlyNumberDec"
                             :label="$t('views.editor.answer')"
                             class="col-4"
                             v-model="enableWhen.answer"
+                            @keypress="onlyNumberDec"
                             type="number"
                             dense
                           />
@@ -799,6 +799,19 @@
                             :type="'text'"
                             dense
                             :rules="[dateTools.isDateTime]"
+                          />
+                          <!-- TODO: implement quantity input -->
+                          <q-input
+                            v-else-if="enableWhen.type === 'quantity'"
+                            :disable="!selectedItem.__active"
+                            :label="$t('views.editor.answer')"
+                            class="col-4"
+                            v-model="enableWhen.answer"
+                            :type="'text'"
+                            dense
+                            readonly
+                            clickable
+                            @click="handleQuantityAnswer(enableWhen)"
                           />
                           <q-input
                             v-else
@@ -1126,6 +1139,66 @@
       </q-page-container>
     </q-layout>
   </q-dialog>
+
+  <!-- Choose answer for specific enableWhen types -->
+  <q-dialog
+    v-model="enableWhenChooseAnswerLayout"
+    v-if="enableWhenChooseAnswerLayout && chosenEnableWhen !== undefined"
+  >
+    <q-layout view="Lhh lpR fff" container class="bg-white">
+      <q-page-container>
+        <q-page padding>
+          <q-toolbar class="bg-primary text-white shadow-2">
+            <q-toolbar-title>{{
+              `EnableWhen: ${chosenEnableWhen.type}`
+            }}</q-toolbar-title>
+          </q-toolbar>
+          <div
+            class="q-pa-md"
+            v-if="chosenEnableWhen.answerQuantity !== undefined"
+          >
+            <q-input
+              :label="'Value'"
+              class="col-4"
+              v-model.number="chosenEnableWhen.answerQuantity.value"
+              @keypress="onlyNumberDec"
+              type="number"
+              dense
+            />
+            <q-input
+              :label="'Code'"
+              class="col-4"
+              v-model="chosenEnableWhen.answerQuantity.code"
+              type="text"
+              dense
+            />
+            <q-input
+              :label="'Unit'"
+              class="col-4"
+              v-model="chosenEnableWhen.answerQuantity.unit"
+              type="text"
+              dense
+            />
+            <q-input
+              :label="'System'"
+              class="col-4"
+              v-model="chosenEnableWhen.answerQuantity.system"
+              type="text"
+              dense
+            />
+            <q-select
+              :label="'Comparator'"
+              class="col-4"
+              v-model="chosenEnableWhen.answerQuantity.comparator"
+              :options="comparators"
+              dense
+            />
+            <q-btn icon="add" @click="setQuantityAnswer(chosenEnableWhen)" />
+          </div>
+        </q-page>
+      </q-page-container>
+    </q-layout>
+  </q-dialog>
 </template>
 <script lang="ts">
 import {
@@ -1159,6 +1232,7 @@ import {
   EnableWhen,
   EnableBehavior,
   enableBehaviors,
+  comparators,
 } from "@/types";
 import { Language, languages } from "@/store";
 
@@ -1183,6 +1257,7 @@ export default defineComponent({
     const item: Ref<Item[]> = ref([]);
     const enableWhen: EnableWhen = { question: "", operator: "" };
     const enableWhenItem: Ref<EnableWhen> = ref(enableWhen);
+    const chosenEnableWhen: Ref<EnableWhen | undefined> = ref(undefined);
     const setDisplayToOld = (answerOption: AnswerOption) => {
       if (answerOption.valueCoding !== undefined) {
         answerOption.valueCoding.display =
@@ -1204,6 +1279,9 @@ export default defineComponent({
       enableBehaviors,
       setDisplayToOld,
       enableWhenLayout: ref(false),
+      enableWhenChooseAnswerLayout: ref(false),
+      comparators,
+      chosenEnableWhen,
       alert: ref(false),
       itemsAnwers: ref(""),
       editorTools,
@@ -1220,7 +1298,6 @@ export default defineComponent({
   created() {
     this.language = this.getLanguage;
     this.questionaireGUI = this.getQuestionnaireImportedJSON as Questionnaire;
-    this.questionaireGUI.item ??= [];
     this.item = this.questionaireGUI.item;
   },
   data() {
@@ -1232,6 +1309,19 @@ export default defineComponent({
     };
   },
   methods: {
+    handleQuantityAnswer(enableWhen: EnableWhen): void {
+      enableWhen.answerQuantity ??= {};
+      this.chosenEnableWhen = enableWhen;
+      this.enableWhenChooseAnswerLayout = true;
+    },
+    setQuantityAnswer(enableWhen: EnableWhen | undefined): void {
+      if (enableWhen !== undefined && enableWhen.answerQuantity !== undefined) {
+        enableWhen.answer = this.editorTools.formatQuantity(
+          enableWhen.answerQuantity,
+        );
+      }
+      this.enableWhenChooseAnswerLayout = false;
+    },
     deleteLanguage(language: Language): void {
       const accepted = confirm(
         this.$t("views.languages.confirmDeletion", { language }),
@@ -1344,7 +1434,9 @@ export default defineComponent({
         $event.preventDefault();
       }
     },
-    // FIXME: connection between answerOption and enableWhen?
+    // FIXME: How are choice, open-choice with answerValueSet handled?
+    // FIXME: Invalid values of answOptions exist? DateTime, ...
+    // Called for answers of choice/open-choice
     onSelectedQuestionsAnswer(e: AnswerOption): void {
       this.enableWhenItem.question = e.linkId ?? "";
       this.enableWhenItem.type = e.__type;

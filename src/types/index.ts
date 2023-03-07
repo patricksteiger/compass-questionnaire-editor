@@ -35,10 +35,22 @@ export type AnswerType =
   | "text"
   | "url"
   | "time"
-  | "dateTime";
+  | "dateTime"
+  | "quantity";
 
 export const operators = ["exists", "=", "!=", ">", "<", ">=", "<="] as const;
 export type Operator = typeof operators[number] | "";
+
+export const comparators = [">", ">=", "<", "<="] as const;
+export type Comparator = typeof comparators[number] | "";
+
+export type Quantity = {
+  value?: number;
+  comparator?: Comparator;
+  unit?: string;
+  system?: string;
+  code?: string;
+};
 
 export type EnableWhen = {
   question: string;
@@ -55,6 +67,7 @@ export type EnableWhen = {
   answerTime?: string;
   answerDateTime?: string;
   answerCoding?: Coding;
+  answerQuantity?: Quantity;
 };
 
 export type Answer = {

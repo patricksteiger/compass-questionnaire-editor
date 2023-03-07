@@ -144,6 +144,10 @@ export class FHIRItemValidator {
       this.warnings.push(
         `LinkId "${currentItem.linkId}" has enableWhen linking to type "${linkedItem.type}" "${linkedItem.linkId}" without operator "exists". Operator and answer have been reset.`,
       );
+    } else if (linkedItem.type === "quantity") {
+      if (enableWhen.answerQuantity === undefined) {
+        this.resetEnableWhenAnswers(enableWhen);
+      }
     }
   }
 

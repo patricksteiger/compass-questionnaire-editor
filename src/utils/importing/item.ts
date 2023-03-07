@@ -6,29 +6,14 @@ import {
   FHIREnableWhen,
   ParsableEnableWhen,
 } from "./enableWhen";
-
-const optionalStringSchema = z
-  .string()
-  .nullish()
-  .transform((val): string | undefined => (val === null ? undefined : val));
-const optionalBooleanSchema = z
-  .boolean()
-  .nullish()
-  .transform((val) => (val === null ? undefined : val));
-const optionalNumberSchema = z
-  .number()
-  .nullish()
-  .transform((val) => (val === null ? undefined : val));
-const optionalCodingSchema = z
-  .object({
-    system: optionalStringSchema,
-    version: optionalStringSchema,
-    code: optionalStringSchema,
-    display: optionalStringSchema,
-    userSelected: optionalBooleanSchema,
-  })
-  .nullish()
-  .transform((val) => (val === null ? undefined : val));
+import {
+  nullToUndefined,
+  optionalBooleanSchema,
+  optionalCodingSchema,
+  optionalNumberSchema,
+  optionalStringSchema,
+  ParsableCoding,
+} from "./schemas";
 
 const definition = optionalStringSchema;
 const text = optionalStringSchema;
@@ -37,9 +22,7 @@ const type = z.enum(allItemTypes);
 const enableWhen = enableWhenSchema
   .array()
   .nullish()
-  .transform((val): FHIREnableWhen[] | undefined =>
-    val === null ? undefined : val,
-  );
+  .transform(nullToUndefined<FHIREnableWhen[]>);
 
 const enableBehavior = z
   .enum([...enableBehaviors, ""])
@@ -47,10 +30,7 @@ const enableBehavior = z
   .transform((val): EnableBehavior | undefined => val || undefined);
 const required = optionalBooleanSchema;
 const repeats = optionalBooleanSchema;
-const maxLength = z
-  .number()
-  .nullish()
-  .transform((val): number | undefined => (val === null ? undefined : val));
+const maxLength = optionalNumberSchema;
 
 const answerOptionSchema = z
   .object({
@@ -73,14 +53,6 @@ const answerOptionSchema = z
 
 export type FHIRAnswerOption = z.infer<typeof answerOptionSchema>;
 
-type ParsableCoding = {
-  system?: string | null;
-  version?: string | null;
-  code?: string | null;
-  display?: string | null;
-  userSelected?: boolean | null;
-};
-
 // TODO: Add valueReference to answerOption
 type ParsableAnswerOption = {
   valueInteger?: number | null;
@@ -93,7 +65,7 @@ type ParsableAnswerOption = {
 const answerOption = answerOptionSchema
   .array()
   .nullish()
-  .transform((val) => (val === null ? undefined : val));
+  .transform(nullToUndefined);
 
 const answerValueSet = optionalStringSchema;
 
@@ -101,17 +73,18 @@ const answerValueSet = optionalStringSchema;
 // Invalid examples: "", "1..2", ".1", "."
 function validLinkId(linkId: string): boolean {
   let dotIsAllowed = false;
-  for (const digit of linkId) {
-    if (digit >= "0" && digit <= "9") {
+  for (const char of linkId) {
+    if (char >= "0" && char <= "9") {
       dotIsAllowed = true;
-    } else if (digit === ".") {
+    } else if (char === ".") {
       if (!dotIsAllowed) return false;
       dotIsAllowed = false;
     } else {
       return false;
     }
   }
-  return linkId.length > 0 && dotIsAllowed;
+  // Make sure at least 1 number is present and linkId doesn't end with a dot
+  return dotIsAllowed;
 }
 
 const linkId = z.string().refine(validLinkId);
@@ -171,9 +144,7 @@ export const itemSchema: ItemSchema = baseItemSchema
       itemSchema
         .array()
         .nullish()
-        .transform((items): FHIRItem[] | undefined =>
-          items === null ? undefined : items,
-        ),
+        .transform(nullToUndefined<FHIRItem[]>),
     ),
   })
   .passthrough();
