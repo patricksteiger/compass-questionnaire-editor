@@ -166,7 +166,7 @@
             v-if="
               selected === null ||
               selectedItem === undefined ||
-              (selectedItem.__active && selectedItem.type === 'group')
+              (selectedItem.__active && selectedItem.type !== 'display')
             "
           >
             <q-page-sticky position="bottom-left" :offset="[18, 18]">
@@ -196,7 +196,7 @@
             v-if="
               selected === null ||
               selectedItem === undefined ||
-              (selectedItem.__active && selectedItem.type === 'group')
+              (selectedItem.__active && selectedItem.type !== 'display')
             "
           >
             <q-page-sticky position="bottom-left" :offset="[250, 18]">
@@ -1375,7 +1375,7 @@ export default defineComponent({
       this.enableWhenLayout = false;
     },
     onSelectedQuestion(e: SelectedQuestion): void {
-      this.enableWhenItem.question = e.linkId || "";
+      this.enableWhenItem.question = e.linkId ?? "";
       this.enableWhenItem.answer = "";
       this.enableWhenItem.type = e.type;
       this.enableWhenLayout = false;
@@ -1463,7 +1463,7 @@ export default defineComponent({
       const targetInternalId = currentTarget.id;
 
       if (sourceInternalId === targetInternalId) {
-        return; //No allow drag it in same Item
+        return; // Don't allow to drag on itself
       }
 
       const sourceItem = this.editorTools.getItemByInternalId(
@@ -1491,32 +1491,38 @@ export default defineComponent({
         return;
       }
 
-      // Can only drag on active items that are groups
+      // Can only drag on active items that aren't of type display
       if (
         droppedOnItemNode &&
-        (!targetItem.__active || targetItem.type !== "group")
+        (!targetItem.__active || targetItem.type === "display")
       ) {
         return;
       }
 
       // Don't allow more than 5 levels of nested items
-      const targetLevel = this.editorTools.getLevelFromLinkID(
+      let targetLevel = this.editorTools.getLevelFromLinkID(
         targetItem.__linkId,
       );
+      // If dropped above target, source has same level as parent of target.
+      if (!droppedOnItemNode) {
+        targetLevel--;
+      }
       const sourceLevel = this.editorTools.getMaxLevel(sourceItem);
       const totalLevels = targetLevel + sourceLevel;
-      if (totalLevels > MAX_ALLOWED_LEVELS) {
+      const sourceGroupLevel = this.editorTools.getMaxLevelOfGroup(sourceItem);
+      const totalGroupLevels = targetLevel + sourceGroupLevel;
+      if (
+        totalLevels > MAX_ALLOWED_LEVELS ||
+        totalGroupLevels > MAX_ALLOWED_LEVELS_FOR_GROUPS
+      ) {
         return;
       }
-
-      const targetInternalLinkId = targetItem.__linkId;
-      const sourceInternalLinkId = sourceItem.__linkId;
 
       for (const questionnaire of this.getQuestionnaires) {
         this.dragItem(
           questionnaire,
-          sourceInternalLinkId,
-          targetInternalLinkId,
+          sourceItem.__linkId,
+          targetItem.__linkId,
           droppedOnItemNode,
         );
       }
@@ -1648,17 +1654,17 @@ export default defineComponent({
         }
         return;
       }
-      if (!this.selectedItem.__active || this.selectedItem.type !== "group") {
-        return;
-      }
+      const currentLevel = this.editorTools.getLevelFromLinkID(
+        this.selectedItem.linkId,
+      );
       // Don't add group question to lowest level to avoid empty groups
-      if (questionType === "group") {
-        const currentLevel = this.editorTools.getLevelFromLinkID(
-          this.selectedItem.linkId,
-        );
-        if (currentLevel >= MAX_ALLOWED_LEVELS_FOR_GROUPS) {
-          return;
-        }
+      if (currentLevel >= MAX_ALLOWED_LEVELS) {
+        return;
+      } else if (
+        questionType === "group" &&
+        currentLevel >= MAX_ALLOWED_LEVELS_FOR_GROUPS
+      ) {
+        return;
       }
       const selectedLinkId = this.selectedItem.__linkId;
       for (const questionnaire of this.getQuestionnaires) {

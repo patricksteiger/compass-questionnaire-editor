@@ -354,7 +354,7 @@ class EditorTools {
     return level;
   }
 
-  // Example: 1.13.5
+  // Example: 1.13.5 -> 1.13.6
   getNextLinkID(linkId: string): string {
     const numbers = linkId.split(".");
     const nextLinkId = Number(numbers.at(-1)) + 1;
@@ -366,22 +366,23 @@ class EditorTools {
   getMaxLevel(item: Item): number {
     let maxChildLevel = 0;
     for (const element of item.item ?? []) {
-      const childLevel = this.getMaxLevelOfGroup(element);
+      const childLevel = this.getMaxLevel(element);
       maxChildLevel = Math.max(maxChildLevel, childLevel);
     }
     return maxChildLevel + 1;
   }
 
-  // Expects to be called only on items with type group
   getMaxLevelOfGroup(item: Item): number {
-    let maxChildLevel = 0;
+    return this.getMaxLevelOfGroupHelper(item, 1);
+  }
+
+  private getMaxLevelOfGroupHelper(item: Item, level: number): number {
+    let maxGroupLevel = item.type === "group" ? level : 0;
     for (const element of item.item ?? []) {
-      if (element.type === "group") {
-        const childLevel = this.getMaxLevelOfGroup(element);
-        maxChildLevel = Math.max(maxChildLevel, childLevel);
-      }
+      const childLevel = this.getMaxLevelOfGroupHelper(element, level + 1);
+      maxGroupLevel = Math.max(maxGroupLevel, childLevel);
     }
-    return maxChildLevel + 1;
+    return maxGroupLevel;
   }
 
   addItemAndSetLinkIDs(newItem: Item, parent: Item): void {

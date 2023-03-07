@@ -16,39 +16,6 @@ function objectKeys<T extends object>(object: T): (keyof T)[] {
   return Object.keys(object) as (keyof T)[];
 }
 
-function deepCopyArray<T extends any[]>(array: T): T {
-  const result: any[] = [];
-  for (const element of array) {
-    if (element === null || element === undefined) {
-      result.push(element);
-    } else if (Array.isArray(element)) {
-      result.push(deepCopyArray(element));
-    } else if (typeof element === "object") {
-      result.push(deepCopyObject(element));
-    } else {
-      result.push(element);
-    }
-  }
-  return result as T;
-}
-
-export function deepCopyObject<T extends object>(object: T): T {
-  const result: Partial<T> = {};
-  for (const key of objectKeys(object)) {
-    const value = object[key];
-    if (value === null || value === undefined) {
-      result[key] = value;
-    } else if (Array.isArray(value)) {
-      result[key] = deepCopyArray(value);
-    } else if (typeof value === "object") {
-      result[key] = deepCopyObject(value);
-    } else {
-      result[key] = value;
-    }
-  }
-  return result as T;
-}
-
 function deepCopyFilteredArray<T extends any[]>(array: T): T {
   const result: any[] = [];
   for (const element of array) {
