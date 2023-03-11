@@ -1,9 +1,9 @@
-// TODO: Add time
 // TODO: Add reference
 export const answerOptionButtons = [
   { name: "integer", icon: "pin", label: "Integer" },
   { name: "date", icon: "event", label: "Date" },
   { name: "string", icon: "text_fields", label: "String" },
+  { name: "time", icon: "schedule", label: "Time" },
   { name: "coding", icon: "toc", label: "Coding" },
 ] as const;
 export type AnswerOptionButton = typeof answerOptionButtons[number];

@@ -1,38 +1,22 @@
-import {
-  AnswerOption,
-  EnableWhen,
-  Identifier,
-  IdentifierType,
-  Item,
-  Questionnaire,
-} from "@/types";
+import { AnswerOption, EnableWhen, Item, Questionnaire } from "@/types";
 import { getItemTypeIcon } from "../constants";
 import { editorTools } from "../editor";
 import { itemTools } from "../item";
 import { FHIREnableWhen } from "./enableWhen";
 import { FHIRAnswerOption, FHIRItem } from "./item";
-import { FHIRIdentifier, FHIRQuestionnaire } from "./questionnaire";
+import { FHIRQuestionnaire } from "./questionnaire";
 import { validatorUtils } from "./ValidatorUtils";
 
 export class QuestionnaireBuilder {
   constructor(private readonly qre: FHIRQuestionnaire) {}
 
   build(): Questionnaire {
-    const { identifier: fhirIdentifier, item } = this.qre;
-    let identifier: Identifier[] | undefined = undefined;
-    if (fhirIdentifier !== undefined) {
-      identifier = [];
-      for (const i of fhirIdentifier) {
-        identifier.push(this.fromIdentifier(i));
-      }
-    }
     const newItem: Item[] = [];
-    for (const i of item) {
+    for (const i of this.qre.item) {
       newItem.push(this.fromItem(i));
     }
     return {
       ...this.qre,
-      identifier,
       item: newItem,
     };
   }
@@ -102,10 +86,14 @@ export class QuestionnaireBuilder {
     if (result.valueCoding !== undefined) {
       result.__type = "coding";
       result.__icon = "radio_button_unchecked";
-      result.valueCoding.__oldDisplay = result.valueCoding.display;
       result.valueCoding.code ??= "";
       result.valueCoding.system ??= "";
       result.valueCoding.display ??= "";
+      result.__oldValueCoding = { ...result.valueCoding };
+      result.__formattedValueCoding = editorTools.formatCoding(
+        result.valueCoding,
+      );
+      result.__oldFormattedValueCoding = result.__formattedValueCoding;
     } else if (result.valueInteger !== undefined) {
       result.__type = "integer";
       result.__icon = "pin";
@@ -121,7 +109,7 @@ export class QuestionnaireBuilder {
     } else if (result.valueTime !== undefined) {
       result.__type = "time";
       result.__icon = "schedule";
-      result.__oldValueString = result.valueString;
+      result.__oldValueTime = result.valueTime;
     }
     return result;
   }
@@ -164,24 +152,5 @@ export class QuestionnaireBuilder {
       result.answer = editorTools.formatQuantity(enableWhen.answerQuantity);
     }
     return result;
-  }
-
-  private fromIdentifier(identifier: FHIRIdentifier): Identifier {
-    const { type: identifierType } = identifier;
-    let type: IdentifierType | undefined = undefined;
-    if (identifierType !== undefined) {
-      const { coding, text } = identifierType;
-      type = {
-        coding: {
-          ...coding,
-          __oldDisplay: undefined,
-        },
-        text: text,
-      };
-    }
-    return {
-      ...identifier,
-      type,
-    };
   }
 }

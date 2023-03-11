@@ -76,12 +76,11 @@ export type Answer = {
 };
 
 export type Coding = {
-  __oldDisplay?: string;
   code?: string;
   system?: string;
   display?: string;
   version?: string;
-  userSelected?: boolean;
+  userSelected?: boolean | null;
 };
 
 export type AnswerOption = {
@@ -92,6 +91,10 @@ export type AnswerOption = {
   __oldValueInteger?: string | number;
   __oldValueDate?: string;
   __oldValueString?: string;
+  __oldValueTime?: string;
+  __oldValueCoding?: Coding;
+  __formattedValueCoding?: string;
+  __oldFormattedValueCoding?: string;
   linkId?: string;
   type?: string;
   valueCoding?: Coding;
@@ -99,7 +102,6 @@ export type AnswerOption = {
   valueInteger?: string | number;
   valueDate?: string;
   valueTime?: string;
-  valueDateTime?: string;
 };
 
 export type Extension = {

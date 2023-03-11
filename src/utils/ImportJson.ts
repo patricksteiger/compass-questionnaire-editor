@@ -147,25 +147,31 @@ class FHIRValidation {
         if (answerOpt.valueCoding) {
           answerOpt.__type = "coding";
           answerOpt.__icon = "radio_button_unchecked";
-          answerOpt.valueCoding.__oldDisplay = answerOpt.valueCoding.display;
           answerOpt.valueCoding.code ??= "";
           answerOpt.valueCoding.display ??= "";
           answerOpt.valueCoding.system ??= "";
-        }
-        if (answerOpt.valueInteger) {
+          answerOpt.__oldValueCoding = { ...answerOpt.valueCoding };
+          answerOpt.__formattedValueCoding = editorTools.formatCoding(
+            answerOpt.valueCoding,
+          );
+          answerOpt.__oldFormattedValueCoding =
+            answerOpt.__formattedValueCoding;
+        } else if (answerOpt.valueInteger) {
           answerOpt.__icon = "pin";
           answerOpt.__type = "integer";
           answerOpt.__oldValueInteger = answerOpt.valueInteger;
-        }
-        if (answerOpt.valueDate) {
+        } else if (answerOpt.valueDate) {
           answerOpt.__icon = "event";
           answerOpt.__type = "date";
           answerOpt.__oldValueDate = answerOpt.valueDate;
-        }
-        if (answerOpt.valueString) {
+        } else if (answerOpt.valueString) {
           answerOpt.__icon = "text_fields";
           answerOpt.__type = "string";
           answerOpt.__oldValueString = answerOpt.valueString;
+        } else if (answerOpt.valueTime) {
+          answerOpt.__icon = "schedule";
+          answerOpt.__type = "time";
+          answerOpt.__oldValueTime = answerOpt.valueTime;
         }
       }
     }

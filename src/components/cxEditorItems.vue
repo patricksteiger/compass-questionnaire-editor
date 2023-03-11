@@ -407,7 +407,7 @@
               >
                 <q-separator />
                 <q-card>
-                  <!-- Multiple asnwers -->
+                  <!-- Multiple answers -->
                   <div
                     v-if="
                       selectedItem.type === 'choice' ||
@@ -420,7 +420,7 @@
                           v-for="answerOption in selectedItem.answerOption"
                           :key="answerOption.__id"
                         >
-                          <!-- Open Choice and Choice-->
+                          <!-- Open Choice and Choice -->
                           <q-item-section v-if="answerOption">
                             <!-- coding input answer -->
                             <div
@@ -433,36 +433,32 @@
                               <q-input
                                 class="col-12"
                                 autogrow
-                                v-model="answerOption.valueCoding.display"
+                                readonly
+                                v-model="answerOption.__formattedValueCoding"
                                 :disable="!selectedItem.__active"
-                                :error="!answerOption.valueCoding.display"
+                                :error="!answerOption.__formattedValueCoding"
+                                clickable
+                                @click="handleAnswerOptionCoding(answerOption)"
                                 :label="
-                                  answerOption.valueCoding.display !==
-                                    answerOption.valueCoding.__oldDisplay &&
-                                  !answerOption.__newAnswer
+                                  changedCoding(answerOption)
                                     ? `${$t('views.editor.originalText')}: ${
-                                        answerOption.valueCoding.__oldDisplay
+                                        answerOption.__oldFormattedValueCoding
                                       }`
-                                    : ''
+                                    : answerOption.__type
                                 "
                                 ><template v-slot:error>
                                   {{ $t("components.fieldEmpty") }} </template
                                 ><template v-slot:prepend>
                                   <q-icon :name="answerOption.__icon" />
                                 </template>
-                                <!-- reverse original text answer  -->
+                                <!-- reverse original text answer -->
                                 <q-btn
                                   flat
                                   round
                                   icon="history"
                                   :disable="!selectedItem.__active"
                                   class="q-mr-sm text-grey-8"
-                                  v-if="
-                                    answerOption.valueCoding !== undefined &&
-                                    answerOption.valueCoding.display !==
-                                      answerOption.valueCoding.__oldDisplay &&
-                                    answerOption.__newAnswer !== true
-                                  "
+                                  v-if="changedCoding(answerOption)"
                                   @click="setDisplayToOld(answerOption)"
                                   ><q-tooltip>
                                     {{ $t("components.reverseAnswer") }}
@@ -488,12 +484,12 @@
                                     ? `${$t('views.editor.originalText')}: ${
                                         answerOption.__oldValueInteger
                                       }`
-                                    : ''
+                                    : answerOption.__type
                                 "
                                 ><template v-slot:prepend>
                                   <q-icon :name="answerOption.__icon" />
                                 </template>
-                                <!-- reverse original text answer  -->
+                                <!-- reverse original text answer -->
                                 <q-btn
                                   flat
                                   round
@@ -534,7 +530,7 @@
                                     ? `${$t('views.editor.originalText')}: ${
                                         answerOption.__oldValueDate
                                       }`
-                                    : ''
+                                    : answerOption.__type
                                 "
                                 ><template v-slot:prepend>
                                   <q-icon :name="answerOption.__icon" />
@@ -579,12 +575,12 @@
                                     ? `${$t('views.editor.originalText')}: ${
                                         answerOption.__oldValueString
                                       }`
-                                    : ''
+                                    : answerOption.__type
                                 "
                                 ><template v-slot:prepend>
                                   <q-icon :name="answerOption.__icon" />
                                 </template>
-                                <!-- reverse original text answer  -->
+                                <!-- reverse original text answer -->
                                 <q-btn
                                   flat
                                   round
@@ -606,36 +602,82 @@
                                 >
                               </q-input>
                             </div>
+                            <!-- time input answer -->
+                            <div
+                              class="row"
+                              v-if="answerOption.__type === 'time'"
+                            >
+                              <q-input
+                                class="col-12"
+                                autogrow
+                                v-model="answerOption.valueTime"
+                                :disable="!selectedItem.__active"
+                                :rules="[dateTools.isTime]"
+                                :label="
+                                  answerOption.valueTime !==
+                                    answerOption.__oldValueTime &&
+                                  !answerOption.__newAnswer
+                                    ? `${$t('views.editor.originalText')}: ${
+                                        answerOption.__oldValueTime
+                                      }`
+                                    : answerOption.__type
+                                "
+                                ><template v-slot:prepend>
+                                  <q-icon :name="answerOption.__icon" />
+                                </template>
+                                <!-- reverse original time answer -->
+                                <q-btn
+                                  flat
+                                  round
+                                  icon="history"
+                                  :disable="!selectedItem.__active"
+                                  class="q-mr-sm text-grey-8"
+                                  v-if="
+                                    answerOption.valueTime !==
+                                      answerOption.__oldValueTime &&
+                                    !answerOption.__newAnswer
+                                  "
+                                  @click="
+                                    answerOption.valueTime =
+                                      answerOption.__oldValueTime
+                                  "
+                                  ><q-tooltip>
+                                    {{ $t("components.reverseAnswer") }}
+                                  </q-tooltip></q-btn
+                                >
+                              </q-input>
+                            </div>
                           </q-item-section>
                           <q-item-section top side class="justify-center">
                             <div class="row items-center">
                               <!--  If answer Item is Coding Display Code and System input-->
-                              <div
-                                class="row"
-                                v-if="
-                                  answerOption.__type === 'coding' &&
-                                  answerOption.valueCoding !== undefined
-                                "
-                              >
-                                <q-input
-                                  :disable="!selectedItem.__active"
-                                  :label="$t('views.editor.code')"
-                                  outlined
-                                  dense
-                                  class="col-5"
-                                  v-model="answerOption.valueCoding.code"
-                                ></q-input
-                                ><q-input
-                                  :disable="!selectedItem.__active"
-                                  :label="$t('views.editor.system')"
-                                  outlined
-                                  dense
-                                  class="col-5"
-                                  v-model="answerOption.valueCoding.system"
-                                ></q-input>
-                              </div>
+                              <!-- TODO: remove comment if not needed -->
+                              <!-- <div -->
+                              <!--   class="row" -->
+                              <!--   v-if=" -->
+                              <!--     answerOption.__type === 'coding' && -->
+                              <!--     answerOption.valueCoding !== undefined -->
+                              <!--   " -->
+                              <!-- > -->
+                              <!--   <q-input -->
+                              <!--     :disable="!selectedItem.__active" -->
+                              <!--     :label="$t('views.editor.code')" -->
+                              <!--     outlined -->
+                              <!--     dense -->
+                              <!--     class="col-5" -->
+                              <!--     v-model="answerOption.valueCoding.code" -->
+                              <!--   ></q-input -->
+                              <!--   ><q-input -->
+                              <!--     :disable="!selectedItem.__active" -->
+                              <!--     :label="$t('views.editor.system')" -->
+                              <!--     outlined -->
+                              <!--     dense -->
+                              <!--     class="col-5" -->
+                              <!--     v-model="answerOption.valueCoding.system" -->
+                              <!--   ></q-input> -->
+                              <!-- </div> -->
                               <div class="text-grey-8">
-                                <!-- Remove answer  -->
+                                <!-- Remove answer -->
                                 <q-btn
                                   flat
                                   round
@@ -758,6 +800,16 @@
                             :type="'number'"
                             dense
                           />
+                          <q-input
+                            v-else-if="enableWhen.type === 'coding'"
+                            :disable="!selectedItem.__active"
+                            :label="$t('views.editor.answer')"
+                            class="col-4"
+                            v-model="enableWhen.answer"
+                            :type="'text'"
+                            readonly
+                            dense
+                          />
                           <!-- enableWhen decimal -->
                           <q-input
                             v-else-if="enableWhen.type === 'decimal'"
@@ -800,7 +852,6 @@
                             dense
                             :rules="[dateTools.isDateTime]"
                           />
-                          <!-- TODO: implement quantity input -->
                           <q-input
                             v-else-if="enableWhen.type === 'quantity'"
                             :disable="!selectedItem.__active"
@@ -835,10 +886,10 @@
                             </q-tooltip>
                           </q-btn>
                         </div>
-                        <!-- add new Condition -->
                       </q-card-section>
                     </q-item-section>
                   </q-list>
+                  <!-- add new Condition -->
                   <div class="q-pa-sm">
                     <q-btn
                       padding="none xl"
@@ -1040,10 +1091,10 @@
       </q-card>
     </q-dialog>
     <!-- Condition Item Dialog -->
-    <q-dialog v-model="enableWhenLayout">
+    <q-dialog v-model="enableWhenLayout" v-if="selected !== null">
       <cx-enable-When
-        v-if="selected !== null"
         :internalID="selected"
+        :enableWhenItem="enableWhenItem"
         v-on:choiceQuestion="onSelectedQuestionsAnswer"
         v-on:question="onSelectedQuestion"
       >
@@ -1142,8 +1193,8 @@
 
   <!-- Choose answer for specific enableWhen types -->
   <q-dialog
-    v-model="enableWhenChooseAnswerLayout"
-    v-if="enableWhenChooseAnswerLayout && chosenEnableWhen !== undefined"
+    v-model="chosenEnableWhenAnswerLayout"
+    v-if="chosenEnableWhenAnswerLayout && chosenEnableWhen !== undefined"
   >
     <q-layout view="Lhh lpR fff" container class="bg-white">
       <q-page-container>
@@ -1199,7 +1250,72 @@
       </q-page-container>
     </q-layout>
   </q-dialog>
+
+  <!-- Handle complex answerOptions -->
+  <q-dialog
+    v-model="chosenAnswerOptionLayout"
+    v-if="chosenAnswerOptionLayout && answerOptionItem !== undefined"
+  >
+    <q-layout view="Lhh lpR fff" container class="bg-white">
+      <q-page-container>
+        <q-page padding>
+          <q-toolbar class="bg-primary text-white shadow-2">
+            <q-toolbar-title>{{
+              `AnswerOption: ${answerOptionItem.__type}`
+            }}</q-toolbar-title>
+          </q-toolbar>
+          <div
+            class="q-pa-md"
+            v-if="answerOptionItem.valueCoding !== undefined"
+          >
+            <q-input
+              :label="'Version'"
+              class="col-4"
+              v-model="answerOptionItem.valueCoding.version"
+              type="text"
+              dense
+            />
+            <q-input
+              :label="'Code'"
+              class="col-4"
+              v-model="answerOptionItem.valueCoding.code"
+              type="text"
+              dense
+            />
+            <q-input
+              :label="'Display'"
+              class="col-4"
+              v-model="answerOptionItem.valueCoding.display"
+              type="text"
+              dense
+            />
+            <q-input
+              :label="'System'"
+              class="col-4"
+              v-model="answerOptionItem.valueCoding.system"
+              type="text"
+              dense
+            />
+            <q-toggle
+              :label="'UserSelected'"
+              class="col-4"
+              v-model.boolean="answerOptionItem.valueCoding.userSelected"
+              toggle-indeterminate
+              dense
+            />
+            <q-separator />
+            <q-btn
+              class="col-4"
+              icon="add"
+              @click="setValueCodingAnswer(answerOptionItem)"
+            />
+          </div>
+        </q-page>
+      </q-page-container>
+    </q-layout>
+  </q-dialog>
 </template>
+
 <script lang="ts">
 import {
   itemTypeIcons,
@@ -1258,12 +1374,28 @@ export default defineComponent({
     const enableWhen: EnableWhen = { question: "", operator: "" };
     const enableWhenItem: Ref<EnableWhen> = ref(enableWhen);
     const chosenEnableWhen: Ref<EnableWhen | undefined> = ref(undefined);
-    const setDisplayToOld = (answerOption: AnswerOption) => {
+    const setDisplayToOld = (answerOption: AnswerOption): void => {
       if (answerOption.valueCoding !== undefined) {
-        answerOption.valueCoding.display =
-          answerOption.valueCoding.__oldDisplay || "";
+        answerOption.valueCoding = { ...answerOption.__oldValueCoding };
+        answerOption.__formattedValueCoding =
+          answerOption.__oldFormattedValueCoding;
       }
     };
+    const changedCoding = (answerOption: AnswerOption): boolean => {
+      if (answerOption.__newAnswer) return false;
+      const old = answerOption.__oldValueCoding;
+      if (old === undefined) return false;
+      const current = answerOption.valueCoding;
+      if (current === undefined) return true;
+      return (
+        current.code !== old.code ||
+        current.system !== old.system ||
+        current.display !== old.display ||
+        current.version !== old.version ||
+        current.userSelected !== old.userSelected
+      );
+    };
+    const answerOptionItem: Ref<AnswerOption | undefined> = ref(undefined);
     return {
       languageLayout: ref(false),
       languageSplitter: ref(40),
@@ -1278,8 +1410,9 @@ export default defineComponent({
       enableWhenItem,
       enableBehaviors,
       setDisplayToOld,
+      changedCoding,
       enableWhenLayout: ref(false),
-      enableWhenChooseAnswerLayout: ref(false),
+      chosenEnableWhenAnswerLayout: ref(false),
       comparators,
       chosenEnableWhen,
       alert: ref(false),
@@ -1288,6 +1421,8 @@ export default defineComponent({
       COLORS,
       uuidv4,
       answerOptionButtons,
+      chosenAnswerOptionLayout: ref(false),
+      answerOptionItem,
       operators,
       languages,
       language,
@@ -1312,15 +1447,29 @@ export default defineComponent({
     handleQuantityAnswer(enableWhen: EnableWhen): void {
       enableWhen.answerQuantity ??= {};
       this.chosenEnableWhen = enableWhen;
-      this.enableWhenChooseAnswerLayout = true;
+      this.chosenEnableWhenAnswerLayout = true;
     },
     setQuantityAnswer(enableWhen: EnableWhen | undefined): void {
-      if (enableWhen !== undefined && enableWhen.answerQuantity !== undefined) {
+      if (enableWhen?.answerQuantity !== undefined) {
         enableWhen.answer = this.editorTools.formatQuantity(
           enableWhen.answerQuantity,
         );
       }
-      this.enableWhenChooseAnswerLayout = false;
+      this.chosenEnableWhenAnswerLayout = false;
+    },
+    handleAnswerOptionCoding(answerOption: AnswerOption): void {
+      answerOption.valueCoding ??= {};
+      answerOption.__formattedValueCoding ??= "";
+      this.answerOptionItem = answerOption;
+      this.chosenAnswerOptionLayout = true;
+    },
+    setValueCodingAnswer(answerOption: AnswerOption | undefined): void {
+      if (answerOption?.valueCoding !== undefined) {
+        answerOption.__formattedValueCoding = this.editorTools.formatCoding(
+          answerOption.valueCoding,
+        );
+      }
+      this.chosenAnswerOptionLayout = false;
     },
     deleteLanguage(language: Language): void {
       const accepted = confirm(
@@ -1435,15 +1584,16 @@ export default defineComponent({
       }
     },
     // FIXME: How are choice, open-choice with answerValueSet handled?
-    // FIXME: Invalid values of answOptions exist? DateTime, ...
     // Called for answers of choice/open-choice
     onSelectedQuestionsAnswer(e: AnswerOption): void {
       this.enableWhenItem.question = e.linkId ?? "";
       this.enableWhenItem.type = e.__type;
+      if (!this.enableWhenItem.operator) {
+        this.enableWhenItem.operator = "=";
+      }
       if (e.__type === "coding") {
-        this.enableWhenItem.answer = e.valueCoding?.code;
-        this.enableWhenItem.system = e.valueCoding?.system;
-        this.enableWhenItem.display = e.valueCoding?.display;
+        this.enableWhenItem.answer = e.__formattedValueCoding;
+        this.enableWhenItem.answerCoding = { ...e.valueCoding };
       } else if (e.__type === "integer") {
         if (typeof e.valueInteger === "number") {
           this.enableWhenItem.answer = e.valueInteger.toString();
@@ -1460,8 +1610,6 @@ export default defineComponent({
         this.enableWhenItem.answer = e.valueString;
       } else if (e.__type === "time") {
         this.enableWhenItem.answer = e.valueTime;
-      } else if (e.__type === "dateTime") {
-        this.enableWhenItem.answer = e.valueDateTime;
       }
 
       this.enableWhenLayout = false;
@@ -1470,6 +1618,9 @@ export default defineComponent({
       this.enableWhenItem.question = e.linkId ?? "";
       this.enableWhenItem.answer = "";
       this.enableWhenItem.type = e.type;
+      if (e.linkId !== undefined) {
+        this.enableWhenItem.operator = "=";
+      }
       this.enableWhenLayout = false;
     },
     onChangeConditionBehavior(behavior: EnableBehavior | undefined): void {
@@ -1808,17 +1959,16 @@ export default defineComponent({
           __newAnswer: true,
           __type: e.name,
         };
+        if (e.name === "integer") {
+          newItemAnswer.valueInteger = "";
+        } else if (e.name === "date") {
+          newItemAnswer.valueDate = "";
+        } else if (e.name === "string") {
+          newItemAnswer.valueString = "";
+        } else if (e.name === "time") {
+          newItemAnswer.valueTime = "";
+        }
       }
-      if (e.name === "integer") {
-        newItemAnswer.valueInteger = "";
-      }
-      if (e.name === "date") {
-        newItemAnswer.valueDate = "";
-      }
-      if (e.name === "string") {
-        newItemAnswer.valueString = "";
-      }
-
       this.selectedItem.answerOption.push(newItemAnswer);
     },
     onRemoveAnswer(e: AnswerOption) {

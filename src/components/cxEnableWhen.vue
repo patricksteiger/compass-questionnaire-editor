@@ -96,6 +96,8 @@
                 </div>
                 <q-list bordered separator v-if="selectedItem?.answerOption"
                   ><q-item
+                    v-for="answerOption in selectedItem.answerOption"
+                    :key="answerOption.__id"
                     clickable
                     @dblclick="
                       onSelectAnswer({
@@ -104,8 +106,6 @@
                         type: selectedItem?.type,
                       })
                     "
-                    v-for="answerOption in selectedItem.answerOption"
-                    :key="answerOption.__id"
                   >
                     <!--Coding Answer type -->
                     <q-item-section
@@ -152,6 +152,10 @@
                         valueString
                       </q-item-label>
                     </q-item-section>
+                    <q-item-section v-if="answerOption.__type === 'time'">
+                      <q-item-label>{{ answerOption.valueTime }}</q-item-label>
+                      <q-item-label caption lines="2"> valueTime </q-item-label>
+                    </q-item-section>
                   </q-item>
                 </q-list>
               </div>
@@ -194,11 +198,14 @@ import { defineComponent, Ref, ref } from "vue";
 import { editorTools } from "../utils/editor";
 import {
   AnswerOption,
+  EnableWhen,
   Item,
+  Questionnaire,
   // eslint-disable-next-line no-unused-vars
   SelectableQuestion,
   SelectedQuestion,
 } from "@/types";
+import { defaultLanguage } from "@/i18n";
 
 export default defineComponent({
   props: {
@@ -206,33 +213,40 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    enableWhenItem: {
+      type: Object,
+      required: true,
+    },
   },
   setup() {
-    const filter = ref("de");
+    const filter = ref(defaultLanguage);
     const selectedItem: Ref<Item | undefined> = ref(undefined);
     const selected: Ref<string | null> = ref(null);
     const item: Ref<Item[]> = ref([]);
+    const questionnaireGUI: Ref<Questionnaire | undefined> = ref(undefined);
+    const enableWhen: Ref<EnableWhen | undefined> = ref(undefined);
     return {
       splitterModel: ref(50), // start at 50%
-      edtiorTools: editorTools,
+      editorTools,
       filter,
       selectedItem,
       selected,
       item,
-    };
-  },
-  data() {
-    return {
-      questionnaireGUI: {
-        item: [],
-      },
+      questionnaireGUI,
+      enableWhen,
     };
   },
   created(): void {
-    this.questionnaireGUI = this.getQuestionnaireImportedJSON
-      ? this.getQuestionnaireImportedJSON
-      : {};
-    this.item = this.questionnaireGUI.item || [];
+    this.enableWhen = this.enableWhenItem as EnableWhen;
+    this.questionnaireGUI = this.getQuestionnaireImportedJSON as Questionnaire;
+    this.item = this.questionnaireGUI.item;
+    this.selectedItem = editorTools.getItemByLinkId(
+      this.enableWhen.question,
+      this.item,
+    );
+    if (this.selectedItem !== undefined) {
+      this.selected = this.selectedItem.__internalID;
+    }
   },
   computed: {
     ...mapGetters(["getQuestionnaireImportedJSON"]),
@@ -243,7 +257,7 @@ export default defineComponent({
         this.selectedItem = undefined;
         return;
       }
-      const item = this.edtiorTools.getItemByInternalId(val, this.item);
+      const item = this.editorTools.getItemByInternalId(val, this.item);
       if (item === undefined) {
         console.error(`LinkId ${val} is not on an available Node`);
         return;

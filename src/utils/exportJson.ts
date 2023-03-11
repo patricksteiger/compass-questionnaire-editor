@@ -177,24 +177,25 @@ function getObjectWithoutItemsDisabled(
       }
     }
 
-    //answerOption and Value Set
-    if (item.answerValueSet !== "") {
-      delete item.answerOption;
-    }
-    if (item.answerOption !== undefined) {
-      //answerOption has data
-      if (item.answerOption.length > 0) {
-        delete item.answerValueSet;
-      }
-      //remove if is empty
-      if (item.answerOption.length === 0) {
-        delete item.answerOption;
-      }
-    }
-
     //remove empty answerValueSet
     if (item.answerValueSet === "") {
       delete item.answerValueSet;
+    }
+
+    //answerOption and Value Set
+    if (item.answerValueSet) {
+      delete item.answerOption;
+    } else if (item.answerOption !== undefined) {
+      //remove if is empty
+      if (item.answerOption.length > 0) {
+        for (const answer of item.answerOption) {
+          if (answer.valueCoding?.userSelected === null) {
+            delete answer.valueCoding.userSelected;
+          }
+        }
+      } else {
+        delete item.answerOption;
+      }
     }
 
     if (item.enableWhen !== undefined) {
@@ -224,14 +225,18 @@ function getObjectWithoutItemsDisabled(
             enableWhen.answerString = enableWhen.answer;
           } else if (
             enableWhen.type === "choice" ||
-            enableWhen.type === "open-choice" ||
-            enableWhen.type === "coding"
+            enableWhen.type === "open-choice"
           ) {
             enableWhen.answerCoding = {
               code: enableWhen.answer || "",
               display: enableWhen.display || "",
               system: enableWhen.system || "",
             };
+          } else if (enableWhen.type === "coding") {
+            // answer should be already set
+            if (enableWhen.answerCoding?.userSelected === null) {
+              delete enableWhen.answerCoding.userSelected;
+            }
           } else if (enableWhen.type === "time") {
             enableWhen.answerTime = enableWhen.answer;
           } else if (enableWhen.type === "dateTime") {

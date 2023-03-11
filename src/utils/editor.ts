@@ -226,15 +226,17 @@ class EditorTools {
 
   getItemByInternalId(
     internalId: string,
-    rootItem: Item[] = [],
+    rootItem: Item[] | undefined,
   ): Item | undefined {
-    for (const item of rootItem) {
-      if (item.__internalID === internalId) {
-        return item;
-      }
-      const result = this.getItemByInternalId(internalId, item.item);
-      if (result !== undefined) {
-        return result;
+    if (rootItem !== undefined) {
+      for (const item of rootItem) {
+        if (item.__internalID === internalId) {
+          return item;
+        }
+        const result = this.getItemByInternalId(internalId, item.item);
+        if (result !== undefined) {
+          return result;
+        }
       }
     }
     return undefined;
@@ -493,7 +495,7 @@ class EditorTools {
   }
 
   formatQuantity(quantity: Quantity): string {
-    let result: string = "";
+    let result = "";
     if (quantity.comparator) {
       result += quantity.comparator;
     }
@@ -504,12 +506,30 @@ class EditorTools {
     if (quantity.unit) {
       const prefix = result.length > 0 ? " " : "";
       result += prefix + quantity.unit;
-      if (quantity.code) {
-        result += ` (${quantity.code})`;
-      }
-    } else if (quantity.code) {
+    }
+    if (quantity.code) {
       const prefix = result.length > 0 ? " " : "";
       result += prefix + `(${quantity.code})`;
+    }
+    return result;
+  }
+
+  formatCoding(coding: Coding): string {
+    let result = "";
+    if (coding.display) {
+      result += coding.display;
+    }
+    if (coding.code) {
+      const prefix = result.length > 0 ? " " : "";
+      result += prefix + `(${coding.code})`;
+    }
+    if (coding.system) {
+      const prefix = result.length > 0 ? " " : "";
+      result += prefix + `[${coding.system}]`;
+    }
+    if (coding.version) {
+      const prefix = result.length > 0 ? " " : "";
+      result += prefix + `(Vers.: ${coding.version})`;
     }
     return result;
   }
