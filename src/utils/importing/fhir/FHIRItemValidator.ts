@@ -95,6 +95,7 @@ export class FHIRItemValidator {
     enableWhen: FHIREnableWhen,
     currentItem: FHIRItem,
   ): void {
+    // FIXME: What to do when invalid type for answerOption question?
     if (linkedItem.type === "boolean" || enableWhen.operator === "exists") {
       if (enableWhen.answerBoolean === undefined) {
         this.resetEnableWhenAnswers(enableWhen);
@@ -128,14 +129,11 @@ export class FHIRItemValidator {
         this.resetEnableWhenAnswers(enableWhen);
       }
     } else if (linkedItem.type === "open-choice") {
-      if (
-        enableWhen.answerString === undefined &&
-        enableWhen.answerCoding === undefined
-      ) {
+      if (this.invalidOpenChoiceTypes(enableWhen)) {
         this.resetEnableWhenAnswers(enableWhen);
       }
     } else if (linkedItem.type === "choice") {
-      if (enableWhen.answerCoding === undefined) {
+      if (this.invalidOpenChoiceTypes(enableWhen)) {
         this.resetEnableWhenAnswers(enableWhen);
       }
     } else if (linkedItem.type === "group" || linkedItem.type === "display") {
@@ -149,6 +147,16 @@ export class FHIRItemValidator {
         this.resetEnableWhenAnswers(enableWhen);
       }
     }
+  }
+
+  private invalidOpenChoiceTypes(enableWhen: FHIREnableWhen): boolean {
+    return (
+      enableWhen.answerDate !== undefined &&
+      enableWhen.answerTime !== undefined &&
+      enableWhen.answerInteger !== undefined &&
+      enableWhen.answerCoding !== undefined &&
+      enableWhen.answerString !== undefined
+    );
   }
 
   private resetEnableWhenAnswers(enableWhen: FHIREnableWhen): void {

@@ -1,15 +1,14 @@
 import { ItemType, getItemTypeIcon } from "./constants";
 import { v4 as uuidv4 } from "uuid";
-import {
-  Answer,
-  AnswerOption,
-  Question,
-  Item,
-  Questionnaire,
-  Coding,
-  Quantity,
-} from "@/types";
+import { Question, Item, Questionnaire, Coding, Quantity } from "@/types";
 import { itemTools } from "./item";
+
+// Used for exhaustive switch-statements
+export class UnreachableError extends Error {
+  constructor(unreachable: never) {
+    super(`Unreachable case: ${JSON.stringify(unreachable)}`);
+  }
+}
 
 function createNewItem(type: ItemType): Item {
   return {
@@ -290,27 +289,6 @@ class EditorTools {
         this.toggleChildren(item.item, activate);
       }
     }
-  }
-
-  getNewAnswerValueCoding(
-    answer: Answer,
-    arrayAnswers: AnswerOption[],
-  ): AnswerOption {
-    const id = arrayAnswers.length + 1;
-    const { text } = answer;
-    const newAnswer: Coding = {
-      code: "",
-      system: "",
-      display: text,
-    };
-    const answerOption: AnswerOption = {
-      __id: id,
-      __type: "coding",
-      __icon: "radio_button_unchecked",
-      __newAnswer: true,
-      valueCoding: newAnswer,
-    };
-    return answerOption;
   }
 
   createItemWithType(questionType: ItemType): Item {

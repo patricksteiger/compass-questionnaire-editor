@@ -1,5 +1,5 @@
 import { AnswerOption, EnableWhen, Item, Questionnaire } from "@/types";
-import { getItemTypeIcon } from "../constants";
+import { getAnswerOptionIcon, getItemTypeIcon } from "../constants";
 import { editorTools } from "../editor";
 import { itemTools } from "../item";
 import { FHIREnableWhen } from "./enableWhen";
@@ -49,7 +49,7 @@ export class QuestionnaireBuilder {
       newAnswerOption = [];
       for (let i = 0; i < answerOption.length; i++) {
         const a = answerOption[i];
-        newAnswerOption.push(this.fromAnswerOption(a, i + 1));
+        newAnswerOption.push(this.fromAnswerOption(a));
       }
     }
     return {
@@ -75,17 +75,14 @@ export class QuestionnaireBuilder {
     };
   }
 
-  private fromAnswerOption(
-    answerOption: FHIRAnswerOption,
-    id: number,
-  ): AnswerOption {
+  private fromAnswerOption(answerOption: FHIRAnswerOption): AnswerOption {
     const result: AnswerOption = {
       ...answerOption,
-      __id: id,
+      __id: itemTools.createAnswerOptionId(),
     };
     if (result.valueCoding !== undefined) {
       result.__type = "coding";
-      result.__icon = "radio_button_unchecked";
+      result.__icon = getAnswerOptionIcon(result.__type);
       result.valueCoding.code ??= "";
       result.valueCoding.system ??= "";
       result.valueCoding.display ??= "";
@@ -96,19 +93,19 @@ export class QuestionnaireBuilder {
       result.__oldFormattedValueCoding = result.__formattedValueCoding;
     } else if (result.valueInteger !== undefined) {
       result.__type = "integer";
-      result.__icon = "pin";
+      result.__icon = getAnswerOptionIcon(result.__type);
       result.__oldValueInteger = result.valueInteger;
     } else if (result.valueDate !== undefined) {
       result.__type = "date";
-      result.__icon = "calendar_month";
+      result.__icon = getAnswerOptionIcon(result.__type);
       result.__oldValueDate = result.valueDate;
     } else if (result.valueString !== undefined) {
       result.__type = "string";
-      result.__icon = "text_fields";
+      result.__icon = getAnswerOptionIcon(result.__type);
       result.__oldValueString = result.valueString;
     } else if (result.valueTime !== undefined) {
       result.__type = "time";
-      result.__icon = "schedule";
+      result.__icon = getAnswerOptionIcon(result.__type);
       result.__oldValueTime = result.valueTime;
     }
     return result;
@@ -123,31 +120,49 @@ export class QuestionnaireBuilder {
       enableWhen.question,
     );
     if (linkedItem === undefined) {
+      // TODO: Is this a warning/error?
       console.error(`EnableWhen linkId ${enableWhen.question} must exist.`);
     } else {
       result.type =
         linkedItem.type !== "display" && linkedItem.type !== "group"
           ? linkedItem.type
           : undefined;
+      result.__answerOption =
+        linkedItem.type === "choice" || linkedItem.type === "open-choice";
     }
     if (enableWhen.answerBoolean !== undefined) {
       result.answer = String(enableWhen.answerBoolean);
     } else if (enableWhen.answerInteger !== undefined) {
       result.answer = String(enableWhen.answerInteger);
+      if (result.__answerOption) {
+        result.type = "integer";
+      }
     } else if (enableWhen.answerDecimal !== undefined) {
       result.answer = String(enableWhen.answerDecimal);
     } else if (enableWhen.answerDate !== undefined) {
       result.answer = enableWhen.answerDate;
+      if (result.__answerOption) {
+        result.type = "date";
+      }
     } else if (enableWhen.answerTime !== undefined) {
       result.answer = enableWhen.answerTime;
+      if (result.__answerOption) {
+        result.type = "time";
+      }
     } else if (enableWhen.answerDateTime !== undefined) {
       result.answer = enableWhen.answerDateTime;
     } else if (enableWhen.answerString !== undefined) {
       result.answer = enableWhen.answerString;
+      if (result.__answerOption) {
+        result.type = "string";
+      }
     } else if (enableWhen.answerCoding !== undefined) {
-      result.answer = enableWhen.answerCoding.code;
+      result.answer = editorTools.formatCoding(enableWhen.answerCoding);
       result.system = enableWhen.answerCoding.system;
       result.display = enableWhen.answerCoding.display;
+      if (result.__answerOption) {
+        result.type = "coding";
+      }
     } else if (enableWhen.answerQuantity !== undefined) {
       result.answer = editorTools.formatQuantity(enableWhen.answerQuantity);
     }

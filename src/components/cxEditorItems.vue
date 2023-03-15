@@ -684,7 +684,7 @@
                                   color="grey-6"
                                   icon="highlight_off"
                                   :disable="!selectedItem.__active"
-                                  @click="onRemoveAnswer(answerOption)"
+                                  @click="removeAnswerOption(answerOption)"
                                   ><q-tooltip>
                                     {{ $t("components.remove") }}
                                   </q-tooltip></q-btn
@@ -711,7 +711,7 @@
                           color="primary"
                           :icon="answerType.icon"
                           :label="answerType.label"
-                          @click="onClickAddAnswer(answerType)"
+                          @click="addAnswerOption(answerType)"
                         />
                       </q-fab>
                     </div>
@@ -794,16 +794,27 @@
                             v-else-if="enableWhen.type === 'integer'"
                             @keypress="onlyNumber"
                             :disable="!selectedItem.__active"
-                            :label="$t('views.editor.answer')"
+                            :label="
+                              $t('views.editor.answer') +
+                              (enableWhen.__answerOption
+                                ? ' (answerOption)'
+                                : '')
+                            "
                             class="col-4"
                             v-model="enableWhen.answer"
+                            :readonly="enableWhen.__answerOption"
                             :type="'number'"
                             dense
                           />
                           <q-input
                             v-else-if="enableWhen.type === 'coding'"
                             :disable="!selectedItem.__active"
-                            :label="$t('views.editor.answer')"
+                            :label="
+                              $t('views.editor.answer') +
+                              (enableWhen.__answerOption
+                                ? ' (answerOption)'
+                                : '')
+                            "
                             class="col-4"
                             v-model="enableWhen.answer"
                             :type="'text'"
@@ -825,20 +836,32 @@
                           <q-input
                             v-else-if="enableWhen.type === 'date'"
                             :disable="!selectedItem.__active"
-                            :label="$t('views.editor.answer')"
+                            :label="
+                              $t('views.editor.answer') +
+                              (enableWhen.__answerOption
+                                ? ' (answerOption)'
+                                : '')
+                            "
                             class="col-4"
                             v-model="enableWhen.answer"
                             :type="'text'"
+                            :readonly="enableWhen.__answerOption"
                             dense
                             :rules="[dateTools.isDate]"
                           />
                           <q-input
                             v-else-if="enableWhen.type === 'time'"
                             :disable="!selectedItem.__active"
-                            :label="$t('views.editor.answer')"
+                            :label="
+                              $t('views.editor.answer') +
+                              (enableWhen.__answerOption
+                                ? ' (answerOption)'
+                                : '')
+                            "
                             class="col-4"
                             v-model="enableWhen.answer"
                             :type="'text'"
+                            :readonly="enableWhen.__answerOption"
                             dense
                             :rules="[dateTools.isTime]"
                           />
@@ -863,6 +886,21 @@
                             readonly
                             clickable
                             @click="handleQuantityAnswer(enableWhen)"
+                          />
+                          <q-input
+                            v-else-if="enableWhen.type === 'string'"
+                            :disable="!selectedItem.__active"
+                            :label="
+                              $t('views.editor.answer') +
+                              (enableWhen.__answerOption
+                                ? ' (answerOption)'
+                                : '')
+                            "
+                            class="col-4"
+                            v-model="enableWhen.answer"
+                            :type="'text'"
+                            :readonly="enableWhen.__answerOption"
+                            dense
                           />
                           <q-input
                             v-else
@@ -1333,7 +1371,7 @@ import {
 } from "@/utils/constants";
 import { useQuasar } from "quasar";
 import { defineComponent, Ref, ref } from "vue";
-import { editorTools } from "@/utils/editor";
+import { editorTools, UnreachableError } from "@/utils/editor";
 import { dateTools } from "@/utils/date";
 import { mapGetters } from "vuex";
 import { v4 as uuidv4 } from "uuid";
@@ -1351,6 +1389,7 @@ import {
   comparators,
 } from "@/types";
 import { Language, languages } from "@/store";
+import { itemTools } from "@/utils/item";
 
 export default defineComponent({
   components: {
@@ -1586,32 +1625,40 @@ export default defineComponent({
     // FIXME: How are choice, open-choice with answerValueSet handled?
     // Called for answers of choice/open-choice
     onSelectedQuestionsAnswer(e: AnswerOption): void {
+      if (e.__type === undefined) {
+        console.log("AnswerOption always needs a type");
+        return;
+      }
       this.enableWhenItem.question = e.linkId ?? "";
       this.enableWhenItem.type = e.__type;
       if (!this.enableWhenItem.operator) {
         this.enableWhenItem.operator = "=";
       }
-      if (e.__type === "coding") {
-        this.enableWhenItem.answer = e.__formattedValueCoding;
-        this.enableWhenItem.answerCoding = { ...e.valueCoding };
-      } else if (e.__type === "integer") {
-        if (typeof e.valueInteger === "number") {
-          this.enableWhenItem.answer = e.valueInteger.toString();
-        } else {
-          this.enableWhenItem.answer = e.valueInteger;
-        }
-      } else if (e.__type === "date") {
-        this.enableWhenItem.answer = e.valueDate;
-      } else if (
-        e.__type === "string" ||
-        e.__type === "text" ||
-        e.__type === "url"
-      ) {
-        this.enableWhenItem.answer = e.valueString;
-      } else if (e.__type === "time") {
-        this.enableWhenItem.answer = e.valueTime;
+      switch (e.__type) {
+        case "coding":
+          this.enableWhenItem.answer = e.__formattedValueCoding;
+          this.enableWhenItem.answerCoding = { ...e.valueCoding };
+          break;
+        case "integer":
+          if (typeof e.valueInteger === "number") {
+            this.enableWhenItem.answer = e.valueInteger.toString();
+          } else {
+            this.enableWhenItem.answer = e.valueInteger;
+          }
+          break;
+        case "date":
+          this.enableWhenItem.answer = e.valueDate;
+          break;
+        case "string":
+          this.enableWhenItem.answer = e.valueString;
+          break;
+        case "time":
+          this.enableWhenItem.answer = e.valueTime;
+          break;
+        default:
+          throw new UnreachableError(e.__type);
       }
-
+      this.enableWhenItem.__answerOption = true;
       this.enableWhenLayout = false;
     },
     onSelectedQuestion(e: SelectedQuestion): void {
@@ -1621,6 +1668,7 @@ export default defineComponent({
       if (e.linkId !== undefined) {
         this.enableWhenItem.operator = "=";
       }
+      this.enableWhenItem.__answerOption = false;
       this.enableWhenLayout = false;
     },
     onChangeConditionBehavior(behavior: EnableBehavior | undefined): void {
@@ -1937,41 +1985,41 @@ export default defineComponent({
       const rootItems = questionnaire.item;
       this.editorTools.addItemToRootAndSetLinkIDs(newItem, rootItems);
     },
-    onClickAddAnswer(e: AnswerOptionButton) {
+    addAnswerOption(e: AnswerOptionButton): void {
       if (this.selectedItem === undefined) {
-        console.error("Selected item should not be undefined");
+        console.error("Can't add answerOption if no item is selected!");
         return;
       }
-      let newItemAnswer: AnswerOption;
-
       this.selectedItem.answerOption ??= [];
 
-      if (e.name === "coding") {
-        newItemAnswer = this.editorTools.getNewAnswerValueCoding(
-          // { text: "", type: this.selectedItem.type },
-          { text: "", type: e.name },
-          this.selectedItem.answerOption,
-        );
-      } else {
-        newItemAnswer = {
-          __icon: e.icon,
-          __id: this.selectedItem.answerOption.length,
-          __newAnswer: true,
-          __type: e.name,
-        };
-        if (e.name === "integer") {
-          newItemAnswer.valueInteger = "";
-        } else if (e.name === "date") {
-          newItemAnswer.valueDate = "";
-        } else if (e.name === "string") {
-          newItemAnswer.valueString = "";
-        } else if (e.name === "time") {
-          newItemAnswer.valueTime = "";
-        }
+      const answerOption: AnswerOption = {
+        __icon: e.icon,
+        __id: itemTools.createAnswerOptionId(),
+        __newAnswer: true,
+        __type: e.name,
+      };
+      switch (e.name) {
+        case "coding":
+          answerOption.valueCoding = { code: "", display: "", system: "" };
+          break;
+        case "integer":
+          answerOption.valueInteger = "";
+          break;
+        case "date":
+          answerOption.valueDate = "";
+          break;
+        case "string":
+          answerOption.valueString = "";
+          break;
+        case "time":
+          answerOption.valueTime = "";
+          break;
+        default:
+          throw new UnreachableError(e);
       }
-      this.selectedItem.answerOption.push(newItemAnswer);
+      this.selectedItem.answerOption.push(answerOption);
     },
-    onRemoveAnswer(e: AnswerOption) {
+    removeAnswerOption(e: AnswerOption) {
       if (this.selectedItem === undefined) {
         console.error("Can't remove answer from not selected item");
         return;

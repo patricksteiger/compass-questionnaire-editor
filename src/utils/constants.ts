@@ -1,12 +1,23 @@
 // TODO: Add reference
 export const answerOptionButtons = [
   { name: "integer", icon: "pin", label: "Integer" },
-  { name: "date", icon: "event", label: "Date" },
+  { name: "date", icon: "calendar_month", label: "Date" },
   { name: "string", icon: "text_fields", label: "String" },
   { name: "time", icon: "schedule", label: "Time" },
-  { name: "coding", icon: "toc", label: "Coding" },
+  { name: "coding", icon: "code", label: "Coding" },
 ] as const;
 export type AnswerOptionButton = typeof answerOptionButtons[number];
+export type AnswerOptionType = typeof answerOptionButtons[number]["name"];
+export type AnswerOptionIcon = typeof answerOptionButtons[number]["icon"];
+
+export function getAnswerOptionIcon(type: AnswerOptionType): AnswerOptionIcon {
+  const answerOptionButton = answerOptionButtons.find((a) => a.name === type);
+  if (answerOptionButton === undefined) {
+    console.error(`Illegal AnswerOptionType: ${type}`);
+    return "" as unknown as AnswerOptionIcon;
+  }
+  return answerOptionButton.icon;
+}
 
 export const allItemTypes = [
   "group",

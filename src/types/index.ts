@@ -1,5 +1,5 @@
 import { Language } from "@/store";
-import { ItemType } from "@/utils/constants";
+import { AnswerOptionType, ItemType } from "@/utils/constants";
 import { QTree } from "quasar";
 
 export type VueProp = {
@@ -53,6 +53,7 @@ export type Quantity = {
 };
 
 export type EnableWhen = {
+  __answerOption?: boolean;
   question: string;
   answer?: string;
   operator: Operator;
@@ -84,8 +85,8 @@ export type Coding = {
 };
 
 export type AnswerOption = {
-  __id?: number;
-  __type?: AnswerType;
+  __id?: string;
+  __type?: AnswerOptionType;
   __icon?: string;
   __newAnswer?: boolean;
   __oldValueInteger?: string | number;

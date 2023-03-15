@@ -4,6 +4,7 @@ import {
   MAX_ALLOWED_LEVELS_FOR_GROUPS,
   getItemTypeIcon,
   isInvalidItemType,
+  getAnswerOptionIcon,
 } from "./constants";
 import { v4 as uuidv4 } from "uuid";
 import { Item, Questionnaire, enableBehaviors, EnableBehavior } from "@/types";
@@ -138,7 +139,7 @@ class FHIRValidation {
       let idCountAnswer = 0;
       for (const answerOpt of item.answerOption) {
         idCountAnswer++;
-        answerOpt.__id = idCountAnswer;
+        answerOpt.__id = idCountAnswer.toString();
         /*         if (answerOpt.valueString !== undefined) {
           answerOpt.__type = "open-choice";
           answerOpt.__icon = "input";
@@ -146,7 +147,7 @@ class FHIRValidation {
         } */
         if (answerOpt.valueCoding) {
           answerOpt.__type = "coding";
-          answerOpt.__icon = "radio_button_unchecked";
+          answerOpt.__icon = getAnswerOptionIcon(answerOpt.__type);
           answerOpt.valueCoding.code ??= "";
           answerOpt.valueCoding.display ??= "";
           answerOpt.valueCoding.system ??= "";
@@ -157,20 +158,20 @@ class FHIRValidation {
           answerOpt.__oldFormattedValueCoding =
             answerOpt.__formattedValueCoding;
         } else if (answerOpt.valueInteger) {
-          answerOpt.__icon = "pin";
           answerOpt.__type = "integer";
+          answerOpt.__icon = getAnswerOptionIcon(answerOpt.__type);
           answerOpt.__oldValueInteger = answerOpt.valueInteger;
         } else if (answerOpt.valueDate) {
-          answerOpt.__icon = "event";
           answerOpt.__type = "date";
+          answerOpt.__icon = getAnswerOptionIcon(answerOpt.__type);
           answerOpt.__oldValueDate = answerOpt.valueDate;
         } else if (answerOpt.valueString) {
-          answerOpt.__icon = "text_fields";
           answerOpt.__type = "string";
+          answerOpt.__icon = getAnswerOptionIcon(answerOpt.__type);
           answerOpt.__oldValueString = answerOpt.valueString;
         } else if (answerOpt.valueTime) {
-          answerOpt.__icon = "schedule";
           answerOpt.__type = "time";
+          answerOpt.__icon = getAnswerOptionIcon(answerOpt.__type);
           answerOpt.__oldValueTime = answerOpt.valueTime;
         }
       }

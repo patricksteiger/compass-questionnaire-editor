@@ -118,7 +118,7 @@ const setQuestionnaireMutations = {
     state.questionnaire = qre;
     state.questionnaireRepo.clear();
     state.questionnaireRepo.set(qre.language, qre);
-    state.settings.answers.answerValueSet = false;
+    state.settings.answers.answerValueSet = true;
     state.settings.answers.openChoice = true;
     state.settings.answers.choice = true;
   },
@@ -138,7 +138,7 @@ const setQuestionnaireMutations = {
     state.questionnaire = getDefaultQuestionnaire(language);
     state.questionnaireRepo.clear();
     state.questionnaireRepo.set(language, state.questionnaire);
-    state.settings.answers.answerValueSet = false;
+    state.settings.answers.answerValueSet = true;
     state.settings.answers.openChoice = true;
     state.settings.answers.choice = true;
   },
@@ -186,7 +186,7 @@ export const store = createStore<StoreState>({
     questionnaireRepo: new Map(),
     settings: {
       answers: {
-        answerValueSet: false,
+        answerValueSet: true,
         openChoice: true,
         choice: true,
       },

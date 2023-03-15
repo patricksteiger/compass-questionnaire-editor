@@ -6,6 +6,9 @@ class ItemTools {
   createInternalId(): string {
     return `${uuidv4()}-${Date.now()}`;
   }
+  createAnswerOptionId(): string {
+    return `${uuidv4()}-${Date.now()}`;
+  }
   getDefaultText(): string {
     return i18n.global.t("views.editor.newQuestion");
   }
