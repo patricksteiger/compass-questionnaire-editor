@@ -227,10 +227,9 @@ function getObjectWithoutItemsDisabled(
             enableWhen.type === "choice" ||
             enableWhen.type === "open-choice"
           ) {
+            // FIXME: is this needed?
             enableWhen.answerCoding = {
               code: enableWhen.answer || "",
-              display: enableWhen.display || "",
-              system: enableWhen.system || "",
             };
           } else if (enableWhen.type === "coding") {
             // answer should be already set
@@ -243,8 +242,6 @@ function getObjectWithoutItemsDisabled(
             enableWhen.answerDateTime = enableWhen.answer;
           }
         }
-        delete enableWhen.system;
-        delete enableWhen.display;
         delete enableWhen.answer;
         delete enableWhen.type;
       }

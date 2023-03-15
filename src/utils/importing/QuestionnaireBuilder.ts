@@ -158,8 +158,6 @@ export class QuestionnaireBuilder {
       }
     } else if (enableWhen.answerCoding !== undefined) {
       result.answer = editorTools.formatCoding(enableWhen.answerCoding);
-      result.system = enableWhen.answerCoding.system;
-      result.display = enableWhen.answerCoding.display;
       if (result.__answerOption) {
         result.type = "coding";
       }

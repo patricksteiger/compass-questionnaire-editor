@@ -58,8 +58,6 @@ export type EnableWhen = {
   answer?: string;
   operator: Operator;
   type?: AnswerType;
-  system?: string;
-  display?: string;
   answerInteger?: number;
   answerDecimal?: number;
   answerDate?: string;

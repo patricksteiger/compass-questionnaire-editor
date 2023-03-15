@@ -387,8 +387,6 @@ class FHIRValidation {
       if (enableWhen.answerCoding) {
         enableWhen.answer = enableWhen.answerCoding.code;
         enableWhen.type = "choice";
-        enableWhen.display = enableWhen.answerCoding.display;
-        enableWhen.system = enableWhen.answerCoding.system;
       }
       if (enableWhen.answerDate) {
         enableWhen.answer = enableWhen.answerDate;
