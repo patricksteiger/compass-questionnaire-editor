@@ -1229,6 +1229,77 @@
     </q-layout>
   </q-dialog>
 
+  <!-- ValidationHub -->
+  <div>
+    <q-page-sticky position="bottom-right" :offset="[90, 18]">
+      <q-btn icon="warning_amber" color="orange" @click="validateState">
+        <q-tooltip>See warnings</q-tooltip>
+      </q-btn>
+    </q-page-sticky>
+  </div>
+
+  <q-dialog v-model="validationLayout">
+    <q-layout view="Lhh lpR fff" container class="bg-white">
+      <q-toolbar class="bg-primary text-white shadow-2">
+        <q-toolbar-title>Warnings</q-toolbar-title>
+      </q-toolbar>
+      <q-list separator>
+        <q-item v-for="result in validationResult" :key="result.language">
+          <div
+            class="q-pa-md"
+            v-if="result.metadata.length > 0 || result.items.length > 0"
+          >
+            <q-toolbar
+              class="bg-secondary text-white shadow-2"
+              clickable
+              @click="switchFromValidationHub(result.language)"
+            >
+              <q-toolbar-title>{{ result.language }}</q-toolbar-title>
+            </q-toolbar>
+            <div class="q-pa-md" v-if="result.metadata.length > 0">
+              Metadata:
+              <q-list bordered separator>
+                <q-item
+                  v-for="warning in result.metadata"
+                  :key="warning"
+                  clickable
+                  @click="switchFromValidationHub(result.language)"
+                >
+                  <q-item-section>
+                    <q-item-label>{{ warning }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </div>
+            <div class="q-pa-md" v-if="result.items.length > 0">
+              Items:
+              <q-list bordered separator>
+                <q-item
+                  v-for="item in result.items"
+                  :key="item.linkId"
+                  clickable
+                  @click="
+                    switchToItemFromValidationHub(
+                      result.language,
+                      item.internalId,
+                    )
+                  "
+                >
+                  {{ item.linkId }}
+                  <q-item v-for="warning in item.warnings" :key="warning">
+                    <q-item-section>
+                      <q-item-label>{{ warning }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </q-item>
+              </q-list>
+            </div>
+          </div>
+        </q-item>
+      </q-list>
+    </q-layout>
+  </q-dialog>
+
   <!-- Choose answer for specific enableWhen types -->
   <q-dialog
     v-model="chosenEnableWhenAnswerLayout"
@@ -1390,6 +1461,8 @@ import {
 } from "@/types";
 import { Language, languages } from "@/store";
 import { itemTools } from "@/utils/item";
+import { Validator } from "@/utils/validation/Validator";
+import { Warning } from "@/utils/validation/QuestionnaireValidator";
 
 export default defineComponent({
   components: {
@@ -1435,10 +1508,13 @@ export default defineComponent({
       );
     };
     const answerOptionItem: Ref<AnswerOption | undefined> = ref(undefined);
+    const validatotionResult: Ref<Warning[]> = ref([]);
     return {
       languageLayout: ref(false),
       languageSplitter: ref(40),
       languageSplitterLimits: ref([30, 60]),
+      validationLayout: ref(false),
+      validationResult: validatotionResult,
       triggerNegative,
       questionaireGUI,
       item,
@@ -1541,6 +1617,27 @@ export default defineComponent({
       }
       this.languageLayout = false;
     },
+    switchFromValidationHub(language: Language): void {
+      if (this.language !== language) {
+        this.switchLanguage(language);
+      }
+      this.validationLayout = false;
+    },
+    switchToItemFromValidationHub(
+      language: Language,
+      internalId: string,
+    ): void {
+      if (internalId !== this.selected) {
+        this.selected = null;
+        this.lastSelectedItem = undefined;
+        this.lastSelected = null;
+        if (this.language !== language) {
+          this.switchLanguage(language);
+        }
+        this.selected = internalId;
+      }
+      this.validationLayout = false;
+    },
     refreshQuestionnaire(): void {
       this.questionaireGUI = this.getQuestionnaireImportedJSON;
       this.item = this.getQuestionnaireImportedJSON.item;
@@ -1578,6 +1675,11 @@ export default defineComponent({
     },
     getUnusedLanguages(): Language[] {
       return languages.filter((lang) => !this.getUsedLanguages.includes(lang));
+    },
+    validateState(): void {
+      const questionnaires = this.getQuestionnaires;
+      this.validationResult = Validator.check(questionnaires);
+      this.validationLayout = true;
     },
     validItemId(s: string): boolean {
       return s.length > 0;
@@ -2186,17 +2288,18 @@ export default defineComponent({
     },
   },
   watch: {
-    selected(val: string | undefined) {
+    selected(val: string | null) {
       this.editorTools.removeConditionDependence(this.item);
       this.editorTools.setConditionDependence(this.item, this.item);
-      if (val === undefined) {
+      if (val === null) {
         this.selectedItem = undefined;
         return;
       }
       this.selectedItem = this.editorTools.getItemByInternalId(val, this.item);
     },
-    lastSelected(val: string | undefined) {
-      if (val !== undefined && val !== "") {
+    // FIXME: How should switching to last selected change splitter?
+    lastSelected(val: string | null) {
+      if (val) {
         this.limitsSpliter = [0, 100];
         this.splitterModel = 0;
       } else {
