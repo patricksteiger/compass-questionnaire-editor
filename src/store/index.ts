@@ -1,6 +1,5 @@
 import { defaultLanguage, i18n, getLocaleFromLanguage } from "@/i18n";
-import { Identifier, Questionnaire } from "@/types";
-import { Status } from "@/utils/constants";
+import { Identifier, Questionnaire, Status } from "@/types";
 import { languageTools } from "@/utils/language";
 import { createStore } from "vuex";
 
@@ -23,7 +22,7 @@ export const getDefaultQuestionnaire = (lang: Language): Questionnaire => {
     date: "",
     approvalDate: "",
     lastReviewDate: "",
-    experimental: true,
+    experimental: null,
     item: [],
     resourceType: "Questionnaire",
   };

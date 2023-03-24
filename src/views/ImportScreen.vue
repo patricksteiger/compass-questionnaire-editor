@@ -160,7 +160,7 @@ import { i18n } from "@/i18n";
 import { Questionnaire } from "@/types";
 import { Language } from "@/store";
 import { v4 as uuidv4 } from "uuid";
-import { validator } from "@/utils/importing/validator";
+import { transformer } from "@/utils/importing/Transformer";
 
 type LanguageInfo = {
   language: Language;
@@ -236,9 +236,9 @@ export default defineComponent({
           const jsonFile = this.importJsonQuestionnaire.validateJson(
             reader.result,
           );
-          if (validator.isQuestionnaireResource(jsonFile)) {
+          if (transformer.isQuestionnaireResource(jsonFile)) {
             this.handleQuestionnaireResource(newFile, jsonFile);
-          } else if (validator.isBundleResource(jsonFile)) {
+          } else if (transformer.isBundleResource(jsonFile)) {
             this.handleBundleResource(newFile, jsonFile);
           } else {
             throw new Error(
@@ -264,7 +264,7 @@ export default defineComponent({
       newFile: VueUploadItem,
       jsonFile: unknown,
     ): void {
-      const result = validator.questionnaire(jsonFile);
+      const result = transformer.questionnaire(jsonFile);
       if (result.state === "error") {
         this.messageErrorFHIR = result.errors;
         this.warnings = result.warnings;
@@ -277,7 +277,7 @@ export default defineComponent({
       this.validateCompatibleQuestionnaire(newFile, [result.data]);
     },
     handleBundleResource(newFile: VueUploadItem, jsonFile: unknown): void {
-      const result = validator.bundle(jsonFile);
+      const result = transformer.bundle(jsonFile);
       if (result.state === "error") {
         this.messageErrorFHIR = result.errors;
         this.warnings = result.warnings;

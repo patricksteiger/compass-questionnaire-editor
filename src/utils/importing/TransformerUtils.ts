@@ -1,8 +1,8 @@
-import { FHIRItem } from "./item";
-import { FHIRQuestionnaire } from "./questionnaire";
+import { ParsedItem } from "./parsing/item";
+import { ParsedQuestionnaire } from "./parsing/questionnaire";
 
 class ValidatorUtils {
-  sortItemsByLinkId(items: FHIRItem[]): void {
+  sortItemsByLinkId(items: ParsedItem[]): void {
     items.sort(this.sortByLinkId);
     for (const item of items) {
       if (this.nonEmptyList(item.item)) {
@@ -11,7 +11,7 @@ class ValidatorUtils {
     }
   }
 
-  private sortByLinkId(i1: FHIRItem, i2: FHIRItem): number {
+  private sortByLinkId(i1: ParsedItem, i2: ParsedItem): number {
     const nums1 = i1.linkId.split(".");
     const nums2 = i2.linkId.split(".");
     const last1 = nums1.at(-1);
@@ -23,17 +23,17 @@ class ValidatorUtils {
   }
 
   getItemByLinkId(
-    qre: FHIRQuestionnaire,
+    qre: ParsedQuestionnaire,
     linkId: string,
-  ): FHIRItem | undefined {
+  ): ParsedItem | undefined {
     if (qre.item === undefined) return undefined;
     return this.getItemByLinkIdHelper(qre.item, linkId);
   }
 
   private getItemByLinkIdHelper(
-    items: FHIRItem[],
+    items: ParsedItem[],
     linkId: string,
-  ): FHIRItem | undefined {
+  ): ParsedItem | undefined {
     for (const item of items) {
       if (item.linkId === linkId) return item;
       if (this.emptyList(item.item)) continue;

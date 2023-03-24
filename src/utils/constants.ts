@@ -101,18 +101,6 @@ export function getItemTypeIcon(type: ItemType): ItemTypeIcon {
   return icon.icon;
 }
 
-export const status = ["draft", "active", "retired", "unknown"] as const;
-export type Status = typeof status[number];
-
-export const identifierUse = [
-  "usual",
-  "official",
-  "temp",
-  "secondary",
-  "old",
-] as const;
-export type IdentifierUse = typeof identifierUse[number];
-
 export const COLORS = {
   itemDragOver: "rgb(2,123,227,0.5)",
 } as const;

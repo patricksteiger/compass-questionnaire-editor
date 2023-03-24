@@ -15,7 +15,7 @@ export const codingSchema = z.object({
   userSelected: optionalBooleanSchema,
 });
 
-export type FHIRCoding = z.infer<typeof codingSchema>;
+export type ParsedCoding = z.infer<typeof codingSchema>;
 
 export const optionalCodingSchema = codingSchema.optional();
 
@@ -29,6 +29,6 @@ export const quantitySchema = z.object({
   unit: optionalStringSchema,
 });
 
-export type FHIRQuantity = z.infer<typeof quantitySchema>;
+export type ParsedQuantity = z.infer<typeof quantitySchema>;
 
 export const optionalQuantitySchema = quantitySchema.optional();

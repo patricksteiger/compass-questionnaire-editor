@@ -1,21 +1,21 @@
-import { FHIRAnswerOption, FHIRItem } from "../item";
-import { FHIRQuestionnaire } from "../questionnaire";
+import { ParsedAnswerOption, ParsedItem } from "../parsing/item";
+import { ParsedQuestionnaire } from "../parsing/questionnaire";
 import { editorTools } from "@/utils/editor";
 import {
   MAX_ALLOWED_LEVELS,
   MAX_ALLOWED_LEVELS_FOR_GROUPS,
 } from "@/utils/constants";
-import { validatorUtils } from "../ValidatorUtils";
-import { FHIREnableWhen } from "../enableWhen";
+import { validatorUtils } from "../TransformerUtils";
+import { ParsedEnableWhen } from "../parsing/enableWhen";
 
 export class FHIRItemValidator {
   constructor(
-    private readonly qre: FHIRQuestionnaire,
+    private readonly qre: ParsedQuestionnaire,
     private errors: string[],
     private warnings: string[],
   ) {}
 
-  validate(item: FHIRItem, expectedLinkId: string): void {
+  validate(item: ParsedItem, expectedLinkId: string): void {
     if (item.linkId !== expectedLinkId) {
       this.errors.push(
         `LinkId "${item.linkId}" should be "${expectedLinkId}".`,
@@ -56,7 +56,7 @@ export class FHIRItemValidator {
     }
   }
 
-  private validateAnswerValueSetAndOption(item: FHIRItem): void {
+  private validateAnswerValueSetAndOption(item: ParsedItem): void {
     if (item.answerValueSet === "") {
       item.answerValueSet = undefined;
     }
@@ -76,8 +76,8 @@ export class FHIRItemValidator {
   }
 
   private validateAnswerOption(
-    answerOption: FHIRAnswerOption,
-    item: FHIRItem,
+    answerOption: ParsedAnswerOption,
+    item: ParsedItem,
   ): void {
     let count = 0;
     if (answerOption.valueInteger !== undefined) count++;
@@ -92,7 +92,7 @@ export class FHIRItemValidator {
     }
   }
 
-  private validateEnableWhen(item: FHIRItem): void {
+  private validateEnableWhen(item: ParsedItem): void {
     if (validatorUtils.emptyList(item.enableWhen)) return;
     for (const enableWhen of item.enableWhen) {
       const linkedItem = validatorUtils.getItemByLinkId(
@@ -113,9 +113,9 @@ export class FHIRItemValidator {
   }
 
   private validateEnableWhenAnswerType(
-    linkedItem: FHIRItem,
-    enableWhen: FHIREnableWhen,
-    currentItem: FHIRItem,
+    linkedItem: ParsedItem,
+    enableWhen: ParsedEnableWhen,
+    currentItem: ParsedItem,
   ): void {
     this.validateEnableWhenAnswers(enableWhen, currentItem);
     // FIXME: What to do when invalid type for answerOption question?
@@ -173,8 +173,8 @@ export class FHIRItemValidator {
   }
 
   private validateEnableWhenAnswers(
-    enableWhen: FHIREnableWhen,
-    item: FHIRItem,
+    enableWhen: ParsedEnableWhen,
+    item: ParsedItem,
   ): void {
     let count = 0;
     if (enableWhen.answerBoolean !== undefined) count++;
@@ -193,7 +193,7 @@ export class FHIRItemValidator {
     }
   }
 
-  private invalidOpenChoiceTypes(enableWhen: FHIREnableWhen): boolean {
+  private invalidOpenChoiceTypes(enableWhen: ParsedEnableWhen): boolean {
     return (
       enableWhen.answerDate !== undefined &&
       enableWhen.answerTime !== undefined &&
@@ -203,7 +203,7 @@ export class FHIRItemValidator {
     );
   }
 
-  private resetEnableWhenAnswers(enableWhen: FHIREnableWhen): void {
+  private resetEnableWhenAnswers(enableWhen: ParsedEnableWhen): void {
     enableWhen.answerBoolean = undefined;
     enableWhen.answerDate = undefined;
     enableWhen.answerTime = undefined;
@@ -214,7 +214,7 @@ export class FHIRItemValidator {
     enableWhen.answerInteger = undefined;
   }
 
-  private validateRequired(item: FHIRItem): void {
+  private validateRequired(item: ParsedItem): void {
     if (item.type === "display") {
       if (item.required !== undefined) {
         item.required = undefined;
@@ -232,7 +232,7 @@ export class FHIRItemValidator {
     }
   }
 
-  private validateRepeats(item: FHIRItem): void {
+  private validateRepeats(item: ParsedItem): void {
     if (item.type === "display") {
       if (item.repeats !== undefined) {
         item.repeats = undefined;
@@ -250,7 +250,7 @@ export class FHIRItemValidator {
     }
   }
 
-  private validateMaxLength(item: FHIRItem): void {
+  private validateMaxLength(item: ParsedItem): void {
     if (
       item.maxLength !== undefined &&
       item.type !== "boolean" &&

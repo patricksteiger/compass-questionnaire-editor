@@ -1,15 +1,15 @@
 import { defaultLanguage } from "@/i18n";
 import { AnswerOption, EnableWhen, Item, Questionnaire } from "@/types";
-import { getAnswerOptionIcon, getItemTypeIcon } from "../constants";
-import { editorTools } from "../editor";
-import { itemTools } from "../item";
-import { FHIREnableWhen } from "./enableWhen";
-import { FHIRAnswerOption, FHIRItem } from "./item";
-import { FHIRQuestionnaire } from "./questionnaire";
-import { validatorUtils } from "./ValidatorUtils";
+import { getAnswerOptionIcon, getItemTypeIcon } from "../../constants";
+import { editorTools } from "../../editor";
+import { itemTools } from "../../item";
+import { ParsedEnableWhen } from "../parsing/enableWhen";
+import { ParsedAnswerOption, ParsedItem } from "../parsing/item";
+import { ParsedQuestionnaire } from "../parsing/questionnaire";
+import { validatorUtils } from "../TransformerUtils";
 
 export class QuestionnaireBuilder {
-  constructor(private readonly qre: FHIRQuestionnaire) {}
+  constructor(private readonly qre: ParsedQuestionnaire) {}
 
   build(): Questionnaire {
     const status = this.qre.status ?? "unknown";
@@ -29,7 +29,7 @@ export class QuestionnaireBuilder {
     };
   }
 
-  private fromItem(fhirItem: FHIRItem): Item {
+  private fromItem(fhirItem: ParsedItem): Item {
     const {
       item,
       enableWhen: fhirEnableWhen,
@@ -83,7 +83,7 @@ export class QuestionnaireBuilder {
     };
   }
 
-  private fromAnswerOption(answerOption: FHIRAnswerOption): AnswerOption {
+  private fromAnswerOption(answerOption: ParsedAnswerOption): AnswerOption {
     const result: AnswerOption = {
       ...answerOption,
       __id: itemTools.createAnswerOptionId(),
@@ -119,7 +119,7 @@ export class QuestionnaireBuilder {
     return result;
   }
 
-  private fromEnableWhen(enableWhen: FHIREnableWhen): EnableWhen {
+  private fromEnableWhen(enableWhen: ParsedEnableWhen): EnableWhen {
     const result: EnableWhen = {
       ...enableWhen,
     };

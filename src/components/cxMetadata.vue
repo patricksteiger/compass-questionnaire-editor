@@ -271,8 +271,7 @@
 <script lang="ts">
 import { mapGetters } from "vuex";
 import { defineComponent, ref } from "vue";
-import { Identifier } from "@/types";
-import { status } from "@/utils/constants";
+import { Identifier, status } from "@/types";
 
 export default defineComponent({
   setup() {

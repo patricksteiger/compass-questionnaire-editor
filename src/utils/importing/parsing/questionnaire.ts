@@ -1,6 +1,6 @@
 import { languages } from "@/store";
 import { itemSchema } from "./item";
-import { identifierUse, status as statusOptions } from "@/utils/constants";
+import { identifierUse, status as statusOptions } from "@/types";
 import {
   optionalBooleanSchema,
   optionalCodingSchema,
@@ -54,7 +54,7 @@ const identifierSchema = z
   })
   .passthrough();
 
-export type FHIRIdentifier = z.infer<typeof identifierSchema>;
+export type ParsedIdentifier = z.infer<typeof identifierSchema>;
 
 const identifier = identifierSchema.array().optional();
 
@@ -77,4 +77,4 @@ export const questionnaireSchema = z
   })
   .passthrough();
 
-export type FHIRQuestionnaire = z.infer<typeof questionnaireSchema>;
+export type ParsedQuestionnaire = z.infer<typeof questionnaireSchema>;

@@ -1,10 +1,5 @@
 import { Language } from "@/store";
-import {
-  AnswerOptionType,
-  IdentifierUse,
-  ItemType,
-  Status,
-} from "@/utils/constants";
+import { AnswerOptionType, ItemType } from "@/utils/constants";
 import { QTree } from "quasar";
 
 export type VueProp = {
@@ -144,6 +139,15 @@ export type IdentifierType = {
   text?: string;
 };
 
+export const identifierUse = [
+  "usual",
+  "official",
+  "temp",
+  "secondary",
+  "old",
+] as const;
+export type IdentifierUse = typeof identifierUse[number];
+
 export type Identifier = {
   use?: IdentifierUse;
   system?: string;
@@ -196,6 +200,9 @@ export type Item = {
   required: boolean | undefined;
   repeats: boolean | undefined;
 };
+
+export const status = ["draft", "active", "retired", "unknown"] as const;
+export type Status = typeof status[number];
 
 export type Questionnaire = {
   resourceType: "Questionnaire";

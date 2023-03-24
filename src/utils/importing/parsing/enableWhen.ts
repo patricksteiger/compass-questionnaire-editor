@@ -23,4 +23,4 @@ export const enableWhenSchema = z.object({
   answerQuantity: optionalQuantitySchema,
 });
 
-export type FHIREnableWhen = z.infer<typeof enableWhenSchema>;
+export type ParsedEnableWhen = z.infer<typeof enableWhenSchema>;

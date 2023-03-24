@@ -30,7 +30,7 @@ const answerOptionSchema = z.object({
   initialSelected: optionalBooleanSchema,
 });
 
-export type FHIRAnswerOption = z.infer<typeof answerOptionSchema>;
+export type ParsedAnswerOption = z.infer<typeof answerOptionSchema>;
 
 const answerOption = answerOptionSchema.array().optional();
 
@@ -71,11 +71,11 @@ const baseItemSchema = z.object({
   answerValueSet,
 });
 
-export type FHIRItem = z.infer<typeof baseItemSchema> & {
-  item?: FHIRItem[];
+export type ParsedItem = z.infer<typeof baseItemSchema> & {
+  item?: ParsedItem[];
 };
 
-export const itemSchema: z.ZodType<FHIRItem> = baseItemSchema
+export const itemSchema: z.ZodType<ParsedItem> = baseItemSchema
   .extend({
     item: z.lazy(() => itemSchema.array().optional()),
   })

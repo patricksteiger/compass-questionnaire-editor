@@ -1,21 +1,23 @@
-import { FHIRQuestionnaire } from "../questionnaire";
-import { validatorUtils } from "../ValidatorUtils";
+import { ParsedQuestionnaire } from "../parsing/questionnaire";
+import { validatorUtils } from "../TransformerUtils";
 import { FHIRItemValidator } from "./FHIRItemValidator";
 
 export type ValidationResult =
-  | { state: "success"; data: FHIRQuestionnaire }
-  | { state: "warning"; data: FHIRQuestionnaire; warnings: string[] }
+  | { state: "success"; data: ParsedQuestionnaire }
+  | { state: "warning"; data: ParsedQuestionnaire; warnings: string[] }
   | { state: "error"; errors: string[]; warnings: string[] };
 
 export class FHIRQuestionnaireValidator {
-  constructor(private questionnaire: FHIRQuestionnaire) {}
+  constructor(private questionnaire: ParsedQuestionnaire) {}
 
   validate(): ValidationResult {
     const result = this.validateQuestionnaireItems(this.questionnaire);
     return result;
   }
 
-  private validateQuestionnaireItems(qre: FHIRQuestionnaire): ValidationResult {
+  private validateQuestionnaireItems(
+    qre: ParsedQuestionnaire,
+  ): ValidationResult {
     if (qre.item === undefined) {
       return { state: "success", data: qre };
     }

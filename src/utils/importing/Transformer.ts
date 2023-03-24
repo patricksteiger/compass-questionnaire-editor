@@ -1,9 +1,12 @@
 import { Questionnaire } from "@/types";
-import { FHIRQuestionnaire, questionnaireSchema } from "./questionnaire";
-import { QuestionnaireBuilder } from "./QuestionnaireBuilder";
-import { FHIRQuestionnaireValidator } from "./fhir/FHIRQuestionnaireValidator";
+import {
+  ParsedQuestionnaire,
+  questionnaireSchema,
+} from "./parsing/questionnaire";
+import { QuestionnaireBuilder } from "./building/QuestionnaireBuilder";
+import { FHIRQuestionnaireValidator } from "./validation/FHIRQuestionnaireValidator";
 import { z } from "zod";
-import { bundleSchema } from "./bundle";
+import { bundleSchema } from "./parsing/bundle";
 
 export type Result =
   | { state: "success"; data: Questionnaire }
@@ -23,7 +26,7 @@ const bundleResourceSchema = z.object({
   resourceType: z.literal("Bundle"),
 });
 
-class Validator {
+class Transformer {
   questionnaire(file: unknown): Result {
     const result = questionnaireSchema.safeParse(file);
     if (result.success === false) {
@@ -65,7 +68,7 @@ class Validator {
       };
     }
     const warnings: string[] = [];
-    const fhirQuestionnaires: FHIRQuestionnaire[] = [];
+    const fhirQuestionnaires: ParsedQuestionnaire[] = [];
     for (const entry of result.data.entry) {
       const qre = entry.resource;
       const validator = new FHIRQuestionnaireValidator(qre);
@@ -107,4 +110,4 @@ class Validator {
   }
 }
 
-export const validator = new Validator();
+export const transformer = new Transformer();
