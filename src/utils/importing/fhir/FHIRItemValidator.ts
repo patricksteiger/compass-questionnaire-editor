@@ -1,4 +1,4 @@
-import { FHIRItem } from "../item";
+import { FHIRAnswerOption, FHIRItem } from "../item";
 import { FHIRQuestionnaire } from "../questionnaire";
 import { editorTools } from "@/utils/editor";
 import {
@@ -68,6 +68,28 @@ export class FHIRItemValidator {
         `LinkId ${item.linkId} has defined answerValueSet and answerOption. Only 1 is allowed.`,
       );
     }
+    if (item.answerOption) {
+      for (const answerOption of item.answerOption) {
+        this.validateAnswerOption(answerOption, item);
+      }
+    }
+  }
+
+  private validateAnswerOption(
+    answerOption: FHIRAnswerOption,
+    item: FHIRItem,
+  ): void {
+    let count = 0;
+    if (answerOption.valueInteger !== undefined) count++;
+    if (answerOption.valueDate !== undefined) count++;
+    if (answerOption.valueTime !== undefined) count++;
+    if (answerOption.valueString !== undefined) count++;
+    if (answerOption.valueCoding !== undefined) count++;
+    if (count > 1) {
+      this.errors.push(
+        `LinkId "${item.linkId}" has answerOption with more than 1 answer.`,
+      );
+    }
   }
 
   private validateEnableWhen(item: FHIRItem): void {
@@ -95,6 +117,7 @@ export class FHIRItemValidator {
     enableWhen: FHIREnableWhen,
     currentItem: FHIRItem,
   ): void {
+    this.validateEnableWhenAnswers(enableWhen, currentItem);
     // FIXME: What to do when invalid type for answerOption question?
     if (linkedItem.type === "boolean" || enableWhen.operator === "exists") {
       if (enableWhen.answerBoolean === undefined) {
@@ -146,6 +169,27 @@ export class FHIRItemValidator {
       if (enableWhen.answerQuantity === undefined) {
         this.resetEnableWhenAnswers(enableWhen);
       }
+    }
+  }
+
+  private validateEnableWhenAnswers(
+    enableWhen: FHIREnableWhen,
+    item: FHIRItem,
+  ): void {
+    let count = 0;
+    if (enableWhen.answerBoolean !== undefined) count++;
+    if (enableWhen.answerDecimal !== undefined) count++;
+    if (enableWhen.answerInteger !== undefined) count++;
+    if (enableWhen.answerTime !== undefined) count++;
+    if (enableWhen.answerDate !== undefined) count++;
+    if (enableWhen.answerDateTime !== undefined) count++;
+    if (enableWhen.answerString !== undefined) count++;
+    if (enableWhen.answerCoding !== undefined) count++;
+    if (enableWhen.answerQuantity !== undefined) count++;
+    if (count > 1) {
+      this.errors.push(
+        `LinkId "${item.linkId}" has enableWhen with more than 1 answer.`,
+      );
     }
   }
 

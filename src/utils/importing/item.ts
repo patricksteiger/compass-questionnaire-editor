@@ -21,25 +21,14 @@ const repeats = optionalBooleanSchema;
 const maxLength = optionalNumberSchema;
 
 // TODO: Add valueReference to answerOption
-// TODO: refactor answerOption validation
-const answerOptionSchema = z
-  .object({
-    valueInteger: optionalNumberSchema,
-    valueDate: optionalStringSchema,
-    valueTime: optionalStringSchema,
-    valueString: optionalStringSchema,
-    valueCoding: optionalCodingSchema,
-    initialSelected: optionalBooleanSchema,
-  })
-  .refine((val) => {
-    let count = 0;
-    if (val.valueInteger !== undefined) count++;
-    if (val.valueDate !== undefined) count++;
-    if (val.valueTime !== undefined) count++;
-    if (val.valueString !== undefined) count++;
-    if (val.valueCoding !== undefined) count++;
-    return count <= 1;
-  });
+const answerOptionSchema = z.object({
+  valueInteger: optionalNumberSchema,
+  valueDate: optionalStringSchema,
+  valueTime: optionalStringSchema,
+  valueString: optionalStringSchema,
+  valueCoding: optionalCodingSchema,
+  initialSelected: optionalBooleanSchema,
+});
 
 export type FHIRAnswerOption = z.infer<typeof answerOptionSchema>;
 
