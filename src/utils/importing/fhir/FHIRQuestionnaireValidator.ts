@@ -8,15 +8,18 @@ export type ValidationResult =
   | { state: "error"; errors: string[]; warnings: string[] };
 
 export class FHIRQuestionnaireValidator {
-  constructor(private qre: FHIRQuestionnaire) {}
+  constructor(private questionnaire: FHIRQuestionnaire) {}
 
   validate(): ValidationResult {
-    validatorUtils.sortItemsByLinkId(this.qre.item);
-    const result = this.validateQuestionnaireItems(this.qre);
+    const result = this.validateQuestionnaireItems(this.questionnaire);
     return result;
   }
 
   private validateQuestionnaireItems(qre: FHIRQuestionnaire): ValidationResult {
+    if (qre.item === undefined) {
+      return { state: "success", data: qre };
+    }
+    validatorUtils.sortItemsByLinkId(qre.item);
     const errors: string[] = [];
     const warnings: string[] = [];
     const itemValidator = new FHIRItemValidator(qre, errors, warnings);

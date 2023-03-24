@@ -272,12 +272,13 @@
 import { mapGetters } from "vuex";
 import { defineComponent, ref } from "vue";
 import { Identifier } from "@/types";
+import { status } from "@/utils/constants";
 
 export default defineComponent({
   setup() {
     return {
       expanded: ref(true),
-      statusOptions: ["draft", "active", "retired", "unknown"],
+      statusOptions: status,
     };
   },
   computed: {
@@ -374,7 +375,6 @@ export default defineComponent({
   methods: {
     addEmptyId() {
       const newID: Identifier = {
-        use: "",
         system: "",
         value: "",
         period: {

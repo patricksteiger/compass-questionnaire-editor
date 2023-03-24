@@ -6,11 +6,10 @@ import {
   optionalNumberSchema,
   optionalQuantitySchema,
   optionalStringSchema,
-  ParsableCoding,
-  ParsableQuantity,
 } from "./schemas";
 
 // TODO: Add Reference to enableWhenSchema
+// TODO: refactor enableWhen validation
 export const enableWhenSchema = z
   .object({
     question: z.string(),
@@ -41,29 +40,4 @@ export const enableWhenSchema = z
 
 export type FHIREnableWhen = z.infer<typeof enableWhenSchema>;
 
-// Filtered values (like null) have to be present in InputType for z.ZodType
-// OutputType gets derived from the schemas. If value is equal to InputType, it can be picked without changes.
-// If it isn't equal, it needs to be omitted and set manually in InputType.
-type EnableWhenInputOutputIntersection = Omit<
-  FHIREnableWhen,
-  | "answerBoolean"
-  | "answerDecimal"
-  | "answerInteger"
-  | "answerTime"
-  | "answerDate"
-  | "answerDateTime"
-  | "answerString"
-  | "answerCoding"
-  | "answerQuantity"
->;
-export type ParsableEnableWhen = EnableWhenInputOutputIntersection & {
-  answerBoolean?: boolean | null;
-  answerDecimal?: number | null;
-  answerInteger?: number | null;
-  answerTime?: string | null;
-  answerDate?: string | null;
-  answerDateTime?: string | null;
-  answerString?: string | null;
-  answerCoding?: ParsableCoding | null;
-  answerQuantity?: ParsableQuantity | null;
-};
+export type ParsableEnableWhen = FHIREnableWhen;

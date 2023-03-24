@@ -1,5 +1,6 @@
 import { defaultLanguage, i18n, getLocaleFromLanguage } from "@/i18n";
-import { Identifier, Questionnaire, Status } from "@/types";
+import { Identifier, Questionnaire } from "@/types";
+import { Status } from "@/utils/constants";
 import { languageTools } from "@/utils/language";
 import { createStore } from "vuex";
 

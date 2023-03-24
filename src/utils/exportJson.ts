@@ -337,7 +337,7 @@ const exportJsonQuestionnaire = {
       for (const identifier of jsonObject.identifier) {
         let removeUserSelected = true;
         if (identifier) {
-          identifier.use === "" ? delete identifier.use : "";
+          identifier.use === undefined ? delete identifier.use : "";
           identifier.system === "" ? delete identifier.system : "";
           identifier.value === "" ? delete identifier.value : "";
           identifier.period?.start === "" ? delete identifier.period.start : "";

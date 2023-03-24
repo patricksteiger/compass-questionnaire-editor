@@ -437,7 +437,6 @@ class FHIRValidation {
   private identifier(FHIRobj: Questionnaire): void {
     FHIRobj.identifier ??= [];
     for (const id of FHIRobj.identifier) {
-      id.use ??= "";
       id.system ??= "";
       id.value ??= "";
       id.period ??= { start: "", end: "" };

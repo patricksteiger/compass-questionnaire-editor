@@ -26,6 +26,7 @@ class ValidatorUtils {
     qre: FHIRQuestionnaire,
     linkId: string,
   ): FHIRItem | undefined {
+    if (qre.item === undefined) return undefined;
     return this.getItemByLinkIdHelper(qre.item, linkId);
   }
 

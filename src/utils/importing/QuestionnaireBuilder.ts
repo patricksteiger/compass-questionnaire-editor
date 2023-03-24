@@ -1,3 +1,4 @@
+import { defaultLanguage } from "@/i18n";
 import { AnswerOption, EnableWhen, Item, Questionnaire } from "@/types";
 import { getAnswerOptionIcon, getItemTypeIcon } from "../constants";
 import { editorTools } from "../editor";
@@ -11,12 +12,19 @@ export class QuestionnaireBuilder {
   constructor(private readonly qre: FHIRQuestionnaire) {}
 
   build(): Questionnaire {
+    const status = this.qre.status ?? "unknown";
+    const language = this.qre.language ?? defaultLanguage;
+    const experimental = this.qre.experimental ?? null;
+    this.qre.item ??= [];
     const newItem: Item[] = [];
     for (const i of this.qre.item) {
       newItem.push(this.fromItem(i));
     }
     return {
       ...this.qre,
+      status,
+      language,
+      experimental,
       item: newItem,
     };
   }

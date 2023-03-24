@@ -1,5 +1,10 @@
 import { Language } from "@/store";
-import { AnswerOptionType, ItemType } from "@/utils/constants";
+import {
+  AnswerOptionType,
+  IdentifierUse,
+  ItemType,
+  Status,
+} from "@/utils/constants";
 import { QTree } from "quasar";
 
 export type VueProp = {
@@ -140,7 +145,7 @@ export type IdentifierType = {
 };
 
 export type Identifier = {
-  use?: string;
+  use?: IdentifierUse;
   system?: string;
   value?: string;
   period?: {
@@ -192,8 +197,6 @@ export type Item = {
   repeats: boolean | undefined;
 };
 
-export type Status = "draft" | "active" | "retired" | "unknown";
-
 export type Questionnaire = {
   resourceType: "Questionnaire";
   language: Language;
@@ -207,6 +210,8 @@ export type Questionnaire = {
   date?: string;
   approvalDate?: string;
   lastReviewDate?: string;
+  // experimental is optional, so it can be deleted for exporting
+  // experimental is null, so it can be used as a v-model
   experimental?: boolean | null;
   item: Item[];
 };

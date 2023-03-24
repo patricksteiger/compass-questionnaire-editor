@@ -1,29 +1,19 @@
-import { defaultLanguage } from "@/i18n";
-import { Language, languages } from "@/store";
-import { itemSchema, FHIRItem } from "./item";
-import { z } from "zod";
+import { languages } from "@/store";
+import { itemSchema } from "./item";
+import { identifierUse, status as statusOptions } from "@/utils/constants";
 import {
-  nullToUndefined,
+  optionalBooleanSchema,
   optionalCodingSchema,
   optionalStringSchema,
 } from "./schemas";
+import { z } from "zod";
 
-const item = itemSchema
-  .array()
-  .nullish()
-  .transform((arr): FHIRItem[] => arr ?? []);
+const item = itemSchema.array().optional();
 
-const statusOptions = ["draft", "active", "retired", "unknown"] as const;
-type Status = typeof statusOptions[number];
-const status = z
-  .enum([...statusOptions, ""])
-  .nullish()
-  .transform((val): Status => val || "unknown");
+// undefined status will be set to "unknown"
+const status = z.enum(statusOptions).optional();
 
-const language = z
-  .enum([...languages, ""])
-  .nullish()
-  .transform((val): Language => val || defaultLanguage);
+const language = z.enum(languages).optional();
 
 const url = optionalStringSchema;
 const name = optionalStringSchema;
@@ -34,31 +24,15 @@ const date = optionalStringSchema;
 const approvalDate = optionalStringSchema;
 const lastReviewDate = optionalStringSchema;
 
-// experimental is used as v-model and should be null for neutral value
-const experimental = z
-  .boolean()
-  .nullish()
-  .transform((val) => (val === undefined ? null : val));
+const experimental = optionalBooleanSchema;
 
-const identifierUse = [
-  "usual",
-  "official",
-  "temp",
-  "secondary",
-  "old",
-] as const;
-
-const use = z
-  .enum([...identifierUse, ""])
-  .nullish()
-  .transform((val) => val || undefined);
+const use = z.enum(identifierUse).optional();
 const period = z
   .object({
     start: optionalStringSchema,
     end: optionalStringSchema,
   })
-  .nullish()
-  .transform(nullToUndefined);
+  .optional();
 
 const coding = optionalCodingSchema;
 
@@ -67,8 +41,7 @@ const type = z
     coding,
     text: optionalStringSchema,
   })
-  .nullish()
-  .transform(nullToUndefined);
+  .optional();
 
 // TODO: Add assigner to identifierSchema
 const identifierSchema = z
@@ -83,10 +56,7 @@ const identifierSchema = z
 
 export type FHIRIdentifier = z.infer<typeof identifierSchema>;
 
-const identifier = identifierSchema
-  .array()
-  .nullish()
-  .transform(nullToUndefined);
+const identifier = identifierSchema.array().optional();
 
 export const questionnaireSchema = z
   .object({
