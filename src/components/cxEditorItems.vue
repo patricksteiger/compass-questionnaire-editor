@@ -134,33 +134,6 @@
             </template>
           </q-tree>
 
-          <!-- Change language button -->
-          <div>
-            <q-page-sticky position="top-left" :offset="[10, 38]">
-              <q-fab
-                vertical-actions-align="left"
-                color="purple"
-                push
-                icon="keyboard_arrow_right"
-                direction="right"
-                padding="none xl"
-                :hide-icon="getUsedLanguages.length <= 1"
-                :label="
-                  $t('views.editor.changeLanguage', { language: language })
-                "
-              >
-                <q-fab-action
-                  v-for="lang in getUsedLanguages.filter((l: Language) => l !== language)"
-                  :key="lang"
-                  label-position="right"
-                  color="purple"
-                  @click="switchLanguage(lang)"
-                  :label="lang"
-                />
-              </q-fab>
-            </q-page-sticky>
-          </div>
-
           <!-- Add new item buttons -->
           <div
             v-if="
@@ -1132,6 +1105,7 @@
       <q-btn
         icon="language"
         color="purple"
+        :label="language"
         @click="() => (languageLayout = !languageLayout)"
       >
         <q-tooltip>{{ $t("views.languages.buttonTooltip") }}</q-tooltip>
@@ -1217,7 +1191,7 @@
 
   <!-- ValidationHub -->
   <div>
-    <q-page-sticky position="bottom-right" :offset="[90, 18]">
+    <q-page-sticky position="bottom-right" :offset="[130, 18]">
       <q-btn icon="warning_amber" color="orange" @click="validateState">
         <q-tooltip>See warnings</q-tooltip>
       </q-btn>
@@ -1238,7 +1212,7 @@
             <q-toolbar
               class="bg-secondary text-white shadow-2"
               clickable
-              @click="switchFromValidationHub(result.language)"
+              @click="switchLanguageFromValidationHub(result.language)"
             >
               <q-toolbar-title>{{ result.language }}</q-toolbar-title>
             </q-toolbar>
@@ -1249,7 +1223,7 @@
                   v-for="warning in result.metadata"
                   :key="warning"
                   clickable
-                  @click="switchFromValidationHub(result.language)"
+                  @click="switchLanguageFromValidationHub(result.language)"
                 >
                   <q-item-section>
                     <q-item-label>{{ warning }}</q-item-label>
@@ -1593,20 +1567,17 @@ export default defineComponent({
       this.switchFromLanguageHub(language);
     },
     switchLanguage(language: Language): void {
-      // language is filtered at button and always != to current language
-      this.$store.commit("switchQuestionnaireByLang", language);
-      this.refreshQuestionnaire();
+      if (this.language !== language) {
+        this.$store.commit("switchQuestionnaireByLang", language);
+        this.refreshQuestionnaire();
+      }
     },
     switchFromLanguageHub(language: Language): void {
-      if (this.language !== language) {
-        this.switchLanguage(language);
-      }
+      this.switchLanguage(language);
       this.languageLayout = false;
     },
-    switchFromValidationHub(language: Language): void {
-      if (this.language !== language) {
-        this.switchLanguage(language);
-      }
+    switchLanguageFromValidationHub(language: Language): void {
+      this.switchLanguage(language);
       this.validationLayout = false;
     },
     switchToItemFromValidationHub(
@@ -1617,9 +1588,7 @@ export default defineComponent({
         this.selected = null;
         this.lastSelectedItem = undefined;
         this.lastSelected = null;
-        if (this.language !== language) {
-          this.switchLanguage(language);
-        }
+        this.switchLanguage(language);
         this.selected = internalId;
       }
       this.validationLayout = false;
