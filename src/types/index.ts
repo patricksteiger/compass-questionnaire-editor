@@ -178,7 +178,6 @@ export type Item = {
   // unique ID based on uuidv4 and Date
   __internalID: string;
   __newQuestion: boolean;
-  __newDefinition: boolean;
   __oldText?: string;
   __dependenceCondition?: Condition;
   __OldAnswerValueSet?: string;
@@ -193,7 +192,7 @@ export type Item = {
   enableWhen?: EnableWhen[];
   enableBehavior?: EnableBehavior;
   text: string;
-  definition: string;
+  definition?: string;
   answerOption?: AnswerOption[];
   answerValueSet?: string;
   extension?: Extension[];

@@ -314,29 +314,15 @@
             <div
               class="row items-center justify-between text-bold text-h5 q-mb-md"
             >
-              <!-- UUID -->
+              <!-- definition -->
               <q-input
                 :disable="!selectedItem.__active"
                 v-if="selectedItem !== undefined"
                 v-model="selectedItem.definition"
-                :label="$t('views.editor.UUID')"
+                label="definition"
                 dense
                 class="col-8"
-              >
-                <template v-slot:after>
-                  <q-btn
-                    :disable="!selectedItem.__active"
-                    dense
-                    flat
-                    icon="autorenew"
-                    @click="newUUID"
-                    >{{ $t("views.editor.newUUID")
-                    }}<q-tooltip>
-                      {{ $t("views.editor.regenerateUUID") }}
-                    </q-tooltip></q-btn
-                  >
-                </template>
-              </q-input>
+              />
             </div>
             <div
               class="row items-center justify-between text-bold text-h5 q-mb-md"
@@ -1821,12 +1807,6 @@ export default defineComponent({
           this.selectedItem.answerValueSet = "";
         }
       }
-    },
-    newUUID(): void {
-      if (this.selectedItem === undefined) {
-        throw new Error("Can't change UUID, if no item is selected");
-      }
-      this.selectedItem.definition = uuidv4();
     },
     onDragStart(e: DragEvent, node: Item): void {
       if (e.dataTransfer !== null) {

@@ -6,7 +6,6 @@ import {
   isInvalidItemType,
   getAnswerOptionIcon,
 } from "./constants";
-import { v4 as uuidv4 } from "uuid";
 import { Item, Questionnaire, enableBehaviors, EnableBehavior } from "@/types";
 import { isSupportedLanguage, Language } from "@/store";
 import { editorTools } from "./editor";
@@ -198,10 +197,7 @@ class FHIRValidation {
 
     //UUI
     if (!item.definition) {
-      item.definition = uuidv4();
-      item.__newDefinition = true;
-    } else {
-      item.__newDefinition = false;
+      delete item.definition;
     }
   }
 

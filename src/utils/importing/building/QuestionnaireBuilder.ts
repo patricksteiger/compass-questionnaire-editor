@@ -35,7 +35,6 @@ export class QuestionnaireBuilder {
       enableWhen: fhirEnableWhen,
       answerOption,
       text,
-      definition,
       answerValueSet,
     } = fhirItem;
     let enableWhen: EnableWhen[] | undefined = undefined;
@@ -66,7 +65,6 @@ export class QuestionnaireBuilder {
       __icon: getItemTypeIcon(fhirItem.type),
       __internalID: itemTools.createInternalId(),
       __newQuestion: true,
-      __newDefinition: definition ? false : true,
       __oldText: text,
       __dependenceCondition: undefined,
       __OldAnswerValueSet: answerValueSet,
@@ -76,7 +74,6 @@ export class QuestionnaireBuilder {
       answerOption: newAnswerOption,
       enableWhen,
       text: text ?? "",
-      definition: definition ?? "",
       required: fhirItem.required,
       repeats: fhirItem.repeats,
       item: newItem,

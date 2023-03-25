@@ -1,5 +1,4 @@
 import { ItemType, getItemTypeIcon } from "./constants";
-import { v4 as uuidv4 } from "uuid";
 import { Question, Item, Questionnaire, Coding, Quantity } from "@/types";
 import { itemTools } from "./item";
 
@@ -15,11 +14,9 @@ function createNewItem(type: ItemType): Item {
     type: type,
     __icon: getItemTypeIcon(type),
     __internalID: itemTools.createInternalId(),
-    definition: uuidv4(),
     __active: true,
     __linkId: "",
     __newQuestion: true,
-    __newDefinition: true,
     __disabled: false,
     item: undefined,
     linkId: "",
