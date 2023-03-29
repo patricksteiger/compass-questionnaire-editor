@@ -62,9 +62,9 @@
                 {{ selectedItem.text }}
                 <div class="text-caption">{{ selectedItem.type }}</div>
                 <div class="text-subtitle1">
-                  {{ $t("views.editor.UUID") }}:
+                  LinkID:
                   <span class="text-italic q-mb-md">
-                    {{ selectedItem.definition }}
+                    {{ selectedItem.linkId }}
                   </span>
                 </div>
                 <div class="text-subtitle1" v-if="selectedItem.answerValueSet">

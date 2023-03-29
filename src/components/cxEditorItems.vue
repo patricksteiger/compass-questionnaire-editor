@@ -822,6 +822,8 @@
                             :type="'text'"
                             :readonly="enableWhen.__answerOption"
                             dense
+                            mask="fulltime"
+                            :fill-mask="true"
                             :rules="[dateTools.isTime]"
                           />
                           <q-input
@@ -1257,6 +1259,7 @@
           </div>
         </q-item>
       </q-list>
+      <div v-if="validationHasNoWarnings()">There are no warnings</div>
     </q-layout>
   </q-dialog>
 
@@ -1468,13 +1471,13 @@ export default defineComponent({
       );
     };
     const answerOptionItem: Ref<AnswerOption | undefined> = ref(undefined);
-    const validatotionResult: Ref<Warning[]> = ref([]);
+    const validationResult: Ref<Warning[]> = ref([]);
     return {
       languageLayout: ref(false),
       languageSplitter: ref(40),
       languageSplitterLimits: ref([30, 60]),
       validationLayout: ref(false),
-      validationResult: validatotionResult,
+      validationResult,
       triggerNegative,
       questionaireGUI,
       item,
@@ -1635,6 +1638,14 @@ export default defineComponent({
       const questionnaires = this.getQuestionnaires;
       this.validationResult = Validator.check(questionnaires);
       this.validationLayout = true;
+    },
+    validationHasNoWarnings(): boolean {
+      for (const result of this.validationResult) {
+        if (result.metadata.length > 0 || result.items.length > 0) {
+          return false;
+        }
+      }
+      return true;
     },
     validItemId(s: string): boolean {
       return s.length > 0;
