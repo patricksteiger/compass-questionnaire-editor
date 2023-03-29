@@ -1,5 +1,6 @@
 import { Language } from "@/store";
-import { Item, Questionnaire } from "@/types";
+import { EnableWhen, Item, Questionnaire } from "@/types";
+import { dateTools } from "../date";
 
 export type Warning = {
   language: Language;
@@ -43,6 +44,7 @@ export class QuestionnaireValidator {
   private item(item: Item, itemWarnings: ItemWarning[]): void {
     const warnings: string[] = [];
     this.text(item, warnings);
+    this.enableWhen(item, warnings);
     if (warnings.length > 0) {
       const warning: ItemWarning = {
         linkId: item.linkId,
@@ -54,6 +56,44 @@ export class QuestionnaireValidator {
     if (item.item !== undefined) {
       for (const element of item.item) {
         this.item(element, itemWarnings);
+      }
+    }
+  }
+
+  private enableWhen(item: Item, warnings: string[]): void {
+    if (item.enableWhen === undefined) return;
+    for (let i = 0; i < item.enableWhen.length; i++) {
+      const enableWhen = item.enableWhen[i];
+      this.enableWhenAnswer(enableWhen, i, warnings);
+    }
+  }
+
+  private enableWhenAnswer(
+    enableWhen: EnableWhen,
+    index: number,
+    warnings: string[],
+  ): void {
+    if (!enableWhen.answer) {
+      warnings.push(`enableWhen at index ${index} has empty answer`);
+      return;
+    }
+    if (enableWhen.type === "time") {
+      if (!dateTools.isTime(enableWhen.answer)) {
+        warnings.push(
+          `enableWhen at index ${index} has invalid time answer "${enableWhen.answer}"`,
+        );
+      }
+    } else if (enableWhen.type === "date") {
+      if (!dateTools.isDate(enableWhen.answer)) {
+        warnings.push(
+          `enableWhen at index ${index} has invalid date answer "${enableWhen.answer}"`,
+        );
+      }
+    } else if (enableWhen.type === "dateTime") {
+      if (!dateTools.isDateTime(enableWhen.answer)) {
+        warnings.push(
+          `enableWhen at index ${index} has invalid dateTime answer "${enableWhen.answer}"`,
+        );
       }
     }
   }

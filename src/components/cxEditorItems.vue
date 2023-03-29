@@ -823,7 +823,8 @@
                             :readonly="enableWhen.__answerOption"
                             dense
                             mask="fulltime"
-                            :fill-mask="true"
+                            fill-mask
+                            :error="dateTools.isTime(enableWhen.answer ?? '')"
                             :rules="[dateTools.isTime]"
                           />
                           <q-input
@@ -1248,11 +1249,13 @@
                   "
                 >
                   {{ item.linkId }}
-                  <q-item v-for="warning in item.warnings" :key="warning">
-                    <q-item-section>
-                      <q-item-label>{{ warning }}</q-item-label>
-                    </q-item-section>
-                  </q-item>
+                  <q-list separator>
+                    <q-item v-for="warning in item.warnings" :key="warning">
+                      <q-item-section>
+                        <q-item-label>{{ warning }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
                 </q-item>
               </q-list>
             </div>
