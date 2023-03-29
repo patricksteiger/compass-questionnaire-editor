@@ -1,6 +1,7 @@
 import { Language } from "@/store";
 import { EnableWhen, Item, Questionnaire } from "@/types";
 import { dateTools } from "../date";
+import { editorTools } from "../editor";
 
 export type Warning = {
   language: Language;
@@ -77,6 +78,14 @@ export class QuestionnaireValidator {
       warnings.push(`enableWhen at index ${index} has empty answer`);
       return;
     }
+    if (enableWhen.operator === "exists") {
+      if (enableWhen.answer !== "true" && enableWhen.answer !== "false") {
+        warnings.push(
+          `enableWhen at index ${index} has invalid answer for operator "${enableWhen.operator}"`,
+        );
+      }
+      return;
+    }
     if (enableWhen.type === "time") {
       if (!dateTools.isTime(enableWhen.answer)) {
         warnings.push(
@@ -94,6 +103,25 @@ export class QuestionnaireValidator {
         warnings.push(
           `enableWhen at index ${index} has invalid dateTime answer "${enableWhen.answer}"`,
         );
+      }
+    } else if (enableWhen.type === "quantity") {
+      if (
+        enableWhen.answerQuantity === undefined ||
+        editorTools.formatQuantity(enableWhen.answerQuantity) !==
+          enableWhen.answer
+      ) {
+        warnings.push(
+          `enableWhen at index ${index} has invalid quantity-answer`,
+        );
+      } else {
+        if (!enableWhen.answerQuantity!.value) {
+          warnings.push(
+            `enableWhen at index ${index} has empty quantity-value`,
+          );
+        }
+        if (!enableWhen.answerQuantity!.code) {
+          warnings.push(`enableWhen at index ${index} has empty quantity-code`);
+        }
       }
     }
   }

@@ -749,6 +749,7 @@
                             dense
                             :rules="[validExistsAnswer]"
                           />
+                          <!-- TODO: if switch from boolean answer with exists it errors -->
                           <q-input
                             v-else-if="enableWhen.type === 'integer'"
                             @keypress="onlyNumber"
