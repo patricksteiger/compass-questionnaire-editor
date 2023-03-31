@@ -139,6 +139,8 @@ function getObjectWithoutItemsDisabled(
   if (jsonObject.item === undefined) {
     return jsonObject;
   }
+
+  // TODO: Remove unneded deletion of inactive items
   // To only keep items with linkId
   jsonObject.item = jsonObject.item.filter((item) => item.linkId !== "");
 
@@ -165,6 +167,7 @@ function getObjectWithoutItemsDisabled(
       }
     }
 
+    // FIXME: fix double values set after changing between exists and other operators
     //convert to integer ValueInteger
     if (item.answerOption !== undefined) {
       for (const answerOpt of item.answerOption) {

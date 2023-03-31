@@ -19,6 +19,7 @@ function createNewItem(type: ItemType): Item {
     __newQuestion: true,
     __disabled: false,
     item: undefined,
+    // FIXME: What should be default linkId?
     linkId: "",
     text: itemTools.getDefaultText(),
     extension: [],
@@ -54,12 +55,11 @@ class EditorTools {
   }
 
   private getAllLinkIDsHelper(item: Item, linkIDs: Set<string>): void {
-    if (item.linkId === "") return;
+    if (!item.__active) return;
     linkIDs.add(item.linkId);
-    if (item.item !== undefined) {
-      for (const element of item.item) {
-        this.getAllLinkIDsHelper(element, linkIDs);
-      }
+    if (item.item === undefined) return;
+    for (const element of item.item) {
+      this.getAllLinkIDsHelper(element, linkIDs);
     }
   }
 
@@ -73,21 +73,22 @@ class EditorTools {
     if (item.item === undefined) return;
     let idCount = 0;
     for (const element of item.item) {
-      idCount++;
       element.__linkId = `${item.__linkId}.${idCount}`;
+      idCount++;
       this.assingNewInternalLinkIDsToChildren(element);
     }
   }
 
-  regenerateInternalLinkIDs(items: Item[]): void {
+  regenerateInternalLinkIDs(questionnaire: Questionnaire): void {
     let idCount = 0;
-    for (const item of items) {
-      idCount++;
+    for (const item of questionnaire.item) {
       item.__linkId = idCount.toString();
+      idCount++;
       this.assingNewInternalLinkIDsToChildren(item);
     }
   }
 
+  // TODO: LINKID
   private assingNewItemIDs(
     item: Item,
     changedIdMap: Map<string, string>,
@@ -109,10 +110,11 @@ class EditorTools {
     }
   }
 
-  regenerateLinkIds(items: Item[]): Map<string, string> {
+  // TODO: LINKID
+  regenerateLinkIds(questionnaire: Questionnaire): Map<string, string> {
     const changedIdMap = new Map<string, string>();
     let idCount = 0;
-    for (const item of items) {
+    for (const item of questionnaire.item) {
       if (item.__active) {
         idCount++;
         const oldLinkId = item.linkId;
@@ -238,11 +240,12 @@ class EditorTools {
     return undefined;
   }
 
-  getItemByLinkId(linkId: string, rootItem: Item[] = []): Item | undefined {
+  getItemByLinkId(linkId: string, rootItem: Item[]): Item | undefined {
     for (const item of rootItem) {
       if (item.linkId === linkId) {
         return item;
       }
+      if (item.item === undefined) continue;
       const result = this.getItemByLinkId(linkId, item.item);
       if (result !== undefined) {
         return result;

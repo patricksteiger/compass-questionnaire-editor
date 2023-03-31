@@ -36,26 +36,7 @@ const answerOption = answerOptionSchema.array().optional();
 
 const answerValueSet = optionalStringSchema;
 
-// Valid examples:   "1", "1.13.2"
-// Invalid examples: "", "1..2", ".1", "."
-function validLinkId(linkId: string): boolean {
-  let dotIsAllowed = false;
-  for (const char of linkId) {
-    if (char >= "0" && char <= "9") {
-      dotIsAllowed = true;
-    } else if (char === ".") {
-      if (!dotIsAllowed) return false;
-      dotIsAllowed = false;
-    } else {
-      return false;
-    }
-  }
-  // Make sure at least 1 number is present and linkId doesn't end with a dot
-  return dotIsAllowed;
-}
-
-// TODO: refactor linkId validation
-const linkId = z.string().refine(validLinkId);
+const linkId = z.string();
 
 const baseItemSchema = z.object({
   linkId,

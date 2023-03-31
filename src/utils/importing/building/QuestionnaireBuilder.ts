@@ -17,8 +17,10 @@ export class QuestionnaireBuilder {
     const experimental = this.qre.experimental ?? null;
     this.qre.item ??= [];
     const newItem: Item[] = [];
+    let linkIdCount = 0;
     for (const i of this.qre.item) {
-      newItem.push(this.fromItem(i));
+      newItem.push(this.fromItem(i, linkIdCount.toString()));
+      linkIdCount++;
     }
     return {
       ...this.qre,
@@ -29,7 +31,7 @@ export class QuestionnaireBuilder {
     };
   }
 
-  private fromItem(fhirItem: ParsedItem): Item {
+  private fromItem(fhirItem: ParsedItem, internalLinkId: string): Item {
     const {
       item,
       enableWhen: fhirEnableWhen,
@@ -47,8 +49,11 @@ export class QuestionnaireBuilder {
     let newItem: Item[] | undefined = undefined;
     if (item !== undefined) {
       newItem = [];
+      let linkIdCount = 0;
       for (const i of item) {
-        newItem.push(this.fromItem(i));
+        const nextInternalLinkId = `${internalLinkId}.${linkIdCount}`;
+        newItem.push(this.fromItem(i, nextInternalLinkId));
+        linkIdCount++;
       }
     }
     let newAnswerOption: AnswerOption[] | undefined = undefined;
@@ -69,7 +74,7 @@ export class QuestionnaireBuilder {
       __dependenceCondition: undefined,
       __OldAnswerValueSet: answerValueSet,
       __answerValueSetCheck: answerValueSet !== undefined,
-      __linkId: fhirItem.linkId,
+      __linkId: internalLinkId,
       ...fhirItem,
       answerOption: newAnswerOption,
       enableWhen,

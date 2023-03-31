@@ -1,5 +1,4 @@
 import { ParsedQuestionnaire } from "../parsing/questionnaire";
-import { validatorUtils } from "../TransformerUtils";
 import { FHIRItemValidator } from "./FHIRItemValidator";
 
 export type ValidationResult =
@@ -21,14 +20,11 @@ export class FHIRQuestionnaireValidator {
     if (qre.item === undefined) {
       return { state: "success", data: qre };
     }
-    validatorUtils.sortItemsByLinkId(qre.item);
     const errors: string[] = [];
     const warnings: string[] = [];
     const itemValidator = new FHIRItemValidator(qre, errors, warnings);
-    let linkIdCount = 0;
     for (const item of qre.item) {
-      linkIdCount++;
-      itemValidator.validate(item, linkIdCount.toString());
+      itemValidator.validate(item, 1);
     }
     if (errors.length > 0) {
       return { state: "error", errors, warnings };

@@ -630,14 +630,18 @@ function validateQuestionnaireEntries(
   return entries;
 }
 
+function emptyItems(items: Item[] | undefined): items is undefined {
+  return items === undefined || items.length === 0;
+}
+
 function itemStructure(
   qre1: Item[] | undefined,
   qre2: Item[] | undefined,
   errorMessages: string[],
 ): void {
-  if (!qre1 && !qre2) return;
-  if (!qre1 || !qre2) {
-    errorMessages.push("Can't have undefined items if others are defined.");
+  if (emptyItems(qre1) && emptyItems(qre2)) return;
+  if (emptyItems(qre1) || emptyItems(qre2)) {
+    errorMessages.push("Can't have empty items if others are non-empty.");
     return;
   }
   if (qre1.length !== qre2.length) {

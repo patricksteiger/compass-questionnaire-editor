@@ -1,6 +1,5 @@
 import { ParsedAnswerOption, ParsedItem } from "../parsing/item";
 import { ParsedQuestionnaire } from "../parsing/questionnaire";
-import { editorTools } from "@/utils/editor";
 import {
   MAX_ALLOWED_LEVELS,
   MAX_ALLOWED_LEVELS_FOR_GROUPS,
@@ -9,50 +8,58 @@ import { validatorUtils } from "../TransformerUtils";
 import { ParsedEnableWhen } from "../parsing/enableWhen";
 
 export class FHIRItemValidator {
+  private linkIdSet: Set<string>;
+
   constructor(
     private readonly qre: ParsedQuestionnaire,
     private errors: string[],
     private warnings: string[],
-  ) {}
+  ) {
+    this.linkIdSet = new Set();
+  }
 
-  validate(item: ParsedItem, expectedLinkId: string): void {
-    if (item.linkId !== expectedLinkId) {
-      this.errors.push(
-        `LinkId "${item.linkId}" should be "${expectedLinkId}".`,
-      );
-      return;
-    }
-    const linkIdLevel = editorTools.getLevelFromLinkID(item.linkId);
-    if (linkIdLevel > MAX_ALLOWED_LEVELS) {
+  validate(item: ParsedItem, level: number): void {
+    if (level > MAX_ALLOWED_LEVELS) {
       this.errors.push(
         `LinkId ${item.linkId} exceeds allowed levels of ${MAX_ALLOWED_LEVELS}.`,
       );
       return;
     }
-    if (item.type === "group" && linkIdLevel > MAX_ALLOWED_LEVELS_FOR_GROUPS) {
+    if (level > MAX_ALLOWED_LEVELS_FOR_GROUPS && item.type === "group") {
       this.errors.push(
         `LinkId ${item.linkId} exceeds allowed levels of ${MAX_ALLOWED_LEVELS_FOR_GROUPS} for groups.`,
       );
       return;
     }
+    this.validateLinkId(item);
     this.validateEnableWhen(item);
     this.validateAnswerValueSetAndOption(item);
     this.validateMaxLength(item);
     this.validateRequired(item);
     this.validateRepeats(item);
-    if (validatorUtils.nonEmptyList(item.item)) {
-      if (item.type === "display") {
-        this.errors.push(
-          `LinkId "${item.linkId}" has type ${item.type} and must not have children.`,
-        );
-        return;
-      }
-      let linkIdCount = 0;
-      for (const child of item.item) {
-        linkIdCount++;
-        const nextLinkId = `${item.linkId}.${linkIdCount}`;
-        this.validate(child, nextLinkId);
-      }
+    if (validatorUtils.emptyList(item.item)) return;
+    if (item.type === "display") {
+      this.errors.push(
+        `LinkId "${item.linkId}" has type ${item.type} and must not have children.`,
+      );
+      return;
+    }
+    for (const child of item.item) {
+      this.validate(child, level + 1);
+    }
+  }
+
+  private validateLinkId(item: ParsedItem): void {
+    if (item.linkId === "") {
+      this.errors.push("LinkId has to be a non-empty string.");
+      return;
+    }
+    if (this.linkIdSet.has(item.linkId)) {
+      this.errors.push(
+        `LinkId "${item.linkId}" is duplicated in questionnaire.`,
+      );
+    } else {
+      this.linkIdSet.add(item.linkId);
     }
   }
 

@@ -124,7 +124,8 @@
                   style="width: 100%"
                 >
                   <span>
-                    {{ prop.node.type }}:{{ prop.node.linkId }}
+                    {{ prop.node.type }}:{{ prop.node.linkId }} |
+                    {{ prop.node.__linkId }}
                     <q-tooltip>
                       {{ $t("components.linkId") }}
                     </q-tooltip>
@@ -1796,7 +1797,7 @@ export default defineComponent({
       if (e.dataTransfer !== null) {
         e.dataTransfer.setData(DRAG_KEY_INTERNAL_ID, node.__internalID);
       } else {
-        console.error(`DataTransfer is null: ${node.linkId}`);
+        console.error(`DataTransfer is null: ${node.__linkId}`);
       }
     },
     onDragOver(e: DragEvent): void {
@@ -1934,10 +1935,8 @@ export default defineComponent({
         sourceBranch.splice(sourceIndex, 1);
       }
 
-      const changedIdMap = this.editorTools.regenerateLinkIds(
-        questionnaire.item,
-      );
-      this.editorTools.regenerateInternalLinkIDs(questionnaire.item);
+      const changedIdMap = this.editorTools.regenerateLinkIds(questionnaire);
+      this.editorTools.regenerateInternalLinkIDs(questionnaire);
       this.editorTools.regenerateConditionWhenIds(
         questionnaire.item,
         changedIdMap,
@@ -1989,9 +1988,7 @@ export default defineComponent({
           questionnaire.item,
           toggle,
         );
-        const changedIdMap = this.editorTools.regenerateLinkIds(
-          questionnaire.item,
-        );
+        const changedIdMap = this.editorTools.regenerateLinkIds(questionnaire);
         this.editorTools.regenerateConditionWhenIds(
           questionnaire.item,
           changedIdMap,
@@ -2012,7 +2009,7 @@ export default defineComponent({
         return;
       }
       const currentLevel = this.editorTools.getLevelFromLinkID(
-        this.selectedItem.linkId,
+        this.selectedItem.__linkId,
       );
       // Don't add group question to lowest level to avoid empty groups
       if (currentLevel >= MAX_ALLOWED_LEVELS) {
@@ -2107,6 +2104,7 @@ export default defineComponent({
       }
       this.selectedItem.answerOption.splice(indexOfItemtoBeRemoved, 1);
     },
+    // FIXME: Can you properly delete disabled items?
     deleteItem(internalID: string) {
       const answer = confirm(i18n.global.t("views.editor.deleteItemDialogue"));
       if (!answer) {
@@ -2119,7 +2117,6 @@ export default defineComponent({
       }
       if (this.selectedItem?.__internalID === internalID) {
         this.selected = null;
-        this.selectedItem = undefined;
         this.lastSelected = null;
         this.lastSelectedItem = undefined;
       }
@@ -2148,10 +2145,8 @@ export default defineComponent({
       if (linkIDs.size > 0) {
         this.deleteEnableWhenWithQuestionID(questionnaire.item, linkIDs);
       }
-      const changedIdMap = this.editorTools.regenerateLinkIds(
-        questionnaire.item,
-      );
-      this.editorTools.regenerateInternalLinkIDs(questionnaire.item);
+      this.editorTools.regenerateInternalLinkIDs(questionnaire);
+      const changedIdMap = this.editorTools.regenerateLinkIds(questionnaire);
       this.editorTools.regenerateConditionWhenIds(
         questionnaire.item,
         changedIdMap,
