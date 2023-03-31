@@ -124,7 +124,7 @@
                   style="width: 100%"
                 >
                   <span>
-                    {{ prop.node.type }}:{{ prop.node.linkId }} |
+                    {{ prop.node.type }}: {{ prop.node.linkId }} |
                     {{ prop.node.__linkId }}
                     <q-tooltip>
                       {{ $t("components.linkId") }}
@@ -159,7 +159,7 @@
                   :key="questionTypeIcon.name"
                   label-position="right"
                   color="primary"
-                  @click="onAddQuestion(questionTypeIcon.name)"
+                  @click="addItemWithType(questionTypeIcon.name)"
                   :icon="questionTypeIcon.icon"
                   :label="questionTypeIcon.label"
                 />
@@ -189,7 +189,7 @@
                   :key="questionTypeIcon.name"
                   label-position="right"
                   color="primary"
-                  @click="onAddQuestion(questionTypeIcon.name)"
+                  @click="addItemWithType(questionTypeIcon.name)"
                   :icon="questionTypeIcon.icon"
                   :label="questionTypeIcon.label"
                 />
@@ -1328,6 +1328,32 @@
     </q-layout>
   </q-dialog>
 
+  <!-- Add item with linkId and type -->
+  <q-dialog v-model="addLinkIdLayout">
+    <q-layout view="Lhh lpR fff" container class="bg-white">
+      <q-page-container>
+        <q-page padding>
+          <q-toolbar class="bg-primary text-white shadow-2">
+            <q-toolbar-title>Add new LinkId</q-toolbar-title>
+          </q-toolbar>
+          <div class="q-pa-md">
+            <q-input
+              label="LinkId"
+              class="col-4"
+              v-model="newLinkId"
+              type="text"
+              dense
+            />
+            <q-btn
+              icon="add"
+              @click="addItemWithLinkId(newLinkId, newLinkIdType)"
+            />
+          </div>
+        </q-page>
+      </q-page-container>
+    </q-layout>
+  </q-dialog>
+
   <!-- Handle complex answerOptions -->
   <q-dialog
     v-model="chosenAnswerOptionLayout"
@@ -1477,7 +1503,12 @@ export default defineComponent({
     };
     const answerOptionItem: Ref<AnswerOption | undefined> = ref(undefined);
     const validationResult: Ref<Warning[]> = ref([]);
+    const newLinkId: Ref<string> = ref("");
+    const newLinkIdType: Ref<ItemType> = ref("integer");
     return {
+      addLinkIdLayout: ref(false),
+      newLinkId,
+      newLinkIdType,
       languageLayout: ref(false),
       languageSplitter: ref(40),
       languageSplitterLimits: ref([30, 60]),
@@ -1527,6 +1558,23 @@ export default defineComponent({
     };
   },
   methods: {
+    addItemWithLinkId(linkId: string, type: ItemType): void {
+      if (linkId === "") {
+        alert("LinkId can not be empty");
+        return;
+      }
+      const qre = this.questionaireGUI!;
+      if (this.editorTools.linkIdInvalidForQuestionnaire(qre, linkId)) {
+        alert("LinkId must be unique in questionnaire.");
+        return;
+      }
+      this.onAddQuestion(linkId, type);
+      this.addLinkIdLayout = false;
+    },
+    addItemWithType(type: ItemType): void {
+      this.newLinkIdType = type;
+      this.addLinkIdLayout = true;
+    },
     handleQuantityAnswer(enableWhen: EnableWhen): void {
       enableWhen.answerQuantity ??= {};
       this.chosenEnableWhen = enableWhen;
@@ -1609,31 +1657,19 @@ export default defineComponent({
         const internalLinkId = this.selectedItem.__linkId;
         const newItem = this.editorTools.getItemByInternalLinkId(
           internalLinkId,
-          this.item,
+          this.questionaireGUI!,
         );
-        if (newItem !== undefined) {
-          this.selectedItem = newItem;
-          this.selected = newItem.__internalID;
-        } else {
-          console.error(
-            `Internal LinkId ${internalLinkId} of selected does not exist in selected questionnaire!`,
-          );
-        }
+        this.selectedItem = newItem;
+        this.selected = newItem.__internalID;
       }
       if (this.lastSelectedItem !== undefined) {
         const internalLinkId = this.lastSelectedItem.__linkId;
         const newItem = this.editorTools.getItemByInternalLinkId(
           internalLinkId,
-          this.item,
+          this.questionaireGUI!,
         );
-        if (newItem !== undefined) {
-          this.lastSelectedItem = newItem;
-          this.lastSelected = newItem.__internalID;
-        } else {
-          console.error(
-            `Internal LinkId ${internalLinkId} of last selected does not exist in selected questionnaire!`,
-          );
-        }
+        this.lastSelectedItem = newItem;
+        this.lastSelected = newItem.__internalID;
       }
     },
     getUnusedLanguages(): Language[] {
@@ -1885,6 +1921,7 @@ export default defineComponent({
         );
       }
     },
+    // FIXME: Can you drag on non-group-items?
     dragItem(
       questionnaire: Questionnaire,
       sourceInternalLinkId: string,
@@ -1935,12 +1972,7 @@ export default defineComponent({
         sourceBranch.splice(sourceIndex, 1);
       }
 
-      const changedIdMap = this.editorTools.regenerateLinkIds(questionnaire);
       this.editorTools.regenerateInternalLinkIDs(questionnaire);
-      this.editorTools.regenerateConditionWhenIds(
-        questionnaire.item,
-        changedIdMap,
-      );
     },
     toggleItem(internalId: string) {
       const currentNode = this.editorTools.getItemByInternalId(
@@ -1963,7 +1995,7 @@ export default defineComponent({
             errorLangs.push(questionnaire.language);
           }
         }
-        if (errorLangs.length > 0) {
+        if (errorLangs.length !== 0) {
           const answer = confirm(
             `Questionnaires with languages [${errorLangs}] have questions that depend on at least one of the questions you want to deactivate. ` +
               "Keeping the LinkId on these conditions would harm the logical integrity of the questionnaire. " +
@@ -1985,26 +2017,21 @@ export default defineComponent({
       for (const questionnaire of questionnaires) {
         this.editorTools.toggleEntireItem(
           internalLinkId,
-          questionnaire.item,
+          questionnaire,
           toggle,
-        );
-        const changedIdMap = this.editorTools.regenerateLinkIds(questionnaire);
-        this.editorTools.regenerateConditionWhenIds(
-          questionnaire.item,
-          changedIdMap,
         );
       }
     },
-    isCondition(id: string) {
-      return this.editorTools.isEnableWhenCondition(
-        this.item,
-        this.editorTools.getItemByInternalId(id, this.item)?.linkId || "",
-      );
+    isCondition(internalId: string): boolean {
+      const item = this.editorTools.getItemByInternalId(internalId, this.item);
+      const linkId = item?.linkId;
+      if (!linkId) return false;
+      return this.editorTools.isEnableWhenCondition(this.item, linkId);
     },
-    onAddQuestion(questionType: ItemType): void {
+    onAddQuestion(linkId: string, questionType: ItemType): void {
       if (this.selectedItem === undefined) {
         for (const questionnaire of this.getQuestionnaires) {
-          this.addQuestionToRootItem(questionnaire, questionType);
+          this.addQuestionToRootItem(questionnaire, linkId, questionType);
         }
         return;
       }
@@ -2022,29 +2049,33 @@ export default defineComponent({
       }
       const selectedLinkId = this.selectedItem.__linkId;
       for (const questionnaire of this.getQuestionnaires) {
-        this.addQuestionToItem(questionnaire, selectedLinkId, questionType);
+        this.addQuestionToItem(
+          questionnaire,
+          selectedLinkId,
+          linkId,
+          questionType,
+        );
       }
     },
     addQuestionToItem(
       questionnaire: Questionnaire,
       internalLinkId: string,
+      linkId: string,
       type: ItemType,
     ): void {
       const item = this.editorTools.getItemByInternalLinkId(
         internalLinkId,
-        questionnaire.item,
+        questionnaire,
       );
-      if (item === undefined) {
-        console.error(
-          `LinkID ${internalLinkId} is not part of Questionnaire ${questionnaire.language}`,
-        );
-        return;
-      }
-      const newItem = this.editorTools.createItemWithType(type);
+      const newItem = this.editorTools.createItemWithType(linkId, type);
       this.editorTools.addItemAndSetLinkIDs(newItem, item);
     },
-    addQuestionToRootItem(questionnaire: Questionnaire, type: ItemType): void {
-      const newItem = this.editorTools.createItemWithType(type);
+    addQuestionToRootItem(
+      questionnaire: Questionnaire,
+      linkId: string,
+      type: ItemType,
+    ): void {
+      const newItem = this.editorTools.createItemWithType(linkId, type);
       const rootItems = questionnaire.item;
       this.editorTools.addItemToRootAndSetLinkIDs(newItem, rootItems);
     },
@@ -2146,11 +2177,6 @@ export default defineComponent({
         this.deleteEnableWhenWithQuestionID(questionnaire.item, linkIDs);
       }
       this.editorTools.regenerateInternalLinkIDs(questionnaire);
-      const changedIdMap = this.editorTools.regenerateLinkIds(questionnaire);
-      this.editorTools.regenerateConditionWhenIds(
-        questionnaire.item,
-        changedIdMap,
-      );
     },
     deleteEnableWhenWithQuestionID(items: Item[], linkIDs: Set<string>) {
       for (const item of items) {

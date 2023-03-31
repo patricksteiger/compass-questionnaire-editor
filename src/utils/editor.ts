@@ -9,7 +9,7 @@ export class UnreachableError extends Error {
   }
 }
 
-function createNewItem(type: ItemType): Item {
+function createNewItem(linkId: string, type: ItemType): Item {
   return {
     type: type,
     __icon: getItemTypeIcon(type),
@@ -19,8 +19,7 @@ function createNewItem(type: ItemType): Item {
     __newQuestion: true,
     __disabled: false,
     item: undefined,
-    // FIXME: What should be default linkId?
-    linkId: "",
+    linkId: linkId,
     text: itemTools.getDefaultText(),
     extension: [],
     required: itemTools.getDefaultRequired(type),
@@ -88,71 +87,7 @@ class EditorTools {
     }
   }
 
-  // TODO: LINKID
-  private assingNewItemIDs(
-    item: Item,
-    changedIdMap: Map<string, string>,
-  ): void {
-    if (item.item === undefined) return;
-    let idCount = 0;
-    for (const element of item.item) {
-      if (element.__active) {
-        idCount++;
-        const oldLinkId = element.linkId;
-        const newLinkId = item.linkId + "." + idCount;
-        changedIdMap.set(oldLinkId, newLinkId);
-        element.linkId = newLinkId;
-      } else {
-        changedIdMap.set(element.linkId, "");
-        element.linkId = "";
-      }
-      this.assingNewItemIDs(element, changedIdMap);
-    }
-  }
-
-  // TODO: LINKID
-  regenerateLinkIds(questionnaire: Questionnaire): Map<string, string> {
-    const changedIdMap = new Map<string, string>();
-    let idCount = 0;
-    for (const item of questionnaire.item) {
-      if (item.__active) {
-        idCount++;
-        const oldLinkId = item.linkId;
-        const newLinkId = idCount.toString();
-        changedIdMap.set(oldLinkId, newLinkId);
-        item.linkId = newLinkId;
-      } else {
-        changedIdMap.set(item.linkId, "");
-        item.linkId = "";
-      }
-      this.assingNewItemIDs(item, changedIdMap);
-    }
-    return changedIdMap;
-  }
-
-  regenerateConditionWhenIds(
-    items: Item[] | undefined,
-    changedIdMap: Map<string, string>,
-  ): void {
-    if (items === undefined) return;
-    for (const element of items) {
-      if (element.type === "group") {
-        this.regenerateConditionWhenIds(element.item, changedIdMap);
-      }
-      if (element.enableWhen === undefined) continue;
-      for (const condition of element.enableWhen) {
-        if (condition.question !== "" && changedIdMap.has(condition.question)) {
-          condition.question = changedIdMap.get(condition.question) ?? "";
-        }
-      }
-    }
-  }
-
   isEnableWhenCondition(item: Item[], linkId: string): boolean {
-    // deactivated Questions
-    if (linkId === "") {
-      return false;
-    }
     for (const element of item) {
       if (element.enableWhen !== undefined) {
         for (const condition of element.enableWhen) {
@@ -254,27 +189,24 @@ class EditorTools {
     return undefined;
   }
 
-  getItemByInternalLinkId(id: string, rootItem: Item[]): Item | undefined {
-    for (const item of rootItem) {
-      if (item.__linkId === id) {
-        return item;
-      }
-      if (!item.item) continue;
-      const result = this.getItemByInternalLinkId(id, item.item);
-      if (result !== undefined) return result;
+  getItemByInternalLinkId(id: string, questionnaire: Questionnaire): Item {
+    const digits = id.split(".");
+    const indeces = digits.map(Number);
+    let item = questionnaire.item[indeces[0]];
+    for (let i = 1; i < indeces.length; i++) {
+      const index = indeces[i];
+      item = item.item![index];
     }
-    return undefined;
+    return item;
   }
 
   toggleEntireItem(
     id: string,
-    rootItem: Item[],
+    questionnaire: Questionnaire,
     activateToggle: boolean,
   ): void {
-    const disableItem = this.getItemByInternalLinkId(id, rootItem);
-    if (disableItem === undefined || disableItem.__disabled) {
-      return;
-    }
+    const disableItem = this.getItemByInternalLinkId(id, questionnaire);
+    if (disableItem.__disabled) return;
     disableItem.__active = activateToggle;
     if (disableItem.item) {
       this.toggleChildren(disableItem.item, activateToggle);
@@ -291,8 +223,8 @@ class EditorTools {
     }
   }
 
-  createItemWithType(questionType: ItemType): Item {
-    const item = createNewItem(questionType);
+  createItemWithType(linkId: string, questionType: ItemType): Item {
+    const item = createNewItem(linkId, questionType);
     if (item.type === "choice" || item.type === "open-choice") {
       item.answerOption = [];
       item.__OldAnswerValueSet = item.answerValueSet = "";
@@ -366,37 +298,28 @@ class EditorTools {
     return maxGroupLevel;
   }
 
+  linkIdInvalidForQuestionnaire(
+    questionnaire: Questionnaire,
+    linkId: string,
+  ): boolean {
+    const item = this.getItemByLinkId(linkId, questionnaire.item);
+    return item !== undefined;
+  }
+
   addItemAndSetLinkIDs(newItem: Item, parent: Item): void {
     parent.item ??= [];
     const items = parent.item;
     if (items.length > 0) {
-      const lastItem = items.at(-1) as Item;
+      const lastItem = items.at(-1)!;
       newItem.__linkId = this.getNextLinkID(lastItem.__linkId);
-      if (lastItem.__active) {
-        newItem.linkId = this.getNextLinkID(lastItem.linkId);
-      } else {
-        const lastActiveItem = this.getLastActiveItem(items);
-        if (lastActiveItem !== undefined) {
-          newItem.linkId = this.getNextLinkID(lastActiveItem.linkId);
-        } else {
-          newItem.linkId = `${parent.linkId}.1`;
-        }
-      }
     } else {
-      newItem.__linkId = `${parent.__linkId}.1`;
-      newItem.linkId = `${parent.linkId}.1`;
+      newItem.__linkId = `${parent.__linkId}.0`;
     }
     items.push(newItem);
   }
 
   addItemToRootAndSetLinkIDs(newItem: Item, rootItems: Item[]): void {
-    newItem.__linkId = (rootItems.length + 1).toString();
-    const lastActiveItem = this.getLastActiveItem(rootItems);
-    if (lastActiveItem !== undefined) {
-      newItem.linkId = this.getNextLinkID(lastActiveItem.linkId);
-    } else {
-      newItem.linkId = "1";
-    }
+    newItem.__linkId = rootItems.length.toString();
     rootItems.push(newItem);
   }
 

@@ -140,7 +140,7 @@ function getObjectWithoutItemsDisabled(
     return jsonObject;
   }
 
-  // TODO: Remove unneded deletion of inactive items
+  // TODO: Remove unneeded deletion of inactive items
   // To only keep items with linkId
   jsonObject.item = jsonObject.item.filter((item) => item.linkId !== "");
 
