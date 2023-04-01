@@ -245,6 +245,17 @@
               >
                 <q-tooltip>Change LinkId</q-tooltip>
               </q-btn>
+              <!-- Swap LinkId button -->
+              <q-btn
+                v-if="selectedItem !== undefined"
+                flat
+                round
+                color="primary"
+                icon="swap_vert"
+                @click="swapLinkId(selectedItem!)"
+              >
+                <q-tooltip>Swap LinkId</q-tooltip>
+              </q-btn>
             </div>
             <div
               class="row items-center justify-between text-bold text-h5 q-mb-md"
@@ -848,7 +859,6 @@
                             dense
                             mask="fulltime"
                             fill-mask
-                            :error="dateTools.isTime(enableWhen.answer ?? '')"
                             :rules="[dateTools.isTime]"
                           />
                           <q-input
@@ -1393,8 +1403,42 @@
               dense
             />
             <q-btn
-              icon="add"
-              @click="changeLinkIdForItem(selectedItem!, newLinkId)"
+              icon="update"
+              @click="changeLinkIdForItem(selectedItem!.linkId, newLinkId)"
+            />
+          </div>
+        </q-page>
+      </q-page-container>
+    </q-layout>
+  </q-dialog>
+
+  <!-- Swap linkId of selectedItem -->
+  <q-dialog v-model="swapLinkIdLayout">
+    <q-layout view="Lhh lpR fff" container class="bg-white">
+      <q-page-container>
+        <q-page padding>
+          <q-toolbar class="bg-primary text-white shadow-2">
+            <q-toolbar-title>Swap LinkId</q-toolbar-title>
+          </q-toolbar>
+          <div class="q-pa-md">
+            <q-input
+              label="Current LinkId"
+              class="col-4"
+              v-model="newLinkId"
+              type="text"
+              readonly
+              dense
+            />
+            <q-select
+              v-model="otherLinkId"
+              class="col-4"
+              label="Other LinkId"
+              :options="allLinkIds"
+            />
+            <q-btn
+              icon="swap_vert"
+              :disable="newLinkId === otherLinkId"
+              @click="swapLinkIdForItem(selectedItem!.__linkId)"
             />
           </div>
         </q-page>
@@ -1554,11 +1598,16 @@ export default defineComponent({
     const validationResult: Ref<Warning[]> = ref([]);
     const newLinkId: Ref<string> = ref("");
     const newLinkIdType: Ref<ItemType> = ref("integer");
+    const allLinkIds: Ref<string[]> = ref([]);
+    const otherLinkId: Ref<string> = ref("");
     return {
       addLinkIdLayout: ref(false),
+      swapLinkIdLayout: ref(false),
       newLinkIdLayout: ref(false),
       newLinkId,
       newLinkIdType,
+      allLinkIds,
+      otherLinkId,
       languageLayout: ref(false),
       languageSplitter: ref(40),
       languageSplitterLimits: ref([30, 60]),
@@ -1612,22 +1661,19 @@ export default defineComponent({
       this.newLinkId = item.linkId;
       this.addLinkIdLayout = true;
     },
-    changeLinkIdForItem(item: Item, newLinkId: string): void {
+    changeLinkIdForItem(oldLinkId: string, newLinkId: string): void {
       const invalidLinkId = this.validateLinkId(newLinkId);
       if (invalidLinkId !== undefined) {
         alert(invalidLinkId);
         return;
       }
-      const oldLinkId = item.linkId;
-      this.updateEnableWhenForNewLinkId(oldLinkId, newLinkId);
-      item.linkId = newLinkId;
-      this.addLinkIdLayout = false;
-    },
-    updateEnableWhenForNewLinkId(oldLinkId: string, newLinkId: string): void {
-      const questionnaires = this.getQuestionnaires;
+      const questionnaires: Questionnaire[] = this.getQuestionnaires;
       for (const qre of questionnaires) {
         this.updateEnableWhen(qre, oldLinkId, newLinkId);
+        const item = this.editorTools.getItemByLinkId(oldLinkId, qre.item)!;
+        item.linkId = newLinkId;
       }
+      this.addLinkIdLayout = false;
     },
     updateEnableWhen(
       qre: Questionnaire,
@@ -1641,6 +1687,44 @@ export default defineComponent({
       for (const e of enableWhen) {
         e.question = newLinkId;
       }
+    },
+    swapLinkId(item: Item): void {
+      this.newLinkId = item.linkId;
+      const qre = this.questionaireGUI!;
+      this.allLinkIds = this.editorTools.getLinkIds(qre);
+      this.otherLinkId = this.allLinkIds[0];
+      this.swapLinkIdLayout = true;
+    },
+    swapLinkIdForItem(internalLinkId: string): void {
+      const selectedLinkId = this.newLinkId;
+      const questionnaires: Questionnaire[] = this.getQuestionnaires;
+      for (const qre of questionnaires) {
+        const selectedItem = this.editorTools.getItemByInternalLinkId(
+          internalLinkId,
+          qre,
+        );
+        const otherItem = this.editorTools.getItemByLinkId(
+          this.otherLinkId,
+          qre.item,
+        )!;
+        const selectedEnableWhen = this.editorTools.getEnableWhenWithLinkId(
+          qre,
+          selectedLinkId,
+        );
+        const otherEnableWhen = this.editorTools.getEnableWhenWithLinkId(
+          qre,
+          this.otherLinkId,
+        );
+        selectedItem.linkId = this.otherLinkId;
+        otherItem.linkId = selectedLinkId;
+        for (const e of selectedEnableWhen) {
+          e.question = selectedItem.linkId;
+        }
+        for (const e of otherEnableWhen) {
+          e.question = otherItem.linkId;
+        }
+      }
+      this.swapLinkIdLayout = false;
     },
     addItemWithLinkId(linkId: string, type: ItemType): void {
       const invalidLinkId = this.validateLinkId(linkId);

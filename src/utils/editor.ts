@@ -207,6 +207,21 @@ class EditorTools {
     return item;
   }
 
+  getLinkIds(questionnaire: Questionnaire): string[] {
+    const linkIds: string[] = [];
+    this.getLinkIdsExceptHelper(questionnaire.item, linkIds);
+    return linkIds;
+  }
+
+  private getLinkIdsExceptHelper(items: Item[], linkIds: string[]): void {
+    for (const item of items) {
+      linkIds.push(item.linkId);
+      if (item.item !== undefined) {
+        this.getLinkIdsExceptHelper(item.item, linkIds);
+      }
+    }
+  }
+
   toggleEntireItem(
     id: string,
     questionnaire: Questionnaire,
