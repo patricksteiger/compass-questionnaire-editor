@@ -1,5 +1,12 @@
 import { ItemType, getItemTypeIcon } from "./constants";
-import { Question, Item, Questionnaire, Coding, Quantity } from "@/types";
+import {
+  Question,
+  Item,
+  Questionnaire,
+  Coding,
+  Quantity,
+  EnableWhen,
+} from "@/types";
 import { itemTools } from "./item";
 
 // Used for exhaustive switch-statements
@@ -291,19 +298,46 @@ class EditorTools {
 
   private getMaxLevelOfGroupHelper(item: Item, level: number): number {
     let maxGroupLevel = item.type === "group" ? level : 0;
-    for (const element of item.item ?? []) {
+    if (item.item === undefined) return maxGroupLevel;
+    for (const element of item.item) {
       const childLevel = this.getMaxLevelOfGroupHelper(element, level + 1);
       maxGroupLevel = Math.max(maxGroupLevel, childLevel);
     }
     return maxGroupLevel;
   }
 
-  linkIdInvalidForQuestionnaire(
+  linkIdExistsInQuestionnaire(
     questionnaire: Questionnaire,
     linkId: string,
   ): boolean {
     const item = this.getItemByLinkId(linkId, questionnaire.item);
     return item !== undefined;
+  }
+
+  getEnableWhenWithLinkId(
+    questionnaire: Questionnaire,
+    linkId: string,
+  ): EnableWhen[] {
+    const result: EnableWhen[] = [];
+    this.getEnableWhenWithLinkIdHelper(questionnaire.item, linkId, result);
+    return result;
+  }
+
+  private getEnableWhenWithLinkIdHelper(
+    items: Item[],
+    linkId: string,
+    enableWhen: EnableWhen[],
+  ): void {
+    for (const item of items) {
+      if (item.enableWhen !== undefined) {
+        for (const e of item.enableWhen) {
+          if (e.question === linkId) enableWhen.push(e);
+        }
+      }
+      if (item.item !== undefined) {
+        this.getEnableWhenWithLinkIdHelper(item.item, linkId, enableWhen);
+      }
+    }
   }
 
   addItemAndSetLinkIDs(newItem: Item, parent: Item): void {

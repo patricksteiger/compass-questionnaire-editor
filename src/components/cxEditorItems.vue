@@ -219,6 +219,33 @@
             >
               <span>{{ selectedItem?.type || "empty type" }}</span>
             </div>
+            <!-- LinkId field -->
+            <div
+              class="row items-center justify-between text-bold text-h5 q-mb-md"
+            >
+              <q-input
+                v-if="selectedItem !== undefined"
+                v-model="selectedItem.linkId"
+                autogrow
+                readonly
+                clickable
+                class="col-10"
+                input-class="text-h5 text-bold"
+                :disable="!selectedItem.__active"
+                label="LinkId"
+              />
+              <!-- Change LinkId button -->
+              <q-btn
+                v-if="selectedItem !== undefined"
+                flat
+                round
+                color="primary"
+                icon="update"
+                @click="changeLinkId(selectedItem!)"
+              >
+                <q-tooltip>Change LinkId</q-tooltip>
+              </q-btn>
+            </div>
             <div
               class="row items-center justify-between text-bold text-h5 q-mb-md"
             >
@@ -254,13 +281,8 @@
                 v-if="selectedItem?.__dependenceCondition"
                 ><q-tooltip>
                   {{ $t("views.editor.conditionFulfilled") }}
-                </q-tooltip></q-btn
-              >
-              <!-- Question linkId text -->
-              <span class="text-grey-6"
-                >{{ selectedItem?.linkId || "empty linkID"
-                }}<q-tooltip> {{ $t("components.linkId") }} </q-tooltip></span
-              >
+                </q-tooltip>
+              </q-btn>
             </div>
             <div
               v-if="
@@ -1329,7 +1351,7 @@
   </q-dialog>
 
   <!-- Add item with linkId and type -->
-  <q-dialog v-model="addLinkIdLayout">
+  <q-dialog v-model="newLinkIdLayout">
     <q-layout view="Lhh lpR fff" container class="bg-white">
       <q-page-container>
         <q-page padding>
@@ -1347,6 +1369,32 @@
             <q-btn
               icon="add"
               @click="addItemWithLinkId(newLinkId, newLinkIdType)"
+            />
+          </div>
+        </q-page>
+      </q-page-container>
+    </q-layout>
+  </q-dialog>
+
+  <!-- Change linkId of selectedItem -->
+  <q-dialog v-model="addLinkIdLayout">
+    <q-layout view="Lhh lpR fff" container class="bg-white">
+      <q-page-container>
+        <q-page padding>
+          <q-toolbar class="bg-primary text-white shadow-2">
+            <q-toolbar-title>Change LinkId</q-toolbar-title>
+          </q-toolbar>
+          <div class="q-pa-md">
+            <q-input
+              label="LinkId"
+              class="col-4"
+              v-model="newLinkId"
+              type="text"
+              dense
+            />
+            <q-btn
+              icon="add"
+              @click="changeLinkIdForItem(selectedItem!, newLinkId)"
             />
           </div>
         </q-page>
@@ -1433,6 +1481,7 @@ import {
   isSimpleItemType,
   complexItemTypeIcons,
   simpleItemTypeIcons,
+  MAX_LENGTH_LINKID,
 } from "@/utils/constants";
 import { useQuasar } from "quasar";
 import { defineComponent, Ref, ref } from "vue";
@@ -1507,6 +1556,7 @@ export default defineComponent({
     const newLinkIdType: Ref<ItemType> = ref("integer");
     return {
       addLinkIdLayout: ref(false),
+      newLinkIdLayout: ref(false),
       newLinkId,
       newLinkIdType,
       languageLayout: ref(false),
@@ -1558,22 +1608,65 @@ export default defineComponent({
     };
   },
   methods: {
-    addItemWithLinkId(linkId: string, type: ItemType): void {
-      if (linkId === "") {
-        alert("LinkId can not be empty");
+    changeLinkId(item: Item): void {
+      this.newLinkId = item.linkId;
+      this.addLinkIdLayout = true;
+    },
+    changeLinkIdForItem(item: Item, newLinkId: string): void {
+      const invalidLinkId = this.validateLinkId(newLinkId);
+      if (invalidLinkId !== undefined) {
+        alert(invalidLinkId);
         return;
       }
-      const qre = this.questionaireGUI!;
-      if (this.editorTools.linkIdInvalidForQuestionnaire(qre, linkId)) {
-        alert("LinkId must be unique in questionnaire.");
+      const oldLinkId = item.linkId;
+      this.updateEnableWhenForNewLinkId(oldLinkId, newLinkId);
+      item.linkId = newLinkId;
+      this.addLinkIdLayout = false;
+    },
+    updateEnableWhenForNewLinkId(oldLinkId: string, newLinkId: string): void {
+      const questionnaires = this.getQuestionnaires;
+      for (const qre of questionnaires) {
+        this.updateEnableWhen(qre, oldLinkId, newLinkId);
+      }
+    },
+    updateEnableWhen(
+      qre: Questionnaire,
+      oldLinkId: string,
+      newLinkId: string,
+    ): void {
+      const enableWhen = this.editorTools.getEnableWhenWithLinkId(
+        qre,
+        oldLinkId,
+      );
+      for (const e of enableWhen) {
+        e.question = newLinkId;
+      }
+    },
+    addItemWithLinkId(linkId: string, type: ItemType): void {
+      const invalidLinkId = this.validateLinkId(linkId);
+      if (invalidLinkId !== undefined) {
+        alert(invalidLinkId);
         return;
       }
       this.onAddQuestion(linkId, type);
-      this.addLinkIdLayout = false;
+      this.newLinkIdLayout = false;
     },
     addItemWithType(type: ItemType): void {
       this.newLinkIdType = type;
-      this.addLinkIdLayout = true;
+      this.newLinkIdLayout = true;
+    },
+    validateLinkId(linkId: string): string | undefined {
+      if (linkId === "") {
+        return "LinkId must not be empty";
+      }
+      if (linkId.length > MAX_LENGTH_LINKID) {
+        return `LinkId must not exceed max length of ${MAX_LENGTH_LINKID}`;
+      }
+      const qre = this.questionaireGUI!;
+      if (this.editorTools.linkIdExistsInQuestionnaire(qre, linkId)) {
+        return "LinkId must be unique in questionnaire.";
+      }
+      return undefined;
     },
     handleQuantityAnswer(enableWhen: EnableWhen): void {
       enableWhen.answerQuantity ??= {};
