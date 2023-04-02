@@ -236,7 +236,7 @@ export default defineComponent({
         this.alertValidationError = true;
         return;
       }
-      const questionnaires = this.getQuestionnaires;
+      const questionnaires: Questionnaire[] = this.getQuestionnaires;
       const exportBundle =
         this.exportJsonQuestionnaire.getExportBundle(questionnaires);
       const exportBundleJson = JSON.stringify(exportBundle, null, 2);

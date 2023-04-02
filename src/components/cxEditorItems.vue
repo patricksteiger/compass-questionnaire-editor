@@ -235,28 +235,36 @@
                 label="LinkId"
               />
               <!-- Change LinkId button -->
-              <q-btn
-                v-if="selectedItem !== undefined"
-                flat
-                round
-                color="primary"
-                icon="update"
-                @click="changeLinkId(selectedItem!)"
-              >
+              <div>
+                <q-btn
+                  v-if="selectedItem !== undefined"
+                  flat
+                  round
+                  color="primary"
+                  icon="update"
+                  @click="changeLinkId(selectedItem!)"
+                />
                 <q-tooltip>Change LinkId</q-tooltip>
-              </q-btn>
+              </div>
               <!-- Swap LinkId button -->
-              <q-btn
-                v-if="selectedItem !== undefined"
-                flat
-                round
-                color="primary"
-                icon="swap_vert"
-                :disable="editorTools.hasNotMultipleItems(questionaireGUI!)"
-                @click="swapLinkId(selectedItem!)"
-              >
-                <q-tooltip>Swap LinkId</q-tooltip>
-              </q-btn>
+              <div>
+                <q-btn
+                  v-if="selectedItem !== undefined"
+                  flat
+                  round
+                  color="primary"
+                  icon="swap_vert"
+                  :disable="editorTools.hasNotMultipleItems(questionaireGUI!)"
+                  @click="swapLinkId(selectedItem!)"
+                >
+                </q-btn>
+                <q-tooltip
+                  v-if="editorTools.hasNotMultipleItems(questionaireGUI!)"
+                >
+                  Multiple items needed
+                </q-tooltip>
+                <q-tooltip v-else>Swap LinkId</q-tooltip>
+              </div>
             </div>
             <div
               class="row items-center justify-between text-bold text-h5 q-mb-md"
@@ -1865,7 +1873,7 @@ export default defineComponent({
       return languages.filter((lang) => !this.getUsedLanguages.includes(lang));
     },
     validateState(): void {
-      const questionnaires = this.getQuestionnaires;
+      const questionnaires: Questionnaire[] = this.getQuestionnaires;
       this.validationResult = Validator.check(questionnaires);
       this.validationLayout = true;
     },
@@ -2100,10 +2108,10 @@ export default defineComponent({
       ) {
         return;
       }
-
-      for (const questionnaire of this.getQuestionnaires) {
+      const questionnaires: Questionnaire[] = this.getQuestionnaires;
+      for (const qre of questionnaires) {
         this.dragItem(
-          questionnaire,
+          qre,
           sourceItem.__linkId,
           targetItem.__linkId,
           droppedOnItemNode,
@@ -2219,8 +2227,9 @@ export default defineComponent({
     },
     onAddQuestion(linkId: string, questionType: ItemType): void {
       if (this.selectedItem === undefined) {
-        for (const questionnaire of this.getQuestionnaires) {
-          this.addQuestionToRootItem(questionnaire, linkId, questionType);
+        const questionnaires: Questionnaire[] = this.getQuestionnaires;
+        for (const qre of questionnaires) {
+          this.addQuestionToRootItem(qre, linkId, questionType);
         }
         return;
       }
@@ -2237,13 +2246,9 @@ export default defineComponent({
         return;
       }
       const selectedLinkId = this.selectedItem.__linkId;
-      for (const questionnaire of this.getQuestionnaires) {
-        this.addQuestionToItem(
-          questionnaire,
-          selectedLinkId,
-          linkId,
-          questionType,
-        );
+      const questionnaires: Questionnaire[] = this.getQuestionnaires;
+      for (const qre of questionnaires) {
+        this.addQuestionToItem(qre, selectedLinkId, linkId, questionType);
       }
     },
     addQuestionToItem(
@@ -2340,8 +2345,9 @@ export default defineComponent({
         this.lastSelected = null;
         this.lastSelectedItem = undefined;
       }
-      for (const questionnaire of this.getQuestionnaires) {
-        this.deleteItemWithInternalLinkId(questionnaire, item.__linkId);
+      const questionnaires: Questionnaire[] = this.getQuestionnaires;
+      for (const qre of questionnaires) {
+        this.deleteItemWithInternalLinkId(qre, item.__linkId);
       }
     },
     deleteItemWithInternalLinkId(
