@@ -170,6 +170,7 @@
           selectedItem !== undefined &&
           selectedItem.type !== 'display' &&
           selectedItem.type !== 'group' &&
+          selectedItem.type !== 'attachment' &&
           selectedItem.type !== 'open-choice' &&
           selectedItem.type !== 'choice' &&
           selected
@@ -273,6 +274,7 @@ export default defineComponent({
       return (
         node.__active &&
         node.type !== "display" &&
+        node.type !== "attachment" &&
         node.__internalID !== this.internalID
       );
     },

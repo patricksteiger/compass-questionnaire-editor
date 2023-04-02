@@ -129,12 +129,11 @@ export class QuestionnaireBuilder {
       this.qre,
       enableWhen.question,
     );
-    if (linkedItem === undefined) {
-      // TODO: Is this a warning/error?
-      console.error(`EnableWhen linkId ${enableWhen.question} must exist.`);
-    } else {
+    if (linkedItem !== undefined) {
       result.type =
-        linkedItem.type !== "display" && linkedItem.type !== "group"
+        linkedItem.type !== "display" &&
+        linkedItem.type !== "group" &&
+        linkedItem.type !== "attachment"
           ? linkedItem.type
           : undefined;
       result.__answerOption =

@@ -15,7 +15,7 @@ export type VueProp = {
 // Exclude determined in cxEnableWhen when adding condition
 export type SelectableQuestion = Exclude<
   ItemType,
-  "display" | "group" | "open-choice" | "choice"
+  "attachment" | "display" | "group" | "open-choice" | "choice"
 >;
 
 export type SelectedQuestion = {
