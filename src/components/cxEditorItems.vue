@@ -291,17 +291,20 @@
                 </template></q-input
               >
               <!-- Show Dependence Condition -->
-              <q-btn
-                flat
-                round
-                color="primary"
-                icon="device_hub"
-                @click="alert = true"
-                v-if="selectedItem?.__dependenceCondition"
-                ><q-tooltip>
+              <div>
+                <q-btn
+                  flat
+                  round
+                  color="primary"
+                  icon="device_hub"
+                  @click="alert = true"
+                  :disable="!selectedItem?.__dependenceCondition"
+                />
+                <q-tooltip v-if="selectedItem?.__dependenceCondition">
                   {{ $t("views.editor.conditionFulfilled") }}
                 </q-tooltip>
-              </q-btn>
+                <q-tooltip v-else>No other item depends on this item</q-tooltip>
+              </div>
             </div>
             <div
               v-if="
@@ -821,6 +824,8 @@
                             v-model="enableWhen.answer"
                             :type="'text'"
                             readonly
+                            :clickable="!enableWhen.__answerOption"
+                            @click="handleCodingAnswer(enableWhen)"
                             dense
                           />
                           <!-- enableWhen decimal -->
@@ -1365,6 +1370,47 @@
             />
             <q-btn icon="add" @click="setQuantityAnswer(chosenEnableWhen)" />
           </div>
+          <div
+            class="q-pa-md"
+            v-else-if="chosenEnableWhen.answerCoding !== undefined"
+          >
+            <q-input
+              :label="'Code'"
+              class="col-4"
+              v-model="chosenEnableWhen.answerCoding.code"
+              type="text"
+              dense
+            />
+            <q-input
+              :label="'Display'"
+              class="col-4"
+              v-model="chosenEnableWhen.answerCoding.display"
+              type="text"
+              dense
+            />
+            <q-input
+              :label="'System'"
+              class="col-4"
+              v-model="chosenEnableWhen.answerCoding.system"
+              type="text"
+              dense
+            />
+            <q-input
+              :label="'Version'"
+              class="col-4"
+              v-model="chosenEnableWhen.answerCoding.version"
+              type="text"
+              dense
+            />
+            <q-toggle
+              :label="'UserSelected'"
+              class="col-4"
+              v-model.boolean="chosenEnableWhen.answerCoding.userSelected"
+              toggle-indeterminate
+              dense
+            />
+            <q-btn icon="add" @click="setCodingAnswer(chosenEnableWhen)" />
+          </div>
         </q-page>
       </q-page-container>
     </q-layout>
@@ -1778,6 +1824,19 @@ export default defineComponent({
       if (enableWhen?.answerQuantity !== undefined) {
         enableWhen.answer = this.editorTools.formatQuantity(
           enableWhen.answerQuantity,
+        );
+      }
+      this.chosenEnableWhenAnswerLayout = false;
+    },
+    handleCodingAnswer(enableWhen: EnableWhen): void {
+      enableWhen.answerCoding ??= {};
+      this.chosenEnableWhen = enableWhen;
+      this.chosenEnableWhenAnswerLayout = true;
+    },
+    setCodingAnswer(enableWhen: EnableWhen | undefined): void {
+      if (enableWhen?.answerCoding !== undefined) {
+        enableWhen.answer = this.editorTools.formatCoding(
+          enableWhen.answerCoding,
         );
       }
       this.chosenEnableWhenAnswerLayout = false;

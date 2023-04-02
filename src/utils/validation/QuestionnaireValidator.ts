@@ -69,6 +69,7 @@ export class QuestionnaireValidator {
     }
   }
 
+  // TODO: Better validation for answerOption answers
   private enableWhenAnswer(
     enableWhen: EnableWhen,
     index: number,
@@ -121,6 +122,17 @@ export class QuestionnaireValidator {
         }
         if (!enableWhen.answerQuantity!.code) {
           warnings.push(`enableWhen at index ${index} has empty quantity-code`);
+        }
+      }
+    } else if (enableWhen.type === "coding") {
+      if (
+        enableWhen.answerCoding === undefined ||
+        editorTools.formatCoding(enableWhen.answerCoding) !== enableWhen.answer
+      ) {
+        warnings.push(`enableWhen at index ${index} has invalid coding-answer`);
+      } else {
+        if (!enableWhen.answerCoding!.code) {
+          warnings.push(`enableWhen at index ${index} has empty coding-code`);
         }
       }
     }

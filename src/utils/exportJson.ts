@@ -1,5 +1,5 @@
 import { Settings } from "@/store";
-import { Identifier, Item, Questionnaire } from "@/types";
+import { EnableWhen, Identifier, Item, Questionnaire } from "@/types";
 import { i18n } from "../i18n";
 
 export type QuestionnaireBundleEntry = {
@@ -167,7 +167,6 @@ function getObjectWithoutItemsDisabled(
       }
     }
 
-    // FIXME: fix double values set after changing between exists and other operators
     //convert to integer ValueInteger
     if (item.answerOption !== undefined) {
       for (const answerOpt of item.answerOption) {
@@ -201,6 +200,7 @@ function getObjectWithoutItemsDisabled(
       }
     }
 
+    // FIXME: fix double values set after changing between exists and other operators
     if (item.enableWhen !== undefined) {
       item.enableWhen = item.enableWhen.filter(
         (enableWhen) =>
@@ -210,21 +210,27 @@ function getObjectWithoutItemsDisabled(
       );
       for (const enableWhen of item.enableWhen) {
         if (enableWhen.operator === "exists") {
+          clearEnableWhenAnswers(enableWhen);
           enableWhen.answerBoolean = enableWhen.answer === "true";
         } else {
           if (enableWhen.type === "decimal") {
+            clearEnableWhenAnswers(enableWhen);
             enableWhen.answerDecimal = parseFloat(enableWhen.answer || "");
           } else if (enableWhen.type === "integer") {
+            clearEnableWhenAnswers(enableWhen);
             enableWhen.answerInteger = parseInt(enableWhen.answer || "");
           } else if (enableWhen.type === "date") {
+            clearEnableWhenAnswers(enableWhen);
             enableWhen.answerDate = enableWhen.answer;
           } else if (enableWhen.type === "boolean") {
+            clearEnableWhenAnswers(enableWhen);
             enableWhen.answerBoolean = enableWhen.answer === "true";
           } else if (
             enableWhen.type === "string" ||
             enableWhen.type === "text" ||
             enableWhen.type === "url"
           ) {
+            clearEnableWhenAnswers(enableWhen);
             enableWhen.answerString = enableWhen.answer;
           } else if (
             enableWhen.type === "choice" ||
@@ -232,12 +238,65 @@ function getObjectWithoutItemsDisabled(
           ) {
             // FIXME: is this needed?
             enableWhen.answerCoding = {
-              code: enableWhen.answer || "",
+              code: enableWhen.answer ?? "",
             };
           } else if (enableWhen.type === "coding") {
-            // answer should be already set
-            if (enableWhen.answerCoding?.userSelected === null) {
-              delete enableWhen.answerCoding.userSelected;
+            if (enableWhen.answerCoding !== undefined) {
+              if (!enableWhen.answerCoding.code) {
+                delete enableWhen.answerCoding.code;
+              }
+              if (!enableWhen.answerCoding.display) {
+                delete enableWhen.answerCoding.display;
+              }
+              if (!enableWhen.answerCoding.system) {
+                delete enableWhen.answerCoding.system;
+              }
+              if (!enableWhen.answerCoding.version) {
+                delete enableWhen.answerCoding.version;
+              }
+              if (enableWhen.answerCoding.userSelected === null) {
+                delete enableWhen.answerCoding.userSelected;
+              }
+              const safedCoding = enableWhen.answerCoding;
+              clearEnableWhenAnswers(enableWhen);
+              if (
+                safedCoding.code !== undefined ||
+                safedCoding.display !== undefined ||
+                safedCoding.system !== undefined ||
+                safedCoding.version !== undefined ||
+                safedCoding.userSelected !== undefined
+              ) {
+                enableWhen.answerCoding = safedCoding;
+              }
+            }
+          } else if (enableWhen.type === "quantity") {
+            if (enableWhen.answerQuantity !== undefined) {
+              if (!enableWhen.answerQuantity.code) {
+                delete enableWhen.answerQuantity.code;
+              }
+              if (!enableWhen.answerQuantity.unit) {
+                delete enableWhen.answerQuantity.unit;
+              }
+              if (!enableWhen.answerQuantity.system) {
+                delete enableWhen.answerQuantity.system;
+              }
+              if (!enableWhen.answerQuantity.value) {
+                delete enableWhen.answerQuantity.value;
+              }
+              if (enableWhen.answerQuantity.comparator === null) {
+                delete enableWhen.answerQuantity.comparator;
+              }
+              const safedQuantity = enableWhen.answerQuantity;
+              clearEnableWhenAnswers(enableWhen);
+              if (
+                safedQuantity.value !== undefined ||
+                safedQuantity.code !== undefined ||
+                safedQuantity.unit !== undefined ||
+                safedQuantity.system !== undefined ||
+                safedQuantity.comparator !== undefined
+              ) {
+                enableWhen.answerQuantity = safedQuantity;
+              }
             }
           } else if (enableWhen.type === "time") {
             enableWhen.answerTime = enableWhen.answer;
@@ -266,6 +325,17 @@ function getObjectWithoutItemsDisabled(
   }
 
   return jsonObject;
+}
+
+function clearEnableWhenAnswers(enableWhen: EnableWhen): void {
+  enableWhen.answerBoolean = undefined;
+  enableWhen.answerDate = undefined;
+  enableWhen.answerTime = undefined;
+  enableWhen.answerDateTime = undefined;
+  enableWhen.answerString = undefined;
+  enableWhen.answerCoding = undefined;
+  enableWhen.answerDecimal = undefined;
+  enableWhen.answerInteger = undefined;
 }
 
 const exportJsonQuestionnaire = {

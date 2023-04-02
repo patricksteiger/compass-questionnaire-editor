@@ -35,6 +35,7 @@ export const allItemTypes = [
   "dateTime",
   "quantity",
   "attachment",
+  "coding",
 ] as const;
 export type ItemType = typeof allItemTypes[number];
 export function isInvalidItemType(type: unknown): boolean {
@@ -70,6 +71,7 @@ export const itemTypeIcons = [
   { name: "dateTime", icon: "event", label: "DateTime" },
   { name: "quantity", icon: "biotech", label: "Quantity" },
   { name: "attachment", icon: "library_add", label: "Attachment" },
+  { name: "coding", icon: "code", label: "Coding" },
 ] as const;
 export type ItemTypeLabel = typeof itemTypeIcons[number];
 export type ItemTypeIcon = ItemTypeLabel["icon"];
@@ -85,6 +87,7 @@ export const complexItemTypeIcons = [
   { name: "attachment", icon: "library_add", label: "Attachment" },
 ] as const;
 export const simpleItemTypeIcons = [
+  { name: "coding", icon: "code", label: "Coding" },
   { name: "decimal", icon: "pin", label: "Decimal" },
   { name: "integer", icon: "pin", label: "Integer" },
   { name: "date", icon: "calendar_month", label: "Date" },
