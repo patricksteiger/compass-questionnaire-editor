@@ -198,6 +198,7 @@ class EditorTools {
 
   getItemByInternalLinkId(id: string, questionnaire: Questionnaire): Item {
     const digits = id.split(".");
+    // Number-constructor, since parseInt has strange behavior at times
     const indeces = digits.map(Number);
     let item = questionnaire.item[indeces[0]];
     for (let i = 1; i < indeces.length; i++) {
@@ -296,6 +297,15 @@ class EditorTools {
     numbers.pop();
     numbers.push(nextLinkId.toString());
     return numbers.join(".");
+  }
+
+  hasNotMultipleItems(qre: Questionnaire): boolean {
+    const items = qre.item;
+    return (
+      items.length === 0 ||
+      (items.length === 1 &&
+        (items[0].item === undefined || items[0].item.length === 0))
+    );
   }
 
   getMaxLevel(item: Item): number {

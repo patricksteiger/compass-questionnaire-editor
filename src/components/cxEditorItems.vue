@@ -252,6 +252,7 @@
                 round
                 color="primary"
                 icon="swap_vert"
+                :disable="editorTools.hasNotMultipleItems(questionaireGUI!)"
                 @click="swapLinkId(selectedItem!)"
               >
                 <q-tooltip>Swap LinkId</q-tooltip>
@@ -1367,7 +1368,7 @@
       <q-page-container>
         <q-page padding>
           <q-toolbar class="bg-primary text-white shadow-2">
-            <q-toolbar-title>Add new LinkId</q-toolbar-title>
+            <q-toolbar-title>Add new Item with LinkId</q-toolbar-title>
           </q-toolbar>
           <div class="q-pa-md">
             <q-input
@@ -1375,6 +1376,7 @@
               class="col-4"
               v-model="newLinkId"
               type="text"
+              autofocus
               dense
             />
             <q-btn
@@ -1401,11 +1403,12 @@
               class="col-4"
               v-model="newLinkId"
               type="text"
+              autofocus
               dense
             />
             <q-btn
               icon="update"
-              @click="changeLinkIdForItem(selectedItem!.linkId, newLinkId)"
+              @click="changeLinkIdForItem(selectedItem!.__linkId, newLinkId)"
             />
           </div>
         </q-page>
@@ -1434,7 +1437,7 @@
               v-model="otherLinkId"
               class="col-4"
               label="Other LinkId"
-              :options="allLinkIds"
+              :options="otherLinkIds"
             />
             <q-btn
               icon="swap_vert"
@@ -1599,7 +1602,7 @@ export default defineComponent({
     const validationResult: Ref<Warning[]> = ref([]);
     const newLinkId: Ref<string> = ref("");
     const newLinkIdType: Ref<ItemType> = ref("integer");
-    const allLinkIds: Ref<string[]> = ref([]);
+    const otherLinkIds: Ref<string[]> = ref([]);
     const otherLinkId: Ref<string> = ref("");
     return {
       addLinkIdLayout: ref(false),
@@ -1607,7 +1610,7 @@ export default defineComponent({
       newLinkIdLayout: ref(false),
       newLinkId,
       newLinkIdType,
-      allLinkIds,
+      otherLinkIds,
       otherLinkId,
       languageLayout: ref(false),
       languageSplitter: ref(40),
@@ -1662,16 +1665,19 @@ export default defineComponent({
       this.newLinkId = item.linkId;
       this.addLinkIdLayout = true;
     },
-    changeLinkIdForItem(oldLinkId: string, newLinkId: string): void {
-      const invalidLinkId = this.validateLinkId(newLinkId);
-      if (invalidLinkId !== undefined) {
-        alert(invalidLinkId);
+    changeLinkIdForItem(internalLinkId: string, newLinkId: string): void {
+      const invalidLinkIdError = this.validateLinkId(newLinkId);
+      if (invalidLinkIdError !== undefined) {
+        alert(invalidLinkIdError);
         return;
       }
       const questionnaires: Questionnaire[] = this.getQuestionnaires;
       for (const qre of questionnaires) {
-        this.updateEnableWhen(qre, oldLinkId, newLinkId);
-        const item = this.editorTools.getItemByLinkId(oldLinkId, qre.item)!;
+        const item = this.editorTools.getItemByInternalLinkId(
+          internalLinkId,
+          qre,
+        );
+        this.updateEnableWhen(qre, item.linkId, newLinkId);
         item.linkId = newLinkId;
       }
       this.addLinkIdLayout = false;
@@ -1692,8 +1698,10 @@ export default defineComponent({
     swapLinkId(item: Item): void {
       this.newLinkId = item.linkId;
       const qre = this.questionaireGUI!;
-      this.allLinkIds = this.editorTools.getLinkIds(qre);
-      this.otherLinkId = this.allLinkIds[0];
+      this.otherLinkIds = this.editorTools
+        .getLinkIds(qre)
+        .filter((id) => id !== item.linkId);
+      this.otherLinkId = this.otherLinkIds[0];
       this.swapLinkIdLayout = true;
     },
     swapLinkIdForItem(internalLinkId: string): void {
