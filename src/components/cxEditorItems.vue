@@ -1173,6 +1173,7 @@
                     :key="lang"
                     v-ripple
                     clickable
+                    :class="getSelectedLanguageClass(lang)"
                     @click="switchFromLanguageHub(lang)"
                   >
                     <q-item-section>
@@ -1825,6 +1826,9 @@ export default defineComponent({
         this.selected = internalId;
       }
       this.validationLayout = false;
+    },
+    getSelectedLanguageClass(lang: Language): string {
+      return lang === this.language ? "bg-purple text-white" : "";
     },
     refreshQuestionnaire(): void {
       this.questionaireGUI = this.getQuestionnaireImportedJSON;
