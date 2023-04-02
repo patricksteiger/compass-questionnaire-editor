@@ -118,14 +118,13 @@
                     </div>
                   </div>
                 </div>
-                <!-- FIXME: remove internal linkId -->
+                <!-- display linkId in tree -->
                 <div
                   class="row items-center justify-between text-caption text-grey-8 non-selectable"
                   style="width: 100%"
                 >
                   <span>
-                    {{ prop.node.type }}: {{ prop.node.linkId }} |
-                    {{ prop.node.__linkId }}
+                    {{ prop.node.type }}: {{ prop.node.linkId }}
                     <q-tooltip>
                       {{ $t("components.linkId") }}
                     </q-tooltip>
@@ -347,7 +346,7 @@
               <q-input
                 v-if="
                   selectedItem !== undefined &&
-                  isSimpleItemType(selectedItem.type)
+                  allowsMaxLength(selectedItem.type)
                 "
                 :disable="!selectedItem.__active"
                 :label="$t('views.editor.maxLength')"
@@ -986,6 +985,7 @@
                 </q-card>
               </q-expansion-item>
               <!-- Extensions -->
+              <!-- FIXME: rework extensions -->
               <q-expansion-item
                 v-if="selectedItem?.type === 'integer'"
                 :disable="!selectedItem.__active"
@@ -1534,7 +1534,7 @@ import {
   MAX_ALLOWED_LEVELS_FOR_GROUPS,
   DRAG_KEY_INTERNAL_ID,
   ItemType,
-  isSimpleItemType,
+  allowsMaxLength,
   complexItemTypeIcons,
   simpleItemTypeIcons,
   MAX_LENGTH_LINKID,
@@ -1651,7 +1651,7 @@ export default defineComponent({
       operators,
       languages,
       language,
-      isSimpleItemType,
+      allowsMaxLength,
       dateTools,
     };
   },

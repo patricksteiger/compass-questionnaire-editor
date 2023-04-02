@@ -39,7 +39,7 @@ export type ItemType = typeof allItemTypes[number];
 export function isInvalidItemType(type: unknown): boolean {
   return !allItemTypes.includes(type as ItemType);
 }
-export function isSimpleItemType(type: ItemType): boolean {
+export function allowsMaxLength(type: ItemType): boolean {
   return (
     type === "boolean" ||
     type === "decimal" ||
@@ -51,7 +51,6 @@ export function isSimpleItemType(type: ItemType): boolean {
   );
 }
 
-// TODO: Add quantity
 // TODO: Add reference
 // TODO: Add attachment
 export const itemTypeIcons = [
@@ -78,17 +77,17 @@ export const complexItemTypeIcons = [
   { name: "choice", icon: "toc", label: "Choice" },
   { name: "open-choice", icon: "horizontal_split", label: "Open-Choice" },
   { name: "display", icon: "description", label: "Display" },
-] as const;
-export const simpleItemTypeIcons = [
   { name: "text", icon: "input", label: "Text" },
-  { name: "string", icon: "text_fields", label: "String" },
   { name: "url", icon: "link", label: "URL" },
   { name: "boolean", icon: "toggle_off", label: "Boolean" },
-  { name: "integer", icon: "pin", label: "Integer" },
+] as const;
+export const simpleItemTypeIcons = [
   { name: "decimal", icon: "pin", label: "Decimal" },
+  { name: "integer", icon: "pin", label: "Integer" },
   { name: "date", icon: "calendar_month", label: "Date" },
-  { name: "time", icon: "schedule", label: "Time" },
   { name: "dateTime", icon: "event", label: "DateTime" },
+  { name: "time", icon: "schedule", label: "Time" },
+  { name: "string", icon: "text_fields", label: "String" },
   { name: "quantity", icon: "biotech", label: "Quantity" },
 ] as const;
 

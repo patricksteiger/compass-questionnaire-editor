@@ -3,6 +3,7 @@ import { ParsedQuestionnaire } from "../parsing/questionnaire";
 import {
   MAX_ALLOWED_LEVELS,
   MAX_ALLOWED_LEVELS_FOR_GROUPS,
+  MAX_LENGTH_LINKID,
 } from "@/utils/constants";
 import { validatorUtils } from "../TransformerUtils";
 import { ParsedEnableWhen } from "../parsing/enableWhen";
@@ -54,6 +55,12 @@ export class FHIRItemValidator {
       this.errors.push("LinkId has to be a non-empty string.");
       return;
     }
+    if (item.linkId.length > MAX_LENGTH_LINKID) {
+      this.errors.push(
+        `LinkId "${item.linkId}" must not exceed max length ${MAX_LENGTH_LINKID}.`,
+      );
+      return;
+    }
     if (this.linkIdSet.has(item.linkId)) {
       this.errors.push(
         `LinkId "${item.linkId}" is duplicated in questionnaire.`,
@@ -72,8 +79,9 @@ export class FHIRItemValidator {
     }
     if (item.answerValueSet && item.answerOption) {
       this.errors.push(
-        `LinkId ${item.linkId} has defined answerValueSet and answerOption. Only 1 is allowed.`,
+        `LinkId ${item.linkId} has answerValueSet and answerOption defined. Only 1 is allowed.`,
       );
+      return;
     }
     if (item.answerOption) {
       for (const answerOption of item.answerOption) {
