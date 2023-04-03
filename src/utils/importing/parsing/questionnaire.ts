@@ -1,9 +1,9 @@
 import { languages } from "@/store";
 import { itemSchema } from "./item";
-import { identifierUse, status as statusOptions } from "@/types";
+import { status as statusOptions } from "@/types";
 import {
+  identifierSchema,
   optionalBooleanSchema,
-  optionalCodingSchema,
   optionalStringSchema,
 } from "./schemas";
 import { z } from "zod";
@@ -25,36 +25,6 @@ const approvalDate = optionalStringSchema;
 const lastReviewDate = optionalStringSchema;
 
 const experimental = optionalBooleanSchema;
-
-const use = z.enum(identifierUse).optional();
-const period = z
-  .object({
-    start: optionalStringSchema,
-    end: optionalStringSchema,
-  })
-  .optional();
-
-const coding = optionalCodingSchema;
-
-const type = z
-  .object({
-    coding,
-    text: optionalStringSchema,
-  })
-  .optional();
-
-// TODO: Add assigner to identifierSchema
-const identifierSchema = z
-  .object({
-    use,
-    type,
-    system: optionalStringSchema,
-    value: optionalStringSchema,
-    period,
-  })
-  .passthrough();
-
-export type ParsedIdentifier = z.infer<typeof identifierSchema>;
 
 const identifier = identifierSchema.array().optional();
 

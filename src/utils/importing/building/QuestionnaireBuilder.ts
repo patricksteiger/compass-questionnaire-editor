@@ -172,7 +172,10 @@ export class QuestionnaireBuilder {
       }
     } else if (enableWhen.answerQuantity !== undefined) {
       result.answer = editorTools.formatQuantity(enableWhen.answerQuantity);
+    } else if (enableWhen.answerReference !== undefined) {
+      result.answer = editorTools.formatReference(enableWhen.answerReference);
     }
+
     return result;
   }
 }

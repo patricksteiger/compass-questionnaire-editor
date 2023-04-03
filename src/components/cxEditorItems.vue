@@ -298,12 +298,15 @@
                   color="primary"
                   icon="device_hub"
                   @click="alert = true"
-                  :disable="!selectedItem?.__dependenceCondition"
+                  v-if="selectedItem !== undefined"
+                  :disable="!selectedItem.__dependenceCondition"
                 />
                 <q-tooltip v-if="selectedItem?.__dependenceCondition">
                   {{ $t("views.editor.conditionFulfilled") }}
                 </q-tooltip>
-                <q-tooltip v-else>No other item depends on this item</q-tooltip>
+                <q-tooltip v-else-if="selectedItem !== undefined">
+                  No other item depends on this item
+                </q-tooltip>
               </div>
             </div>
             <div
@@ -828,6 +831,30 @@
                             @click="handleCodingAnswer(enableWhen)"
                             dense
                           />
+                          <q-input
+                            v-else-if="enableWhen.type === 'quantity'"
+                            :disable="!selectedItem.__active"
+                            :label="$t('views.editor.answer')"
+                            class="col-4"
+                            v-model="enableWhen.answer"
+                            :type="'text'"
+                            dense
+                            readonly
+                            clickable
+                            @click="handleQuantityAnswer(enableWhen)"
+                          />
+                          <q-input
+                            v-else-if="enableWhen.type === 'reference'"
+                            :disable="!selectedItem.__active"
+                            :label="$t('views.editor.answer')"
+                            class="col-4"
+                            v-model="enableWhen.answer"
+                            :type="'text'"
+                            readonly
+                            clickable
+                            @click="handleReferenceAnswer(enableWhen)"
+                            dense
+                          />
                           <!-- enableWhen decimal -->
                           <q-input
                             v-else-if="enableWhen.type === 'decimal'"
@@ -883,18 +910,6 @@
                             :type="'text'"
                             dense
                             :rules="[dateTools.isDateTime]"
-                          />
-                          <q-input
-                            v-else-if="enableWhen.type === 'quantity'"
-                            :disable="!selectedItem.__active"
-                            :label="$t('views.editor.answer')"
-                            class="col-4"
-                            v-model="enableWhen.answer"
-                            :type="'text'"
-                            dense
-                            readonly
-                            clickable
-                            @click="handleQuantityAnswer(enableWhen)"
                           />
                           <q-input
                             v-else-if="enableWhen.type === 'string'"
@@ -1330,7 +1345,10 @@
           </q-toolbar>
           <div
             class="q-pa-md"
-            v-if="chosenEnableWhen.answerQuantity !== undefined"
+            v-if="
+              chosenEnableWhen.type === 'quantity' &&
+              chosenEnableWhen.answerQuantity !== undefined
+            "
           >
             <q-input
               :label="'Value'"
@@ -1372,7 +1390,10 @@
           </div>
           <div
             class="q-pa-md"
-            v-else-if="chosenEnableWhen.answerCoding !== undefined"
+            v-else-if="
+              chosenEnableWhen.type === 'coding' &&
+              chosenEnableWhen.answerCoding !== undefined
+            "
           >
             <q-input
               :label="'Code'"
@@ -1410,6 +1431,36 @@
               dense
             />
             <q-btn icon="add" @click="setCodingAnswer(chosenEnableWhen)" />
+          </div>
+          <div
+            class="q-pa-md"
+            v-else-if="
+              chosenEnableWhen.type === 'reference' &&
+              chosenEnableWhen.answerReference !== undefined
+            "
+          >
+            <q-input
+              :label="'Reference'"
+              class="col-4"
+              v-model="chosenEnableWhen.answerReference.reference"
+              type="text"
+              dense
+            />
+            <q-input
+              :label="'Display'"
+              class="col-4"
+              v-model="chosenEnableWhen.answerReference.display"
+              type="text"
+              dense
+            />
+            <q-input
+              :label="'Type'"
+              class="col-4"
+              v-model="chosenEnableWhen.answerReference.type"
+              type="text"
+              dense
+            />
+            <q-btn icon="add" @click="setReferenceAnswer(chosenEnableWhen)" />
           </div>
         </q-page>
       </q-page-container>
@@ -1828,6 +1879,19 @@ export default defineComponent({
       }
       this.chosenEnableWhenAnswerLayout = false;
     },
+    handleReferenceAnswer(enableWhen: EnableWhen): void {
+      enableWhen.answerReference ??= {};
+      this.chosenEnableWhen = enableWhen;
+      this.chosenEnableWhenAnswerLayout = true;
+    },
+    setReferenceAnswer(enableWhen: EnableWhen | undefined): void {
+      if (enableWhen?.answerReference !== undefined) {
+        enableWhen.answer = this.editorTools.formatReference(
+          enableWhen.answerReference,
+        );
+      }
+      this.chosenEnableWhenAnswerLayout = false;
+    },
     handleCodingAnswer(enableWhen: EnableWhen): void {
       enableWhen.answerCoding ??= {};
       this.chosenEnableWhen = enableWhen;
@@ -2031,7 +2095,7 @@ export default defineComponent({
       this.enableWhenItem.answer = "";
       this.enableWhenItem.type = e.type;
       if (e.linkId !== undefined) {
-        this.enableWhenItem.operator = "=";
+        this.enableWhenItem.operator ||= "=";
       }
       this.enableWhenItem.__answerOption = false;
       this.enableWhenLayout = false;

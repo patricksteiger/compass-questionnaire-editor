@@ -1,4 +1,4 @@
-import { comparators } from "@/types";
+import { comparators, identifierUse } from "@/types";
 import { z } from "zod";
 
 export const optionalStringSchema = z.string().optional();
@@ -32,3 +32,46 @@ export const quantitySchema = z.object({
 export type ParsedQuantity = z.infer<typeof quantitySchema>;
 
 export const optionalQuantitySchema = quantitySchema.optional();
+
+const use = z.enum(identifierUse).optional();
+const period = z
+  .object({
+    start: optionalStringSchema,
+    end: optionalStringSchema,
+  })
+  .optional();
+
+const coding = optionalCodingSchema;
+
+const type = z
+  .object({
+    coding,
+    text: optionalStringSchema,
+  })
+  .optional();
+
+// TODO: Add assigner to identifierSchema
+export const identifierSchema = z
+  .object({
+    use,
+    type,
+    system: optionalStringSchema,
+    value: optionalStringSchema,
+    period,
+  })
+  .passthrough();
+
+export const optionalIdentifierSchema = identifierSchema.optional();
+
+export type ParsedIdentifier = z.infer<typeof identifierSchema>;
+
+export const referenceSchema = z.object({
+  reference: optionalStringSchema,
+  type: optionalStringSchema,
+  display: optionalStringSchema,
+  identifier: optionalIdentifierSchema,
+});
+
+export type ParsedReference = z.infer<typeof referenceSchema>;
+
+export const optionalReferenceSchema = referenceSchema.optional();

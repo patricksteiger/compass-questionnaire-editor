@@ -135,6 +135,22 @@ export class QuestionnaireValidator {
           warnings.push(`enableWhen at index ${index} has empty coding-code`);
         }
       }
+    } else if (enableWhen.type === "reference") {
+      if (
+        enableWhen.answerReference === undefined ||
+        editorTools.formatReference(enableWhen.answerReference) !==
+          enableWhen.answer
+      ) {
+        warnings.push(`enableWhen at index ${index} has invalid coding-answer`);
+      } else if (
+        enableWhen.answerReference === undefined ||
+        (!enableWhen.answerReference.reference &&
+          !enableWhen.answerReference.display &&
+          !enableWhen.answerReference.type &&
+          !enableWhen.answerReference.identifier)
+      ) {
+        warnings.push(`enableWhen at index ${index} has empty reference`);
+      }
     }
   }
 

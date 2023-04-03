@@ -283,7 +283,7 @@ function getObjectWithoutItemsDisabled(
               if (!enableWhen.answerQuantity.value) {
                 delete enableWhen.answerQuantity.value;
               }
-              if (enableWhen.answerQuantity.comparator === null) {
+              if (!enableWhen.answerQuantity.comparator) {
                 delete enableWhen.answerQuantity.comparator;
               }
               const safedQuantity = enableWhen.answerQuantity;
@@ -296,6 +296,32 @@ function getObjectWithoutItemsDisabled(
                 safedQuantity.comparator !== undefined
               ) {
                 enableWhen.answerQuantity = safedQuantity;
+              }
+            }
+          } else if (enableWhen.type === "reference") {
+            if (enableWhen.answerReference !== undefined) {
+              if (!enableWhen.answerReference.reference) {
+                delete enableWhen.answerReference.reference;
+              }
+              if (!enableWhen.answerReference.display) {
+                delete enableWhen.answerReference.display;
+              }
+              if (!enableWhen.answerReference.type) {
+                delete enableWhen.answerReference.type;
+              }
+              // FIXME: properly delete empty identifier
+              if (!enableWhen.answerReference.identifier) {
+                delete enableWhen.answerReference.identifier;
+              }
+              const safedReference = enableWhen.answerReference;
+              clearEnableWhenAnswers(enableWhen);
+              if (
+                safedReference.reference !== undefined ||
+                safedReference.display !== undefined ||
+                safedReference.type !== undefined ||
+                safedReference.identifier !== undefined
+              ) {
+                enableWhen.answerReference = safedReference;
               }
             }
           } else if (enableWhen.type === "time") {

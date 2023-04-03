@@ -5,22 +5,23 @@ import {
   optionalCodingSchema,
   optionalNumberSchema,
   optionalQuantitySchema,
+  optionalReferenceSchema,
   optionalStringSchema,
 } from "./schemas";
 
-// TODO: Add Reference to enableWhenSchema
 export const enableWhenSchema = z.object({
   question: z.string(),
   operator: z.enum(operators),
   answerBoolean: optionalBooleanSchema,
   answerDecimal: optionalNumberSchema,
   answerInteger: optionalNumberSchema,
-  answerTime: optionalStringSchema,
   answerDate: optionalStringSchema,
   answerDateTime: optionalStringSchema,
+  answerTime: optionalStringSchema,
   answerString: optionalStringSchema,
   answerCoding: optionalCodingSchema,
   answerQuantity: optionalQuantitySchema,
+  answerReference: optionalReferenceSchema,
 });
 
 export type ParsedEnableWhen = z.infer<typeof enableWhenSchema>;

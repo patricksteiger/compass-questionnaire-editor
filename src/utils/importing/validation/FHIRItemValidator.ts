@@ -1,6 +1,7 @@
 import { ParsedAnswerOption, ParsedItem } from "../parsing/item";
 import { ParsedQuestionnaire } from "../parsing/questionnaire";
 import {
+  allowsMaxLength,
   MAX_ALLOWED_LEVELS,
   MAX_ALLOWED_LEVELS_FOR_GROUPS,
   MAX_LENGTH_LINKID,
@@ -122,8 +123,8 @@ export class FHIRItemValidator {
       }
       this.validateEnableWhenAnswerType(linkedItem, enableWhen, item);
     }
-    if (item.enableWhen.length > 1 && item.enableBehavior === undefined) {
-      item.enableBehavior = "any";
+    if (item.enableWhen.length > 1) {
+      item.enableBehavior ??= "any";
     }
   }
 
@@ -174,7 +175,11 @@ export class FHIRItemValidator {
       if (this.invalidOpenChoiceTypes(enableWhen)) {
         this.resetEnableWhenAnswers(enableWhen);
       }
-    } else if (linkedItem.type === "group" || linkedItem.type === "display") {
+    } else if (
+      linkedItem.type === "group" ||
+      linkedItem.type === "display" ||
+      linkedItem.type === "attachment"
+    ) {
       enableWhen.operator = "exists";
       this.resetEnableWhenAnswers(enableWhen);
       this.warnings.push(
@@ -182,6 +187,10 @@ export class FHIRItemValidator {
       );
     } else if (linkedItem.type === "quantity") {
       if (enableWhen.answerQuantity === undefined) {
+        this.resetEnableWhenAnswers(enableWhen);
+      }
+    } else if (linkedItem.type === "reference") {
+      if (enableWhen.answerReference === undefined) {
         this.resetEnableWhenAnswers(enableWhen);
       }
     }
@@ -201,6 +210,7 @@ export class FHIRItemValidator {
     if (enableWhen.answerString !== undefined) count++;
     if (enableWhen.answerCoding !== undefined) count++;
     if (enableWhen.answerQuantity !== undefined) count++;
+    if (enableWhen.answerReference !== undefined) count++;
     if (count > 1) {
       this.errors.push(
         `LinkId "${item.linkId}" has enableWhen with more than 1 answer.`,
@@ -220,13 +230,15 @@ export class FHIRItemValidator {
 
   private resetEnableWhenAnswers(enableWhen: ParsedEnableWhen): void {
     enableWhen.answerBoolean = undefined;
-    enableWhen.answerDate = undefined;
-    enableWhen.answerTime = undefined;
-    enableWhen.answerDateTime = undefined;
-    enableWhen.answerString = undefined;
-    enableWhen.answerCoding = undefined;
     enableWhen.answerDecimal = undefined;
     enableWhen.answerInteger = undefined;
+    enableWhen.answerDate = undefined;
+    enableWhen.answerDateTime = undefined;
+    enableWhen.answerTime = undefined;
+    enableWhen.answerString = undefined;
+    enableWhen.answerCoding = undefined;
+    enableWhen.answerQuantity = undefined;
+    enableWhen.answerReference = undefined;
   }
 
   private validateRequired(item: ParsedItem): void {
@@ -266,16 +278,7 @@ export class FHIRItemValidator {
   }
 
   private validateMaxLength(item: ParsedItem): void {
-    if (
-      item.maxLength !== undefined &&
-      item.type !== "boolean" &&
-      item.type !== "integer" &&
-      item.type !== "decimal" &&
-      item.type !== "string" &&
-      item.type !== "text" &&
-      item.type !== "url" &&
-      item.type !== "open-choice"
-    ) {
+    if (item.maxLength !== undefined && !allowsMaxLength(item.type)) {
       item.maxLength = undefined;
       this.warnings.push(
         `LinkId "${item.linkId}" has type "${item.type}" which does not allow field maxLength. maxLength has been deleted.`,

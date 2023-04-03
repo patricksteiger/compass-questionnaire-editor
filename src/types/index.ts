@@ -36,6 +36,7 @@ export type AnswerType =
   | "url"
   | "time"
   | "dateTime"
+  | "reference"
   | "quantity";
 
 export const operators = ["exists", "=", "!=", ">", "<", ">=", "<="] as const;
@@ -50,6 +51,13 @@ export type Quantity = {
   unit?: string;
   system?: string;
   code?: string;
+};
+
+export type Reference = {
+  reference?: string;
+  type?: string;
+  display?: string;
+  identifier?: Identifier;
 };
 
 export type EnableWhen = {
@@ -67,6 +75,7 @@ export type EnableWhen = {
   answerDateTime?: string;
   answerCoding?: Coding;
   answerQuantity?: Quantity;
+  answerReference?: Reference;
 };
 
 export type Answer = {

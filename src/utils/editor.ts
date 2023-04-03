@@ -6,6 +6,7 @@ import {
   Coding,
   Quantity,
   EnableWhen,
+  Reference,
 } from "@/types";
 import { itemTools } from "./item";
 
@@ -490,6 +491,26 @@ class EditorTools {
     if (coding.version) {
       const prefix = result.length > 0 ? " " : "";
       result += prefix + `(Vers.: ${coding.version})`;
+    }
+    return result;
+  }
+
+  formatReference(reference: Reference): string {
+    let result = "";
+    if (reference.display) {
+      result += reference.display;
+    }
+    if (reference.reference) {
+      const prefix = result.length > 0 ? " " : "";
+      result += prefix + `(${reference.reference})`;
+    }
+    if (reference.type) {
+      const prefix = result.length > 0 ? " " : "";
+      result += prefix + `(Type: ${reference.type})`;
+    }
+    if (reference.identifier) {
+      const prefix = result.length > 0 ? " " : "";
+      result += prefix + `[with Identifier]`;
     }
     return result;
   }
