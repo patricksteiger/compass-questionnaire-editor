@@ -1,9 +1,11 @@
 export const answerOptionButtons = [
+  { name: "coding", icon: "code", label: "Coding" },
+  { name: "decimal", icon: "pin", label: "Decimal" },
   { name: "integer", icon: "pin", label: "Integer" },
   { name: "date", icon: "calendar_month", label: "Date" },
-  { name: "string", icon: "text_fields", label: "String" },
+  { name: "dateTime", icon: "event", label: "DateTime" },
   { name: "time", icon: "schedule", label: "Time" },
-  { name: "coding", icon: "code", label: "Coding" },
+  { name: "string", icon: "text_fields", label: "String" },
 ] as const;
 export type AnswerOptionButton = typeof answerOptionButtons[number];
 export type AnswerOptionType = typeof answerOptionButtons[number]["name"];
@@ -75,7 +77,7 @@ export const itemTypeIcons = [
 export type ItemTypeLabel = typeof itemTypeIcons[number];
 export type ItemTypeIcon = ItemTypeLabel["icon"];
 
-export const complexItemTypeIcons = [
+export const noChoiceItemTypeIcons = [
   { name: "group", icon: "group_work", label: "Group" },
   { name: "choice", icon: "toc", label: "Choice" },
   { name: "open-choice", icon: "horizontal_split", label: "Open-Choice" },
@@ -86,7 +88,7 @@ export const complexItemTypeIcons = [
   { name: "attachment", icon: "library_add", label: "Attachment" },
   { name: "reference", icon: "manage_search", label: "Reference" },
 ] as const;
-export const simpleItemTypeIcons = [
+export const choiceItemTypeIcons = [
   { name: "coding", icon: "code", label: "Coding" },
   { name: "decimal", icon: "pin", label: "Decimal" },
   { name: "integer", icon: "pin", label: "Integer" },
@@ -96,6 +98,15 @@ export const simpleItemTypeIcons = [
   { name: "string", icon: "text_fields", label: "String" },
   { name: "quantity", icon: "biotech", label: "Quantity" },
 ] as const;
+
+export type AllowedAnswerChoiceItem =
+  typeof choiceItemTypeIcons[number]["name"];
+
+export function allowsAnswerChoice(
+  type: ItemType,
+): type is AllowedAnswerChoiceItem {
+  return choiceItemTypeIcons.some((i) => i.name === type);
+}
 
 export function getItemTypeIcon(type: ItemType): ItemTypeIcon {
   const icon = itemTypeIcons.find((i) => i.name === type);

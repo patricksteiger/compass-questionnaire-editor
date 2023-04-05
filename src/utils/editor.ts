@@ -36,6 +36,50 @@ function createNewItem(linkId: string, type: ItemType): Item {
 }
 
 class EditorTools {
+  objectKeys<T extends object>(object: T): (keyof T)[] {
+    return Object.keys(object) as (keyof T)[];
+  }
+
+  private isEmptyArray<T>(arr: T[]): boolean {
+    for (const value of arr) {
+      if (value !== undefined && value !== null) {
+        if (Array.isArray(value)) {
+          if (!this.isEmptyArray(value)) return false;
+        } else if (typeof value === "string") {
+          if (value.length > 0) return false;
+        } else if (typeof value === "object") {
+          if (this.isNonEmptyObject(value)) return false;
+        } else {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  isEmptyObject<T extends object>(obj: T | undefined | null): boolean {
+    if (obj === undefined || obj === null) return true;
+    for (const key of this.objectKeys(obj)) {
+      const value = obj[key];
+      if (value !== undefined && value !== null) {
+        if (Array.isArray(value)) {
+          if (!this.isEmptyArray(value)) return false;
+        } else if (typeof value === "string") {
+          if (value.length > 0) return false;
+        } else if (typeof value === "object") {
+          if (this.isNonEmptyObject(value)) return false;
+        } else {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  isNonEmptyObject<T extends object>(obj: T | undefined | null): boolean {
+    return !this.isEmptyObject(obj);
+  }
+
   private enableWhenDependsOnHelper(
     items: Item[],
     linkIDs: Set<string>,
@@ -441,14 +485,15 @@ class EditorTools {
     }
   }
 
+  // FIXME: Implement proper handling of +/- for number inputs
   isNotIntegerKey(code: string): boolean {
     // Number-KeyCodes: "Digit0" - "Digit9"
-    return (
+    const noNumberKeyCode =
       code.length !== 6 ||
       !code.startsWith("Digit") ||
       code[5] < "0" ||
-      code[5] > "9"
-    );
+      code[5] > "9";
+    return noNumberKeyCode && code !== "Slash";
   }
 
   isNotDecimalKey(code: string): boolean {

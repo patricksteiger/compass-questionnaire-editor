@@ -65,7 +65,7 @@
       "addNewCondition": "Füge neue Condition hinzu",
       "addItem": "Neues Element",
       "addComplexItem": "Komplexes Element",
-      "addSimpleItem": "Einfaches Element",
+      "addChoiceItem": "Antwortoption-Element",
       "changeLanguage": "Sprache: {language}",
       "deleteItem": "Lösche Element",
       "deleteItemDialogue": "Soll das Element inklusive aller Kindelemente gelöscht werden?",

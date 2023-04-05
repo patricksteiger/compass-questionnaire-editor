@@ -96,11 +96,12 @@ export class FHIRItemValidator {
     item: ParsedItem,
   ): void {
     let count = 0;
+    if (answerOption.valueCoding !== undefined) count++;
+    if (answerOption.valueDecimal !== undefined) count++;
     if (answerOption.valueInteger !== undefined) count++;
     if (answerOption.valueDate !== undefined) count++;
     if (answerOption.valueTime !== undefined) count++;
     if (answerOption.valueString !== undefined) count++;
-    if (answerOption.valueCoding !== undefined) count++;
     if (count > 1) {
       this.errors.push(
         `LinkId "${item.linkId}" has answerOption with more than 1 answer.`,

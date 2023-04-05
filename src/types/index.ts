@@ -96,20 +96,24 @@ export type AnswerOption = {
   __type?: AnswerOptionType;
   __icon?: string;
   __newAnswer?: boolean;
+  __oldValueCoding?: Coding;
+  __oldValueDecimal?: string | number;
   __oldValueInteger?: string | number;
   __oldValueDate?: string;
-  __oldValueString?: string;
+  __oldValueDateTime?: string;
   __oldValueTime?: string;
-  __oldValueCoding?: Coding;
+  __oldValueString?: string;
   __formattedValueCoding?: string;
   __oldFormattedValueCoding?: string;
   linkId?: string;
   type?: string;
   valueCoding?: Coding;
-  valueString?: string;
+  valueDecimal?: string | number;
   valueInteger?: string | number;
   valueDate?: string;
+  valueDateTime?: string;
   valueTime?: string;
+  valueString?: string;
 };
 
 export type Extension = {

@@ -1,6 +1,7 @@
 import { Settings } from "@/store";
 import { EnableWhen, Identifier, Item, Questionnaire } from "@/types";
 import { i18n } from "../i18n";
+import { editorTools } from "./editor";
 
 export type QuestionnaireBundleEntry = {
   resource: Questionnaire;
@@ -12,12 +13,14 @@ export type QuestionnaireBundle = {
   entry: QuestionnaireBundleEntry[];
 };
 
-function objectKeys<T extends object>(object: T): (keyof T)[] {
-  return Object.keys(object) as (keyof T)[];
+function onlyStringFalsy(
+  n: number | string | undefined | null,
+): n is "" | undefined | null {
+  return n === "" || n === undefined || n === null;
 }
 
-function deepCopyFilteredArray<T extends any[]>(array: T): T {
-  const result: any[] = [];
+function deepCopyFilteredArray<T>(array: T[]): T {
+  const result: T[] = [];
   for (const element of array) {
     if (element === null || element === undefined) {
       result.push(element);
@@ -34,7 +37,7 @@ function deepCopyFilteredArray<T extends any[]>(array: T): T {
 
 function deepCopyFilteredObject<T extends object>(object: T): T {
   const result: Partial<T> = {};
-  for (const key of objectKeys(object)) {
+  for (const key of editorTools.objectKeys(object)) {
     if (
       typeof key === "number" ||
       typeof key === "symbol" ||
@@ -140,10 +143,6 @@ function getObjectWithoutItemsDisabled(
     return jsonObject;
   }
 
-  // TODO: Remove unneeded deletion of inactive items
-  // To only keep items with linkId
-  jsonObject.item = jsonObject.item.filter((item) => item.linkId !== "");
-
   // For items within item
   for (const item of jsonObject.item) {
     getObjectWithoutItemsDisabled(item);
@@ -167,18 +166,6 @@ function getObjectWithoutItemsDisabled(
       }
     }
 
-    //convert to integer ValueInteger
-    if (item.answerOption !== undefined) {
-      for (const answerOpt of item.answerOption) {
-        if (
-          answerOpt.valueInteger !== undefined &&
-          typeof answerOpt.valueInteger === "string"
-        ) {
-          answerOpt.valueInteger = parseInt(answerOpt.valueInteger);
-        }
-      }
-    }
-
     //remove empty answerValueSet
     if (item.answerValueSet === "") {
       delete item.answerValueSet;
@@ -189,18 +176,45 @@ function getObjectWithoutItemsDisabled(
       delete item.answerOption;
     } else if (item.answerOption !== undefined) {
       //remove if is empty
-      if (item.answerOption.length > 0) {
-        for (const answer of item.answerOption) {
-          if (answer.valueCoding?.userSelected === null) {
+      for (let i = item.answerOption.length - 1; i >= 0; i--) {
+        const answer = item.answerOption[i];
+        if (answer.__type === "coding") {
+          if (editorTools.isEmptyObject(answer.valueCoding)) {
+            item.answerOption.splice(i, 1);
+          } else if (answer.valueCoding?.userSelected === null) {
             delete answer.valueCoding.userSelected;
           }
+        } else if (answer.__type === "decimal") {
+          if (onlyStringFalsy(answer.valueDecimal)) {
+            item.answerOption.splice(i, 1);
+          } else if (typeof answer.valueDecimal === "string") {
+            answer.valueDecimal = Number(answer.valueDecimal);
+          }
+        } else if (answer.__type === "integer") {
+          if (onlyStringFalsy(answer.valueInteger)) {
+            item.answerOption.splice(i, 1);
+          } else if (typeof answer.valueInteger === "string") {
+            answer.valueInteger = parseInt(answer.valueInteger);
+          }
+        } else if (answer.__type === "date") {
+          if (onlyStringFalsy(answer.valueDate)) {
+            item.answerOption.splice(i, 1);
+          }
+        } else if (answer.__type === "dateTime") {
+          if (onlyStringFalsy(answer.valueDateTime)) {
+            item.answerOption.splice(i, 1);
+          }
+        } else if (answer.__type === "time") {
+          if (onlyStringFalsy(answer.valueTime)) {
+            item.answerOption.splice(i, 1);
+          }
         }
-      } else {
+      }
+      if (item.answerOption.length === 0) {
         delete item.answerOption;
       }
     }
 
-    // FIXME: fix double values set after changing between exists and other operators
     if (item.enableWhen !== undefined) {
       item.enableWhen = item.enableWhen.filter(
         (enableWhen) =>
@@ -259,13 +273,7 @@ function getObjectWithoutItemsDisabled(
               }
               const safedCoding = enableWhen.answerCoding;
               clearEnableWhenAnswers(enableWhen);
-              if (
-                safedCoding.code !== undefined ||
-                safedCoding.display !== undefined ||
-                safedCoding.system !== undefined ||
-                safedCoding.version !== undefined ||
-                safedCoding.userSelected !== undefined
-              ) {
+              if (editorTools.isNonEmptyObject(safedCoding)) {
                 enableWhen.answerCoding = safedCoding;
               }
             }
@@ -288,13 +296,7 @@ function getObjectWithoutItemsDisabled(
               }
               const safedQuantity = enableWhen.answerQuantity;
               clearEnableWhenAnswers(enableWhen);
-              if (
-                safedQuantity.value !== undefined ||
-                safedQuantity.code !== undefined ||
-                safedQuantity.unit !== undefined ||
-                safedQuantity.system !== undefined ||
-                safedQuantity.comparator !== undefined
-              ) {
+              if (editorTools.isNonEmptyObject(safedQuantity)) {
                 enableWhen.answerQuantity = safedQuantity;
               }
             }
@@ -309,18 +311,14 @@ function getObjectWithoutItemsDisabled(
               if (!enableWhen.answerReference.type) {
                 delete enableWhen.answerReference.type;
               }
-              // FIXME: properly delete empty identifier
-              if (!enableWhen.answerReference.identifier) {
+              if (
+                editorTools.isEmptyObject(enableWhen.answerReference.identifier)
+              ) {
                 delete enableWhen.answerReference.identifier;
               }
               const safedReference = enableWhen.answerReference;
               clearEnableWhenAnswers(enableWhen);
-              if (
-                safedReference.reference !== undefined ||
-                safedReference.display !== undefined ||
-                safedReference.type !== undefined ||
-                safedReference.identifier !== undefined
-              ) {
+              if (editorTools.isNonEmptyObject(safedReference)) {
                 enableWhen.answerReference = safedReference;
               }
             }
@@ -373,9 +371,12 @@ const exportJsonQuestionnaire = {
     return errorMessages;
   },
   getExportObject(jsonObject: Questionnaire): Questionnaire {
-    const cloneObject = createQuestionnaireExportCopy(jsonObject);
+    const cloneObject = JSON.parse(JSON.stringify(jsonObject));
     const objWithoutItemsDisabled = getObjectWithoutItemsDisabled(cloneObject);
-    const finalObj = this.clearMetadataFields(objWithoutItemsDisabled);
+    const filteredInternalStateQRE = createQuestionnaireExportCopy(
+      objWithoutItemsDisabled,
+    );
+    const finalObj = this.clearMetadataFields(filteredInternalStateQRE);
     return finalObj;
   },
   getExportBundle(questionnaires: Questionnaire[]): QuestionnaireBundle {

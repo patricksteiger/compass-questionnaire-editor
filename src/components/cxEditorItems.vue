@@ -154,7 +154,7 @@
                 :label="$t('views.editor.addComplexItem')"
               >
                 <q-fab-action
-                  v-for="questionTypeIcon in enabledComplexItemTypes"
+                  v-for="questionTypeIcon in enabledNoChoiceItemTypes"
                   :key="questionTypeIcon.name"
                   label-position="right"
                   color="primary"
@@ -181,10 +181,10 @@
                 icon="keyboard_arrow_up"
                 direction="up"
                 padding="none xl"
-                :label="$t('views.editor.addSimpleItem')"
+                :label="$t('views.editor.addChoiceItem')"
               >
                 <q-fab-action
-                  v-for="questionTypeIcon in enabledSimpleItemTypes"
+                  v-for="questionTypeIcon in enabledChoiceItemTypes"
                   :key="questionTypeIcon.name"
                   label-position="right"
                   color="primary"
@@ -366,8 +366,8 @@
             <div
               class="row"
               v-if="
-                selectedItem?.type === 'choice' ||
-                selectedItem?.type === 'open-choice'
+                selectedItem !== undefined &&
+                allowsAnswerChoice(selectedItem.type)
               "
             >
               <div v-if="getAnswerValueSet">
@@ -380,32 +380,30 @@
                   v-model="selectedItem.__answerValueSetCheck"
                   :disable="!selectedItem.__active"
                   @click="answerValueSet()"
-                ></q-checkbox
-                ><q-input
+                />
+                <q-input
                   v-if="selectedItem.__answerValueSetCheck"
                   :label="$t('views.editor.AnswerValueSet')"
                   class="col-5"
                   dense
                   v-model="selectedItem.answerValueSet"
                   :disable="!selectedItem.__active"
-                  :error="
-                    selectedItem.__active && selectedItem.answerValueSet === ''
-                  "
-                  ><template v-slot:error>
-                    {{ $t("components.fieldEmpty") }}
-                  </template></q-input
+                  :error="selectedItem.__active && !selectedItem.answerValueSet"
                 >
+                  <template v-slot:error>
+                    {{ $t("components.fieldEmpty") }}
+                  </template>
+                </q-input>
               </div>
             </div>
             <!-- Answers/Conditions -->
             <q-list padding bordered>
-              <!-- Answers -->
+              <!-- AnswersOption section -->
               <q-expansion-item
                 v-if="
                   selectedItem !== undefined &&
                   !selectedItem.__answerValueSetCheck &&
-                  (selectedItem.type === 'choice' ||
-                    selectedItem.type === 'open-choice')
+                  allowsAnswerChoice(selectedItem.type)
                 "
                 :disable="!selectedItem.__active"
                 expand-separator
@@ -415,20 +413,21 @@
                 <q-separator />
                 <q-card>
                   <!-- Multiple answers -->
-                  <div
-                    v-if="
-                      selectedItem.type === 'choice' ||
-                      selectedItem.type === 'open-choice'
-                    "
-                  >
+                  <div>
                     <div class="q-pa-md" style="width: 100%">
-                      <q-list dense v-if="!selectedItem.__answerValueSetCheck"
-                        ><q-item
+                      <q-list
+                        dense
+                        v-if="
+                          !selectedItem.__answerValueSetCheck &&
+                          selectedItem.answerOption
+                        "
+                      >
+                        <q-item
                           v-for="answerOption in selectedItem.answerOption"
                           :key="answerOption.__id"
                         >
                           <!-- Open Choice and Choice -->
-                          <q-item-section v-if="answerOption">
+                          <q-item-section>
                             <!-- coding input answer -->
                             <div
                               class="row"
@@ -473,10 +472,58 @@
                                 >
                               </q-input>
                             </div>
+                            <!-- decimal input answer -->
+                            <div
+                              class="row"
+                              v-else-if="answerOption.__type === 'decimal'"
+                            >
+                              <q-input
+                                class="col-12"
+                                @keypress="onlyNumberDec"
+                                autogrow
+                                v-model="answerOption.valueDecimal"
+                                :disable="!selectedItem.__active"
+                                :label="
+                                  answerOption.valueDecimal !==
+                                    answerOption.__oldValueDecimal &&
+                                  !answerOption.__newAnswer
+                                    ? `${$t('views.editor.originalText')}: ${
+                                        answerOption.__oldValueDecimal
+                                      }`
+                                    : answerOption.__type
+                                "
+                              >
+                                <template v-slot:prepend>
+                                  <q-icon :name="answerOption.__icon" />
+                                </template>
+                                <!-- reverse original text answer -->
+                                <div>
+                                  <q-btn
+                                    flat
+                                    round
+                                    icon="history"
+                                    :disable="!selectedItem.__active"
+                                    class="q-mr-sm text-grey-8"
+                                    v-if="
+                                      answerOption.valueDecimal !==
+                                        answerOption.__oldValueDecimal &&
+                                      !answerOption.__newAnswer
+                                    "
+                                    @click="
+                                      answerOption.valueDecimal =
+                                        answerOption.__oldValueDecimal
+                                    "
+                                  />
+                                  <q-tooltip>
+                                    {{ $t("components.reverseAnswer") }}
+                                  </q-tooltip>
+                                </div>
+                              </q-input>
+                            </div>
                             <!-- integer input answer -->
                             <div
                               class="row"
-                              v-if="answerOption.__type === 'integer'"
+                              v-else-if="answerOption.__type === 'integer'"
                             >
                               <q-input
                                 class="col-12"
@@ -493,42 +540,45 @@
                                       }`
                                     : answerOption.__type
                                 "
-                                ><template v-slot:prepend>
+                              >
+                                <template v-slot:prepend>
                                   <q-icon :name="answerOption.__icon" />
                                 </template>
                                 <!-- reverse original text answer -->
-                                <q-btn
-                                  flat
-                                  round
-                                  icon="history"
-                                  :disable="!selectedItem.__active"
-                                  class="q-mr-sm text-grey-8"
-                                  v-if="
-                                    answerOption.valueInteger !==
-                                      answerOption.__oldValueInteger &&
-                                    !answerOption.__newAnswer
-                                  "
-                                  @click="
-                                    answerOption.valueInteger =
-                                      answerOption.__oldValueInteger
-                                  "
-                                  ><q-tooltip>
+                                <div>
+                                  <q-btn
+                                    flat
+                                    round
+                                    icon="history"
+                                    :disable="!selectedItem.__active"
+                                    class="q-mr-sm text-grey-8"
+                                    v-if="
+                                      answerOption.valueInteger !==
+                                        answerOption.__oldValueInteger &&
+                                      !answerOption.__newAnswer
+                                    "
+                                    @click="
+                                      answerOption.valueInteger =
+                                        answerOption.__oldValueInteger
+                                    "
+                                  />
+                                  <q-tooltip>
                                     {{ $t("components.reverseAnswer") }}
-                                  </q-tooltip></q-btn
-                                >
+                                  </q-tooltip>
+                                </div>
                               </q-input>
                             </div>
 
                             <!-- date input answer -->
                             <div
                               class="row"
-                              v-if="answerOption.__type === 'date'"
+                              v-else-if="answerOption.__type === 'date'"
                             >
                               <q-input
-                                type="date"
                                 stack-label
                                 class="col-12"
                                 v-model="answerOption.valueDate"
+                                :rules="[dateTools.isDate]"
                                 :disable="!selectedItem.__active"
                                 :label="
                                   answerOption.valueDate !==
@@ -539,10 +589,108 @@
                                       }`
                                     : answerOption.__type
                                 "
+                              >
+                                <template v-slot:prepend>
+                                  <q-icon :name="answerOption.__icon" />
+                                </template>
+                                <!-- reverse original text answer -->
+                                <div>
+                                  <q-btn
+                                    flat
+                                    round
+                                    icon="history"
+                                    :disable="!selectedItem.__active"
+                                    class="q-mr-sm text-grey-8"
+                                    v-if="
+                                      answerOption.valueDate !==
+                                        answerOption.__oldValueDate &&
+                                      !answerOption.__newAnswer
+                                    "
+                                    @click="
+                                      answerOption.valueDate =
+                                        answerOption.__oldValueDate
+                                    "
+                                  />
+                                  <q-tooltip>
+                                    {{ $t("components.reverseAnswer") }}
+                                  </q-tooltip>
+                                </div>
+                              </q-input>
+                            </div>
+                            <!-- dateTime input answer -->
+                            <div
+                              class="row"
+                              v-else-if="answerOption.__type === 'dateTime'"
+                            >
+                              <q-input
+                                stack-label
+                                class="col-12"
+                                v-model="answerOption.valueDateTime"
+                                :disable="!selectedItem.__active"
+                                :rules="[dateTools.isDateTime]"
+                                :label="
+                                  answerOption.valueDateTime !==
+                                    answerOption.__oldValueDateTime &&
+                                  !answerOption.__newAnswer
+                                    ? `${$t('views.editor.originalText')}: ${
+                                        answerOption.__oldValueDateTime
+                                      }`
+                                    : answerOption.__type
+                                "
+                              >
+                                <template v-slot:prepend>
+                                  <q-icon :name="answerOption.__icon" />
+                                </template>
+                                <!-- reverse original text answer -->
+                                <div>
+                                  <q-btn
+                                    flat
+                                    round
+                                    icon="history"
+                                    :disable="!selectedItem.__active"
+                                    class="q-mr-sm text-grey-8"
+                                    v-if="
+                                      answerOption.valueDateTime !==
+                                        answerOption.__oldValueDateTime &&
+                                      !answerOption.__newAnswer
+                                    "
+                                    @click="
+                                      answerOption.valueDateTime =
+                                        answerOption.__oldValueDateTime
+                                    "
+                                  />
+                                  <q-tooltip>
+                                    {{ $t("components.reverseAnswer") }}
+                                  </q-tooltip>
+                                </div>
+                              </q-input>
+                            </div>
+                            <!-- time input answer -->
+                            <div
+                              class="row"
+                              v-else-if="answerOption.__type === 'time'"
+                            >
+                              <q-input
+                                class="col-12"
+                                autogrow
+                                v-model="answerOption.valueTime"
+                                :disable="!selectedItem.__active"
+                                mask="fulltime"
+                                fill-mask
+                                :rules="[dateTools.isTime]"
+                                :label="
+                                  answerOption.valueTime !==
+                                    answerOption.__oldValueTime &&
+                                  !answerOption.__newAnswer
+                                    ? `${$t('views.editor.originalText')}: ${
+                                        answerOption.__oldValueTime
+                                      }`
+                                    : answerOption.__type
+                                "
                                 ><template v-slot:prepend>
                                   <q-icon :name="answerOption.__icon" />
                                 </template>
-                                <!-- reverse original text answer  -->
+                                <!-- reverse original time answer -->
                                 <q-btn
                                   flat
                                   round
@@ -550,13 +698,13 @@
                                   :disable="!selectedItem.__active"
                                   class="q-mr-sm text-grey-8"
                                   v-if="
-                                    answerOption.valueDate !==
-                                      answerOption.__oldValueDate &&
+                                    answerOption.valueTime !==
+                                      answerOption.__oldValueTime &&
                                     !answerOption.__newAnswer
                                   "
                                   @click="
-                                    answerOption.valueDate =
-                                      answerOption.__oldValueDate
+                                    answerOption.valueTime =
+                                      answerOption.__oldValueTime
                                   "
                                   ><q-tooltip>
                                     {{ $t("components.reverseAnswer") }}
@@ -564,11 +712,10 @@
                                 >
                               </q-input>
                             </div>
-
                             <!-- string input answer -->
                             <div
                               class="row"
-                              v-if="answerOption.__type === 'string'"
+                              v-else-if="answerOption.__type === 'string'"
                             >
                               <q-input
                                 class="col-12"
@@ -609,80 +756,9 @@
                                 >
                               </q-input>
                             </div>
-                            <!-- time input answer -->
-                            <div
-                              class="row"
-                              v-if="answerOption.__type === 'time'"
-                            >
-                              <q-input
-                                class="col-12"
-                                autogrow
-                                v-model="answerOption.valueTime"
-                                :disable="!selectedItem.__active"
-                                :rules="[dateTools.isTime]"
-                                :label="
-                                  answerOption.valueTime !==
-                                    answerOption.__oldValueTime &&
-                                  !answerOption.__newAnswer
-                                    ? `${$t('views.editor.originalText')}: ${
-                                        answerOption.__oldValueTime
-                                      }`
-                                    : answerOption.__type
-                                "
-                                ><template v-slot:prepend>
-                                  <q-icon :name="answerOption.__icon" />
-                                </template>
-                                <!-- reverse original time answer -->
-                                <q-btn
-                                  flat
-                                  round
-                                  icon="history"
-                                  :disable="!selectedItem.__active"
-                                  class="q-mr-sm text-grey-8"
-                                  v-if="
-                                    answerOption.valueTime !==
-                                      answerOption.__oldValueTime &&
-                                    !answerOption.__newAnswer
-                                  "
-                                  @click="
-                                    answerOption.valueTime =
-                                      answerOption.__oldValueTime
-                                  "
-                                  ><q-tooltip>
-                                    {{ $t("components.reverseAnswer") }}
-                                  </q-tooltip></q-btn
-                                >
-                              </q-input>
-                            </div>
                           </q-item-section>
                           <q-item-section top side class="justify-center">
                             <div class="row items-center">
-                              <!--  If answer Item is Coding Display Code and System input-->
-                              <!-- TODO: remove comment if not needed -->
-                              <!-- <div -->
-                              <!--   class="row" -->
-                              <!--   v-if=" -->
-                              <!--     answerOption.__type === 'coding' && -->
-                              <!--     answerOption.valueCoding !== undefined -->
-                              <!--   " -->
-                              <!-- > -->
-                              <!--   <q-input -->
-                              <!--     :disable="!selectedItem.__active" -->
-                              <!--     :label="$t('views.editor.code')" -->
-                              <!--     outlined -->
-                              <!--     dense -->
-                              <!--     class="col-5" -->
-                              <!--     v-model="answerOption.valueCoding.code" -->
-                              <!--   ></q-input -->
-                              <!--   ><q-input -->
-                              <!--     :disable="!selectedItem.__active" -->
-                              <!--     :label="$t('views.editor.system')" -->
-                              <!--     outlined -->
-                              <!--     dense -->
-                              <!--     class="col-5" -->
-                              <!--     v-model="answerOption.valueCoding.system" -->
-                              <!--   ></q-input> -->
-                              <!-- </div> -->
                               <div class="text-grey-8">
                                 <!-- Remove answer -->
                                 <q-btn
@@ -703,7 +779,7 @@
                       </q-list>
 
                       <!-- Add answerOption -->
-                      <q-fab
+                      <q-btn
                         padding="none xl"
                         fab
                         icon="add"
@@ -711,16 +787,12 @@
                         direction="right"
                         color="primary"
                         v-if="!selectedItem.__answerValueSetCheck"
-                      >
-                        <q-fab-action
-                          v-for="answerType in answerOptionButtons"
-                          :key="answerType.name"
-                          color="primary"
-                          :icon="answerType.icon"
-                          :label="answerType.label"
-                          @click="addAnswerOption(answerType)"
-                        />
-                      </q-fab>
+                        @click="
+                          addAnswerOptionType(
+                            selectedItem!.type as AllowedAnswerChoiceItem,
+                          )
+                        "
+                      />
                     </div>
                   </div>
                 </q-card>
@@ -1622,7 +1694,6 @@
 
 <script lang="ts">
 import {
-  itemTypeIcons,
   answerOptionButtons,
   COLORS,
   MAX_ALLOWED_LEVELS,
@@ -1632,9 +1703,11 @@ import {
   DRAG_KEY_INTERNAL_ID,
   ItemType,
   allowsMaxLength,
-  complexItemTypeIcons,
-  simpleItemTypeIcons,
+  noChoiceItemTypeIcons,
+  choiceItemTypeIcons,
   MAX_LENGTH_LINKID,
+  allowsAnswerChoice,
+  AllowedAnswerChoiceItem,
 } from "@/utils/constants";
 import { useQuasar } from "quasar";
 import { defineComponent, Ref, ref } from "vue";
@@ -1722,6 +1795,7 @@ export default defineComponent({
       languageSplitterLimits: ref([30, 60]),
       validationLayout: ref(false),
       validationResult,
+      allowsAnswerChoice,
       triggerNegative,
       questionaireGUI,
       item,
@@ -2068,6 +2142,13 @@ export default defineComponent({
           this.enableWhenItem.answer = e.__formattedValueCoding;
           this.enableWhenItem.answerCoding = { ...e.valueCoding };
           break;
+        case "decimal":
+          if (typeof e.valueDecimal === "number") {
+            this.enableWhenItem.answer = e.valueDecimal.toString();
+          } else {
+            this.enableWhenItem.answer = e.valueDecimal;
+          }
+          break;
         case "integer":
           if (typeof e.valueInteger === "number") {
             this.enableWhenItem.answer = e.valueInteger.toString();
@@ -2078,11 +2159,14 @@ export default defineComponent({
         case "date":
           this.enableWhenItem.answer = e.valueDate;
           break;
-        case "string":
-          this.enableWhenItem.answer = e.valueString;
+        case "dateTime":
+          this.enableWhenItem.answer = e.valueDateTime;
           break;
         case "time":
           this.enableWhenItem.answer = e.valueTime;
+          break;
+        case "string":
+          this.enableWhenItem.answer = e.valueString;
           break;
         default:
           throw new UnreachableError(e.__type);
@@ -2396,6 +2480,14 @@ export default defineComponent({
       const rootItems = questionnaire.item;
       this.editorTools.addItemToRootAndSetLinkIDs(newItem, rootItems);
     },
+    addAnswerOptionType(type: AllowedAnswerChoiceItem): void {
+      const answerOption = answerOptionButtons.find((a) => a.name === type);
+      if (answerOption === undefined) {
+        console.error(`Type ${type} does not support AnswerOption!`);
+        return;
+      }
+      this.addAnswerOption(answerOption);
+    },
     addAnswerOption(e: AnswerOptionButton): void {
       if (this.selectedItem === undefined) {
         console.error("Can't add answerOption if no item is selected!");
@@ -2409,9 +2501,13 @@ export default defineComponent({
         __newAnswer: true,
         __type: e.name,
       };
+      // TODO: Implement missing answerOption-types
       switch (e.name) {
         case "coding":
           answerOption.valueCoding = { code: "", display: "", system: "" };
+          break;
+        case "decimal":
+          answerOption.valueDecimal = "";
           break;
         case "integer":
           answerOption.valueInteger = "";
@@ -2419,11 +2515,14 @@ export default defineComponent({
         case "date":
           answerOption.valueDate = "";
           break;
-        case "string":
-          answerOption.valueString = "";
+        case "dateTime":
+          answerOption.valueDateTime = "";
           break;
         case "time":
           answerOption.valueTime = "";
+          break;
+        case "string":
+          answerOption.valueString = "";
           break;
         default:
           throw new UnreachableError(e);
@@ -2447,7 +2546,7 @@ export default defineComponent({
         (answer) => answer.__id === e.__id,
       );
       if (indexOfItemtoBeRemoved === -1) {
-        console.error(`ID '${e.__id}' does not exist on any answer`);
+        console.error(`ID "${e.__id}" does not exist on any answer`);
         return;
       }
       this.selectedItem.answerOption.splice(indexOfItemtoBeRemoved, 1);
@@ -2574,20 +2673,14 @@ export default defineComponent({
         this.selectedItem.repeats = val;
       },
     },
-    enabledItemTypes(): ItemTypeLabel[] {
+    enabledNoChoiceItemTypes(): ItemTypeLabel[] {
       const allowedQuestion = (q: ItemTypeLabel): boolean =>
         (this.getChoice || q.name !== "choice") &&
         (this.getOpenChoice || q.name !== "open-choice");
-      return itemTypeIcons.filter(allowedQuestion);
+      return noChoiceItemTypeIcons.filter(allowedQuestion);
     },
-    enabledComplexItemTypes(): ItemTypeLabel[] {
-      const allowedQuestion = (q: ItemTypeLabel): boolean =>
-        (this.getChoice || q.name !== "choice") &&
-        (this.getOpenChoice || q.name !== "open-choice");
-      return complexItemTypeIcons.filter(allowedQuestion);
-    },
-    enabledSimpleItemTypes(): readonly ItemTypeLabel[] {
-      return simpleItemTypeIcons;
+    enabledChoiceItemTypes(): readonly ItemTypeLabel[] {
+      return choiceItemTypeIcons;
     },
   },
   watch: {

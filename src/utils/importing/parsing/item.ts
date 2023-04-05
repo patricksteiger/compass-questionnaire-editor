@@ -22,11 +22,13 @@ const maxLength = optionalNumberSchema;
 
 // TODO: Add valueReference to answerOption
 const answerOptionSchema = z.object({
+  valueCoding: optionalCodingSchema,
+  valueDecimal: optionalNumberSchema,
   valueInteger: optionalNumberSchema,
   valueDate: optionalStringSchema,
+  valueDateTime: optionalStringSchema,
   valueTime: optionalStringSchema,
   valueString: optionalStringSchema,
-  valueCoding: optionalCodingSchema,
   initialSelected: optionalBooleanSchema,
 });
 

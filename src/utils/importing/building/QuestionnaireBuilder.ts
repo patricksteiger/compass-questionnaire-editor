@@ -101,6 +101,10 @@ export class QuestionnaireBuilder {
         result.valueCoding,
       );
       result.__oldFormattedValueCoding = result.__formattedValueCoding;
+    } else if (result.valueDecimal !== undefined) {
+      result.__type = "decimal";
+      result.__icon = getAnswerOptionIcon(result.__type);
+      result.__oldValueDecimal = result.valueDecimal;
     } else if (result.valueInteger !== undefined) {
       result.__type = "integer";
       result.__icon = getAnswerOptionIcon(result.__type);
@@ -109,6 +113,10 @@ export class QuestionnaireBuilder {
       result.__type = "date";
       result.__icon = getAnswerOptionIcon(result.__type);
       result.__oldValueDate = result.valueDate;
+    } else if (result.valueDateTime !== undefined) {
+      result.__type = "dateTime";
+      result.__icon = getAnswerOptionIcon(result.__type);
+      result.__oldValueDateTime = result.valueDateTime;
     } else if (result.valueString !== undefined) {
       result.__type = "string";
       result.__icon = getAnswerOptionIcon(result.__type);
