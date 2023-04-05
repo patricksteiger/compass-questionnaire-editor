@@ -756,6 +756,52 @@
                                 >
                               </q-input>
                             </div>
+                            <!-- quantity input answer -->
+                            <div
+                              class="row"
+                              v-else-if="
+                                answerOption.__type === 'quantity' &&
+                                answerOption.valueQuantity !== undefined
+                              "
+                            >
+                              <q-input
+                                class="col-12"
+                                autogrow
+                                readonly
+                                v-model="answerOption.__formattedValueQuantity"
+                                :disable="!selectedItem.__active"
+                                :error="!answerOption.__formattedValueQuantity"
+                                clickable
+                                @click="
+                                  handleAnswerOptionQuantity(answerOption)
+                                "
+                                :label="
+                                  changedQuantity(answerOption)
+                                    ? `${$t('views.editor.originalText')}: ${
+                                        answerOption.__oldFormattedValueQuantity
+                                      }`
+                                    : answerOption.__type
+                                "
+                                ><template v-slot:error>
+                                  {{ $t("components.fieldEmpty") }} </template
+                                ><template v-slot:prepend>
+                                  <q-icon :name="answerOption.__icon" />
+                                </template>
+                                <!-- reverse original text answer -->
+                                <q-btn
+                                  flat
+                                  round
+                                  icon="history"
+                                  :disable="!selectedItem.__active"
+                                  class="q-mr-sm text-grey-8"
+                                  v-if="changedQuantity(answerOption)"
+                                  @click="setDisplayToOld(answerOption)"
+                                  ><q-tooltip>
+                                    {{ $t("components.reverseAnswer") }}
+                                  </q-tooltip></q-btn
+                                >
+                              </q-input>
+                            </div>
                           </q-item-section>
                           <q-item-section top side class="justify-center">
                             <div class="row items-center">
@@ -1686,6 +1732,52 @@
               @click="setValueCodingAnswer(answerOptionItem)"
             />
           </div>
+          <div
+            class="q-pa-md"
+            v-else-if="answerOptionItem.valueQuantity !== undefined"
+          >
+            <q-input
+              :label="'Value'"
+              class="col-4"
+              v-model.number="answerOptionItem.valueQuantity.value"
+              type="number"
+              dense
+            />
+            <q-input
+              :label="'Code'"
+              class="col-4"
+              v-model="answerOptionItem.valueQuantity.code"
+              type="text"
+              dense
+            />
+            <q-input
+              :label="'Unit'"
+              class="col-4"
+              v-model="answerOptionItem.valueQuantity.unit"
+              type="text"
+              dense
+            />
+            <q-input
+              :label="'System'"
+              class="col-4"
+              v-model="answerOptionItem.valueQuantity.system"
+              type="text"
+              dense
+            />
+            <q-select
+              :label="'Comparator'"
+              class="col-4"
+              v-model.boolean="answerOptionItem.valueQuantity.comparator"
+              :options="comparators"
+              dense
+            />
+            <q-separator />
+            <q-btn
+              class="col-4"
+              icon="add"
+              @click="setValueQuantityAnswer(answerOptionItem)"
+            />
+          </div>
         </q-page>
       </q-page-container>
     </q-layout>
@@ -1776,6 +1868,20 @@ export default defineComponent({
         current.userSelected !== old.userSelected
       );
     };
+    const changedQuantity = (answerOption: AnswerOption): boolean => {
+      if (answerOption.__newAnswer) return false;
+      const old = answerOption.__oldValueQuantity;
+      if (old === undefined) return false;
+      const current = answerOption.valueQuantity;
+      if (current === undefined) return true;
+      return (
+        current.code !== old.code ||
+        current.system !== old.system ||
+        current.unit !== old.unit ||
+        current.value !== old.value ||
+        current.comparator !== old.comparator
+      );
+    };
     const answerOptionItem: Ref<AnswerOption | undefined> = ref(undefined);
     const validationResult: Ref<Warning[]> = ref([]);
     const newLinkId: Ref<string> = ref("");
@@ -1807,6 +1913,7 @@ export default defineComponent({
       enableBehaviors,
       setDisplayToOld,
       changedCoding,
+      changedQuantity,
       enableWhenLayout: ref(false),
       chosenEnableWhenAnswerLayout: ref(false),
       comparators,
@@ -1993,6 +2100,20 @@ export default defineComponent({
       }
       this.chosenAnswerOptionLayout = false;
     },
+    handleAnswerOptionQuantity(answerOption: AnswerOption): void {
+      answerOption.valueQuantity ??= {};
+      answerOption.__formattedValueQuantity ??= "";
+      this.answerOptionItem = answerOption;
+      this.chosenAnswerOptionLayout = true;
+    },
+    setValueQuantityAnswer(answerOption: AnswerOption | undefined): void {
+      if (answerOption?.valueQuantity !== undefined) {
+        answerOption.__formattedValueQuantity = this.editorTools.formatQuantity(
+          answerOption.valueQuantity,
+        );
+      }
+      this.chosenAnswerOptionLayout = false;
+    },
     deleteLanguage(language: Language): void {
       const accepted = confirm(
         this.$t("views.languages.confirmDeletion", { language }),
@@ -2167,6 +2288,10 @@ export default defineComponent({
           break;
         case "string":
           this.enableWhenItem.answer = e.valueString;
+          break;
+        case "quantity":
+          this.enableWhenItem.answer = e.__formattedValueQuantity;
+          this.enableWhenItem.answerQuantity = { ...e.valueQuantity };
           break;
         default:
           throw new UnreachableError(e.__type);
@@ -2501,7 +2626,6 @@ export default defineComponent({
         __newAnswer: true,
         __type: e.name,
       };
-      // TODO: Implement missing answerOption-types
       switch (e.name) {
         case "coding":
           answerOption.valueCoding = { code: "", display: "", system: "" };
@@ -2523,6 +2647,9 @@ export default defineComponent({
           break;
         case "string":
           answerOption.valueString = "";
+          break;
+        case "quantity":
+          answerOption.valueQuantity = {};
           break;
         default:
           throw new UnreachableError(e);

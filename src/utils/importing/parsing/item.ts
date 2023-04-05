@@ -6,6 +6,7 @@ import {
   optionalBooleanSchema,
   optionalCodingSchema,
   optionalNumberSchema,
+  optionalQuantitySchema,
   optionalStringSchema,
 } from "./schemas";
 
@@ -29,6 +30,7 @@ const answerOptionSchema = z.object({
   valueDateTime: optionalStringSchema,
   valueTime: optionalStringSchema,
   valueString: optionalStringSchema,
+  valueQuantity: optionalQuantitySchema,
   initialSelected: optionalBooleanSchema,
 });
 

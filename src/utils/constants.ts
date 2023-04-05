@@ -6,6 +6,7 @@ export const answerOptionButtons = [
   { name: "dateTime", icon: "event", label: "DateTime" },
   { name: "time", icon: "schedule", label: "Time" },
   { name: "string", icon: "text_fields", label: "String" },
+  { name: "quantity", icon: "biotech", label: "Quantity" },
 ] as const;
 export type AnswerOptionButton = typeof answerOptionButtons[number];
 export type AnswerOptionType = typeof answerOptionButtons[number]["name"];

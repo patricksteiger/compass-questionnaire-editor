@@ -103,8 +103,11 @@ export type AnswerOption = {
   __oldValueDateTime?: string;
   __oldValueTime?: string;
   __oldValueString?: string;
+  __oldValueQuantity?: Quantity;
   __formattedValueCoding?: string;
   __oldFormattedValueCoding?: string;
+  __formattedValueQuantity?: string;
+  __oldFormattedValueQuantity?: string;
   linkId?: string;
   type?: string;
   valueCoding?: Coding;
@@ -114,6 +117,7 @@ export type AnswerOption = {
   valueDateTime?: string;
   valueTime?: string;
   valueString?: string;
+  valueQuantity?: Quantity;
 };
 
 export type Extension = {

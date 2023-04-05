@@ -179,6 +179,7 @@ function getObjectWithoutItemsDisabled(
       for (let i = item.answerOption.length - 1; i >= 0; i--) {
         const answer = item.answerOption[i];
         if (answer.__type === "coding") {
+          // TODO: Filter empty values for coding
           if (editorTools.isEmptyObject(answer.valueCoding)) {
             item.answerOption.splice(i, 1);
           } else if (answer.valueCoding?.userSelected === null) {
@@ -206,6 +207,27 @@ function getObjectWithoutItemsDisabled(
           }
         } else if (answer.__type === "time") {
           if (onlyStringFalsy(answer.valueTime)) {
+            item.answerOption.splice(i, 1);
+          }
+        } else if (answer.__type === "quantity") {
+          if (answer.valueQuantity !== undefined) {
+            if (!answer.valueQuantity.value) {
+              delete answer.valueQuantity.value;
+            }
+            if (!answer.valueQuantity.code) {
+              delete answer.valueQuantity.code;
+            }
+            if (!answer.valueQuantity.unit) {
+              delete answer.valueQuantity.unit;
+            }
+            if (!answer.valueQuantity.system) {
+              delete answer.valueQuantity.system;
+            }
+            if (!answer.valueQuantity.comparator) {
+              delete answer.valueQuantity.comparator;
+            }
+          }
+          if (editorTools.isEmptyObject(answer.valueQuantity)) {
             item.answerOption.splice(i, 1);
           }
         }

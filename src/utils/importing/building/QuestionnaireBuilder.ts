@@ -125,6 +125,15 @@ export class QuestionnaireBuilder {
       result.__type = "time";
       result.__icon = getAnswerOptionIcon(result.__type);
       result.__oldValueTime = result.valueTime;
+    } else if (result.valueQuantity !== undefined) {
+      result.__type = "quantity";
+      result.__icon = getAnswerOptionIcon(result.__type);
+      result.valueQuantity ??= {};
+      result.__oldValueQuantity = { ...result.valueQuantity };
+      result.__formattedValueQuantity = editorTools.formatQuantity(
+        result.valueQuantity,
+      );
+      result.__oldFormattedValueQuantity = result.__formattedValueQuantity;
     }
     return result;
   }
