@@ -2,6 +2,7 @@ import { Settings } from "@/store";
 import { EnableWhen, Identifier, Item, Questionnaire } from "@/types";
 import { i18n } from "../i18n";
 import { editorTools } from "./editor";
+import { itemTools } from "./item";
 
 export type QuestionnaireBundleEntry = {
   resource: Questionnaire;
@@ -235,6 +236,10 @@ function getObjectWithoutItemsDisabled(
       if (item.answerOption.length === 0) {
         delete item.answerOption;
       }
+    }
+
+    if (itemTools.noDefinedAnswerChoices(item)) {
+      delete item.answerConstraint;
     }
 
     if (item.enableWhen !== undefined) {

@@ -1,3 +1,6 @@
+import { Item } from "@/types";
+import { ParsedItem } from "./importing/parsing/item";
+
 export const answerOptionButtons = [
   { name: "coding", icon: "code", label: "Coding" },
   { name: "decimal", icon: "pin", label: "Decimal" },
@@ -44,8 +47,11 @@ export type ItemType = typeof allItemTypes[number];
 export function isInvalidItemType(type: unknown): boolean {
   return !allItemTypes.includes(type as ItemType);
 }
-export function allowsMaxLength(type: ItemType): boolean {
+export function allowsMaxLength(item: Item | ParsedItem): boolean {
+  const type = item.type;
+  const answerConstraint = item.answerConstraint;
   return (
+    answerConstraint === "optionsOrString" ||
     type === "boolean" ||
     type === "decimal" ||
     type === "integer" ||

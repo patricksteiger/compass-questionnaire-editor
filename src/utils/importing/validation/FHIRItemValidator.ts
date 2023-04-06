@@ -8,6 +8,7 @@ import {
 } from "@/utils/constants";
 import { validatorUtils } from "../TransformerUtils";
 import { ParsedEnableWhen } from "../parsing/enableWhen";
+import { itemTools } from "@/utils/item";
 
 export class FHIRItemValidator {
   private linkIdSet: Set<string>;
@@ -89,6 +90,12 @@ export class FHIRItemValidator {
         this.validateAnswerOption(answerOption, item);
       }
     }
+    if (itemTools.definedAnswerChoices(item) && !item.answerConstraint) {
+      item.answerConstraint = "optionsOnly";
+      this.warnings.push(
+        `LinkId "${item.linkId}" has answerOption or answerValueSet defined, but answerConstraint is undefined. answerConstraint has been initialized to "optionsOnly".`,
+      );
+    }
   }
 
   private validateAnswerOption(
@@ -100,8 +107,10 @@ export class FHIRItemValidator {
     if (answerOption.valueDecimal !== undefined) count++;
     if (answerOption.valueInteger !== undefined) count++;
     if (answerOption.valueDate !== undefined) count++;
+    if (answerOption.valueDateTime !== undefined) count++;
     if (answerOption.valueTime !== undefined) count++;
     if (answerOption.valueString !== undefined) count++;
+    if (answerOption.valueQuantity !== undefined) count++;
     if (count > 1) {
       this.errors.push(
         `LinkId "${item.linkId}" has answerOption with more than 1 answer.`,
@@ -279,7 +288,7 @@ export class FHIRItemValidator {
   }
 
   private validateMaxLength(item: ParsedItem): void {
-    if (item.maxLength !== undefined && !allowsMaxLength(item.type)) {
+    if (item.maxLength !== undefined && !allowsMaxLength(item)) {
       item.maxLength = undefined;
       this.warnings.push(
         `LinkId "${item.linkId}" has type "${item.type}" which does not allow field maxLength. maxLength has been deleted.`,

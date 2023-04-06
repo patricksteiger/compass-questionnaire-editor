@@ -1,4 +1,4 @@
-import { enableBehaviors } from "@/types";
+import { answerConstraints, enableBehaviors } from "@/types";
 import { z } from "zod";
 import { allItemTypes } from "@/utils/constants";
 import { enableWhenSchema } from "./enableWhen";
@@ -21,6 +21,7 @@ const required = optionalBooleanSchema;
 const repeats = optionalBooleanSchema;
 const maxLength = optionalNumberSchema;
 
+const answerConstraint = z.enum(answerConstraints).optional();
 // TODO: Add valueReference to answerOption
 const answerOptionSchema = z.object({
   valueCoding: optionalCodingSchema,
@@ -52,6 +53,7 @@ const baseItemSchema = z.object({
   required,
   repeats,
   maxLength,
+  answerConstraint,
   answerOption,
   answerValueSet,
 });

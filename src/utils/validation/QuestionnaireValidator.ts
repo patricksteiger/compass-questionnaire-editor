@@ -2,6 +2,7 @@ import { Language } from "@/store";
 import { EnableWhen, Item, Questionnaire } from "@/types";
 import { dateTools } from "../date";
 import { editorTools } from "../editor";
+import { itemTools } from "../item";
 
 export type Warning = {
   language: Language;
@@ -46,6 +47,7 @@ export class QuestionnaireValidator {
     const warnings: string[] = [];
     this.text(item, warnings);
     this.enableWhen(item, warnings);
+    this.answerOptionAndValueSetAndConstraint(item, warnings);
     if (warnings.length > 0) {
       const warning: ItemWarning = {
         linkId: item.linkId,
@@ -58,6 +60,21 @@ export class QuestionnaireValidator {
       for (const element of item.item) {
         this.item(element, itemWarnings);
       }
+    }
+  }
+
+  private answerOptionAndValueSetAndConstraint(
+    item: Item,
+    warnings: string[],
+  ): void {
+    if (itemTools.noDefinedAnswerChoices(item) && item.answerConstraint) {
+      warnings.push(
+        "answerConstraint should not be defined, if answerValueSet and answerOption are undefined",
+      );
+    } else if (itemTools.definedAnswerChoices(item) && !item.answerConstraint) {
+      warnings.push(
+        "answerConstraint should be defined, if answerValueSet or answerOption are defined",
+      );
     }
   }
 

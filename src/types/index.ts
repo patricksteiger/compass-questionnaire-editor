@@ -179,6 +179,13 @@ export type Identifier = {
 export const enableBehaviors = ["all", "any"] as const;
 export type EnableBehavior = typeof enableBehaviors[number];
 
+export const answerConstraints = [
+  "optionsOnly",
+  "optionsOrType",
+  "optionsOrString",
+] as const;
+export type AnswerConstraint = typeof answerConstraints[number];
+
 /*
  * Fields with "__"-prefix are used for internal state management
  */
@@ -210,6 +217,7 @@ export type Item = {
   enableBehavior?: EnableBehavior;
   text: string;
   definition?: string;
+  answerConstraint?: AnswerConstraint | null;
   answerOption?: AnswerOption[];
   answerValueSet?: string;
   extension?: Extension[];

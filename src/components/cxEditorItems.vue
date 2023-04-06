@@ -351,8 +351,7 @@
               <!-- Max Length-->
               <q-input
                 v-if="
-                  selectedItem !== undefined &&
-                  allowsMaxLength(selectedItem.type)
+                  selectedItem !== undefined && allowsMaxLength(selectedItem)
                 "
                 :disable="!selectedItem.__active"
                 :label="$t('views.editor.maxLength')"
@@ -360,7 +359,17 @@
                 type="number"
                 @keypress="onlyNumber"
                 v-model.number="selectedItem.maxLength"
-              ></q-input>
+              />
+            </div>
+            <!-- answerConstraint -->
+            <div>
+              <q-select
+                v-if="selectedItem !== undefined"
+                v-model="selectedItem.answerConstraint"
+                label="answerConstraint"
+                :options="answerConstraints"
+                :clearable="itemTools.noDefinedAnswerChoices(selectedItem)"
+              />
             </div>
             <!-- AnswerValueSet -->
             <div
@@ -1825,6 +1834,7 @@ import {
   EnableBehavior,
   enableBehaviors,
   comparators,
+  answerConstraints,
 } from "@/types";
 import { Language, languages } from "@/store";
 import { itemTools } from "@/utils/item";
@@ -1907,6 +1917,7 @@ export default defineComponent({
       languageSplitterLimits: ref([30, 60]),
       validationLayout: ref(false),
       validationResult,
+      answerConstraints,
       allowsAnswerChoice,
       triggerNegative,
       questionaireGUI,
@@ -1927,6 +1938,7 @@ export default defineComponent({
       alert: ref(false),
       itemsAnwers: ref(""),
       editorTools,
+      itemTools,
       COLORS,
       uuidv4,
       answerOptionButtons,
