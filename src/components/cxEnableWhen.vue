@@ -10,9 +10,9 @@
         >
           <template v-slot:before>
             <q-toolbar class="bg-primary text-white shadow-2">
-              <q-toolbar-title>{{
-                $t("views.editor.questions")
-              }}</q-toolbar-title>
+              <q-toolbar-title>
+                {{ $t("views.editor.questions") }}
+              </q-toolbar-title>
             </q-toolbar>
             <div class="q-pa-md">
               <q-tree
@@ -31,13 +31,14 @@
                         :name="prop.node.__icon"
                         size="20px"
                         class="q-mr-sm text-grey-8"
-                        ><q-tooltip>
-                          {{ prop.node.type }}
-                        </q-tooltip></q-icon
                       >
+                        <q-tooltip>
+                          {{ prop.node.type }}
+                        </q-tooltip>
+                      </q-icon>
                       <div class="text-bold q-pr-sm">
-                        {{ prop.node.linkId
-                        }}<q-tooltip> {{ $t("components.linkId") }} </q-tooltip>
+                        {{ prop.node.linkId }}
+                        <q-tooltip> {{ $t("components.linkId") }} </q-tooltip>
                       </div>
                       <div class="q-body-1">
                         {{ prop.node.text }}
@@ -53,9 +54,9 @@
               v-if="selectedItem"
               class="bg-primary text-white shadow-2"
             >
-              <q-toolbar-title>{{
-                $t("views.editor.answerSelected")
-              }}</q-toolbar-title>
+              <q-toolbar-title>
+                {{ $t("views.editor.answerSelected") }}
+              </q-toolbar-title>
             </q-toolbar>
             <div class="q-pa-md" v-if="selected && selectedItem">
               <div class="text-h5 text-bold q-mb-md">
@@ -77,25 +78,21 @@
 
               <div
                 v-if="
-                  selectedItem.type === 'choice' ||
-                  selectedItem.type === 'open-choice'
+                  allowsAnswerChoice(selectedItem.type) &&
+                  selectedItem.answerOption !== undefined &&
+                  selectedItem.answerOption.length > 0
                 "
               >
-                <q-toolbar
-                  class="text-primary"
-                  bordered
-                  separator
-                  v-if="selectedItem.answerOption"
-                >
-                  <q-toolbar-title>{{
-                    $t("views.editor.AnswerOptions")
-                  }}</q-toolbar-title>
+                <q-toolbar class="text-primary" bordered separator>
+                  <q-toolbar-title>
+                    {{ $t("views.editor.AnswerOptions") }}
+                  </q-toolbar-title>
                 </q-toolbar>
                 <div class="q-pl-sm text-caption text-grey-8 text-italic">
                   {{ $t("views.editor.toSelectOneAnswer") }}
                 </div>
-                <q-list bordered separator v-if="selectedItem?.answerOption"
-                  ><q-item
+                <q-list bordered separator v-if="selectedItem.answerOption">
+                  <q-item
                     v-for="answerOption in selectedItem.answerOption"
                     :key="answerOption.__id"
                     clickable
@@ -107,18 +104,19 @@
                       })
                     "
                   >
-                    <!--Coding Answer type -->
+                    <!-- Coding Answer type -->
                     <q-item-section
                       v-if="
                         answerOption.__type === 'coding' &&
                         answerOption.valueCoding
                       "
-                      ><q-item-label>{{
-                        answerOption.valueCoding.display
-                      }}</q-item-label
-                      ><q-item-label caption lines="2">{{
-                        answerOption.valueCoding.system
-                      }}</q-item-label>
+                    >
+                      <q-item-label>
+                        {{ answerOption.valueCoding.display }}
+                      </q-item-label>
+                      <q-item-label caption lines="2">
+                        {{ answerOption.valueCoding.system }}
+                      </q-item-label>
                     </q-item-section>
                     <q-item-section
                       side
@@ -128,33 +126,67 @@
                         answerOption.__type === 'coding'
                       "
                     >
-                      <q-item-label caption>{{
-                        answerOption.valueCoding.code
-                      }}</q-item-label>
+                      <q-item-label caption>
+                        {{ answerOption.valueCoding.code }}
+                      </q-item-label>
                     </q-item-section>
-                    <q-item-section v-if="answerOption.__type === 'integer'"
-                      ><q-item-label>{{
-                        answerOption.valueInteger
-                      }}</q-item-label>
+                    <q-item-section
+                      v-else-if="answerOption.__type === 'decimal'"
+                    >
+                      <q-item-label>
+                        {{ answerOption.valueDecimal }}
+                      </q-item-label>
+                      <q-item-label caption lines="2">
+                        valueDecimal
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section
+                      v-else-if="answerOption.__type === 'integer'"
+                    >
+                      <q-item-label>
+                        {{ answerOption.valueInteger }}
+                      </q-item-label>
                       <q-item-label caption lines="2">
                         valueInteger
                       </q-item-label>
                     </q-item-section>
-                    <q-item-section v-if="answerOption.__type === 'date'"
-                      ><q-item-label>{{ answerOption.valueDate }}</q-item-label>
+                    <q-item-section v-else-if="answerOption.__type === 'date'">
+                      <q-item-label>{{ answerOption.valueDate }}</q-item-label>
                       <q-item-label caption lines="2"> valueDate </q-item-label>
                     </q-item-section>
-                    <q-item-section v-if="answerOption.__type === 'string'"
-                      ><q-item-label>{{
-                        answerOption.valueString
-                      }}</q-item-label>
+                    <q-item-section
+                      v-else-if="answerOption.__type === 'dateTime'"
+                    >
+                      <q-item-label>
+                        {{ answerOption.valueDateTime }}
+                      </q-item-label>
+                      <q-item-label caption lines="2">
+                        valueDateTime
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section v-else-if="answerOption.__type === 'time'">
+                      <q-item-label>{{ answerOption.valueTime }}</q-item-label>
+                      <q-item-label caption lines="2"> valueTime </q-item-label>
+                    </q-item-section>
+                    <q-item-section
+                      v-else-if="answerOption.__type === 'string'"
+                    >
+                      <q-item-label>
+                        {{ answerOption.valueString }}
+                      </q-item-label>
                       <q-item-label caption lines="2">
                         valueString
                       </q-item-label>
                     </q-item-section>
-                    <q-item-section v-if="answerOption.__type === 'time'">
-                      <q-item-label>{{ answerOption.valueTime }}</q-item-label>
-                      <q-item-label caption lines="2"> valueTime </q-item-label>
+                    <q-item-section
+                      v-else-if="answerOption.__type === 'quantity'"
+                    >
+                      <q-item-label>
+                        {{ answerOption.__formattedValueQuantity }}
+                      </q-item-label>
+                      <q-item-label caption lines="2">
+                        valueQuantity
+                      </q-item-label>
                     </q-item-section>
                   </q-item>
                 </q-list>
@@ -173,6 +205,8 @@
           selectedItem.type !== 'attachment' &&
           selectedItem.type !== 'open-choice' &&
           selectedItem.type !== 'choice' &&
+          (selectedItem.answerOption === undefined ||
+            selectedItem.answerOption.length === 0) &&
           selected
         "
       >
@@ -207,6 +241,7 @@ import {
   SelectedQuestion,
 } from "@/types";
 import { defaultLanguage } from "@/i18n";
+import { allowsAnswerChoice } from "@/utils/constants";
 
 export default defineComponent({
   props: {
@@ -227,6 +262,7 @@ export default defineComponent({
     const questionnaireGUI: Ref<Questionnaire | undefined> = ref(undefined);
     const enableWhen: Ref<EnableWhen | undefined> = ref(undefined);
     return {
+      allowsAnswerChoice,
       splitterModel: ref(50), // start at 50%
       editorTools,
       filter,
@@ -274,7 +310,6 @@ export default defineComponent({
       return (
         node.__active &&
         node.type !== "display" &&
-        node.type !== "attachment" &&
         node.__internalID !== this.internalID
       );
     },

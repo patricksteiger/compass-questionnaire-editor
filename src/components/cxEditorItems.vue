@@ -901,7 +901,6 @@
                             :rules="[validOperator]"
                           />
                           <!-- enableWhen answer input -->
-                          <!-- TODO: EnableWhen answer and operator is set through v-model? How to duplicate? -->
                           <q-select
                             v-if="
                               enableWhen.type === 'boolean' ||
@@ -915,23 +914,7 @@
                             dense
                             :rules="[validExistsAnswer]"
                           />
-                          <!-- TODO: if switch from boolean answer with exists it errors -->
-                          <q-input
-                            v-else-if="enableWhen.type === 'integer'"
-                            @keypress="onlyNumber"
-                            :disable="!selectedItem.__active"
-                            :label="
-                              $t('views.editor.answer') +
-                              (enableWhen.__answerOption
-                                ? ' (answerOption)'
-                                : '')
-                            "
-                            class="col-4"
-                            v-model="enableWhen.answer"
-                            :readonly="enableWhen.__answerOption"
-                            :type="'number'"
-                            dense
-                          />
+                          <!-- enableWhen coding -->
                           <q-input
                             v-else-if="enableWhen.type === 'coding'"
                             :disable="!selectedItem.__active"
@@ -949,38 +932,37 @@
                             @click="handleCodingAnswer(enableWhen)"
                             dense
                           />
-                          <q-input
-                            v-else-if="enableWhen.type === 'quantity'"
-                            :disable="!selectedItem.__active"
-                            :label="$t('views.editor.answer')"
-                            class="col-4"
-                            v-model="enableWhen.answer"
-                            :type="'text'"
-                            dense
-                            readonly
-                            clickable
-                            @click="handleQuantityAnswer(enableWhen)"
-                          />
-                          <q-input
-                            v-else-if="enableWhen.type === 'reference'"
-                            :disable="!selectedItem.__active"
-                            :label="$t('views.editor.answer')"
-                            class="col-4"
-                            v-model="enableWhen.answer"
-                            :type="'text'"
-                            readonly
-                            clickable
-                            @click="handleReferenceAnswer(enableWhen)"
-                            dense
-                          />
                           <!-- enableWhen decimal -->
                           <q-input
                             v-else-if="enableWhen.type === 'decimal'"
+                            @keypress="onlyNumberDec"
                             :disable="!selectedItem.__active"
-                            :label="$t('views.editor.answer')"
+                            :label="
+                              $t('views.editor.answer') +
+                              (enableWhen.__answerOption
+                                ? ' (answerOption)'
+                                : '')
+                            "
                             class="col-4"
                             v-model="enableWhen.answer"
-                            @keypress="onlyNumberDec"
+                            :readonly="enableWhen.__answerOption"
+                            type="number"
+                            dense
+                          />
+                          <!-- enableWhen integer -->
+                          <q-input
+                            v-else-if="enableWhen.type === 'integer'"
+                            @keypress="onlyNumber"
+                            :disable="!selectedItem.__active"
+                            :label="
+                              $t('views.editor.answer') +
+                              (enableWhen.__answerOption
+                                ? ' (answerOption)'
+                                : '')
+                            "
+                            class="col-4"
+                            v-model="enableWhen.answer"
+                            :readonly="enableWhen.__answerOption"
                             type="number"
                             dense
                           />
@@ -996,10 +978,20 @@
                             "
                             class="col-4"
                             v-model="enableWhen.answer"
-                            :type="'text'"
+                            type="text"
                             :readonly="enableWhen.__answerOption"
                             dense
                             :rules="[dateTools.isDate]"
+                          />
+                          <q-input
+                            v-else-if="enableWhen.type === 'dateTime'"
+                            :disable="!selectedItem.__active"
+                            :label="$t('views.editor.answer')"
+                            class="col-4"
+                            v-model="enableWhen.answer"
+                            type="text"
+                            dense
+                            :rules="[dateTools.isDateTime]"
                           />
                           <q-input
                             v-else-if="enableWhen.type === 'time'"
@@ -1012,22 +1004,12 @@
                             "
                             class="col-4"
                             v-model="enableWhen.answer"
-                            :type="'text'"
+                            type="text"
                             :readonly="enableWhen.__answerOption"
                             dense
                             mask="fulltime"
                             fill-mask
                             :rules="[dateTools.isTime]"
-                          />
-                          <q-input
-                            v-else-if="enableWhen.type === 'dateTime'"
-                            :disable="!selectedItem.__active"
-                            :label="$t('views.editor.answer')"
-                            class="col-4"
-                            v-model="enableWhen.answer"
-                            :type="'text'"
-                            dense
-                            :rules="[dateTools.isDateTime]"
                           />
                           <q-input
                             v-else-if="enableWhen.type === 'string'"
@@ -1040,8 +1022,32 @@
                             "
                             class="col-4"
                             v-model="enableWhen.answer"
-                            :type="'text'"
+                            type="text"
                             :readonly="enableWhen.__answerOption"
+                            dense
+                          />
+                          <q-input
+                            v-else-if="enableWhen.type === 'quantity'"
+                            :disable="!selectedItem.__active"
+                            :label="$t('views.editor.answer')"
+                            class="col-4"
+                            v-model="enableWhen.answer"
+                            type="text"
+                            dense
+                            readonly
+                            clickable
+                            @click="() => handleQuantityAnswer(enableWhen)"
+                          />
+                          <q-input
+                            v-else-if="enableWhen.type === 'reference'"
+                            :disable="!selectedItem.__active"
+                            :label="$t('views.editor.answer')"
+                            class="col-4"
+                            v-model="enableWhen.answer"
+                            type="text"
+                            readonly
+                            clickable
+                            @click="() => handleReferenceAnswer(enableWhen)"
                             dense
                           />
                           <q-input
@@ -1050,7 +1056,7 @@
                             :label="$t('views.editor.answer')"
                             class="col-4"
                             v-model="enableWhen.answer"
-                            :type="'text'"
+                            type="text"
                             dense
                           />
                           <!--  remove item enable when -->
