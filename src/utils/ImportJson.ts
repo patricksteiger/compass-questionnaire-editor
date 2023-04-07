@@ -372,37 +372,37 @@ class FHIRValidation {
 
       // FIXME: get type from linkId. exist maps to type boolean
       if (enableWhen.answerDecimal) {
-        enableWhen.answer = enableWhen.answerDecimal.toString();
-        enableWhen.type = "decimal";
+        enableWhen.__answer = enableWhen.answerDecimal.toString();
+        enableWhen.__type = "decimal";
       }
       if (enableWhen.answerInteger) {
-        enableWhen.answer = enableWhen.answerInteger.toString();
-        enableWhen.type = "integer";
+        enableWhen.__answer = enableWhen.answerInteger.toString();
+        enableWhen.__type = "integer";
       }
       // FIXME: When can answerCoding be the type?
       if (enableWhen.answerCoding) {
-        enableWhen.answer = enableWhen.answerCoding.code;
-        enableWhen.type = "choice";
+        enableWhen.__answer = enableWhen.answerCoding.code;
+        enableWhen.__type = "choice";
       }
       if (enableWhen.answerDate) {
-        enableWhen.answer = enableWhen.answerDate;
-        enableWhen.type = "date";
+        enableWhen.__answer = enableWhen.answerDate;
+        enableWhen.__type = "date";
       }
       if (enableWhen.answerBoolean !== undefined) {
-        enableWhen.answer = enableWhen.answerBoolean ? "true" : "false";
-        enableWhen.type = "boolean";
+        enableWhen.__answer = enableWhen.answerBoolean ? "true" : "false";
+        enableWhen.__type = "boolean";
       }
       if (enableWhen.answerString) {
-        enableWhen.answer = enableWhen.answerString;
-        enableWhen.type = "string";
+        enableWhen.__answer = enableWhen.answerString;
+        enableWhen.__type = "string";
       }
       if (enableWhen.answerTime) {
-        enableWhen.answer = enableWhen.answerTime;
-        enableWhen.type = "time";
+        enableWhen.__answer = enableWhen.answerTime;
+        enableWhen.__type = "time";
       }
       if (enableWhen.answerDateTime) {
-        enableWhen.answer = enableWhen.answerDateTime;
-        enableWhen.type = "dateTime";
+        enableWhen.__answer = enableWhen.answerDateTime;
+        enableWhen.__type = "dateTime";
       }
     }
   }

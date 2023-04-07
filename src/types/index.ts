@@ -63,10 +63,10 @@ export type Reference = {
 
 export type EnableWhen = {
   __answerOption?: boolean;
+  __answer?: string;
+  __type?: AnswerType;
   question: string;
-  answer?: string;
   operator: Operator;
-  type?: AnswerType;
   answerInteger?: number;
   answerDecimal?: number;
   answerDate?: string;
@@ -77,11 +77,6 @@ export type EnableWhen = {
   answerCoding?: Coding;
   answerQuantity?: Quantity;
   answerReference?: Reference;
-};
-
-export type Answer = {
-  text: string;
-  type: AnswerType;
 };
 
 export type Coding = {

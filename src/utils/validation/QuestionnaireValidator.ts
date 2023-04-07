@@ -181,41 +181,41 @@ export class QuestionnaireValidator {
     index: number,
     warnings: string[],
   ): void {
-    if (!enableWhen.answer) {
+    if (!enableWhen.__answer) {
       warnings.push(`enableWhen at index ${index} has empty answer`);
       return;
     }
     if (enableWhen.operator === "exists") {
-      if (enableWhen.answer !== "true" && enableWhen.answer !== "false") {
+      if (enableWhen.__answer !== "true" && enableWhen.__answer !== "false") {
         warnings.push(
           `enableWhen at index ${index} has invalid answer for operator "${enableWhen.operator}"`,
         );
       }
       return;
     }
-    if (enableWhen.type === "time") {
-      if (!dateTools.isTime(enableWhen.answer)) {
+    if (enableWhen.__type === "time") {
+      if (!dateTools.isTime(enableWhen.__answer)) {
         warnings.push(
-          `enableWhen at index ${index} has invalid time answer "${enableWhen.answer}"`,
+          `enableWhen at index ${index} has invalid time answer "${enableWhen.__answer}"`,
         );
       }
-    } else if (enableWhen.type === "date") {
-      if (!dateTools.isDate(enableWhen.answer)) {
+    } else if (enableWhen.__type === "date") {
+      if (!dateTools.isDate(enableWhen.__answer)) {
         warnings.push(
-          `enableWhen at index ${index} has invalid date answer "${enableWhen.answer}"`,
+          `enableWhen at index ${index} has invalid date answer "${enableWhen.__answer}"`,
         );
       }
-    } else if (enableWhen.type === "dateTime") {
-      if (!dateTools.isDateTime(enableWhen.answer)) {
+    } else if (enableWhen.__type === "dateTime") {
+      if (!dateTools.isDateTime(enableWhen.__answer)) {
         warnings.push(
-          `enableWhen at index ${index} has invalid dateTime answer "${enableWhen.answer}"`,
+          `enableWhen at index ${index} has invalid dateTime answer "${enableWhen.__answer}"`,
         );
       }
-    } else if (enableWhen.type === "quantity") {
+    } else if (enableWhen.__type === "quantity") {
       if (
         enableWhen.answerQuantity === undefined ||
         editorTools.formatQuantity(enableWhen.answerQuantity) !==
-          enableWhen.answer
+          enableWhen.__answer
       ) {
         warnings.push(
           `enableWhen at index ${index} has invalid quantity-answer`,
@@ -230,10 +230,11 @@ export class QuestionnaireValidator {
           warnings.push(`enableWhen at index ${index} has empty quantity-code`);
         }
       }
-    } else if (enableWhen.type === "coding") {
+    } else if (enableWhen.__type === "coding") {
       if (
         enableWhen.answerCoding === undefined ||
-        editorTools.formatCoding(enableWhen.answerCoding) !== enableWhen.answer
+        editorTools.formatCoding(enableWhen.answerCoding) !==
+          enableWhen.__answer
       ) {
         warnings.push(`enableWhen at index ${index} has invalid coding-answer`);
       } else {
@@ -241,11 +242,11 @@ export class QuestionnaireValidator {
           warnings.push(`enableWhen at index ${index} has empty coding-code`);
         }
       }
-    } else if (enableWhen.type === "reference") {
+    } else if (enableWhen.__type === "reference") {
       if (
         enableWhen.answerReference === undefined ||
         editorTools.formatReference(enableWhen.answerReference) !==
-          enableWhen.answer
+          enableWhen.__answer
       ) {
         warnings.push(`enableWhen at index ${index} has invalid coding-answer`);
       } else if (

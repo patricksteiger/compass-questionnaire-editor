@@ -241,41 +241,41 @@ function getObjectWithoutItemsDisabled(
         (enableWhen) =>
           enableWhen.operator !== "" &&
           enableWhen.question !== "" &&
-          enableWhen.answer !== "",
+          enableWhen.__answer !== "",
       );
       for (const enableWhen of item.enableWhen) {
         if (enableWhen.operator === "exists") {
           clearEnableWhenAnswers(enableWhen);
-          enableWhen.answerBoolean = enableWhen.answer === "true";
+          enableWhen.answerBoolean = enableWhen.__answer === "true";
         } else {
-          if (enableWhen.type === "decimal") {
+          if (enableWhen.__type === "decimal") {
             clearEnableWhenAnswers(enableWhen);
-            enableWhen.answerDecimal = parseFloat(enableWhen.answer || "");
-          } else if (enableWhen.type === "integer") {
+            enableWhen.answerDecimal = parseFloat(enableWhen.__answer || "");
+          } else if (enableWhen.__type === "integer") {
             clearEnableWhenAnswers(enableWhen);
-            enableWhen.answerInteger = parseInt(enableWhen.answer || "");
-          } else if (enableWhen.type === "date") {
+            enableWhen.answerInteger = parseInt(enableWhen.__answer || "");
+          } else if (enableWhen.__type === "date") {
             clearEnableWhenAnswers(enableWhen);
-            enableWhen.answerDate = enableWhen.answer;
-          } else if (enableWhen.type === "boolean") {
+            enableWhen.answerDate = enableWhen.__answer;
+          } else if (enableWhen.__type === "boolean") {
             clearEnableWhenAnswers(enableWhen);
-            enableWhen.answerBoolean = enableWhen.answer === "true";
+            enableWhen.answerBoolean = enableWhen.__answer === "true";
           } else if (
-            enableWhen.type === "string" ||
-            enableWhen.type === "text" ||
-            enableWhen.type === "url"
+            enableWhen.__type === "string" ||
+            enableWhen.__type === "text" ||
+            enableWhen.__type === "url"
           ) {
             clearEnableWhenAnswers(enableWhen);
-            enableWhen.answerString = enableWhen.answer;
+            enableWhen.answerString = enableWhen.__answer;
           } else if (
-            enableWhen.type === "choice" ||
-            enableWhen.type === "open-choice"
+            enableWhen.__type === "choice" ||
+            enableWhen.__type === "open-choice"
           ) {
             // FIXME: is this needed?
             enableWhen.answerCoding = {
-              code: enableWhen.answer ?? "",
+              code: enableWhen.__answer ?? "",
             };
-          } else if (enableWhen.type === "coding") {
+          } else if (enableWhen.__type === "coding") {
             if (enableWhen.answerCoding !== undefined) {
               if (!enableWhen.answerCoding.code) {
                 delete enableWhen.answerCoding.code;
@@ -298,7 +298,7 @@ function getObjectWithoutItemsDisabled(
                 enableWhen.answerCoding = safedCoding;
               }
             }
-          } else if (enableWhen.type === "quantity") {
+          } else if (enableWhen.__type === "quantity") {
             if (enableWhen.answerQuantity !== undefined) {
               if (!enableWhen.answerQuantity.code) {
                 delete enableWhen.answerQuantity.code;
@@ -321,7 +321,7 @@ function getObjectWithoutItemsDisabled(
                 enableWhen.answerQuantity = safedQuantity;
               }
             }
-          } else if (enableWhen.type === "reference") {
+          } else if (enableWhen.__type === "reference") {
             if (enableWhen.answerReference !== undefined) {
               if (!enableWhen.answerReference.reference) {
                 delete enableWhen.answerReference.reference;
@@ -343,14 +343,12 @@ function getObjectWithoutItemsDisabled(
                 enableWhen.answerReference = safedReference;
               }
             }
-          } else if (enableWhen.type === "time") {
-            enableWhen.answerTime = enableWhen.answer;
-          } else if (enableWhen.type === "dateTime") {
-            enableWhen.answerDateTime = enableWhen.answer;
+          } else if (enableWhen.__type === "time") {
+            enableWhen.answerTime = enableWhen.__answer;
+          } else if (enableWhen.__type === "dateTime") {
+            enableWhen.answerDateTime = enableWhen.__answer;
           }
         }
-        delete enableWhen.answer;
-        delete enableWhen.type;
       }
       if (item.enableWhen.length === 0) {
         delete item.enableWhen;

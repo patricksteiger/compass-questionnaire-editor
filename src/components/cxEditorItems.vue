@@ -892,7 +892,7 @@
                           <q-input
                             :disable="!selectedItem.__active"
                             :label="`${$t('views.editor.question')}: ${
-                              enableWhen.type ?? ''
+                              enableWhen.__type ?? ''
                             }`"
                             dense
                             v-model="enableWhen.question"
@@ -912,12 +912,12 @@
                           <!-- enableWhen answer input -->
                           <q-select
                             v-if="
-                              enableWhen.type === 'boolean' ||
+                              enableWhen.__type === 'boolean' ||
                               enableWhen.operator === 'exists'
                             "
                             :disable="!selectedItem.__active"
                             class="col-4"
-                            v-model="enableWhen.answer"
+                            v-model="enableWhen.__answer"
                             :options="['true', 'false']"
                             :label="$t('views.editor.answer')"
                             dense
@@ -925,7 +925,7 @@
                           />
                           <!-- enableWhen coding -->
                           <q-input
-                            v-else-if="enableWhen.type === 'coding'"
+                            v-else-if="enableWhen.__type === 'coding'"
                             :disable="!selectedItem.__active"
                             :label="
                               $t('views.editor.answer') +
@@ -934,7 +934,7 @@
                                 : '')
                             "
                             class="col-4"
-                            v-model="enableWhen.answer"
+                            v-model="enableWhen.__answer"
                             :type="'text'"
                             readonly
                             :clickable="!enableWhen.__answerOption"
@@ -943,7 +943,7 @@
                           />
                           <!-- enableWhen decimal -->
                           <q-input
-                            v-else-if="enableWhen.type === 'decimal'"
+                            v-else-if="enableWhen.__type === 'decimal'"
                             @keypress="onlyNumberDec"
                             :disable="!selectedItem.__active"
                             :label="
@@ -953,14 +953,14 @@
                                 : '')
                             "
                             class="col-4"
-                            v-model="enableWhen.answer"
+                            v-model="enableWhen.__answer"
                             :readonly="enableWhen.__answerOption"
                             type="number"
                             dense
                           />
                           <!-- enableWhen integer -->
                           <q-input
-                            v-else-if="enableWhen.type === 'integer'"
+                            v-else-if="enableWhen.__type === 'integer'"
                             @keypress="onlyNumber"
                             :disable="!selectedItem.__active"
                             :label="
@@ -970,14 +970,14 @@
                                 : '')
                             "
                             class="col-4"
-                            v-model="enableWhen.answer"
+                            v-model="enableWhen.__answer"
                             :readonly="enableWhen.__answerOption"
                             type="number"
                             dense
                           />
                           <!-- enableWhen date -->
                           <q-input
-                            v-else-if="enableWhen.type === 'date'"
+                            v-else-if="enableWhen.__type === 'date'"
                             :disable="!selectedItem.__active"
                             :label="
                               $t('views.editor.answer') +
@@ -986,24 +986,24 @@
                                 : '')
                             "
                             class="col-4"
-                            v-model="enableWhen.answer"
+                            v-model="enableWhen.__answer"
                             type="text"
                             :readonly="enableWhen.__answerOption"
                             dense
                             :rules="[dateTools.isDate]"
                           />
                           <q-input
-                            v-else-if="enableWhen.type === 'dateTime'"
+                            v-else-if="enableWhen.__type === 'dateTime'"
                             :disable="!selectedItem.__active"
                             :label="$t('views.editor.answer')"
                             class="col-4"
-                            v-model="enableWhen.answer"
+                            v-model="enableWhen.__answer"
                             type="text"
                             dense
                             :rules="[dateTools.isDateTime]"
                           />
                           <q-input
-                            v-else-if="enableWhen.type === 'time'"
+                            v-else-if="enableWhen.__type === 'time'"
                             :disable="!selectedItem.__active"
                             :label="
                               $t('views.editor.answer') +
@@ -1012,7 +1012,7 @@
                                 : '')
                             "
                             class="col-4"
-                            v-model="enableWhen.answer"
+                            v-model="enableWhen.__answer"
                             type="text"
                             :readonly="enableWhen.__answerOption"
                             dense
@@ -1021,7 +1021,7 @@
                             :rules="[dateTools.isTime]"
                           />
                           <q-input
-                            v-else-if="enableWhen.type === 'string'"
+                            v-else-if="enableWhen.__type === 'string'"
                             :disable="!selectedItem.__active"
                             :label="
                               $t('views.editor.answer') +
@@ -1030,17 +1030,17 @@
                                 : '')
                             "
                             class="col-4"
-                            v-model="enableWhen.answer"
+                            v-model="enableWhen.__answer"
                             type="text"
                             :readonly="enableWhen.__answerOption"
                             dense
                           />
                           <q-input
-                            v-else-if="enableWhen.type === 'quantity'"
+                            v-else-if="enableWhen.__type === 'quantity'"
                             :disable="!selectedItem.__active"
                             :label="$t('views.editor.answer')"
                             class="col-4"
-                            v-model="enableWhen.answer"
+                            v-model="enableWhen.__answer"
                             type="text"
                             dense
                             readonly
@@ -1048,11 +1048,11 @@
                             @click="() => handleQuantityAnswer(enableWhen)"
                           />
                           <q-input
-                            v-else-if="enableWhen.type === 'reference'"
+                            v-else-if="enableWhen.__type === 'reference'"
                             :disable="!selectedItem.__active"
                             :label="$t('views.editor.answer')"
                             class="col-4"
-                            v-model="enableWhen.answer"
+                            v-model="enableWhen.__answer"
                             type="text"
                             readonly
                             clickable
@@ -1064,7 +1064,7 @@
                             :disable="!selectedItem.__active"
                             :label="$t('views.editor.answer')"
                             class="col-4"
-                            v-model="enableWhen.answer"
+                            v-model="enableWhen.__answer"
                             type="text"
                             dense
                           />
@@ -1473,13 +1473,13 @@
         <q-page padding>
           <q-toolbar class="bg-primary text-white shadow-2">
             <q-toolbar-title>{{
-              `EnableWhen: ${chosenEnableWhen.type}`
+              `EnableWhen: ${chosenEnableWhen.__type}`
             }}</q-toolbar-title>
           </q-toolbar>
           <div
             class="q-pa-md"
             v-if="
-              chosenEnableWhen.type === 'quantity' &&
+              chosenEnableWhen.__type === 'quantity' &&
               chosenEnableWhen.answerQuantity !== undefined
             "
           >
@@ -1524,7 +1524,7 @@
           <div
             class="q-pa-md"
             v-else-if="
-              chosenEnableWhen.type === 'coding' &&
+              chosenEnableWhen.__type === 'coding' &&
               chosenEnableWhen.answerCoding !== undefined
             "
           >
@@ -1568,7 +1568,7 @@
           <div
             class="q-pa-md"
             v-else-if="
-              chosenEnableWhen.type === 'reference' &&
+              chosenEnableWhen.__type === 'reference' &&
               chosenEnableWhen.answerReference !== undefined
             "
           >
@@ -2072,7 +2072,7 @@ export default defineComponent({
     },
     setQuantityAnswer(enableWhen: EnableWhen | undefined): void {
       if (enableWhen?.answerQuantity !== undefined) {
-        enableWhen.answer = this.editorTools.formatQuantity(
+        enableWhen.__answer = this.editorTools.formatQuantity(
           enableWhen.answerQuantity,
         );
       }
@@ -2085,7 +2085,7 @@ export default defineComponent({
     },
     setReferenceAnswer(enableWhen: EnableWhen | undefined): void {
       if (enableWhen?.answerReference !== undefined) {
-        enableWhen.answer = this.editorTools.formatReference(
+        enableWhen.__answer = this.editorTools.formatReference(
           enableWhen.answerReference,
         );
       }
@@ -2098,7 +2098,7 @@ export default defineComponent({
     },
     setCodingAnswer(enableWhen: EnableWhen | undefined): void {
       if (enableWhen?.answerCoding !== undefined) {
-        enableWhen.answer = this.editorTools.formatCoding(
+        enableWhen.__answer = this.editorTools.formatCoding(
           enableWhen.answerCoding,
         );
       }
@@ -2272,43 +2272,43 @@ export default defineComponent({
         return;
       }
       this.enableWhenItem.question = e.__linkId ?? "";
-      this.enableWhenItem.type = e.__type;
+      this.enableWhenItem.__type = e.__type;
       if (!this.enableWhenItem.operator) {
         this.enableWhenItem.operator = "=";
       }
       switch (e.__type) {
         case "coding":
-          this.enableWhenItem.answer = e.__formattedValueCoding;
+          this.enableWhenItem.__answer = e.__formattedValueCoding;
           this.enableWhenItem.answerCoding = { ...e.valueCoding };
           break;
         case "decimal":
           if (typeof e.valueDecimal === "number") {
-            this.enableWhenItem.answer = e.valueDecimal.toString();
+            this.enableWhenItem.__answer = e.valueDecimal.toString();
           } else {
-            this.enableWhenItem.answer = e.valueDecimal;
+            this.enableWhenItem.__answer = e.valueDecimal;
           }
           break;
         case "integer":
           if (typeof e.valueInteger === "number") {
-            this.enableWhenItem.answer = e.valueInteger.toString();
+            this.enableWhenItem.__answer = e.valueInteger.toString();
           } else {
-            this.enableWhenItem.answer = e.valueInteger;
+            this.enableWhenItem.__answer = e.valueInteger;
           }
           break;
         case "date":
-          this.enableWhenItem.answer = e.valueDate;
+          this.enableWhenItem.__answer = e.valueDate;
           break;
         case "dateTime":
-          this.enableWhenItem.answer = e.valueDateTime;
+          this.enableWhenItem.__answer = e.valueDateTime;
           break;
         case "time":
-          this.enableWhenItem.answer = e.valueTime;
+          this.enableWhenItem.__answer = e.valueTime;
           break;
         case "string":
-          this.enableWhenItem.answer = e.valueString;
+          this.enableWhenItem.__answer = e.valueString;
           break;
         case "quantity":
-          this.enableWhenItem.answer = e.__formattedValueQuantity;
+          this.enableWhenItem.__answer = e.__formattedValueQuantity;
           this.enableWhenItem.answerQuantity = { ...e.valueQuantity };
           break;
         default:
@@ -2319,8 +2319,8 @@ export default defineComponent({
     },
     onSelectedQuestion(e: SelectedItem): void {
       this.enableWhenItem.question = e.linkId ?? "";
-      this.enableWhenItem.answer = "";
-      this.enableWhenItem.type = e.type;
+      this.enableWhenItem.__answer = "";
+      this.enableWhenItem.__type = e.type;
       if (e.linkId !== undefined) {
         this.enableWhenItem.operator ||= "=";
       }
@@ -2343,7 +2343,7 @@ export default defineComponent({
       this.selectedItem.enableWhen.push({
         question: "",
         operator: "",
-        answer: "",
+        __answer: "",
       });
       if (this.selectedItem.enableWhen.length > 1) {
         this.selectedItem.enableBehavior ??= "any";

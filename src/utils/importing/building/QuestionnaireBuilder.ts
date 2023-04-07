@@ -147,7 +147,7 @@ export class QuestionnaireBuilder {
       enableWhen.question,
     );
     if (linkedItem !== undefined) {
-      result.type =
+      result.__type =
         linkedItem.type !== "display" &&
         linkedItem.type !== "group" &&
         linkedItem.type !== "attachment"
@@ -157,40 +157,40 @@ export class QuestionnaireBuilder {
         linkedItem.type === "choice" || linkedItem.type === "open-choice";
     }
     if (enableWhen.answerBoolean !== undefined) {
-      result.answer = String(enableWhen.answerBoolean);
+      result.__answer = String(enableWhen.answerBoolean);
     } else if (enableWhen.answerInteger !== undefined) {
-      result.answer = String(enableWhen.answerInteger);
+      result.__answer = String(enableWhen.answerInteger);
       if (result.__answerOption) {
-        result.type = "integer";
+        result.__type = "integer";
       }
     } else if (enableWhen.answerDecimal !== undefined) {
-      result.answer = String(enableWhen.answerDecimal);
+      result.__answer = String(enableWhen.answerDecimal);
     } else if (enableWhen.answerDate !== undefined) {
-      result.answer = enableWhen.answerDate;
+      result.__answer = enableWhen.answerDate;
       if (result.__answerOption) {
-        result.type = "date";
+        result.__type = "date";
       }
     } else if (enableWhen.answerTime !== undefined) {
-      result.answer = enableWhen.answerTime;
+      result.__answer = enableWhen.answerTime;
       if (result.__answerOption) {
-        result.type = "time";
+        result.__type = "time";
       }
     } else if (enableWhen.answerDateTime !== undefined) {
-      result.answer = enableWhen.answerDateTime;
+      result.__answer = enableWhen.answerDateTime;
     } else if (enableWhen.answerString !== undefined) {
-      result.answer = enableWhen.answerString;
+      result.__answer = enableWhen.answerString;
       if (result.__answerOption) {
-        result.type = "string";
+        result.__type = "string";
       }
     } else if (enableWhen.answerCoding !== undefined) {
-      result.answer = editorTools.formatCoding(enableWhen.answerCoding);
+      result.__answer = editorTools.formatCoding(enableWhen.answerCoding);
       if (result.__answerOption) {
-        result.type = "coding";
+        result.__type = "coding";
       }
     } else if (enableWhen.answerQuantity !== undefined) {
-      result.answer = editorTools.formatQuantity(enableWhen.answerQuantity);
+      result.__answer = editorTools.formatQuantity(enableWhen.answerQuantity);
     } else if (enableWhen.answerReference !== undefined) {
-      result.answer = editorTools.formatReference(enableWhen.answerReference);
+      result.__answer = editorTools.formatReference(enableWhen.answerReference);
     }
 
     return result;
