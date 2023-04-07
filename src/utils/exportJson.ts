@@ -14,12 +14,6 @@ export type QuestionnaireBundle = {
   entry: QuestionnaireBundleEntry[];
 };
 
-function onlyStringFalsy(
-  n: number | string | undefined | null,
-): n is "" | undefined | null {
-  return n === "" || n === undefined || n === null;
-}
-
 function deepCopyFilteredArray<T>(array: T[]): T {
   const result: T[] = [];
   for (const element of array) {
@@ -187,27 +181,27 @@ function getObjectWithoutItemsDisabled(
             delete answer.valueCoding.userSelected;
           }
         } else if (answer.__type === "decimal") {
-          if (onlyStringFalsy(answer.valueDecimal)) {
+          if (editorTools.onlyStringFalsy(answer.valueDecimal)) {
             item.answerOption.splice(i, 1);
           } else if (typeof answer.valueDecimal === "string") {
             answer.valueDecimal = Number(answer.valueDecimal);
           }
         } else if (answer.__type === "integer") {
-          if (onlyStringFalsy(answer.valueInteger)) {
+          if (editorTools.onlyStringFalsy(answer.valueInteger)) {
             item.answerOption.splice(i, 1);
           } else if (typeof answer.valueInteger === "string") {
             answer.valueInteger = parseInt(answer.valueInteger);
           }
         } else if (answer.__type === "date") {
-          if (onlyStringFalsy(answer.valueDate)) {
+          if (editorTools.onlyStringFalsy(answer.valueDate)) {
             item.answerOption.splice(i, 1);
           }
         } else if (answer.__type === "dateTime") {
-          if (onlyStringFalsy(answer.valueDateTime)) {
+          if (editorTools.onlyStringFalsy(answer.valueDateTime)) {
             item.answerOption.splice(i, 1);
           }
         } else if (answer.__type === "time") {
-          if (onlyStringFalsy(answer.valueTime)) {
+          if (editorTools.onlyStringFalsy(answer.valueTime)) {
             item.answerOption.splice(i, 1);
           }
         } else if (answer.__type === "quantity") {

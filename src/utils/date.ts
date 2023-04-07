@@ -8,17 +8,20 @@ const DATE_REGEXP =
 const TIME_REGEXP = /([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?/g;
 
 class DateTools {
-  isDateTime(s: string): boolean {
+  isDateTime(s: string | undefined | null): boolean {
+    if (!s) return false;
     const match = s.match(DATE_TIME_REGEXP);
     return match !== null && s.length === match[0].length;
   }
 
-  isDate(s: string): boolean {
+  isDate(s: string | undefined | null): boolean {
+    if (!s) return false;
     const match = s.match(DATE_REGEXP);
     return match !== null && s.length === match[0].length;
   }
 
-  isTime(s: string): boolean {
+  isTime(s: string | undefined | null): boolean {
+    if (!s) return false;
     const match = s.match(TIME_REGEXP);
     return match !== null && s.length === match[0].length;
   }

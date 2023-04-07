@@ -500,6 +500,12 @@ class EditorTools {
     return this.isNotIntegerKey(code) && code !== "Period" && code !== "Comma";
   }
 
+  onlyStringFalsy(
+    n: number | string | undefined | null,
+  ): n is "" | undefined | null {
+    return n === "" || n === undefined || n === null;
+  }
+
   formatQuantity(quantity: Quantity): string {
     let result = "";
     if (quantity.comparator) {

@@ -1,7 +1,7 @@
 import { Language } from "@/store";
 import { EnableWhen, Item, Questionnaire } from "@/types";
 import { dateTools } from "../date";
-import { editorTools } from "../editor";
+import { editorTools, UnreachableError } from "../editor";
 import { itemTools } from "../item";
 
 export type Warning = {
@@ -73,8 +73,97 @@ export class QuestionnaireValidator {
       );
     } else if (itemTools.definedAnswerChoices(item) && !item.answerConstraint) {
       warnings.push(
-        "answerConstraint should be defined, if answerValueSet or answerOption are defined",
+        "answerConstraint should be defined, if answerValueSet or answerOption is defined",
       );
+    }
+    if (
+      item.answerOption !== undefined &&
+      item.answerOption.length > 0 &&
+      item.answerValueSet
+    ) {
+      warnings.push(
+        "answerValueSet and answerOption should not be defined at the same time",
+      );
+    }
+    this.answerOption(item, warnings);
+  }
+
+  private answerOption(item: Item, warnings: string[]): void {
+    if (item.answerOption === undefined) return;
+    for (let i = 0; i < item.answerOption.length; i++) {
+      const answerOption = item.answerOption[i];
+      switch (answerOption.__type) {
+        case "coding":
+          if (editorTools.isEmptyObject(answerOption.valueCoding)) {
+            warnings.push(`answerOption at index ${i} has empty coding-answer`);
+          } else if (!answerOption.valueCoding?.code) {
+            warnings.push(
+              `answerOption at index ${i} has empty code in coding-answer`,
+            );
+          }
+          break;
+        case "decimal":
+          if (editorTools.onlyStringFalsy(answerOption.valueDecimal)) {
+            warnings.push(
+              `answerOption at index ${i} has empty decimal-answer`,
+            );
+          }
+          break;
+        case "integer":
+          if (editorTools.onlyStringFalsy(answerOption.valueInteger)) {
+            warnings.push(
+              `answerOption at index ${i} has empty integer-answer`,
+            );
+          }
+          break;
+        case "date":
+          if (!dateTools.isDate(answerOption.valueDate)) {
+            warnings.push(`answerOption at index ${i} has invalid date-answer`);
+          }
+          break;
+        case "dateTime":
+          if (!dateTools.isDateTime(answerOption.valueDateTime)) {
+            warnings.push(
+              `answerOption at index ${i} has invalid dateTime-answer`,
+            );
+          }
+          break;
+        case "time":
+          if (!dateTools.isTime(answerOption.valueTime)) {
+            warnings.push(`answerOption at index ${i} has invalid time-answer`);
+          }
+          break;
+        case "string":
+          if (!answerOption.valueString) {
+            warnings.push(`answerOption at index ${i} has empty string-answer`);
+          }
+          break;
+        case "quantity":
+          if (editorTools.isEmptyObject(answerOption.valueQuantity)) {
+            warnings.push(
+              `answerOption at index ${i} has empty quantity-answer`,
+            );
+          } else {
+            if (!answerOption.valueQuantity?.value) {
+              warnings.push(
+                `answerOption at index ${i} has empty value in quantity-answer`,
+              );
+            }
+            if (!answerOption.valueQuantity?.code) {
+              warnings.push(
+                `answerOption at index ${i} has empty code in quantity-answer`,
+              );
+            }
+          }
+          break;
+        case undefined:
+          console.error(
+            `Index ${i}: __type of answerOption should never be undefined`,
+          );
+          break;
+        default:
+          throw new UnreachableError(answerOption.__type);
+      }
     }
   }
 
