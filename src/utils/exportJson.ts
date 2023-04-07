@@ -166,19 +166,32 @@ function getObjectWithoutItemsDisabled(
       delete item.answerValueSet;
     }
 
-    //answerOption and Value Set
+    // answerOption and answerValueSet
     if (item.answerValueSet) {
       delete item.answerOption;
     } else if (item.answerOption !== undefined) {
-      //remove if is empty
       for (let i = item.answerOption.length - 1; i >= 0; i--) {
         const answer = item.answerOption[i];
         if (answer.__type === "coding") {
-          // TODO: Filter empty values for coding
+          if (answer.valueCoding !== undefined) {
+            if (!answer.valueCoding.code) {
+              delete answer.valueCoding.code;
+            }
+            if (!answer.valueCoding.system) {
+              delete answer.valueCoding.system;
+            }
+            if (!answer.valueCoding.display) {
+              delete answer.valueCoding.display;
+            }
+            if (!answer.valueCoding.version) {
+              delete answer.valueCoding.version;
+            }
+            if (answer.valueCoding.userSelected === null) {
+              delete answer.valueCoding.userSelected;
+            }
+          }
           if (editorTools.isEmptyObject(answer.valueCoding)) {
             item.answerOption.splice(i, 1);
-          } else if (answer.valueCoding?.userSelected === null) {
-            delete answer.valueCoding.userSelected;
           }
         } else if (answer.__type === "decimal") {
           if (editorTools.onlyStringFalsy(answer.valueDecimal)) {
