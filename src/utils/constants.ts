@@ -124,6 +124,24 @@ export function getItemTypeIcon(type: ItemType): ItemTypeIcon {
   return icon.icon;
 }
 
+export const notSelectableQuestionTypes = [
+  "attachment",
+  "display",
+  "group",
+  "open-choice",
+  "choice",
+] as const;
+export type NotSelectableItem = typeof notSelectableQuestionTypes[number];
+
+export function isSelectableItem(item: Item): boolean {
+  const selectableType = !notSelectableQuestionTypes.includes(
+    item.type as NotSelectableItem,
+  );
+  const emptyAnswerOption =
+    item.answerOption === undefined || item.answerOption.length === 0;
+  return selectableType && emptyAnswerOption;
+}
+
 export const COLORS = {
   itemDragOver: "rgb(2,123,227,0.5)",
 } as const;

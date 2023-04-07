@@ -1,5 +1,9 @@
 import { Language } from "@/store";
-import { AnswerOptionType, ItemType } from "@/utils/constants";
+import {
+  AnswerOptionType,
+  ItemType,
+  NotSelectableItem,
+} from "@/utils/constants";
 import { QTree } from "quasar";
 
 export type VueProp = {
@@ -13,14 +17,11 @@ export type VueProp = {
 };
 
 // Exclude determined in cxEnableWhen when adding condition
-export type SelectableQuestion = Exclude<
-  ItemType,
-  "attachment" | "display" | "group" | "open-choice" | "choice"
->;
+export type SelectableItem = Exclude<ItemType, NotSelectableItem>;
 
-export type SelectedQuestion = {
+export type SelectedItem = {
   linkId?: string;
-  type?: SelectableQuestion;
+  type?: SelectableItem;
 };
 
 export type AnswerType =
@@ -108,8 +109,7 @@ export type AnswerOption = {
   __oldFormattedValueCoding?: string;
   __formattedValueQuantity?: string;
   __oldFormattedValueQuantity?: string;
-  linkId?: string;
-  type?: string;
+  __linkId?: string;
   valueCoding?: Coding;
   valueDecimal?: string | number;
   valueInteger?: string | number;

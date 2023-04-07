@@ -1827,7 +1827,7 @@ import { i18n, defaultLanguage } from "@/i18n";
 import {
   AnswerOption,
   Item,
-  SelectedQuestion,
+  SelectedItem,
   operators,
   Questionnaire,
   EnableWhen,
@@ -2268,10 +2268,10 @@ export default defineComponent({
     // Called for answers of choice/open-choice
     onSelectedQuestionsAnswer(e: AnswerOption): void {
       if (e.__type === undefined) {
-        console.log("AnswerOption always needs a type");
+        console.error("AnswerOption always needs a type");
         return;
       }
-      this.enableWhenItem.question = e.linkId ?? "";
+      this.enableWhenItem.question = e.__linkId ?? "";
       this.enableWhenItem.type = e.__type;
       if (!this.enableWhenItem.operator) {
         this.enableWhenItem.operator = "=";
@@ -2317,7 +2317,7 @@ export default defineComponent({
       this.enableWhenItem.__answerOption = true;
       this.enableWhenLayout = false;
     },
-    onSelectedQuestion(e: SelectedQuestion): void {
+    onSelectedQuestion(e: SelectedItem): void {
       this.enableWhenItem.question = e.linkId ?? "";
       this.enableWhenItem.answer = "";
       this.enableWhenItem.type = e.type;

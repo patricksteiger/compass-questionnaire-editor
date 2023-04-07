@@ -99,8 +99,7 @@
                     @dblclick="
                       onSelectAnswer({
                         ...answerOption,
-                        linkId: selectedItem?.linkId,
-                        type: selectedItem?.type,
+                        __linkId: selectedItem?.linkId,
                       })
                     "
                   >
@@ -199,15 +198,9 @@
         position="bottom-right"
         :offset="[18, 18]"
         v-if="
+          selected &&
           selectedItem !== undefined &&
-          selectedItem.type !== 'display' &&
-          selectedItem.type !== 'group' &&
-          selectedItem.type !== 'attachment' &&
-          selectedItem.type !== 'open-choice' &&
-          selectedItem.type !== 'choice' &&
-          (selectedItem.answerOption === undefined ||
-            selectedItem.answerOption.length === 0) &&
-          selected
+          isSelectableItem(selectedItem)
         "
       >
         <q-btn
@@ -219,7 +212,7 @@
           @click="
             onSelectQuestion({
               linkId: selectedItem?.linkId,
-              type: selectedItem?.type as SelectableQuestion,
+              type: selectedItem?.type as SelectableItem,
             })
           "
         />
@@ -237,11 +230,11 @@ import {
   Item,
   Questionnaire,
   // eslint-disable-next-line no-unused-vars
-  SelectableQuestion,
-  SelectedQuestion,
+  SelectableItem,
+  SelectedItem,
 } from "@/types";
 import { defaultLanguage } from "@/i18n";
-import { allowsAnswerChoice } from "@/utils/constants";
+import { allowsAnswerChoice, isSelectableItem } from "@/utils/constants";
 
 export default defineComponent({
   props: {
@@ -271,6 +264,7 @@ export default defineComponent({
       item,
       questionnaireGUI,
       enableWhen,
+      isSelectableItem,
     };
   },
   created(): void {
@@ -303,7 +297,7 @@ export default defineComponent({
     },
   },
   methods: {
-    onSelectQuestion(questionSelected: SelectedQuestion): void {
+    onSelectQuestion(questionSelected: SelectedItem): void {
       this.$emit("question", questionSelected);
     },
     filterItemToBeShown(node: Item): boolean {
