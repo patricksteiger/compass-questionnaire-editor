@@ -96,7 +96,7 @@ export class QuestionnaireBuilder {
       result.valueCoding.code ??= "";
       result.valueCoding.system ??= "";
       result.valueCoding.display ??= "";
-      result.__oldValueCoding = { ...result.valueCoding };
+      result.__oldValueCoding = JSON.parse(JSON.stringify(result.valueCoding));
       result.__formattedValueCoding = editorTools.formatCoding(
         result.valueCoding,
       );
@@ -128,12 +128,23 @@ export class QuestionnaireBuilder {
     } else if (result.valueQuantity !== undefined) {
       result.__type = "quantity";
       result.__icon = getAnswerOptionIcon(result.__type);
-      result.valueQuantity ??= {};
-      result.__oldValueQuantity = { ...result.valueQuantity };
+      result.__oldValueQuantity = JSON.parse(
+        JSON.stringify(result.valueQuantity),
+      );
       result.__formattedValueQuantity = editorTools.formatQuantity(
         result.valueQuantity,
       );
       result.__oldFormattedValueQuantity = result.__formattedValueQuantity;
+    } else if (result.valueReference !== undefined) {
+      result.__type = "reference";
+      result.__icon = getAnswerOptionIcon(result.__type);
+      result.__oldValueReference = JSON.parse(
+        JSON.stringify(result.valueReference),
+      );
+      result.__formattedValueReference = editorTools.formatReference(
+        result.valueReference,
+      );
+      result.__oldFormattedValueReference = result.__formattedValueReference;
     }
     return result;
   }

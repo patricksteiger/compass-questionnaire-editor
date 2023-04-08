@@ -369,6 +369,16 @@
                 label="answerConstraint"
                 :options="answerConstraints"
                 :clearable="itemTools.undefinedAnswerChoices(selectedItem)"
+                :error="
+                  (!selectedItem.answerConstraint &&
+                    itemTools.definedAnswerChoices(selectedItem)) ||
+                  (!!selectedItem.answerConstraint &&
+                    itemTools.undefinedAnswerChoices(selectedItem))
+                "
+                :disable="
+                  !selectedItem.answerConstraint &&
+                  itemTools.undefinedAnswerChoices(selectedItem)
+                "
               />
             </div>
             <!-- AnswerValueSet -->
