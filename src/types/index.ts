@@ -100,10 +100,13 @@ export type AnswerOption = {
   __oldValueTime?: string;
   __oldValueString?: string;
   __oldValueQuantity?: Quantity;
+  __oldValueReference?: Reference;
   __formattedValueCoding?: string;
   __oldFormattedValueCoding?: string;
   __formattedValueQuantity?: string;
   __oldFormattedValueQuantity?: string;
+  __formattedValueReference?: string;
+  __oldFormattedValueReference?: string;
   __linkId?: string;
   valueCoding?: Coding;
   valueDecimal?: string | number;
@@ -113,6 +116,7 @@ export type AnswerOption = {
   valueTime?: string;
   valueString?: string;
   valueQuantity?: Quantity;
+  valueReference?: Reference;
 };
 
 export type Extension = {

@@ -156,9 +156,16 @@ export class QuestionnaireValidator {
             }
           }
           break;
+        case "reference":
+          if (editorTools.isEmptyObject(answerOption.valueReference)) {
+            warnings.push(
+              `answerOption at index ${i} has empty reference-answer`,
+            );
+          }
+          break;
         case undefined:
           console.error(
-            `Index ${i}: __type of answerOption should never be undefined`,
+            `answerOption at index ${i}: __type should never be undefined`,
           );
           break;
         default:

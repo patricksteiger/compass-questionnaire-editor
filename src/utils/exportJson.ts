@@ -238,6 +238,24 @@ function getObjectWithoutItemsDisabled(
           if (editorTools.isEmptyObject(answer.valueQuantity)) {
             item.answerOption.splice(i, 1);
           }
+        } else if (answer.__type === "reference") {
+          if (answer.valueReference !== undefined) {
+            if (!answer.valueReference.reference) {
+              delete answer.valueReference.reference;
+            }
+            if (!answer.valueReference.type) {
+              delete answer.valueReference.type;
+            }
+            if (!answer.valueReference.display) {
+              delete answer.valueReference.display;
+            }
+            if (editorTools.isEmptyObject(answer.valueReference.identifier)) {
+              delete answer.valueReference.identifier;
+            }
+          }
+          if (editorTools.isEmptyObject(answer.valueReference)) {
+            item.answerOption.splice(i, 1);
+          }
         }
       }
       if (item.answerOption.length === 0) {

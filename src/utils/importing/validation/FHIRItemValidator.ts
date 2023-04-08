@@ -111,6 +111,7 @@ export class FHIRItemValidator {
     if (answerOption.valueTime !== undefined) count++;
     if (answerOption.valueString !== undefined) count++;
     if (answerOption.valueQuantity !== undefined) count++;
+    if (answerOption.valueReference !== undefined) count++;
     if (count > 1) {
       this.errors.push(
         `LinkId "${item.linkId}" has answerOption with more than 1 answer.`,

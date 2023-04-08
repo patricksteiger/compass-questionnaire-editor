@@ -7,6 +7,7 @@ import {
   optionalCodingSchema,
   optionalNumberSchema,
   optionalQuantitySchema,
+  optionalReferenceSchema,
   optionalStringSchema,
 } from "./schemas";
 
@@ -22,7 +23,7 @@ const repeats = optionalBooleanSchema;
 const maxLength = optionalNumberSchema;
 
 const answerConstraint = z.enum(answerConstraints).optional();
-// TODO: Add valueReference to answerOption
+
 const answerOptionSchema = z.object({
   valueCoding: optionalCodingSchema,
   valueDecimal: optionalNumberSchema,
@@ -32,6 +33,7 @@ const answerOptionSchema = z.object({
   valueTime: optionalStringSchema,
   valueString: optionalStringSchema,
   valueQuantity: optionalQuantitySchema,
+  valueReference: optionalReferenceSchema,
   initialSelected: optionalBooleanSchema,
 });
 

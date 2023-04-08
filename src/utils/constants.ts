@@ -70,7 +70,6 @@ export const noChoiceItemTypeIcons = [
   { name: "url", icon: "link", label: "URL" },
   { name: "boolean", icon: "toggle_off", label: "Boolean" },
   { name: "attachment", icon: "library_add", label: "Attachment" },
-  { name: "reference", icon: "manage_search", label: "Reference" },
 ] as const;
 export const choiceItemTypeIcons = [
   { name: "coding", icon: "code", label: "Coding" },
@@ -81,6 +80,7 @@ export const choiceItemTypeIcons = [
   { name: "time", icon: "schedule", label: "Time" },
   { name: "string", icon: "text_fields", label: "String" },
   { name: "quantity", icon: "biotech", label: "Quantity" },
+  { name: "reference", icon: "manage_search", label: "Reference" },
 ] as const;
 
 export type AnswerOptionButton = typeof choiceItemTypeIcons[number];

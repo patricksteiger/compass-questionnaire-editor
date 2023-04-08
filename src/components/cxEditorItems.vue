@@ -812,6 +812,52 @@
                                 >
                               </q-input>
                             </div>
+                            <!-- answerOption reference -->
+                            <div
+                              class="row"
+                              v-else-if="
+                                answerOption.__type === 'reference' &&
+                                answerOption.valueReference !== undefined
+                              "
+                            >
+                              <q-input
+                                class="col-12"
+                                autogrow
+                                readonly
+                                v-model="answerOption.__formattedValueReference"
+                                :disable="!selectedItem.__active"
+                                :error="!answerOption.__formattedValueReference"
+                                clickable
+                                @click="
+                                  handleAnswerOptionReference(answerOption)
+                                "
+                                :label="
+                                  changedReference(answerOption)
+                                    ? `${$t('views.editor.originalText')}: ${
+                                        answerOption.__oldFormattedValueReference
+                                      }`
+                                    : answerOption.__type
+                                "
+                                ><template v-slot:error>
+                                  {{ $t("components.fieldEmpty") }} </template
+                                ><template v-slot:prepend>
+                                  <q-icon :name="answerOption.__icon" />
+                                </template>
+                                <!-- reverse original text answer -->
+                                <q-btn
+                                  flat
+                                  round
+                                  icon="history"
+                                  :disable="!selectedItem.__active"
+                                  class="q-mr-sm text-grey-8"
+                                  v-if="changedReference(answerOption)"
+                                  @click="setDisplayToOld(answerOption)"
+                                  ><q-tooltip>
+                                    {{ $t("components.reverseAnswer") }}
+                                  </q-tooltip></q-btn
+                                >
+                              </q-input>
+                            </div>
                           </q-item-section>
                           <q-item-section top side class="justify-center">
                             <div class="row items-center">
@@ -1704,7 +1750,10 @@
           </q-toolbar>
           <div
             class="q-pa-md"
-            v-if="answerOptionItem.valueCoding !== undefined"
+            v-if="
+              answerOptionItem.__type === 'coding' &&
+              answerOptionItem.valueCoding !== undefined
+            "
           >
             <q-input
               :label="'Version'"
@@ -1750,7 +1799,10 @@
           </div>
           <div
             class="q-pa-md"
-            v-else-if="answerOptionItem.valueQuantity !== undefined"
+            v-else-if="
+              answerOptionItem.__type === 'quantity' &&
+              answerOptionItem.valueQuantity !== undefined
+            "
           >
             <q-input
               :label="'Value'"
@@ -1792,6 +1844,42 @@
               class="col-4"
               icon="add"
               @click="setValueQuantityAnswer(answerOptionItem)"
+            />
+          </div>
+          <!-- FIXME: Add identifier for reference -->
+          <div
+            class="q-pa-md"
+            v-else-if="
+              answerOptionItem.__type === 'reference' &&
+              answerOptionItem.valueReference !== undefined
+            "
+          >
+            <q-input
+              label="Reference"
+              class="col-4"
+              v-model="answerOptionItem.valueReference.reference"
+              type="text"
+              dense
+            />
+            <q-input
+              label="Type"
+              class="col-4"
+              v-model="answerOptionItem.valueReference.type"
+              type="text"
+              dense
+            />
+            <q-input
+              label="Display"
+              class="col-4"
+              v-model="answerOptionItem.valueReference.display"
+              type="text"
+              dense
+            />
+            <q-separator />
+            <q-btn
+              class="col-4"
+              icon="add"
+              @click="setValueReferenceAnswer(answerOptionItem)"
             />
           </div>
         </q-page>
@@ -1898,6 +1986,19 @@ export default defineComponent({
         current.comparator !== old.comparator
       );
     };
+    const changedReference = (answerOption: AnswerOption): boolean => {
+      if (answerOption.__newAnswer) return false;
+      const old = answerOption.__oldValueReference;
+      if (old === undefined) return false;
+      const current = answerOption.valueReference;
+      if (current === undefined) return true;
+      // FIXME: Implement identifier equality
+      return (
+        current.type !== old.type ||
+        current.display !== old.display ||
+        current.reference !== old.reference
+      );
+    };
     const answerOptionItem: Ref<AnswerOption | undefined> = ref(undefined);
     const validationResult: Ref<Warning[]> = ref([]);
     const newLinkId: Ref<string> = ref("");
@@ -1931,6 +2032,7 @@ export default defineComponent({
       setDisplayToOld,
       changedCoding,
       changedQuantity,
+      changedReference,
       enableWhenLayout: ref(false),
       chosenEnableWhenAnswerLayout: ref(false),
       comparators,
@@ -2131,6 +2233,19 @@ export default defineComponent({
       }
       this.chosenAnswerOptionLayout = false;
     },
+    handleAnswerOptionReference(answerOption: AnswerOption): void {
+      answerOption.valueReference ??= {};
+      answerOption.__formattedValueReference ??= "";
+      this.answerOptionItem = answerOption;
+      this.chosenAnswerOptionLayout = true;
+    },
+    setValueReferenceAnswer(answerOption: AnswerOption | undefined): void {
+      if (answerOption?.valueReference !== undefined) {
+        answerOption.__formattedValueReference =
+          this.editorTools.formatReference(answerOption.valueReference);
+      }
+      this.chosenAnswerOptionLayout = false;
+    },
     deleteLanguage(language: Language): void {
       const accepted = confirm(
         this.$t("views.languages.confirmDeletion", { language }),
@@ -2309,6 +2424,10 @@ export default defineComponent({
         case "quantity":
           this.enableWhenItem.__answer = e.__formattedValueQuantity;
           this.enableWhenItem.answerQuantity = { ...e.valueQuantity };
+          break;
+        // FIXME: implement rference for enableWhen
+        case "reference":
+          this.enableWhenItem.__answer = e.valueString;
           break;
         default:
           throw new UnreachableError(e.__type);
@@ -2667,6 +2786,9 @@ export default defineComponent({
           break;
         case "quantity":
           answerOption.valueQuantity = {};
+          break;
+        case "reference":
+          answerOption.valueReference = {};
           break;
         default:
           throw new UnreachableError(e);
