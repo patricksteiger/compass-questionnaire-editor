@@ -245,7 +245,7 @@ function getObjectWithoutItemsDisabled(
       }
     }
 
-    if (itemTools.noDefinedAnswerChoices(item)) {
+    if (itemTools.undefinedAnswerChoices(item)) {
       delete item.answerConstraint;
     }
 

@@ -368,7 +368,7 @@
                 v-model="selectedItem.answerConstraint"
                 label="answerConstraint"
                 :options="answerConstraints"
-                :clearable="itemTools.noDefinedAnswerChoices(selectedItem)"
+                :clearable="itemTools.undefinedAnswerChoices(selectedItem)"
               />
             </div>
             <!-- AnswerValueSet -->
@@ -376,6 +376,7 @@
               class="row"
               v-if="
                 selectedItem !== undefined &&
+                itemTools.undefinedAnswerOption(selectedItem) &&
                 allowsAnswerChoice(selectedItem.type)
               "
             >
@@ -411,7 +412,7 @@
               <q-expansion-item
                 v-if="
                   selectedItem !== undefined &&
-                  !selectedItem.__answerValueSetCheck &&
+                  itemTools.undefinedAnswerValueSet(selectedItem) &&
                   allowsAnswerChoice(selectedItem.type)
                 "
                 :disable="!selectedItem.__active"

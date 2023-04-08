@@ -67,7 +67,7 @@ export class QuestionnaireValidator {
     item: Item,
     warnings: string[],
   ): void {
-    if (itemTools.noDefinedAnswerChoices(item) && item.answerConstraint) {
+    if (itemTools.undefinedAnswerChoices(item) && item.answerConstraint) {
       warnings.push(
         "answerConstraint should not be defined, if answerValueSet and answerOption are undefined",
       );

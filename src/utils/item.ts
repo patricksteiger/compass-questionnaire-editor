@@ -20,17 +20,19 @@ class ItemTools {
   getDefaultRepeats(type: ItemType): false | undefined {
     return type !== "display" ? false : undefined;
   }
-  noDefinedAnswerChoices(item: Item | ParsedItem): boolean {
+  definedAnswerChoices(item: Item | ParsedItem): boolean {
+    return !this.undefinedAnswerChoices(item);
+  }
+  undefinedAnswerChoices(item: Item | ParsedItem): boolean {
     return (
-      !item.answerValueSet &&
-      (!item.answerOption || item.answerOption.length === 0)
+      this.undefinedAnswerOption(item) && this.undefinedAnswerValueSet(item)
     );
   }
-  definedAnswerChoices(item: Item | ParsedItem): boolean {
-    return (
-      (item.answerOption !== undefined && item.answerOption.length > 0) ||
-      (item.answerValueSet !== undefined && item.answerValueSet.length > 0)
-    );
+  undefinedAnswerOption(item: Item | ParsedItem): boolean {
+    return !item.answerOption || item.answerOption.length === 0;
+  }
+  undefinedAnswerValueSet(item: Item | ParsedItem): boolean {
+    return !item.answerValueSet;
   }
 }
 
