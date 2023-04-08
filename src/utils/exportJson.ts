@@ -1,6 +1,7 @@
 import { Settings } from "@/store";
 import { EnableWhen, Identifier, Item, Questionnaire } from "@/types";
 import { i18n } from "../i18n";
+import { allowsMaxLength } from "./constants";
 import { editorTools } from "./editor";
 import { itemTools } from "./item";
 
@@ -389,7 +390,7 @@ function getObjectWithoutItemsDisabled(
     }
 
     // Clearing input field in GUI sets value to empty string
-    if (typeof item.maxLength === "string") {
+    if (typeof item.maxLength === "string" || !allowsMaxLength(item)) {
       delete item.maxLength;
     }
   }
