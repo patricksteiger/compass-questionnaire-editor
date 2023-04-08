@@ -844,7 +844,7 @@
                         v-if="!selectedItem.__answerValueSetCheck"
                         @click="
                           addAnswerOptionType(
-                            selectedItem!.type as AllowedAnswerChoiceItem,
+                            selectedItem!.type as AnswerOptionType,
                           )
                         "
                       />
@@ -1801,7 +1801,6 @@
 
 <script lang="ts">
 import {
-  answerOptionButtons,
   COLORS,
   MAX_ALLOWED_LEVELS,
   AnswerOptionButton,
@@ -1814,7 +1813,7 @@ import {
   choiceItemTypeIcons,
   MAX_LENGTH_LINKID,
   allowsAnswerChoice,
-  AllowedAnswerChoiceItem,
+  AnswerOptionType,
 } from "@/utils/constants";
 import { useQuasar } from "quasar";
 import { defineComponent, Ref, ref } from "vue";
@@ -1941,7 +1940,6 @@ export default defineComponent({
       itemTools,
       COLORS,
       uuidv4,
-      answerOptionButtons,
       chosenAnswerOptionLayout: ref(false),
       answerOptionItem,
       operators,
@@ -2623,8 +2621,8 @@ export default defineComponent({
       const rootItems = questionnaire.item;
       this.editorTools.addItemToRootAndSetLinkIDs(newItem, rootItems);
     },
-    addAnswerOptionType(type: AllowedAnswerChoiceItem): void {
-      const answerOption = answerOptionButtons.find((a) => a.name === type);
+    addAnswerOptionType(type: AnswerOptionType): void {
+      const answerOption = choiceItemTypeIcons.find((a) => a.name === type);
       if (answerOption === undefined) {
         console.error(`Type ${type} does not support AnswerOption!`);
         return;

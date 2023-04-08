@@ -1,29 +1,6 @@
 import { Item } from "@/types";
 import { ParsedItem } from "./importing/parsing/item";
 
-export const answerOptionButtons = [
-  { name: "coding", icon: "code", label: "Coding" },
-  { name: "decimal", icon: "pin", label: "Decimal" },
-  { name: "integer", icon: "pin", label: "Integer" },
-  { name: "date", icon: "calendar_month", label: "Date" },
-  { name: "dateTime", icon: "event", label: "DateTime" },
-  { name: "time", icon: "schedule", label: "Time" },
-  { name: "string", icon: "text_fields", label: "String" },
-  { name: "quantity", icon: "biotech", label: "Quantity" },
-] as const;
-export type AnswerOptionButton = typeof answerOptionButtons[number];
-export type AnswerOptionType = typeof answerOptionButtons[number]["name"];
-export type AnswerOptionIcon = typeof answerOptionButtons[number]["icon"];
-
-export function getAnswerOptionIcon(type: AnswerOptionType): AnswerOptionIcon {
-  const answerOptionButton = answerOptionButtons.find((a) => a.name === type);
-  if (answerOptionButton === undefined) {
-    console.error(`Illegal AnswerOptionType: ${type}`);
-    return "" as unknown as AnswerOptionIcon;
-  }
-  return answerOptionButton.icon;
-}
-
 export const allItemTypes = [
   "group",
   "string",
@@ -106,12 +83,20 @@ export const choiceItemTypeIcons = [
   { name: "quantity", icon: "biotech", label: "Quantity" },
 ] as const;
 
-export type AllowedAnswerChoiceItem =
-  typeof choiceItemTypeIcons[number]["name"];
+export type AnswerOptionButton = typeof choiceItemTypeIcons[number];
+export type AnswerOptionType = typeof choiceItemTypeIcons[number]["name"];
+export type AnswerOptionIcon = typeof choiceItemTypeIcons[number]["icon"];
 
-export function allowsAnswerChoice(
-  type: ItemType,
-): type is AllowedAnswerChoiceItem {
+export function getAnswerOptionIcon(type: AnswerOptionType): AnswerOptionIcon {
+  const answerOptionButton = choiceItemTypeIcons.find((a) => a.name === type);
+  if (answerOptionButton === undefined) {
+    console.error(`Illegal AnswerOptionType: ${type}`);
+    return "" as unknown as AnswerOptionIcon;
+  }
+  return answerOptionButton.icon;
+}
+
+export function allowsAnswerChoice(type: ItemType): type is AnswerOptionType {
   return choiceItemTypeIcons.some((i) => i.name === type);
 }
 
