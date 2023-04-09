@@ -418,7 +418,6 @@ function clearEnableWhenAnswers(enableWhen: EnableWhen): void {
 }
 
 const exportJsonQuestionnaire = {
-  // FIXME: required groups must have at least 1 required child?
   validateQuestionnaire(qre: Questionnaire, settings: Settings): string[] {
     const errorMessages: string[] = [];
     validateQREWithSettings(qre, settings, errorMessages);

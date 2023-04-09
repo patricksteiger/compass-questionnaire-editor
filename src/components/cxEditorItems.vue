@@ -2812,7 +2812,6 @@ export default defineComponent({
       }
       this.selectedItem.answerOption.splice(indexOfItemtoBeRemoved, 1);
     },
-    // FIXME: Can you properly delete disabled items?
     deleteItem(internalID: string) {
       const answer = confirm(i18n.global.t("views.editor.deleteItemDialogue"));
       if (!answer) {
@@ -2945,16 +2944,19 @@ export default defineComponent({
     },
   },
   watch: {
-    selected(val: string | null) {
+    selected(internalId: string | null) {
       this.editorTools.removeConditionDependence(this.item);
       this.editorTools.setConditionDependence(this.item, this.item);
-      if (val === null) {
+      if (internalId === null) {
         this.selectedItem = undefined;
         return;
       }
-      this.selectedItem = this.editorTools.getItemByInternalId(val, this.item);
+      this.selectedItem = this.editorTools.getItemByInternalId(
+        internalId,
+        this.item,
+      );
     },
-    // FIXME: How should switching to last selected change splitter?
+    // TODO: How should switching to last selected change splitter?
     lastSelected(val: string | null) {
       if (val) {
         this.limitsSpliter = [0, 100];
