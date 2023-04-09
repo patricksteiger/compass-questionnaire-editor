@@ -68,40 +68,6 @@ function forEach(items: Item[], tracer: (i: Item) => void): void {
   }
 }
 
-// TODO: How to validate ValueSets?
-function validateQREWithSettings(
-  qre: Questionnaire,
-  settings: Settings,
-  errorMessages: string[],
-): void {
-  const forbidChoices = !settings.answers.choice;
-  if (forbidChoices) {
-    const choiceTracer = (item: Item) => {
-      if (item.type === "choice") {
-        const message = i18n.global.t(
-          "messagesErrors.ExportValidation.deactivatedChoice",
-          { linkId: item.linkId },
-        );
-        errorMessages.push(message);
-      }
-    };
-    forEach(qre.item, choiceTracer);
-  }
-  const forbidOpenChoices = !settings.answers.openChoice;
-  if (forbidOpenChoices) {
-    const openChoiceTracer = (item: Item) => {
-      if (item.type === "open-choice") {
-        const message = i18n.global.t(
-          "messagesErrors.ExportValidation.deactivatedOpenChoice",
-          { linkId: item.linkId },
-        );
-        errorMessages.push(message);
-      }
-    };
-    forEach(qre.item, openChoiceTracer);
-  }
-}
-
 function validateQREGroups(qre: Questionnaire, errorMessages: string[]): void {
   const emptyGroupTracer = (item: Item): void => {
     if (item.type === "group") {
@@ -299,14 +265,6 @@ function getObjectWithoutItemsDisabled(
           ) {
             clearEnableWhenAnswers(enableWhen);
             enableWhen.answerString = enableWhen.__answer;
-          } else if (
-            enableWhen.__type === "choice" ||
-            enableWhen.__type === "open-choice"
-          ) {
-            // FIXME: is this needed?
-            enableWhen.answerCoding = {
-              code: enableWhen.__answer ?? "",
-            };
           } else if (enableWhen.__type === "coding") {
             if (enableWhen.answerCoding !== undefined) {
               if (!enableWhen.answerCoding.code) {
@@ -418,9 +376,8 @@ function clearEnableWhenAnswers(enableWhen: EnableWhen): void {
 }
 
 const exportJsonQuestionnaire = {
-  validateQuestionnaire(qre: Questionnaire, settings: Settings): string[] {
+  validateQuestionnaire(qre: Questionnaire, _settings: Settings): string[] {
     const errorMessages: string[] = [];
-    validateQREWithSettings(qre, settings, errorMessages);
     validateQREGroups(qre, errorMessages);
     return errorMessages;
   },

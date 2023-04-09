@@ -1,4 +1,4 @@
-import { ItemType, getItemTypeIcon } from "./constants";
+import { ItemType, getItemTypeIcon, allowsAnswerChoice } from "./constants";
 import {
   Question,
   Item,
@@ -297,11 +297,12 @@ class EditorTools {
 
   createItemWithType(linkId: string, questionType: ItemType): Item {
     const item = createNewItem(linkId, questionType);
-    if (item.type === "choice" || item.type === "open-choice") {
+    if (allowsAnswerChoice(item.type)) {
       item.answerOption = [];
       item.__OldAnswerValueSet = item.answerValueSet = "";
       item.__answerValueSetCheck = false;
-    } else if (item.type === "integer") {
+    }
+    if (item.type === "integer") {
       item.extension = [
         {
           url: "http://hl7.org/fhir/StructureDefinition/questionnaire-sliderStepValue",

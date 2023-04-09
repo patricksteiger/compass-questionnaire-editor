@@ -4,8 +4,6 @@ import { ParsedItem } from "./importing/parsing/item";
 export const allItemTypes = [
   "group",
   "string",
-  "choice",
-  "open-choice",
   "boolean",
   "decimal",
   "integer",
@@ -34,15 +32,12 @@ export function allowsMaxLength(item: Item | ParsedItem): boolean {
     type === "integer" ||
     type === "string" ||
     type === "text" ||
-    type === "open-choice" ||
     type === "url"
   );
 }
 
 export const itemTypeIcons = [
   { name: "group", icon: "group_work", label: "Group" },
-  { name: "choice", icon: "toc", label: "Choice" },
-  { name: "open-choice", icon: "horizontal_split", label: "Open-Choice" },
   { name: "display", icon: "description", label: "Display" },
   { name: "text", icon: "input", label: "Text" },
   { name: "string", icon: "text_fields", label: "String" },
@@ -63,8 +58,6 @@ export type ItemTypeIcon = ItemTypeLabel["icon"];
 
 export const noChoiceItemTypeIcons = [
   { name: "group", icon: "group_work", label: "Group" },
-  { name: "choice", icon: "toc", label: "Choice" },
-  { name: "open-choice", icon: "horizontal_split", label: "Open-Choice" },
   { name: "display", icon: "description", label: "Display" },
   { name: "text", icon: "input", label: "Text" },
   { name: "url", icon: "link", label: "URL" },
@@ -113,8 +106,6 @@ export const notSelectableQuestionTypes = [
   "attachment",
   "display",
   "group",
-  "open-choice",
-  "choice",
 ] as const;
 export type NotSelectableItem = typeof notSelectableQuestionTypes[number];
 

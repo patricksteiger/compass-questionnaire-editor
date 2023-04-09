@@ -39,8 +39,6 @@ export const isSupportedLanguage = (lang: string): lang is Language => {
 export type Settings = {
   answers: {
     answerValueSet: boolean;
-    openChoice: boolean;
-    choice: boolean;
   };
 };
 
@@ -104,12 +102,6 @@ const settingsMutations = {
   setAnswerValueSet(state: StoreState, payload: boolean) {
     state.settings.answers.answerValueSet = payload;
   },
-  setOpenChoice(state: StoreState, payload: boolean) {
-    state.settings.answers.openChoice = payload;
-  },
-  setChoice(state: StoreState, payload: boolean) {
-    state.settings.answers.choice = payload;
-  },
 };
 
 const setQuestionnaireMutations = {
@@ -119,8 +111,6 @@ const setQuestionnaireMutations = {
     state.questionnaireRepo.clear();
     state.questionnaireRepo.set(qre.language, qre);
     state.settings.answers.answerValueSet = true;
-    state.settings.answers.openChoice = true;
-    state.settings.answers.choice = true;
   },
   setQuestionnaireBundle(state: StoreState, payload: Questionnaire[]): void {
     if (payload.length === 0) {
@@ -139,8 +129,6 @@ const setQuestionnaireMutations = {
     state.questionnaireRepo.clear();
     state.questionnaireRepo.set(language, state.questionnaire);
     state.settings.answers.answerValueSet = true;
-    state.settings.answers.openChoice = true;
-    state.settings.answers.choice = true;
   },
 };
 
@@ -187,8 +175,6 @@ export const store = createStore<StoreState>({
     settings: {
       answers: {
         answerValueSet: true,
-        openChoice: true,
-        choice: true,
       },
     },
     currentScreen: "init",
@@ -215,12 +201,6 @@ export const store = createStore<StoreState>({
     //Settings
     getAnswerValueSet(state) {
       return state.settings.answers.answerValueSet;
-    },
-    getOpenChoice(state): boolean {
-      return state.settings.answers.openChoice;
-    },
-    getChoice(state): boolean {
-      return state.settings.answers.choice;
     },
     getQuestionnaireImportedJSON(state): Questionnaire {
       return state.questionnaire;

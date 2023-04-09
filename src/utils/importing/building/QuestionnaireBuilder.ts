@@ -1,9 +1,12 @@
 import { defaultLanguage } from "@/i18n";
 import { AnswerOption, EnableWhen, Item, Questionnaire } from "@/types";
-import { getAnswerOptionIcon, getItemTypeIcon } from "../../constants";
+import {
+  allowsAnswerChoice,
+  getAnswerOptionIcon,
+  getItemTypeIcon,
+} from "../../constants";
 import { editorTools } from "../../editor";
 import { itemTools } from "../../item";
-import { ParsedEnableWhen } from "../parsing/enableWhen";
 import { ParsedAnswerOption, ParsedItem } from "../parsing/item";
 import { ParsedQuestionnaire } from "../parsing/questionnaire";
 import { validatorUtils } from "../TransformerUtils";
@@ -32,20 +35,8 @@ export class QuestionnaireBuilder {
   }
 
   private fromItem(fhirItem: ParsedItem, internalLinkId: string): Item {
-    const {
-      item,
-      enableWhen: fhirEnableWhen,
-      answerOption,
-      text,
-      answerValueSet,
-    } = fhirItem;
-    let enableWhen: EnableWhen[] | undefined = undefined;
-    if (fhirEnableWhen !== undefined) {
-      enableWhen = [];
-      for (const e of fhirEnableWhen) {
-        enableWhen.push(this.fromEnableWhen(e));
-      }
-    }
+    const { item, answerOption, text, answerValueSet } = fhirItem;
+    const enableWhen = this.fromEnableWhen(fhirItem);
     let newItem: Item[] | undefined = undefined;
     if (item !== undefined) {
       newItem = [];
@@ -145,61 +136,70 @@ export class QuestionnaireBuilder {
     return result;
   }
 
-  private fromEnableWhen(enableWhen: ParsedEnableWhen): EnableWhen {
-    const result: EnableWhen = {
-      ...enableWhen,
-    };
-    const linkedItem = validatorUtils.getItemByLinkId(
-      this.qre,
-      enableWhen.question,
-    );
-    if (linkedItem !== undefined) {
-      result.__type =
-        linkedItem.type !== "display" &&
-        linkedItem.type !== "group" &&
-        linkedItem.type !== "attachment"
-          ? linkedItem.type
-          : undefined;
-      result.__answerOption =
-        linkedItem.type === "choice" || linkedItem.type === "open-choice";
-    }
-    if (enableWhen.answerBoolean !== undefined) {
-      result.__answer = String(enableWhen.answerBoolean);
-    } else if (enableWhen.answerInteger !== undefined) {
-      result.__answer = String(enableWhen.answerInteger);
-      if (result.__answerOption) {
-        result.__type = "integer";
+  private fromEnableWhen(fhirItem: ParsedItem): EnableWhen[] | undefined {
+    if (fhirItem.enableWhen === undefined) return undefined;
+    const resultEnableWhen: EnableWhen[] = [];
+    for (const enableWhen of fhirItem.enableWhen) {
+      const result: EnableWhen = {
+        ...enableWhen,
+      };
+      const linkedItem = validatorUtils.getItemByLinkId(
+        this.qre,
+        enableWhen.question,
+      );
+      // FIXME: How to solve item with answerOption but answerConstraint permissible for general answers
+      if (linkedItem !== undefined) {
+        result.__type =
+          linkedItem.type !== "display" &&
+          linkedItem.type !== "group" &&
+          linkedItem.type !== "attachment"
+            ? linkedItem.type
+            : undefined;
+        result.__answerOption =
+          allowsAnswerChoice(linkedItem.type) &&
+          itemTools.definedAnswerChoices(fhirItem);
       }
-    } else if (enableWhen.answerDecimal !== undefined) {
-      result.__answer = String(enableWhen.answerDecimal);
-    } else if (enableWhen.answerDate !== undefined) {
-      result.__answer = enableWhen.answerDate;
-      if (result.__answerOption) {
-        result.__type = "date";
+      if (enableWhen.answerBoolean !== undefined) {
+        result.__answer = String(enableWhen.answerBoolean);
+      } else if (enableWhen.answerInteger !== undefined) {
+        result.__answer = String(enableWhen.answerInteger);
+        if (result.__answerOption) {
+          result.__type = "integer";
+        }
+      } else if (enableWhen.answerDecimal !== undefined) {
+        result.__answer = String(enableWhen.answerDecimal);
+      } else if (enableWhen.answerDate !== undefined) {
+        result.__answer = enableWhen.answerDate;
+        if (result.__answerOption) {
+          result.__type = "date";
+        }
+      } else if (enableWhen.answerTime !== undefined) {
+        result.__answer = enableWhen.answerTime;
+        if (result.__answerOption) {
+          result.__type = "time";
+        }
+      } else if (enableWhen.answerDateTime !== undefined) {
+        result.__answer = enableWhen.answerDateTime;
+      } else if (enableWhen.answerString !== undefined) {
+        result.__answer = enableWhen.answerString;
+        if (result.__answerOption) {
+          result.__type = "string";
+        }
+      } else if (enableWhen.answerCoding !== undefined) {
+        result.__answer = editorTools.formatCoding(enableWhen.answerCoding);
+        if (result.__answerOption) {
+          result.__type = "coding";
+        }
+      } else if (enableWhen.answerQuantity !== undefined) {
+        result.__answer = editorTools.formatQuantity(enableWhen.answerQuantity);
+      } else if (enableWhen.answerReference !== undefined) {
+        result.__answer = editorTools.formatReference(
+          enableWhen.answerReference,
+        );
       }
-    } else if (enableWhen.answerTime !== undefined) {
-      result.__answer = enableWhen.answerTime;
-      if (result.__answerOption) {
-        result.__type = "time";
-      }
-    } else if (enableWhen.answerDateTime !== undefined) {
-      result.__answer = enableWhen.answerDateTime;
-    } else if (enableWhen.answerString !== undefined) {
-      result.__answer = enableWhen.answerString;
-      if (result.__answerOption) {
-        result.__type = "string";
-      }
-    } else if (enableWhen.answerCoding !== undefined) {
-      result.__answer = editorTools.formatCoding(enableWhen.answerCoding);
-      if (result.__answerOption) {
-        result.__type = "coding";
-      }
-    } else if (enableWhen.answerQuantity !== undefined) {
-      result.__answer = editorTools.formatQuantity(enableWhen.answerQuantity);
-    } else if (enableWhen.answerReference !== undefined) {
-      result.__answer = editorTools.formatReference(enableWhen.answerReference);
+      resultEnableWhen.push(result);
     }
 
-    return result;
+    return resultEnableWhen;
   }
 }

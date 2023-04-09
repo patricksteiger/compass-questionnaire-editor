@@ -178,14 +178,6 @@ export class FHIRItemValidator {
       if (enableWhen.answerDateTime === undefined) {
         this.resetEnableWhenAnswers(enableWhen);
       }
-    } else if (linkedItem.type === "open-choice") {
-      if (this.invalidOpenChoiceTypes(enableWhen)) {
-        this.resetEnableWhenAnswers(enableWhen);
-      }
-    } else if (linkedItem.type === "choice") {
-      if (this.invalidOpenChoiceTypes(enableWhen)) {
-        this.resetEnableWhenAnswers(enableWhen);
-      }
     } else if (
       linkedItem.type === "group" ||
       linkedItem.type === "display" ||
@@ -227,16 +219,6 @@ export class FHIRItemValidator {
         `LinkId "${item.linkId}" has enableWhen with more than 1 answer.`,
       );
     }
-  }
-
-  private invalidOpenChoiceTypes(enableWhen: ParsedEnableWhen): boolean {
-    return (
-      enableWhen.answerDate !== undefined &&
-      enableWhen.answerTime !== undefined &&
-      enableWhen.answerInteger !== undefined &&
-      enableWhen.answerCoding !== undefined &&
-      enableWhen.answerString !== undefined
-    );
   }
 
   private resetEnableWhenAnswers(enableWhen: ParsedEnableWhen): void {

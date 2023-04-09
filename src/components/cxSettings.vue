@@ -21,26 +21,6 @@
                         <q-toggle color="red" v-model="answerValueset" />
                       </q-item-section>
                     </q-item>
-                    <q-item tag="label" v-ripple>
-                      <q-item-section>
-                        <q-item-label>{{
-                          $t("views.tabs.settings.Answers.OpenChoice")
-                        }}</q-item-label>
-                      </q-item-section>
-                      <q-item-section avatar>
-                        <q-toggle color="red" v-model="openChoice" />
-                      </q-item-section>
-                    </q-item>
-                    <q-item tag="label" v-ripple>
-                      <q-item-section>
-                        <q-item-label>{{
-                          $t("views.tabs.settings.Answers.Choice")
-                        }}</q-item-label>
-                      </q-item-section>
-                      <q-item-section avatar>
-                        <q-toggle color="red" v-model="choice" />
-                      </q-item-section>
-                    </q-item>
                   </q-list>
                 </div>
               </div>
@@ -62,22 +42,6 @@ export default defineComponent({
       },
       set(value: Boolean) {
         this.$store.commit("setAnswerValueSet", value);
-      },
-    },
-    openChoice: {
-      get() {
-        return this.$store.state.settings.answers.openChoice;
-      },
-      set(value: Boolean) {
-        this.$store.commit("setOpenChoice", value);
-      },
-    },
-    choice: {
-      get() {
-        return this.$store.state.settings.answers.choice;
-      },
-      set(value: Boolean) {
-        this.$store.commit("setChoice", value);
       },
     },
   },

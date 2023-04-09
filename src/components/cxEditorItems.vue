@@ -154,7 +154,7 @@
                 :label="$t('views.editor.addComplexItem')"
               >
                 <q-fab-action
-                  v-for="questionTypeIcon in enabledNoChoiceItemTypes"
+                  v-for="questionTypeIcon in noChoiceItemTypeIcons"
                   :key="questionTypeIcon.name"
                   label-position="right"
                   color="primary"
@@ -184,7 +184,7 @@
                 :label="$t('views.editor.addChoiceItem')"
               >
                 <q-fab-action
-                  v-for="questionTypeIcon in enabledChoiceItemTypes"
+                  v-for="questionTypeIcon in choiceItemTypeIcons"
                   :key="questionTypeIcon.name"
                   label-position="right"
                   color="primary"
@@ -1885,7 +1885,6 @@ import {
   COLORS,
   MAX_ALLOWED_LEVELS,
   AnswerOptionButton,
-  ItemTypeLabel,
   MAX_ALLOWED_LEVELS_FOR_GROUPS,
   DRAG_KEY_INTERNAL_ID,
   ItemType,
@@ -2029,6 +2028,8 @@ export default defineComponent({
       chosenEnableWhenAnswerLayout: ref(false),
       comparators,
       chosenEnableWhen,
+      noChoiceItemTypeIcons,
+      choiceItemTypeIcons,
       alert: ref(false),
       itemsAnwers: ref(""),
       editorTools,
@@ -2932,15 +2933,6 @@ export default defineComponent({
         }
         this.selectedItem.repeats = val;
       },
-    },
-    enabledNoChoiceItemTypes(): ItemTypeLabel[] {
-      const allowedQuestion = (q: ItemTypeLabel): boolean =>
-        (this.getChoice || q.name !== "choice") &&
-        (this.getOpenChoice || q.name !== "open-choice");
-      return noChoiceItemTypeIcons.filter(allowedQuestion);
-    },
-    enabledChoiceItemTypes(): readonly ItemTypeLabel[] {
-      return choiceItemTypeIcons;
     },
   },
   watch: {

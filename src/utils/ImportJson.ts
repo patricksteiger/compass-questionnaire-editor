@@ -382,7 +382,7 @@ class FHIRValidation {
       // FIXME: When can answerCoding be the type?
       if (enableWhen.answerCoding) {
         enableWhen.__answer = enableWhen.answerCoding.code;
-        enableWhen.__type = "choice";
+        enableWhen.__type = "coding";
       }
       if (enableWhen.answerDate) {
         enableWhen.__answer = enableWhen.answerDate;
