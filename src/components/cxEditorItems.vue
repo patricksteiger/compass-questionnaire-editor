@@ -909,6 +909,24 @@
                   </div>
                 </q-card>
               </q-expansion-item>
+              <!-- enableWhen behavior -->
+              <div>
+                <q-select
+                  v-if="selectedItem !== undefined"
+                  v-model="selectedItem.enableBehavior"
+                  label="enableBehavior"
+                  :options="enableBehaviors"
+                  :clearable="
+                    !selectedItem.enableWhen ||
+                    selectedItem.enableWhen.length <= 1
+                  "
+                  :error="
+                    !selectedItem.enableBehavior &&
+                    !!selectedItem.enableWhen &&
+                    selectedItem.enableWhen.length > 1
+                  "
+                />
+              </div>
               <!-- Item Condition -->
               <q-expansion-item
                 v-if="selectedItem !== undefined"
@@ -1152,45 +1170,6 @@
                       :label="$t('views.editor.addNewCondition')"
                       @click="onAddCondition"
                     />
-                    <!-- enableWhen behavior -->
-                    <q-fab
-                      v-if="selectedItem.__active"
-                      vertical-actions-align="left"
-                      color="purple"
-                      push
-                      icon="keyboard_arrow_up"
-                      direction="up"
-                      padding="none xl"
-                      :label="
-                        selectedItem.enableBehavior
-                          ? `Behavior: ${selectedItem.enableBehavior}`
-                          : 'Select Behavior'
-                      "
-                    >
-                      <q-fab-action
-                        v-if="
-                          selectedItem.enableBehavior &&
-                          (!selectedItem.enableWhen ||
-                            selectedItem.enableWhen.length <= 1)
-                        "
-                        key="clear"
-                        icon="delete"
-                        label-position="right"
-                        label="Behavior"
-                        color="red"
-                        @click="onChangeConditionBehavior(undefined)"
-                      />
-                      <q-fab-action
-                        v-for="behavior in enableBehaviors.filter(
-                          (b) => b !== selectedItem?.enableBehavior,
-                        )"
-                        :key="behavior"
-                        label-position="right"
-                        color="purple"
-                        @click="onChangeConditionBehavior(behavior)"
-                        :label="behavior"
-                      />
-                    </q-fab>
                   </div>
                 </q-card>
               </q-expansion-item>

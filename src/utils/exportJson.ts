@@ -389,6 +389,10 @@ function getObjectWithoutItemsDisabled(
       delete item.enableWhen;
     }
 
+    if (!item.enableBehavior) {
+      delete item.enableBehavior;
+    }
+
     // Clearing input field in GUI sets value to empty string
     if (typeof item.maxLength === "string" || !allowsMaxLength(item)) {
       delete item.maxLength;

@@ -213,7 +213,7 @@ export type Item = {
   maxLength?: number;
   type: ItemType;
   enableWhen?: EnableWhen[];
-  enableBehavior?: EnableBehavior;
+  enableBehavior?: EnableBehavior | null;
   text: string;
   definition?: string;
   answerConstraint?: AnswerConstraint | null;

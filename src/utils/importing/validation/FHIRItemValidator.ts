@@ -35,7 +35,7 @@ export class FHIRItemValidator {
       return;
     }
     this.validateLinkId(item);
-    this.validateEnableWhen(item);
+    this.validateEnableWhenAndBehavior(item);
     this.validateAnswerValueSetAndOption(item);
     this.validateMaxLength(item);
     this.validateRequired(item);
@@ -119,7 +119,7 @@ export class FHIRItemValidator {
     }
   }
 
-  private validateEnableWhen(item: ParsedItem): void {
+  private validateEnableWhenAndBehavior(item: ParsedItem): void {
     if (validatorUtils.emptyList(item.enableWhen)) return;
     for (const enableWhen of item.enableWhen) {
       const linkedItem = validatorUtils.getItemByLinkId(
