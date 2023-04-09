@@ -225,7 +225,6 @@ export default defineComponent({
     exportQuestionnaireBundle() {
       this.showLoading();
       const focusedQuestionnaire = this.getQuestionnaireImportedJSON;
-      // FIXME: required groups must have at least 1 required child?
       this.validationErrorMessages =
         this.exportJsonQuestionnaire.validateQuestionnaire(
           focusedQuestionnaire,

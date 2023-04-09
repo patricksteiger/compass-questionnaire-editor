@@ -96,7 +96,7 @@ export class QuestionnaireBuilder {
       result.valueCoding.code ??= "";
       result.valueCoding.system ??= "";
       result.valueCoding.display ??= "";
-      result.__oldValueCoding = JSON.parse(JSON.stringify(result.valueCoding));
+      result.__oldValueCoding = editorTools.clone(result.valueCoding);
       result.__formattedValueCoding = editorTools.formatCoding(
         result.valueCoding,
       );
@@ -117,20 +117,18 @@ export class QuestionnaireBuilder {
       result.__type = "dateTime";
       result.__icon = getAnswerOptionIcon(result.__type);
       result.__oldValueDateTime = result.valueDateTime;
-    } else if (result.valueString !== undefined) {
-      result.__type = "string";
-      result.__icon = getAnswerOptionIcon(result.__type);
-      result.__oldValueString = result.valueString;
     } else if (result.valueTime !== undefined) {
       result.__type = "time";
       result.__icon = getAnswerOptionIcon(result.__type);
       result.__oldValueTime = result.valueTime;
+    } else if (result.valueString !== undefined) {
+      result.__type = "string";
+      result.__icon = getAnswerOptionIcon(result.__type);
+      result.__oldValueString = result.valueString;
     } else if (result.valueQuantity !== undefined) {
       result.__type = "quantity";
       result.__icon = getAnswerOptionIcon(result.__type);
-      result.__oldValueQuantity = JSON.parse(
-        JSON.stringify(result.valueQuantity),
-      );
+      result.__oldValueQuantity = editorTools.clone(result.valueQuantity);
       result.__formattedValueQuantity = editorTools.formatQuantity(
         result.valueQuantity,
       );
@@ -138,9 +136,7 @@ export class QuestionnaireBuilder {
     } else if (result.valueReference !== undefined) {
       result.__type = "reference";
       result.__icon = getAnswerOptionIcon(result.__type);
-      result.__oldValueReference = JSON.parse(
-        JSON.stringify(result.valueReference),
-      );
+      result.__oldValueReference = editorTools.clone(result.valueReference);
       result.__formattedValueReference = editorTools.formatReference(
         result.valueReference,
       );

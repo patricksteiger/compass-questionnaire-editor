@@ -36,6 +36,10 @@ function createNewItem(linkId: string, type: ItemType): Item {
 }
 
 class EditorTools {
+  clone<T>(value: T): T {
+    return JSON.parse(JSON.stringify(value));
+  }
+
   objectKeys<T extends object>(object: T): (keyof T)[] {
     return Object.keys(object) as (keyof T)[];
   }

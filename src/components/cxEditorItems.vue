@@ -2382,7 +2382,7 @@ export default defineComponent({
       switch (e.__type) {
         case "coding":
           this.enableWhenItem.__answer = e.__formattedValueCoding;
-          this.enableWhenItem.answerCoding = { ...e.valueCoding };
+          this.enableWhenItem.answerCoding = editorTools.clone(e.valueCoding);
           break;
         case "decimal":
           if (typeof e.valueDecimal === "number") {
@@ -2412,11 +2412,15 @@ export default defineComponent({
           break;
         case "quantity":
           this.enableWhenItem.__answer = e.__formattedValueQuantity;
-          this.enableWhenItem.answerQuantity = { ...e.valueQuantity };
+          this.enableWhenItem.answerQuantity = editorTools.clone(
+            e.valueQuantity,
+          );
           break;
-        // FIXME: implement rference for enableWhen
         case "reference":
-          this.enableWhenItem.__answer = e.valueString;
+          this.enableWhenItem.__answer = e.__formattedValueReference;
+          this.enableWhenItem.answerReference = editorTools.clone(
+            e.valueReference,
+          );
           break;
         default:
           throw new UnreachableError(e.__type);

@@ -426,7 +426,7 @@ const exportJsonQuestionnaire = {
     return errorMessages;
   },
   getExportObject(jsonObject: Questionnaire): Questionnaire {
-    const cloneObject = JSON.parse(JSON.stringify(jsonObject));
+    const cloneObject = editorTools.clone(jsonObject);
     const objWithoutItemsDisabled = getObjectWithoutItemsDisabled(cloneObject);
     const filteredInternalStateQRE = createQuestionnaireExportCopy(
       objWithoutItemsDisabled,

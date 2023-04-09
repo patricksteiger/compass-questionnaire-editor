@@ -1,6 +1,7 @@
 import { Item, Questionnaire } from "../types";
 import { getDefaultQuestionnaire, Language } from "../store";
 import { itemTools } from "./item";
+import { editorTools } from "./editor";
 
 class LanguageTools {
   private uniquifyItems(items: Item[]): void {
@@ -17,7 +18,7 @@ class LanguageTools {
     language: Language,
   ): Questionnaire {
     const newQRE = getDefaultQuestionnaire(language);
-    const items: Item[] = JSON.parse(JSON.stringify(questionnaire.item));
+    const items: Item[] = editorTools.clone(questionnaire.item);
     newQRE.item = items;
     this.uniquifyItems(newQRE.item);
     return newQRE;
