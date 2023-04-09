@@ -364,7 +364,10 @@
             <!-- answerConstraint -->
             <div>
               <q-select
-                v-if="selectedItem !== undefined"
+                v-if="
+                  selectedItem !== undefined &&
+                  allowsAnswerChoice(selectedItem.type)
+                "
                 v-model="selectedItem.answerConstraint"
                 label="answerConstraint"
                 :options="answerConstraints"
@@ -381,7 +384,7 @@
                 "
               />
             </div>
-            <!-- AnswerValueSet -->
+            <!-- answerValueSet -->
             <div
               class="row"
               v-if="
@@ -2579,7 +2582,6 @@ export default defineComponent({
         );
       }
     },
-    // FIXME: Can you drag on non-group-items?
     dragItem(
       questionnaire: Questionnaire,
       sourceInternalLinkId: string,
