@@ -44,7 +44,7 @@ export const i18n = createI18n({
   },
 });
 
-export const defaultLanguage: Language = "de";
+export const defaultLanguage: Language = "en";
 
 export function getLocaleFromLanguage(language: Language): Locale {
   return i18n.global.te(language as string) ? (language as Locale) : "en";
