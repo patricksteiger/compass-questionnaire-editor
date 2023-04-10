@@ -135,13 +135,7 @@
           </q-tree>
 
           <!-- Add new item buttons -->
-          <div
-            v-if="
-              selected === null ||
-              selectedItem === undefined ||
-              (selectedItem.__active && selectedItem.type !== 'display')
-            "
-          >
+          <div v-if="addItemIsAllowed()">
             <q-page-sticky position="bottom-left" :offset="[18, 18]">
               <q-fab
                 v-model="fabLeft"
@@ -165,13 +159,7 @@
               </q-fab>
             </q-page-sticky>
           </div>
-          <div
-            v-if="
-              selected === null ||
-              selectedItem === undefined ||
-              (selectedItem.__active && selectedItem.type !== 'display')
-            "
-          >
+          <div v-if="addItemIsAllowed()">
             <q-page-sticky position="bottom-left" :offset="[250, 18]">
               <q-fab
                 v-model="fabSimple"
@@ -2238,6 +2226,12 @@ export default defineComponent({
           this.editorTools.formatReference(answerOption.valueReference);
       }
       this.chosenAnswerOptionLayout = false;
+    },
+    addItemIsAllowed(): boolean {
+      return (
+        this.selectedItem === undefined ||
+        (this.selectedItem.__active && this.selectedItem.type !== "display")
+      );
     },
     deleteLanguage(language: Language): void {
       const accepted = confirm(
