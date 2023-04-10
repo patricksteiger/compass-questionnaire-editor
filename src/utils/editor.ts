@@ -505,6 +505,12 @@ class EditorTools {
     return this.isNotIntegerKey(code) && code !== "Period" && code !== "Comma";
   }
 
+  isNumber(x: string | number | null | undefined): boolean {
+    return (
+      x != null && x !== "" && (typeof x === "number" || !isNaN(Number(x)))
+    );
+  }
+
   onlyStringFalsy(
     n: number | string | undefined | null,
   ): n is "" | undefined | null {

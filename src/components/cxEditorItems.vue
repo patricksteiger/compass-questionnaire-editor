@@ -437,9 +437,9 @@
                           v-for="answerOption in selectedItem.answerOption"
                           :key="answerOption.__id"
                         >
-                          <!-- Open Choice and Choice -->
+                          <!-- answerOption -->
                           <q-item-section>
-                            <!-- coding input answer -->
+                            <!-- answerOption coding -->
                             <div
                               class="row"
                               v-if="
@@ -483,7 +483,7 @@
                                 >
                               </q-input>
                             </div>
-                            <!-- decimal input answer -->
+                            <!-- answerOption decimal -->
                             <div
                               class="row"
                               v-else-if="answerOption.__type === 'decimal'"
@@ -531,7 +531,7 @@
                                 </div>
                               </q-input>
                             </div>
-                            <!-- integer input answer -->
+                            <!-- answerOption integer -->
                             <div
                               class="row"
                               v-else-if="answerOption.__type === 'integer'"
@@ -579,8 +579,7 @@
                                 </div>
                               </q-input>
                             </div>
-
-                            <!-- date input answer -->
+                            <!-- answerOption date -->
                             <div
                               class="row"
                               v-else-if="answerOption.__type === 'date'"
@@ -628,7 +627,7 @@
                                 </div>
                               </q-input>
                             </div>
-                            <!-- dateTime input answer -->
+                            <!-- answerOption dateTime -->
                             <div
                               class="row"
                               v-else-if="answerOption.__type === 'dateTime'"
@@ -676,7 +675,7 @@
                                 </div>
                               </q-input>
                             </div>
-                            <!-- time input answer -->
+                            <!-- answerOption time -->
                             <div
                               class="row"
                               v-else-if="answerOption.__type === 'time'"
@@ -723,7 +722,7 @@
                                 >
                               </q-input>
                             </div>
-                            <!-- string input answer -->
+                            <!-- answerOption string -->
                             <div
                               class="row"
                               v-else-if="answerOption.__type === 'string'"
@@ -767,7 +766,7 @@
                                 >
                               </q-input>
                             </div>
-                            <!-- quantity input answer -->
+                            <!-- answerOption quantity -->
                             <div
                               class="row"
                               v-else-if="
@@ -863,7 +862,7 @@
                           <q-item-section top side class="justify-center">
                             <div class="row items-center">
                               <div class="text-grey-8">
-                                <!-- Remove answer -->
+                                <!-- remove answerOption -->
                                 <q-btn
                                   flat
                                   round
@@ -918,7 +917,7 @@
                   "
                 />
               </div>
-              <!-- Item Condition -->
+              <!-- enableWhen -->
               <q-expansion-item
                 v-if="selectedItem !== undefined"
                 :disable="!selectedItem.__active"
@@ -928,7 +927,6 @@
                 default-opened
               >
                 <q-separator />
-                <!-- FIXME: Changed key from enableWhen to index correct? -->
                 <q-card>
                   <q-list
                     dense
@@ -975,7 +973,7 @@
                             dense
                             :rules="[validOperator]"
                           />
-                          <!-- enableWhen answer input -->
+                          <!-- enableWhen exists/boolean -->
                           <q-select
                             v-if="
                               enableWhen.__type === 'boolean' ||
@@ -1058,6 +1056,7 @@
                             dense
                             :rules="[dateTools.isDate]"
                           />
+                          <!-- enableWhen dateTime -->
                           <q-input
                             v-else-if="enableWhen.__type === 'dateTime'"
                             :disable="!selectedItem.__active"
@@ -1068,6 +1067,7 @@
                             dense
                             :rules="[dateTools.isDateTime]"
                           />
+                          <!-- enableWhen time -->
                           <q-input
                             v-else-if="enableWhen.__type === 'time'"
                             :disable="!selectedItem.__active"
@@ -1086,6 +1086,7 @@
                             fill-mask
                             :rules="[dateTools.isTime]"
                           />
+                          <!-- enableWhen string -->
                           <q-input
                             v-else-if="enableWhen.__type === 'string'"
                             :disable="!selectedItem.__active"
@@ -1101,6 +1102,7 @@
                             :readonly="enableWhen.__answerOption"
                             dense
                           />
+                          <!-- enableWhen quantity -->
                           <q-input
                             v-else-if="enableWhen.__type === 'quantity'"
                             :disable="!selectedItem.__active"
@@ -1113,6 +1115,7 @@
                             clickable
                             @click="() => handleQuantityAnswer(enableWhen)"
                           />
+                          <!-- enableWhen reference -->
                           <q-input
                             v-else-if="enableWhen.__type === 'reference'"
                             :disable="!selectedItem.__active"
@@ -1134,7 +1137,7 @@
                             type="text"
                             dense
                           />
-                          <!--  remove item enable when -->
+                          <!-- remove enableWhen -->
                           <q-btn
                             :disable="!selectedItem.__active"
                             flat
@@ -1313,15 +1316,14 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <!-- Condition Item Dialog -->
+    <!-- enableWhen dialog -->
     <q-dialog v-model="enableWhenLayout" v-if="selected !== null">
       <cx-enable-When
         :internalID="selected"
         :enableWhenItem="enableWhenItem"
-        v-on:choiceQuestion="onSelectedQuestionsAnswer"
+        v-on:choiceQuestion="onEnableWhenWithAnswerOption"
         v-on:question="onSelectedQuestion"
-      >
-      </cx-enable-When>
+      />
     </q-dialog>
   </div>
 
@@ -2322,18 +2324,18 @@ export default defineComponent({
       }
       return true;
     },
-    validItemId(s: string): boolean {
-      return s.length > 0;
+    validItemId(s: string): true | string {
+      return s.length > 0 || "Selected linkId has to be non-empty";
     },
-    validOperator(s: string): boolean {
-      return s.length > 0;
+    validOperator(s: string): true | string {
+      return s.length > 0 || "operator has to be non-empty";
     },
-    validExistsAnswer(answer: string): boolean {
-      return answer === "true" || answer === "false";
+    validExistsAnswer(answer: string): true | string {
+      const validAnswer = answer === "true" || answer === "false";
+      return validAnswer || "answer has to be 'true' or 'false'";
     },
     onBackLastSelectedItem(): void {
       if (this.lastSelected) {
-        this.selectedItem = this.lastSelectedItem;
         this.selected = this.lastSelected;
         this.lastSelectedItem = undefined;
         this.lastSelected = null;
@@ -2345,15 +2347,13 @@ export default defineComponent({
         return;
       }
       const itemSelected = this.editorTools.getItemByLinkId($event, this.item);
-      if (itemSelected !== undefined) {
-        this.lastSelected = this.selected;
-        this.lastSelectedItem = this.selectedItem;
-
-        this.selectedItem = itemSelected;
-        this.selected = itemSelected.__internalID;
-      } else {
+      if (itemSelected === undefined) {
         this.triggerNegative();
+        return;
       }
+      this.lastSelected = this.selected;
+      this.lastSelectedItem = this.selectedItem;
+      this.selected = itemSelected.__internalID;
     },
     onlyNumberDec($event: KeyboardEvent): void {
       if (this.editorTools.isNotDecimalKey($event.code)) {
@@ -2365,15 +2365,15 @@ export default defineComponent({
         $event.preventDefault();
       }
     },
-    // FIXME: How are choice, open-choice with answerValueSet handled?
-    // Called for answers of choice/open-choice
-    onSelectedQuestionsAnswer(e: AnswerOption): void {
+    // Called for answers from answerOption-item
+    onEnableWhenWithAnswerOption(e: AnswerOption): void {
       if (e.__type === undefined) {
         console.error("AnswerOption always needs a type");
         return;
       }
       this.enableWhenItem.question = e.__linkId ?? "";
       this.enableWhenItem.__type = e.__type;
+      this.enableWhenItem.__answerOption = true;
       if (!this.enableWhenItem.operator) {
         this.enableWhenItem.operator = "=";
       }
@@ -2423,7 +2423,6 @@ export default defineComponent({
         default:
           throw new UnreachableError(e.__type);
       }
-      this.enableWhenItem.__answerOption = true;
       this.enableWhenLayout = false;
     },
     onSelectedQuestion(e: SelectedItem): void {

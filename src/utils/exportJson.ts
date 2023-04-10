@@ -1,8 +1,15 @@
 import { Settings } from "@/store";
-import { EnableWhen, Identifier, Item, Questionnaire } from "@/types";
+import {
+  EnableWhen,
+  Identifier,
+  Item,
+  operators,
+  Questionnaire,
+} from "@/types";
 import { i18n } from "../i18n";
 import { allowsMaxLength } from "./constants";
-import { editorTools } from "./editor";
+import { dateTools } from "./date";
+import { editorTools, UnreachableError } from "./editor";
 import { itemTools } from "./item";
 
 export type QuestionnaireBundleEntry = {
@@ -234,109 +241,175 @@ function getObjectWithoutItemsDisabled(
       delete item.answerConstraint;
     }
 
-    if (item.enableWhen !== undefined) {
-      item.enableWhen = item.enableWhen.filter(
-        (enableWhen) =>
-          enableWhen.operator !== "" &&
-          enableWhen.question !== "" &&
-          enableWhen.__answer !== "",
-      );
-      for (const enableWhen of item.enableWhen) {
-        if (enableWhen.operator === "exists") {
-          clearEnableWhenAnswers(enableWhen);
-          enableWhen.answerBoolean = enableWhen.__answer === "true";
-        } else {
-          if (enableWhen.__type === "decimal") {
-            clearEnableWhenAnswers(enableWhen);
-            enableWhen.answerDecimal = parseFloat(enableWhen.__answer || "");
-          } else if (enableWhen.__type === "integer") {
-            clearEnableWhenAnswers(enableWhen);
-            enableWhen.answerInteger = parseInt(enableWhen.__answer || "");
-          } else if (enableWhen.__type === "date") {
-            clearEnableWhenAnswers(enableWhen);
-            enableWhen.answerDate = enableWhen.__answer;
-          } else if (enableWhen.__type === "boolean") {
+    if (item.enableWhen) {
+      for (let i = item.enableWhen.length - 1; i >= 0; i--) {
+        const enableWhen = item.enableWhen[i];
+        if (
+          !enableWhen.question ||
+          !enableWhen.operator ||
+          !operators.includes(enableWhen.operator)
+        ) {
+          item.enableWhen.splice(i, 1);
+        } else if (enableWhen.operator === "exists") {
+          if (
+            enableWhen.__answer !== "true" &&
+            enableWhen.__answer !== "false"
+          ) {
+            item.enableWhen.splice(i, 1);
+          } else {
             clearEnableWhenAnswers(enableWhen);
             enableWhen.answerBoolean = enableWhen.__answer === "true";
-          } else if (
-            enableWhen.__type === "string" ||
-            enableWhen.__type === "text" ||
-            enableWhen.__type === "url"
-          ) {
-            clearEnableWhenAnswers(enableWhen);
-            enableWhen.answerString = enableWhen.__answer;
-          } else if (enableWhen.__type === "coding") {
-            if (enableWhen.answerCoding !== undefined) {
-              if (!enableWhen.answerCoding.code) {
-                delete enableWhen.answerCoding.code;
-              }
-              if (!enableWhen.answerCoding.display) {
-                delete enableWhen.answerCoding.display;
-              }
-              if (!enableWhen.answerCoding.system) {
-                delete enableWhen.answerCoding.system;
-              }
-              if (!enableWhen.answerCoding.version) {
-                delete enableWhen.answerCoding.version;
-              }
-              if (enableWhen.answerCoding.userSelected === null) {
-                delete enableWhen.answerCoding.userSelected;
-              }
-              const safedCoding = enableWhen.answerCoding;
-              clearEnableWhenAnswers(enableWhen);
-              if (editorTools.isNonEmptyObject(safedCoding)) {
-                enableWhen.answerCoding = safedCoding;
-              }
-            }
-          } else if (enableWhen.__type === "quantity") {
-            if (enableWhen.answerQuantity !== undefined) {
-              if (!enableWhen.answerQuantity.code) {
-                delete enableWhen.answerQuantity.code;
-              }
-              if (!enableWhen.answerQuantity.unit) {
-                delete enableWhen.answerQuantity.unit;
-              }
-              if (!enableWhen.answerQuantity.system) {
-                delete enableWhen.answerQuantity.system;
-              }
-              if (!enableWhen.answerQuantity.value) {
-                delete enableWhen.answerQuantity.value;
-              }
-              if (!enableWhen.answerQuantity.comparator) {
-                delete enableWhen.answerQuantity.comparator;
-              }
-              const safedQuantity = enableWhen.answerQuantity;
-              clearEnableWhenAnswers(enableWhen);
-              if (editorTools.isNonEmptyObject(safedQuantity)) {
-                enableWhen.answerQuantity = safedQuantity;
-              }
-            }
-          } else if (enableWhen.__type === "reference") {
-            if (enableWhen.answerReference !== undefined) {
-              if (!enableWhen.answerReference.reference) {
-                delete enableWhen.answerReference.reference;
-              }
-              if (!enableWhen.answerReference.display) {
-                delete enableWhen.answerReference.display;
-              }
-              if (!enableWhen.answerReference.type) {
-                delete enableWhen.answerReference.type;
-              }
+          }
+        } else {
+          switch (enableWhen.__type) {
+            case "boolean":
               if (
-                editorTools.isEmptyObject(enableWhen.answerReference.identifier)
+                enableWhen.__answer !== "true" &&
+                enableWhen.__answer !== "false"
               ) {
-                delete enableWhen.answerReference.identifier;
+                item.enableWhen.splice(i, 1);
+              } else {
+                clearEnableWhenAnswers(enableWhen);
+                enableWhen.answerBoolean = enableWhen.__answer === "true";
               }
-              const safedReference = enableWhen.answerReference;
-              clearEnableWhenAnswers(enableWhen);
-              if (editorTools.isNonEmptyObject(safedReference)) {
+              break;
+            case "decimal":
+              if (editorTools.isNumber(enableWhen.__answer)) {
+                clearEnableWhenAnswers(enableWhen);
+                enableWhen.answerDecimal = parseFloat(enableWhen.__answer!);
+              } else {
+                item.enableWhen.splice(i, 1);
+              }
+              break;
+            case "integer":
+              if (editorTools.isNumber(enableWhen.__answer)) {
+                clearEnableWhenAnswers(enableWhen);
+                enableWhen.answerInteger = parseInt(enableWhen.__answer!);
+              } else {
+                item.enableWhen.splice(i, 1);
+              }
+              break;
+            case "date":
+              if (dateTools.isDate(enableWhen.__answer) !== true) {
+                item.enableWhen.splice(i, 1);
+              } else {
+                clearEnableWhenAnswers(enableWhen);
+                enableWhen.answerDate = enableWhen.__answer;
+              }
+              break;
+            case "dateTime":
+              if (dateTools.isDateTime(enableWhen.__answer) !== true) {
+                item.enableWhen.splice(i, 1);
+              } else {
+                clearEnableWhenAnswers(enableWhen);
+                enableWhen.answerDateTime = enableWhen.__answer;
+              }
+              break;
+            case "time":
+              if (dateTools.isTime(enableWhen.__answer) !== true) {
+                item.enableWhen.splice(i, 1);
+              } else {
+                clearEnableWhenAnswers(enableWhen);
+                enableWhen.answerTime = enableWhen.__answer;
+              }
+              break;
+            case "string":
+            case "text":
+            case "url":
+              if (!enableWhen.__answer) {
+                item.enableWhen.splice(i, 1);
+              } else {
+                clearEnableWhenAnswers(enableWhen);
+                enableWhen.answerString = enableWhen.__answer;
+              }
+              break;
+            case "coding":
+              if (enableWhen.answerCoding !== undefined) {
+                if (!enableWhen.answerCoding.code) {
+                  delete enableWhen.answerCoding.code;
+                }
+                if (!enableWhen.answerCoding.display) {
+                  delete enableWhen.answerCoding.display;
+                }
+                if (!enableWhen.answerCoding.system) {
+                  delete enableWhen.answerCoding.system;
+                }
+                if (!enableWhen.answerCoding.version) {
+                  delete enableWhen.answerCoding.version;
+                }
+                if (enableWhen.answerCoding.userSelected === null) {
+                  delete enableWhen.answerCoding.userSelected;
+                }
+              }
+              if (editorTools.isNonEmptyObject(enableWhen.answerCoding)) {
+                const safedCoding = enableWhen.answerCoding;
+                clearEnableWhenAnswers(enableWhen);
+                enableWhen.answerCoding = safedCoding;
+              } else {
+                item.enableWhen.splice(i, 1);
+              }
+              break;
+            case "quantity":
+              if (enableWhen.answerQuantity !== undefined) {
+                if (!enableWhen.answerQuantity.code) {
+                  delete enableWhen.answerQuantity.code;
+                }
+                if (!enableWhen.answerQuantity.unit) {
+                  delete enableWhen.answerQuantity.unit;
+                }
+                if (!enableWhen.answerQuantity.system) {
+                  delete enableWhen.answerQuantity.system;
+                }
+                if (!enableWhen.answerQuantity.value) {
+                  delete enableWhen.answerQuantity.value;
+                }
+                if (!enableWhen.answerQuantity.comparator) {
+                  delete enableWhen.answerQuantity.comparator;
+                }
+              }
+              if (editorTools.isNonEmptyObject(enableWhen.answerQuantity)) {
+                const safedQuantity = enableWhen.answerQuantity;
+                clearEnableWhenAnswers(enableWhen);
+                enableWhen.answerQuantity = safedQuantity;
+              } else {
+                item.enableWhen.splice(i, 1);
+              }
+              break;
+            case "reference":
+              if (enableWhen.answerReference !== undefined) {
+                if (!enableWhen.answerReference.reference) {
+                  delete enableWhen.answerReference.reference;
+                }
+                if (!enableWhen.answerReference.display) {
+                  delete enableWhen.answerReference.display;
+                }
+                if (!enableWhen.answerReference.type) {
+                  delete enableWhen.answerReference.type;
+                }
+                if (
+                  editorTools.isEmptyObject(
+                    enableWhen.answerReference.identifier,
+                  )
+                ) {
+                  delete enableWhen.answerReference.identifier;
+                }
+              }
+              if (editorTools.isNonEmptyObject(enableWhen.answerReference)) {
+                const safedReference = enableWhen.answerReference;
+                clearEnableWhenAnswers(enableWhen);
                 enableWhen.answerReference = safedReference;
+              } else {
+                item.enableWhen.splice(i, 1);
               }
-            }
-          } else if (enableWhen.__type === "time") {
-            enableWhen.answerTime = enableWhen.__answer;
-          } else if (enableWhen.__type === "dateTime") {
-            enableWhen.answerDateTime = enableWhen.__answer;
+              break;
+            case undefined:
+              console.error(
+                `enableWhen linking to ${enableWhen.question} had no type`,
+              );
+              item.enableWhen.splice(i, 1);
+              break;
+            default:
+              throw new UnreachableError(enableWhen.__type);
           }
         }
       }
@@ -366,13 +439,15 @@ function getObjectWithoutItemsDisabled(
 
 function clearEnableWhenAnswers(enableWhen: EnableWhen): void {
   enableWhen.answerBoolean = undefined;
-  enableWhen.answerDate = undefined;
-  enableWhen.answerTime = undefined;
-  enableWhen.answerDateTime = undefined;
-  enableWhen.answerString = undefined;
-  enableWhen.answerCoding = undefined;
   enableWhen.answerDecimal = undefined;
   enableWhen.answerInteger = undefined;
+  enableWhen.answerDate = undefined;
+  enableWhen.answerDateTime = undefined;
+  enableWhen.answerTime = undefined;
+  enableWhen.answerString = undefined;
+  enableWhen.answerCoding = undefined;
+  enableWhen.answerQuantity = undefined;
+  enableWhen.answerReference = undefined;
 }
 
 const exportJsonQuestionnaire = {
