@@ -188,7 +188,6 @@ export type AnswerConstraint = typeof answerConstraints[number];
  * Fields with "__"-prefix are used for internal state management
  */
 // TODO: add initial-field
-// TODO: rework answerValueSet-field
 export type Item = {
   __active: boolean;
   /*
@@ -204,9 +203,8 @@ export type Item = {
   __dependenceCondition?: Condition;
   __OldAnswerValueSet?: string;
   __answerValueSetCheck?: boolean;
-  // tracks position of item regardless whether it's active or not
+  // internal linkId, tracking position in item-tree (e.g. 0.2.1)
   __linkId: string;
-  // tracks position of active items, linkId === "" if inactive/disabled
   linkId: string;
   item?: Item[];
   maxLength?: number;
