@@ -324,29 +324,39 @@ function getObjectWithoutItemsDisabled(
               }
               break;
             case "coding":
-              if (enableWhen.answerCoding !== undefined) {
-                if (!enableWhen.answerCoding.code) {
-                  delete enableWhen.answerCoding.code;
+              if (enableWhen.__orString) {
+                if (!enableWhen.answerString) {
+                  item.enableWhen.splice(i, 1);
+                } else {
+                  const answer = enableWhen.answerString;
+                  clearEnableWhenAnswers(enableWhen);
+                  enableWhen.answerString = answer;
                 }
-                if (!enableWhen.answerCoding.display) {
-                  delete enableWhen.answerCoding.display;
-                }
-                if (!enableWhen.answerCoding.system) {
-                  delete enableWhen.answerCoding.system;
-                }
-                if (!enableWhen.answerCoding.version) {
-                  delete enableWhen.answerCoding.version;
-                }
-                if (enableWhen.answerCoding.userSelected === null) {
-                  delete enableWhen.answerCoding.userSelected;
-                }
-              }
-              if (editorTools.isNonEmptyObject(enableWhen.answerCoding)) {
-                const safedCoding = enableWhen.answerCoding;
-                clearEnableWhenAnswers(enableWhen);
-                enableWhen.answerCoding = safedCoding;
               } else {
-                item.enableWhen.splice(i, 1);
+                if (enableWhen.answerCoding !== undefined) {
+                  if (!enableWhen.answerCoding.code) {
+                    delete enableWhen.answerCoding.code;
+                  }
+                  if (!enableWhen.answerCoding.display) {
+                    delete enableWhen.answerCoding.display;
+                  }
+                  if (!enableWhen.answerCoding.system) {
+                    delete enableWhen.answerCoding.system;
+                  }
+                  if (!enableWhen.answerCoding.version) {
+                    delete enableWhen.answerCoding.version;
+                  }
+                  if (enableWhen.answerCoding.userSelected === null) {
+                    delete enableWhen.answerCoding.userSelected;
+                  }
+                }
+                if (editorTools.isNonEmptyObject(enableWhen.answerCoding)) {
+                  const safedCoding = enableWhen.answerCoding;
+                  clearEnableWhenAnswers(enableWhen);
+                  enableWhen.answerCoding = safedCoding;
+                } else {
+                  item.enableWhen.splice(i, 1);
+                }
               }
               break;
             case "quantity":

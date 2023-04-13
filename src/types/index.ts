@@ -61,6 +61,7 @@ export type Reference = {
 
 export type EnableWhen = {
   __answerOption?: boolean;
+  __orString?: boolean;
   __answer?: string;
   __type?: AnswerType;
   question: string;

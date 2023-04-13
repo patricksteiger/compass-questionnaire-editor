@@ -140,9 +140,7 @@ export class QuestionnaireBuilder {
     if (fhirItem.enableWhen === undefined) return undefined;
     const resultEnableWhen: EnableWhen[] = [];
     for (const enableWhen of fhirItem.enableWhen) {
-      const result: EnableWhen = {
-        ...enableWhen,
-      };
+      const result: EnableWhen = editorTools.clone(enableWhen);
       const linkedItem = validatorUtils.getItemByLinkId(
         this.qre,
         enableWhen.question,
@@ -182,6 +180,7 @@ export class QuestionnaireBuilder {
         result.__answer = enableWhen.answerDateTime;
       } else if (enableWhen.answerString !== undefined) {
         result.__answer = enableWhen.answerString;
+        result.__orString = linkedItem?.type !== "string";
         if (result.__answerOption) {
           result.__type = "string";
         }

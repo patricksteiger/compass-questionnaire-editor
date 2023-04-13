@@ -993,15 +993,15 @@
                             :disable="!selectedItem.__active"
                             :label="
                               $t('views.editor.answer') +
-                              (enableWhen.__answerOption
-                                ? ' (answerOption)'
-                                : '')
+                              (enableWhen.__orString
+                                ? ' (string)'
+                                : ' (coding)')
                             "
                             class="col-4"
                             v-model="enableWhen.__answer"
                             :type="'text'"
                             readonly
-                            :clickable="!enableWhen.__answerOption"
+                            clickable
                             @click="handleCodingAnswer(enableWhen)"
                             dense
                           />
@@ -1167,7 +1167,7 @@
                   </div>
                 </q-card>
               </q-expansion-item>
-              <!-- Extensions -->
+              <!-- extension -->
               <!-- FIXME: rework extensions -->
               <q-expansion-item
                 v-if="selectedItem?.type === 'integer'"
@@ -1505,9 +1505,102 @@
               `EnableWhen: ${chosenEnableWhen.__type}`
             }}</q-toolbar-title>
           </q-toolbar>
+          <div v-if="linkedItem === undefined">
+            No item with linkId "{{ chosenEnableWhen.question }}" exists!
+          </div>
           <div
             class="q-pa-md"
-            v-if="
+            v-else-if="
+              chosenEnableWhen.__type === 'coding' &&
+              chosenEnableWhen.answerCoding !== undefined
+            "
+          >
+            <div v-if="itemTools.definedAnswerOption(linkedItem)">
+              <div><h6>AnswerOptions</h6></div>
+              <q-list bordered separator>
+                <q-item
+                  v-for="answerOption in linkedItem.answerOption"
+                  :key="answerOption.__id"
+                  clickable
+                  @dblclick="
+                  () => {
+                    chosenEnableWhen!.answerCoding = answerOption.valueCoding;
+                    setCodingAnswer(chosenEnableWhen);
+                  }
+                  "
+                >
+                  <q-item-section>
+                    {{ answerOption.__formattedValueCoding }}
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </div>
+            <div
+              v-if="
+                itemTools.undefinedAnswerOption(linkedItem) ||
+                linkedItem.answerConstraint === 'optionsOrType'
+              "
+            >
+              <div><h6>Custom coding</h6></div>
+              <q-input
+                label="Code"
+                class="col-4"
+                v-model="chosenEnableWhen.answerCoding.code"
+                type="text"
+                dense
+              />
+              <q-input
+                label="Display"
+                class="col-4"
+                v-model="chosenEnableWhen.answerCoding.display"
+                type="text"
+                dense
+              />
+              <q-input
+                label="System"
+                class="col-4"
+                v-model="chosenEnableWhen.answerCoding.system"
+                type="text"
+                dense
+              />
+              <q-input
+                label="Version"
+                class="col-4"
+                v-model="chosenEnableWhen.answerCoding.version"
+                type="text"
+                dense
+              />
+              <q-toggle
+                label="UserSelected"
+                class="col-4"
+                v-model.boolean="chosenEnableWhen.answerCoding.userSelected"
+                toggle-indeterminate
+                dense
+              />
+              <div>
+                <q-btn icon="add" @click="setCodingAnswer(chosenEnableWhen)" />
+              </div>
+            </div>
+            <div v-if="linkedItem.answerConstraint === 'optionsOrString'">
+              <div><h6>Custom string</h6></div>
+              <q-input
+                label="String"
+                class="col-4"
+                v-model="chosenEnableWhen.answerString"
+                type="text"
+                dense
+              />
+              <div>
+                <q-btn
+                  icon="add"
+                  @click="setCodingStringAnswer(chosenEnableWhen)"
+                />
+              </div>
+            </div>
+          </div>
+          <div
+            class="q-pa-md"
+            v-else-if="
               chosenEnableWhen.__type === 'quantity' &&
               chosenEnableWhen.answerQuantity !== undefined
             "
@@ -1549,50 +1642,6 @@
               dense
             />
             <q-btn icon="add" @click="setQuantityAnswer(chosenEnableWhen)" />
-          </div>
-          <div
-            class="q-pa-md"
-            v-else-if="
-              chosenEnableWhen.__type === 'coding' &&
-              chosenEnableWhen.answerCoding !== undefined
-            "
-          >
-            <q-input
-              :label="'Code'"
-              class="col-4"
-              v-model="chosenEnableWhen.answerCoding.code"
-              type="text"
-              dense
-            />
-            <q-input
-              :label="'Display'"
-              class="col-4"
-              v-model="chosenEnableWhen.answerCoding.display"
-              type="text"
-              dense
-            />
-            <q-input
-              :label="'System'"
-              class="col-4"
-              v-model="chosenEnableWhen.answerCoding.system"
-              type="text"
-              dense
-            />
-            <q-input
-              :label="'Version'"
-              class="col-4"
-              v-model="chosenEnableWhen.answerCoding.version"
-              type="text"
-              dense
-            />
-            <q-toggle
-              :label="'UserSelected'"
-              class="col-4"
-              v-model.boolean="chosenEnableWhen.answerCoding.userSelected"
-              toggle-indeterminate
-              dense
-            />
-            <q-btn icon="add" @click="setCodingAnswer(chosenEnableWhen)" />
           </div>
           <div
             class="q-pa-md"
@@ -1738,35 +1787,35 @@
             "
           >
             <q-input
-              :label="'Version'"
-              class="col-4"
-              v-model="answerOptionItem.valueCoding.version"
-              type="text"
-              dense
-            />
-            <q-input
-              :label="'Code'"
+              label="Code"
               class="col-4"
               v-model="answerOptionItem.valueCoding.code"
               type="text"
               dense
             />
             <q-input
-              :label="'Display'"
+              label="Display"
               class="col-4"
               v-model="answerOptionItem.valueCoding.display"
               type="text"
               dense
             />
             <q-input
-              :label="'System'"
+              label="System"
               class="col-4"
               v-model="answerOptionItem.valueCoding.system"
               type="text"
               dense
             />
+            <q-input
+              label="Version"
+              class="col-4"
+              v-model="answerOptionItem.valueCoding.version"
+              type="text"
+              dense
+            />
             <q-toggle
-              :label="'UserSelected'"
+              label="UserSelected"
               class="col-4"
               v-model.boolean="answerOptionItem.valueCoding.userSelected"
               toggle-indeterminate
@@ -1986,6 +2035,7 @@ export default defineComponent({
     const newLinkIdType: Ref<ItemType> = ref("integer");
     const otherLinkIds: Ref<string[]> = ref([]);
     const otherLinkId: Ref<string> = ref("");
+    const linkedItem: Ref<Item | undefined> = ref(undefined);
     return {
       addLinkIdLayout: ref(false),
       swapLinkIdLayout: ref(false),
@@ -2018,6 +2068,7 @@ export default defineComponent({
       chosenEnableWhenAnswerLayout: ref(false),
       comparators,
       chosenEnableWhen,
+      linkedItem,
       noChoiceItemTypeIcons,
       choiceItemTypeIcons,
       alert: ref(false),
@@ -2178,13 +2229,25 @@ export default defineComponent({
     handleCodingAnswer(enableWhen: EnableWhen): void {
       enableWhen.answerCoding ??= {};
       this.chosenEnableWhen = enableWhen;
+      this.linkedItem = editorTools.getItemByLinkId(
+        this.chosenEnableWhen.question,
+        this.questionaireGUI!.item,
+      );
       this.chosenEnableWhenAnswerLayout = true;
     },
     setCodingAnswer(enableWhen: EnableWhen | undefined): void {
       if (enableWhen?.answerCoding !== undefined) {
+        enableWhen.__orString = false;
         enableWhen.__answer = this.editorTools.formatCoding(
           enableWhen.answerCoding,
         );
+      }
+      this.chosenEnableWhenAnswerLayout = false;
+    },
+    setCodingStringAnswer(enableWhen: EnableWhen | undefined): void {
+      if (enableWhen !== undefined) {
+        enableWhen.__orString = true;
+        enableWhen.__answer = enableWhen.answerString;
       }
       this.chosenEnableWhenAnswerLayout = false;
     },

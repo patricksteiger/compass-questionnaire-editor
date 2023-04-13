@@ -196,6 +196,16 @@ export class FHIRItemValidator {
       if (enableWhen.answerReference === undefined) {
         this.resetEnableWhenAnswers(enableWhen);
       }
+    } else if (linkedItem.type === "coding") {
+      if (enableWhen.answerCoding === undefined) {
+        if (linkedItem.answerConstraint === "optionsOrString") {
+          if (!enableWhen.answerString) {
+            this.resetEnableWhenAnswers(enableWhen);
+          }
+        } else {
+          this.resetEnableWhenAnswers(enableWhen);
+        }
+      }
     }
   }
 

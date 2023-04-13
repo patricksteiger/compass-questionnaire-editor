@@ -34,6 +34,12 @@ class ItemTools {
   undefinedAnswerValueSet(item: Item | ParsedItem): boolean {
     return !item.answerValueSet;
   }
+  definedAnswerOption(item: Item | ParsedItem): boolean {
+    return !this.undefinedAnswerOption(item);
+  }
+  definedAnswerValueSet(item: Item | ParsedItem): boolean {
+    return !this.undefinedAnswerValueSet(item);
+  }
 }
 
 export const itemTools = new ItemTools();
