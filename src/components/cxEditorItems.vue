@@ -1026,18 +1026,19 @@
                           <!-- enableWhen integer -->
                           <q-input
                             v-else-if="enableWhen.__type === 'integer'"
-                            @keypress="onlyNumber"
                             :disable="!selectedItem.__active"
                             :label="
                               $t('views.editor.answer') +
-                              (enableWhen.__answerOption
-                                ? ' (answerOption)'
-                                : '')
+                              (enableWhen.__orString
+                                ? ' (string)'
+                                : ' (integer)')
                             "
                             class="col-4"
                             v-model="enableWhen.__answer"
-                            :readonly="enableWhen.__answerOption"
-                            type="number"
+                            readonly
+                            type="text"
+                            clickable
+                            @click="handleIntegerAnswer(enableWhen)"
                             dense
                           />
                           <!-- enableWhen date -->
@@ -1658,6 +1659,69 @@
                 <q-btn
                   icon="add"
                   @click="setDecimalStringAnswer(chosenEnableWhen)"
+                />
+              </div>
+            </div>
+          </div>
+          <div
+            class="q-pa-md"
+            v-else-if="
+              chosenEnableWhen.__type === 'integer' &&
+              chosenEnableWhen.answerInteger !== undefined
+            "
+          >
+            <div v-if="itemTools.definedAnswerOption(linkedItem)">
+              <div><h6>AnswerOptions</h6></div>
+              <q-list bordered separator>
+                <q-item
+                  v-for="answerOption in linkedItem.answerOption"
+                  :key="answerOption.__id"
+                  clickable
+                  @dblclick="
+                  () => {
+                    chosenEnableWhen!.answerInteger = Number(answerOption.valueInteger);
+                    setIntegerAnswer(chosenEnableWhen);
+                  }
+                  "
+                >
+                  <q-item-section>
+                    {{ answerOption.valueInteger }}
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </div>
+            <div
+              v-if="
+                itemTools.undefinedAnswerOption(linkedItem) ||
+                linkedItem.answerConstraint === 'optionsOrType'
+              "
+            >
+              <div><h6>Custom integer</h6></div>
+              <q-input
+                label="Integer"
+                @keypress="onlyNumber"
+                class="col-4"
+                v-model="chosenEnableWhen.answerInteger"
+                type="number"
+                dense
+              />
+              <div>
+                <q-btn icon="add" @click="setIntegerAnswer(chosenEnableWhen)" />
+              </div>
+            </div>
+            <div v-if="linkedItem.answerConstraint === 'optionsOrString'">
+              <div><h6>Custom string</h6></div>
+              <q-input
+                label="String"
+                class="col-4"
+                v-model="chosenEnableWhen.answerString"
+                type="text"
+                dense
+              />
+              <div>
+                <q-btn
+                  icon="add"
+                  @click="setIntegerStringAnswer(chosenEnableWhen)"
                 />
               </div>
             </div>
@@ -2332,6 +2396,29 @@ export default defineComponent({
       this.chosenEnableWhenAnswerLayout = false;
     },
     setDecimalStringAnswer(enableWhen: EnableWhen | undefined): void {
+      if (enableWhen !== undefined) {
+        enableWhen.__orString = true;
+        enableWhen.__answer = enableWhen.answerString;
+      }
+      this.chosenEnableWhenAnswerLayout = false;
+    },
+    handleIntegerAnswer(enableWhen: EnableWhen): void {
+      enableWhen.answerInteger ??= 0;
+      this.chosenEnableWhen = enableWhen;
+      this.linkedItem = editorTools.getItemByLinkId(
+        this.chosenEnableWhen.question,
+        this.questionaireGUI!.item,
+      );
+      this.chosenEnableWhenAnswerLayout = true;
+    },
+    setIntegerAnswer(enableWhen: EnableWhen | undefined): void {
+      if (enableWhen?.answerInteger !== undefined) {
+        enableWhen.__orString = false;
+        enableWhen.__answer = enableWhen.answerInteger.toString();
+      }
+      this.chosenEnableWhenAnswerLayout = false;
+    },
+    setIntegerStringAnswer(enableWhen: EnableWhen | undefined): void {
       if (enableWhen !== undefined) {
         enableWhen.__orString = true;
         enableWhen.__answer = enableWhen.answerString;

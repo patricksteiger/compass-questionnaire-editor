@@ -152,7 +152,13 @@ export class FHIRItemValidator {
       }
     } else if (linkedItem.type === "integer") {
       if (enableWhen.answerInteger === undefined) {
-        this.resetEnableWhenAnswers(enableWhen);
+        if (linkedItem.answerConstraint === "optionsOrString") {
+          if (!enableWhen.answerString) {
+            this.resetEnableWhenAnswers(enableWhen);
+          }
+        } else {
+          this.resetEnableWhenAnswers(enableWhen);
+        }
       }
     } else if (linkedItem.type === "decimal") {
       if (enableWhen.answerDecimal === undefined) {
