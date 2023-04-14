@@ -274,11 +274,21 @@ function getObjectWithoutItemsDisabled(
               }
               break;
             case "decimal":
-              if (editorTools.isNumber(enableWhen.__answer)) {
-                clearEnableWhenAnswers(enableWhen);
-                enableWhen.answerDecimal = parseFloat(enableWhen.__answer!);
+              if (enableWhen.__orString) {
+                if (!enableWhen.answerString) {
+                  item.enableWhen.splice(i, 1);
+                } else {
+                  const answer = enableWhen.answerString;
+                  clearEnableWhenAnswers(enableWhen);
+                  enableWhen.answerString = answer;
+                }
               } else {
-                item.enableWhen.splice(i, 1);
+                if (editorTools.isNumber(enableWhen.__answer)) {
+                  clearEnableWhenAnswers(enableWhen);
+                  enableWhen.answerDecimal = parseFloat(enableWhen.__answer!);
+                } else {
+                  item.enableWhen.splice(i, 1);
+                }
               }
               break;
             case "integer":

@@ -1008,18 +1008,19 @@
                           <!-- enableWhen decimal -->
                           <q-input
                             v-else-if="enableWhen.__type === 'decimal'"
-                            @keypress="onlyNumberDec"
                             :disable="!selectedItem.__active"
                             :label="
                               $t('views.editor.answer') +
-                              (enableWhen.__answerOption
-                                ? ' (answerOption)'
-                                : '')
+                              (enableWhen.__orString
+                                ? ' (string)'
+                                : ' (decimal)')
                             "
                             class="col-4"
                             v-model="enableWhen.__answer"
-                            :readonly="enableWhen.__answerOption"
-                            type="number"
+                            readonly
+                            type="text"
+                            clickable
+                            @click="handleDecimalAnswer(enableWhen)"
                             dense
                           />
                           <!-- enableWhen integer -->
@@ -1594,6 +1595,69 @@
                 <q-btn
                   icon="add"
                   @click="setCodingStringAnswer(chosenEnableWhen)"
+                />
+              </div>
+            </div>
+          </div>
+          <div
+            class="q-pa-md"
+            v-else-if="
+              chosenEnableWhen.__type === 'decimal' &&
+              chosenEnableWhen.answerDecimal !== undefined
+            "
+          >
+            <div v-if="itemTools.definedAnswerOption(linkedItem)">
+              <div><h6>AnswerOptions</h6></div>
+              <q-list bordered separator>
+                <q-item
+                  v-for="answerOption in linkedItem.answerOption"
+                  :key="answerOption.__id"
+                  clickable
+                  @dblclick="
+                  () => {
+                    chosenEnableWhen!.answerDecimal = Number(answerOption.valueDecimal);
+                    setDecimalAnswer(chosenEnableWhen);
+                  }
+                  "
+                >
+                  <q-item-section>
+                    {{ answerOption.valueDecimal }}
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </div>
+            <div
+              v-if="
+                itemTools.undefinedAnswerOption(linkedItem) ||
+                linkedItem.answerConstraint === 'optionsOrType'
+              "
+            >
+              <div><h6>Custom decimal</h6></div>
+              <q-input
+                label="Decimal"
+                @keypress="onlyNumberDec"
+                class="col-4"
+                v-model="chosenEnableWhen.answerDecimal"
+                type="number"
+                dense
+              />
+              <div>
+                <q-btn icon="add" @click="setDecimalAnswer(chosenEnableWhen)" />
+              </div>
+            </div>
+            <div v-if="linkedItem.answerConstraint === 'optionsOrString'">
+              <div><h6>Custom string</h6></div>
+              <q-input
+                label="String"
+                class="col-4"
+                v-model="chosenEnableWhen.answerString"
+                type="text"
+                dense
+              />
+              <div>
+                <q-btn
+                  icon="add"
+                  @click="setDecimalStringAnswer(chosenEnableWhen)"
                 />
               </div>
             </div>
@@ -2245,6 +2309,29 @@ export default defineComponent({
       this.chosenEnableWhenAnswerLayout = false;
     },
     setCodingStringAnswer(enableWhen: EnableWhen | undefined): void {
+      if (enableWhen !== undefined) {
+        enableWhen.__orString = true;
+        enableWhen.__answer = enableWhen.answerString;
+      }
+      this.chosenEnableWhenAnswerLayout = false;
+    },
+    handleDecimalAnswer(enableWhen: EnableWhen): void {
+      enableWhen.answerDecimal ??= 0.0;
+      this.chosenEnableWhen = enableWhen;
+      this.linkedItem = editorTools.getItemByLinkId(
+        this.chosenEnableWhen.question,
+        this.questionaireGUI!.item,
+      );
+      this.chosenEnableWhenAnswerLayout = true;
+    },
+    setDecimalAnswer(enableWhen: EnableWhen | undefined): void {
+      if (enableWhen?.answerDecimal !== undefined) {
+        enableWhen.__orString = false;
+        enableWhen.__answer = enableWhen.answerDecimal.toString();
+      }
+      this.chosenEnableWhenAnswerLayout = false;
+    },
+    setDecimalStringAnswer(enableWhen: EnableWhen | undefined): void {
       if (enableWhen !== undefined) {
         enableWhen.__orString = true;
         enableWhen.__answer = enableWhen.answerString;

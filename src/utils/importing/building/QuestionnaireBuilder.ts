@@ -166,6 +166,9 @@ export class QuestionnaireBuilder {
         }
       } else if (enableWhen.answerDecimal !== undefined) {
         result.__answer = String(enableWhen.answerDecimal);
+        if (result.__answerOption) {
+          result.__type = "decimal";
+        }
       } else if (enableWhen.answerDate !== undefined) {
         result.__answer = enableWhen.answerDate;
         if (result.__answerOption) {
