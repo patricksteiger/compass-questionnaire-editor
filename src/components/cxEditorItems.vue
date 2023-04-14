@@ -600,6 +600,9 @@
                                     : answerOption.__type
                                 "
                               >
+                                <q-tooltip>
+                                  Valid examples: 2000, 2000-12, 2000-12-30
+                                </q-tooltip>
                                 <template v-slot:prepend>
                                   <q-icon :name="answerOption.__icon" />
                                 </template>
@@ -1047,16 +1050,15 @@
                             :disable="!selectedItem.__active"
                             :label="
                               $t('views.editor.answer') +
-                              (enableWhen.__answerOption
-                                ? ' (answerOption)'
-                                : '')
+                              (enableWhen.__orString ? ' (string)' : ' (date)')
                             "
                             class="col-4"
                             v-model="enableWhen.__answer"
                             type="text"
-                            :readonly="enableWhen.__answerOption"
+                            readonly
+                            clickable
+                            @click="handleDateAnswer(enableWhen)"
                             dense
-                            :rules="[dateTools.isDate]"
                           />
                           <!-- enableWhen dateTime -->
                           <q-input
@@ -1722,6 +1724,73 @@
                 <q-btn
                   icon="add"
                   @click="setIntegerStringAnswer(chosenEnableWhen)"
+                />
+              </div>
+            </div>
+          </div>
+          <div
+            class="q-pa-md"
+            v-else-if="
+              chosenEnableWhen.__type === 'date' &&
+              chosenEnableWhen.answerDate !== undefined
+            "
+          >
+            <div v-if="itemTools.definedAnswerOption(linkedItem)">
+              <div><h6>AnswerOptions</h6></div>
+              <q-list bordered separator>
+                <q-item
+                  v-for="answerOption in linkedItem.answerOption"
+                  :key="answerOption.__id"
+                  clickable
+                  @dblclick="
+                  () => {
+                    chosenEnableWhen!.answerDate = answerOption.valueDate;
+                    setDateAnswer(chosenEnableWhen);
+                  }
+                  "
+                >
+                  <q-item-section>
+                    {{ answerOption.valueDate }}
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </div>
+            <div
+              v-if="
+                itemTools.undefinedAnswerOption(linkedItem) ||
+                linkedItem.answerConstraint === 'optionsOrType'
+              "
+            >
+              <div><h6>Custom date</h6></div>
+              <q-input
+                label="Date"
+                class="col-4"
+                v-model="chosenEnableWhen.answerDate"
+                type="text"
+                :rules="[dateTools.isDate]"
+                dense
+              >
+                <q-tooltip>
+                  Valid examples: 2000, 2000-12, 2000-12-30
+                </q-tooltip>
+              </q-input>
+              <div>
+                <q-btn icon="add" @click="setDateAnswer(chosenEnableWhen)" />
+              </div>
+            </div>
+            <div v-if="linkedItem.answerConstraint === 'optionsOrString'">
+              <div><h6>Custom string</h6></div>
+              <q-input
+                label="String"
+                class="col-4"
+                v-model="chosenEnableWhen.answerString"
+                type="text"
+                dense
+              />
+              <div>
+                <q-btn
+                  icon="add"
+                  @click="setCodingStringAnswer(chosenEnableWhen)"
                 />
               </div>
             </div>
@@ -2422,6 +2491,22 @@ export default defineComponent({
       if (enableWhen !== undefined) {
         enableWhen.__orString = true;
         enableWhen.__answer = enableWhen.answerString;
+      }
+      this.chosenEnableWhenAnswerLayout = false;
+    },
+    handleDateAnswer(enableWhen: EnableWhen): void {
+      enableWhen.answerDate ??= "";
+      this.chosenEnableWhen = enableWhen;
+      this.linkedItem = editorTools.getItemByLinkId(
+        this.chosenEnableWhen.question,
+        this.questionaireGUI!.item,
+      );
+      this.chosenEnableWhenAnswerLayout = true;
+    },
+    setDateAnswer(enableWhen: EnableWhen | undefined): void {
+      if (enableWhen?.answerDate !== undefined) {
+        enableWhen.__orString = false;
+        enableWhen.__answer = enableWhen.answerDate;
       }
       this.chosenEnableWhenAnswerLayout = false;
     },

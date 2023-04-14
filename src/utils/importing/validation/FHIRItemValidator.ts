@@ -152,23 +152,11 @@ export class FHIRItemValidator {
       }
     } else if (linkedItem.type === "integer") {
       if (enableWhen.answerInteger === undefined) {
-        if (linkedItem.answerConstraint === "optionsOrString") {
-          if (!enableWhen.answerString) {
-            this.resetEnableWhenAnswers(enableWhen);
-          }
-        } else {
-          this.resetEnableWhenAnswers(enableWhen);
-        }
+        this.clearOptionsOrString(enableWhen, linkedItem);
       }
     } else if (linkedItem.type === "decimal") {
       if (enableWhen.answerDecimal === undefined) {
-        if (linkedItem.answerConstraint === "optionsOrString") {
-          if (!enableWhen.answerString) {
-            this.resetEnableWhenAnswers(enableWhen);
-          }
-        } else {
-          this.resetEnableWhenAnswers(enableWhen);
-        }
+        this.clearOptionsOrString(enableWhen, linkedItem);
       }
     } else if (
       linkedItem.type === "string" ||
@@ -180,15 +168,15 @@ export class FHIRItemValidator {
       }
     } else if (linkedItem.type === "date") {
       if (enableWhen.answerDate === undefined) {
-        this.resetEnableWhenAnswers(enableWhen);
+        this.clearOptionsOrString(enableWhen, linkedItem);
       }
     } else if (linkedItem.type === "time") {
       if (enableWhen.answerTime === undefined) {
-        this.resetEnableWhenAnswers(enableWhen);
+        this.clearOptionsOrString(enableWhen, linkedItem);
       }
     } else if (linkedItem.type === "dateTime") {
       if (enableWhen.answerDateTime === undefined) {
-        this.resetEnableWhenAnswers(enableWhen);
+        this.clearOptionsOrString(enableWhen, linkedItem);
       }
     } else if (
       linkedItem.type === "group" ||
@@ -202,22 +190,29 @@ export class FHIRItemValidator {
       );
     } else if (linkedItem.type === "quantity") {
       if (enableWhen.answerQuantity === undefined) {
-        this.resetEnableWhenAnswers(enableWhen);
+        this.clearOptionsOrString(enableWhen, linkedItem);
       }
     } else if (linkedItem.type === "reference") {
       if (enableWhen.answerReference === undefined) {
-        this.resetEnableWhenAnswers(enableWhen);
+        this.clearOptionsOrString(enableWhen, linkedItem);
       }
     } else if (linkedItem.type === "coding") {
       if (enableWhen.answerCoding === undefined) {
-        if (linkedItem.answerConstraint === "optionsOrString") {
-          if (!enableWhen.answerString) {
-            this.resetEnableWhenAnswers(enableWhen);
-          }
-        } else {
-          this.resetEnableWhenAnswers(enableWhen);
-        }
+        this.clearOptionsOrString(enableWhen, linkedItem);
       }
+    }
+  }
+
+  private clearOptionsOrString(
+    enableWhen: ParsedEnableWhen,
+    linkedItem: ParsedItem,
+  ) {
+    if (linkedItem.answerConstraint === "optionsOrString") {
+      if (!enableWhen.answerString) {
+        this.resetEnableWhenAnswers(enableWhen);
+      }
+    } else {
+      this.resetEnableWhenAnswers(enableWhen);
     }
   }
 

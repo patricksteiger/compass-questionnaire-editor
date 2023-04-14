@@ -145,7 +145,6 @@ export class QuestionnaireBuilder {
         this.qre,
         enableWhen.question,
       );
-      // FIXME: How to solve item with answerOption but answerConstraint permissible for general answers
       if (linkedItem !== undefined) {
         result.__type =
           linkedItem.type !== "display" &&
@@ -181,6 +180,9 @@ export class QuestionnaireBuilder {
         }
       } else if (enableWhen.answerDateTime !== undefined) {
         result.__answer = enableWhen.answerDateTime;
+        if (result.__answerOption) {
+          result.__type = "dateTime";
+        }
       } else if (enableWhen.answerString !== undefined) {
         result.__answer = enableWhen.answerString;
         result.__orString = linkedItem?.type !== "string";
@@ -194,10 +196,16 @@ export class QuestionnaireBuilder {
         }
       } else if (enableWhen.answerQuantity !== undefined) {
         result.__answer = editorTools.formatQuantity(enableWhen.answerQuantity);
+        if (result.__answerOption) {
+          result.__type = "quantity";
+        }
       } else if (enableWhen.answerReference !== undefined) {
         result.__answer = editorTools.formatReference(
           enableWhen.answerReference,
         );
+        if (result.__answerOption) {
+          result.__type = "reference";
+        }
       }
       resultEnableWhen.push(result);
     }

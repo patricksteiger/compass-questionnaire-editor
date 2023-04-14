@@ -101,6 +101,17 @@ function validateQREGroups(qre: Questionnaire, errorMessages: string[]): void {
   forEach(qre.item, emptyGroupTracer);
 }
 
+function clearOptionsOrString(item: Item, enableWhenIndex: number): void {
+  const enableWhen = item.enableWhen![enableWhenIndex];
+  if (!enableWhen.answerString) {
+    item.enableWhen!.splice(enableWhenIndex, 1);
+  } else {
+    const answer = enableWhen.answerString;
+    clearEnableWhenAnswers(enableWhen);
+    enableWhen.answerString = answer;
+  }
+}
+
 function getObjectWithoutItemsDisabled(
   jsonObject: Questionnaire,
 ): Questionnaire;
@@ -275,13 +286,7 @@ function getObjectWithoutItemsDisabled(
               break;
             case "decimal":
               if (enableWhen.__orString) {
-                if (!enableWhen.answerString) {
-                  item.enableWhen.splice(i, 1);
-                } else {
-                  const answer = enableWhen.answerString;
-                  clearEnableWhenAnswers(enableWhen);
-                  enableWhen.answerString = answer;
-                }
+                clearOptionsOrString(item, i);
               } else {
                 if (editorTools.isNumber(enableWhen.__answer)) {
                   clearEnableWhenAnswers(enableWhen);
@@ -293,13 +298,7 @@ function getObjectWithoutItemsDisabled(
               break;
             case "integer":
               if (enableWhen.__orString) {
-                if (!enableWhen.answerString) {
-                  item.enableWhen.splice(i, 1);
-                } else {
-                  const answer = enableWhen.answerString;
-                  clearEnableWhenAnswers(enableWhen);
-                  enableWhen.answerString = answer;
-                }
+                clearOptionsOrString(item, i);
               } else {
                 if (editorTools.isNumber(enableWhen.__answer)) {
                   clearEnableWhenAnswers(enableWhen);
@@ -310,30 +309,53 @@ function getObjectWithoutItemsDisabled(
               }
               break;
             case "date":
-              if (dateTools.isDate(enableWhen.__answer) !== true) {
-                item.enableWhen.splice(i, 1);
+              if (enableWhen.__orString) {
+                clearOptionsOrString(item, i);
               } else {
-                clearEnableWhenAnswers(enableWhen);
-                enableWhen.answerDate = enableWhen.__answer;
+                if (dateTools.isDate(enableWhen.__answer) !== true) {
+                  item.enableWhen.splice(i, 1);
+                } else {
+                  clearEnableWhenAnswers(enableWhen);
+                  enableWhen.answerDate = enableWhen.__answer;
+                }
               }
               break;
             case "dateTime":
-              if (dateTools.isDateTime(enableWhen.__answer) !== true) {
-                item.enableWhen.splice(i, 1);
+              if (enableWhen.__orString) {
+                clearOptionsOrString(item, i);
               } else {
-                clearEnableWhenAnswers(enableWhen);
-                enableWhen.answerDateTime = enableWhen.__answer;
+                if (dateTools.isDateTime(enableWhen.__answer) !== true) {
+                  item.enableWhen.splice(i, 1);
+                } else {
+                  clearEnableWhenAnswers(enableWhen);
+                  enableWhen.answerDateTime = enableWhen.__answer;
+                }
               }
               break;
             case "time":
-              if (dateTools.isTime(enableWhen.__answer) !== true) {
-                item.enableWhen.splice(i, 1);
+              if (enableWhen.__orString) {
+                clearOptionsOrString(item, i);
               } else {
-                clearEnableWhenAnswers(enableWhen);
-                enableWhen.answerTime = enableWhen.__answer;
+                if (dateTools.isTime(enableWhen.__answer) !== true) {
+                  item.enableWhen.splice(i, 1);
+                } else {
+                  clearEnableWhenAnswers(enableWhen);
+                  enableWhen.answerTime = enableWhen.__answer;
+                }
               }
               break;
             case "string":
+              if (enableWhen.__orString) {
+                clearOptionsOrString(item, i);
+              } else {
+                if (!enableWhen.__answer) {
+                  item.enableWhen.splice(i, 1);
+                } else {
+                  clearEnableWhenAnswers(enableWhen);
+                  enableWhen.answerString = enableWhen.__answer;
+                }
+              }
+              break;
             case "text":
             case "url":
               if (!enableWhen.__answer) {
@@ -345,13 +367,7 @@ function getObjectWithoutItemsDisabled(
               break;
             case "coding":
               if (enableWhen.__orString) {
-                if (!enableWhen.answerString) {
-                  item.enableWhen.splice(i, 1);
-                } else {
-                  const answer = enableWhen.answerString;
-                  clearEnableWhenAnswers(enableWhen);
-                  enableWhen.answerString = answer;
-                }
+                clearOptionsOrString(item, i);
               } else {
                 if (enableWhen.answerCoding !== undefined) {
                   if (!enableWhen.answerCoding.code) {
@@ -380,56 +396,64 @@ function getObjectWithoutItemsDisabled(
               }
               break;
             case "quantity":
-              if (enableWhen.answerQuantity !== undefined) {
-                if (!enableWhen.answerQuantity.code) {
-                  delete enableWhen.answerQuantity.code;
-                }
-                if (!enableWhen.answerQuantity.unit) {
-                  delete enableWhen.answerQuantity.unit;
-                }
-                if (!enableWhen.answerQuantity.system) {
-                  delete enableWhen.answerQuantity.system;
-                }
-                if (!enableWhen.answerQuantity.value) {
-                  delete enableWhen.answerQuantity.value;
-                }
-                if (!enableWhen.answerQuantity.comparator) {
-                  delete enableWhen.answerQuantity.comparator;
-                }
-              }
-              if (editorTools.isNonEmptyObject(enableWhen.answerQuantity)) {
-                const safedQuantity = enableWhen.answerQuantity;
-                clearEnableWhenAnswers(enableWhen);
-                enableWhen.answerQuantity = safedQuantity;
+              if (enableWhen.__orString) {
+                clearOptionsOrString(item, i);
               } else {
-                item.enableWhen.splice(i, 1);
+                if (enableWhen.answerQuantity !== undefined) {
+                  if (!enableWhen.answerQuantity.code) {
+                    delete enableWhen.answerQuantity.code;
+                  }
+                  if (!enableWhen.answerQuantity.unit) {
+                    delete enableWhen.answerQuantity.unit;
+                  }
+                  if (!enableWhen.answerQuantity.system) {
+                    delete enableWhen.answerQuantity.system;
+                  }
+                  if (!enableWhen.answerQuantity.value) {
+                    delete enableWhen.answerQuantity.value;
+                  }
+                  if (!enableWhen.answerQuantity.comparator) {
+                    delete enableWhen.answerQuantity.comparator;
+                  }
+                }
+                if (editorTools.isNonEmptyObject(enableWhen.answerQuantity)) {
+                  const safedQuantity = enableWhen.answerQuantity;
+                  clearEnableWhenAnswers(enableWhen);
+                  enableWhen.answerQuantity = safedQuantity;
+                } else {
+                  item.enableWhen.splice(i, 1);
+                }
               }
               break;
             case "reference":
-              if (enableWhen.answerReference !== undefined) {
-                if (!enableWhen.answerReference.reference) {
-                  delete enableWhen.answerReference.reference;
-                }
-                if (!enableWhen.answerReference.display) {
-                  delete enableWhen.answerReference.display;
-                }
-                if (!enableWhen.answerReference.type) {
-                  delete enableWhen.answerReference.type;
-                }
-                if (
-                  editorTools.isEmptyObject(
-                    enableWhen.answerReference.identifier,
-                  )
-                ) {
-                  delete enableWhen.answerReference.identifier;
-                }
-              }
-              if (editorTools.isNonEmptyObject(enableWhen.answerReference)) {
-                const safedReference = enableWhen.answerReference;
-                clearEnableWhenAnswers(enableWhen);
-                enableWhen.answerReference = safedReference;
+              if (enableWhen.__orString) {
+                clearOptionsOrString(item, i);
               } else {
-                item.enableWhen.splice(i, 1);
+                if (enableWhen.answerReference !== undefined) {
+                  if (!enableWhen.answerReference.reference) {
+                    delete enableWhen.answerReference.reference;
+                  }
+                  if (!enableWhen.answerReference.display) {
+                    delete enableWhen.answerReference.display;
+                  }
+                  if (!enableWhen.answerReference.type) {
+                    delete enableWhen.answerReference.type;
+                  }
+                  if (
+                    editorTools.isEmptyObject(
+                      enableWhen.answerReference.identifier,
+                    )
+                  ) {
+                    delete enableWhen.answerReference.identifier;
+                  }
+                }
+                if (editorTools.isNonEmptyObject(enableWhen.answerReference)) {
+                  const safedReference = enableWhen.answerReference;
+                  clearEnableWhenAnswers(enableWhen);
+                  enableWhen.answerReference = safedReference;
+                } else {
+                  item.enableWhen.splice(i, 1);
+                }
               }
               break;
             case undefined:
