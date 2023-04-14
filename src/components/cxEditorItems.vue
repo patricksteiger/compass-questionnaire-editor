@@ -1088,18 +1088,15 @@
                             :disable="!selectedItem.__active"
                             :label="
                               $t('views.editor.answer') +
-                              (enableWhen.__answerOption
-                                ? ' (answerOption)'
-                                : '')
+                              (enableWhen.__orString ? ' (string)' : ' (time)')
                             "
                             class="col-4"
                             v-model="enableWhen.__answer"
                             type="text"
-                            :readonly="enableWhen.__answerOption"
+                            readonly
+                            clickable
+                            @click="handleTimeAnswer(enableWhen)"
                             dense
-                            mask="fulltime"
-                            fill-mask
-                            :rules="[dateTools.isTime]"
                           />
                           <!-- enableWhen string -->
                           <q-input
@@ -1880,6 +1877,71 @@
           <div
             class="q-pa-md"
             v-else-if="
+              chosenEnableWhen.__type === 'time' &&
+              chosenEnableWhen.answerTime !== undefined
+            "
+          >
+            <div v-if="itemTools.definedAnswerOption(linkedItem)">
+              <div><h6>AnswerOptions</h6></div>
+              <q-list bordered separator>
+                <q-item
+                  v-for="answerOption in linkedItem.answerOption"
+                  :key="answerOption.__id"
+                  clickable
+                  @dblclick="
+                  () => {
+                    chosenEnableWhen!.answerTime = answerOption.valueTime;
+                    setTimeAnswer(chosenEnableWhen);
+                  }
+                  "
+                >
+                  <q-item-section>
+                    {{ answerOption.valueTime }}
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </div>
+            <div
+              v-if="
+                itemTools.undefinedAnswerOption(linkedItem) ||
+                linkedItem.answerConstraint === 'optionsOrType'
+              "
+            >
+              <div><h6>Custom time</h6></div>
+              <q-input
+                label="Time"
+                class="col-4"
+                v-model="chosenEnableWhen.answerTime"
+                type="text"
+                mask="fulltime"
+                fill-mask
+                :rules="[dateTools.isTime]"
+                dense
+              />
+              <div>
+                <q-btn icon="add" @click="setTimeAnswer(chosenEnableWhen)" />
+              </div>
+            </div>
+            <div v-if="linkedItem.answerConstraint === 'optionsOrString'">
+              <div><h6>Custom string</h6></div>
+              <q-input
+                label="String"
+                class="col-4"
+                v-model="chosenEnableWhen.answerString"
+                type="text"
+                dense
+              />
+              <div>
+                <q-btn
+                  icon="add"
+                  @click="setCodingStringAnswer(chosenEnableWhen)"
+                />
+              </div>
+            </div>
+          </div>
+          <div
+            class="q-pa-md"
+            v-else-if="
               chosenEnableWhen.__type === 'quantity' &&
               chosenEnableWhen.answerQuantity !== undefined
             "
@@ -2605,6 +2667,22 @@ export default defineComponent({
       if (enableWhen?.answerDateTime !== undefined) {
         enableWhen.__orString = false;
         enableWhen.__answer = enableWhen.answerDateTime;
+      }
+      this.chosenEnableWhenAnswerLayout = false;
+    },
+    handleTimeAnswer(enableWhen: EnableWhen): void {
+      enableWhen.answerTime ??= "";
+      this.chosenEnableWhen = enableWhen;
+      this.linkedItem = editorTools.getItemByLinkId(
+        this.chosenEnableWhen.question,
+        this.questionaireGUI!.item,
+      );
+      this.chosenEnableWhenAnswerLayout = true;
+    },
+    setTimeAnswer(enableWhen: EnableWhen | undefined): void {
+      if (enableWhen?.answerTime !== undefined) {
+        enableWhen.__orString = false;
+        enableWhen.__answer = enableWhen.answerTime;
       }
       this.chosenEnableWhenAnswerLayout = false;
     },
