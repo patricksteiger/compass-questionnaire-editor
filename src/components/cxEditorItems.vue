@@ -601,7 +601,7 @@
                                 "
                               >
                                 <q-tooltip>
-                                  Valid examples: 2000, 2000-12, 2000-12-30
+                                  Valid examples: 2000, 2000-01, 2000-12-30
                                 </q-tooltip>
                                 <template v-slot:prepend>
                                   <q-icon :name="answerOption.__icon" />
@@ -651,6 +651,10 @@
                                     : answerOption.__type
                                 "
                               >
+                                <q-tooltip>
+                                  Valid examples: 2000, 2000-01, 2000-12-30,
+                                  2000-12-30T12:33:59+01:00
+                                </q-tooltip>
                                 <template v-slot:prepend>
                                   <q-icon :name="answerOption.__icon" />
                                 </template>
@@ -1064,12 +1068,19 @@
                           <q-input
                             v-else-if="enableWhen.__type === 'dateTime'"
                             :disable="!selectedItem.__active"
-                            :label="$t('views.editor.answer')"
+                            :label="
+                              $t('views.editor.answer') +
+                              (enableWhen.__orString
+                                ? ' (string)'
+                                : ' (dateTime)')
+                            "
                             class="col-4"
                             v-model="enableWhen.__answer"
                             type="text"
+                            readonly
+                            clickable
+                            @click="handleDateTimeAnswer(enableWhen)"
                             dense
-                            :rules="[dateTools.isDateTime]"
                           />
                           <!-- enableWhen time -->
                           <q-input
@@ -1771,11 +1782,82 @@
                 dense
               >
                 <q-tooltip>
-                  Valid examples: 2000, 2000-12, 2000-12-30
+                  Valid examples: 2000, 2000-01, 2000-12-30
                 </q-tooltip>
               </q-input>
               <div>
                 <q-btn icon="add" @click="setDateAnswer(chosenEnableWhen)" />
+              </div>
+            </div>
+            <div v-if="linkedItem.answerConstraint === 'optionsOrString'">
+              <div><h6>Custom string</h6></div>
+              <q-input
+                label="String"
+                class="col-4"
+                v-model="chosenEnableWhen.answerString"
+                type="text"
+                dense
+              />
+              <div>
+                <q-btn
+                  icon="add"
+                  @click="setCodingStringAnswer(chosenEnableWhen)"
+                />
+              </div>
+            </div>
+          </div>
+          <div
+            class="q-pa-md"
+            v-else-if="
+              chosenEnableWhen.__type === 'dateTime' &&
+              chosenEnableWhen.answerDateTime !== undefined
+            "
+          >
+            <div v-if="itemTools.definedAnswerOption(linkedItem)">
+              <div><h6>AnswerOptions</h6></div>
+              <q-list bordered separator>
+                <q-item
+                  v-for="answerOption in linkedItem.answerOption"
+                  :key="answerOption.__id"
+                  clickable
+                  @dblclick="
+                  () => {
+                    chosenEnableWhen!.answerDateTime = answerOption.valueDateTime;
+                    setDateTimeAnswer(chosenEnableWhen);
+                  }
+                  "
+                >
+                  <q-item-section>
+                    {{ answerOption.valueDateTime }}
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </div>
+            <div
+              v-if="
+                itemTools.undefinedAnswerOption(linkedItem) ||
+                linkedItem.answerConstraint === 'optionsOrType'
+              "
+            >
+              <div><h6>Custom dateTime</h6></div>
+              <q-input
+                label="DateTime"
+                class="col-4"
+                v-model="chosenEnableWhen.answerDateTime"
+                type="text"
+                :rules="[dateTools.isDateTime]"
+                dense
+              >
+                <q-tooltip>
+                  Valid examples: 2000, 2000-01, 2000-12-30,
+                  2000-12-30T12:33:59+01:00
+                </q-tooltip>
+              </q-input>
+              <div>
+                <q-btn
+                  icon="add"
+                  @click="setDateTimeAnswer(chosenEnableWhen)"
+                />
               </div>
             </div>
             <div v-if="linkedItem.answerConstraint === 'optionsOrString'">
@@ -2507,6 +2589,22 @@ export default defineComponent({
       if (enableWhen?.answerDate !== undefined) {
         enableWhen.__orString = false;
         enableWhen.__answer = enableWhen.answerDate;
+      }
+      this.chosenEnableWhenAnswerLayout = false;
+    },
+    handleDateTimeAnswer(enableWhen: EnableWhen): void {
+      enableWhen.answerDateTime ??= "";
+      this.chosenEnableWhen = enableWhen;
+      this.linkedItem = editorTools.getItemByLinkId(
+        this.chosenEnableWhen.question,
+        this.questionaireGUI!.item,
+      );
+      this.chosenEnableWhenAnswerLayout = true;
+    },
+    setDateTimeAnswer(enableWhen: EnableWhen | undefined): void {
+      if (enableWhen?.answerDateTime !== undefined) {
+        enableWhen.__orString = false;
+        enableWhen.__answer = enableWhen.answerDateTime;
       }
       this.chosenEnableWhenAnswerLayout = false;
     },
