@@ -152,6 +152,7 @@ export class QuestionnaireBuilder {
           linkedItem.type !== "attachment"
             ? linkedItem.type
             : undefined;
+        // FIXME: is __answerOption still needed?
         result.__answerOption =
           allowsAnswerChoice(linkedItem.type) &&
           itemTools.definedAnswerChoices(fhirItem);
@@ -186,7 +187,7 @@ export class QuestionnaireBuilder {
       } else if (enableWhen.answerString !== undefined) {
         result.__answer = enableWhen.answerString;
         result.__orString = linkedItem?.type !== "string";
-        if (result.__answerOption) {
+        if (linkedItem === undefined && result.__answerOption) {
           result.__type = "string";
         }
       } else if (enableWhen.answerCoding !== undefined) {

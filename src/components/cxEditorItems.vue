@@ -1102,16 +1102,13 @@
                           <q-input
                             v-else-if="enableWhen.__type === 'string'"
                             :disable="!selectedItem.__active"
-                            :label="
-                              $t('views.editor.answer') +
-                              (enableWhen.__answerOption
-                                ? ' (answerOption)'
-                                : '')
-                            "
+                            :label="$t('views.editor.answer') + ' (string)'"
                             class="col-4"
                             v-model="enableWhen.__answer"
                             type="text"
-                            :readonly="enableWhen.__answerOption"
+                            readonly
+                            clickable
+                            @click="handleStringAnswer(enableWhen)"
                             dense
                           />
                           <!-- enableWhen quantity -->
@@ -1668,7 +1665,7 @@
               <div>
                 <q-btn
                   icon="add"
-                  @click="setDecimalStringAnswer(chosenEnableWhen)"
+                  @click="setCodingStringAnswer(chosenEnableWhen)"
                 />
               </div>
             </div>
@@ -1731,7 +1728,7 @@
               <div>
                 <q-btn
                   icon="add"
-                  @click="setIntegerStringAnswer(chosenEnableWhen)"
+                  @click="setCodingStringAnswer(chosenEnableWhen)"
                 />
               </div>
             </div>
@@ -1920,6 +1917,69 @@
               />
               <div>
                 <q-btn icon="add" @click="setTimeAnswer(chosenEnableWhen)" />
+              </div>
+            </div>
+            <div v-if="linkedItem.answerConstraint === 'optionsOrString'">
+              <div><h6>Custom string</h6></div>
+              <q-input
+                label="String"
+                class="col-4"
+                v-model="chosenEnableWhen.answerString"
+                type="text"
+                dense
+              />
+              <div>
+                <q-btn
+                  icon="add"
+                  @click="setCodingStringAnswer(chosenEnableWhen)"
+                />
+              </div>
+            </div>
+          </div>
+          <div
+            class="q-pa-md"
+            v-else-if="
+              chosenEnableWhen.__type === 'string' &&
+              chosenEnableWhen.answerString !== undefined
+            "
+          >
+            <div v-if="itemTools.definedAnswerOption(linkedItem)">
+              <div><h6>AnswerOptions</h6></div>
+              <q-list bordered separator>
+                <q-item
+                  v-for="answerOption in linkedItem.answerOption"
+                  :key="answerOption.__id"
+                  clickable
+                  @dblclick="
+                  () => {
+                    chosenEnableWhen!.answerString = answerOption.valueString;
+                    setStringAnswer(chosenEnableWhen);
+                  }
+                  "
+                >
+                  <q-item-section>
+                    {{ answerOption.valueString }}
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </div>
+            <div
+              v-if="
+                itemTools.undefinedAnswerOption(linkedItem) ||
+                linkedItem.answerConstraint === 'optionsOrType'
+              "
+            >
+              <div><h6>Custom string</h6></div>
+              <q-input
+                label="String"
+                class="col-4"
+                v-model="chosenEnableWhen.answerString"
+                type="text"
+                :error="!chosenEnableWhen?.answerString"
+                dense
+              />
+              <div>
+                <q-btn icon="add" @click="setStringAnswer(chosenEnableWhen)" />
               </div>
             </div>
             <div v-if="linkedItem.answerConstraint === 'optionsOrString'">
@@ -2608,13 +2668,6 @@ export default defineComponent({
       }
       this.chosenEnableWhenAnswerLayout = false;
     },
-    setDecimalStringAnswer(enableWhen: EnableWhen | undefined): void {
-      if (enableWhen !== undefined) {
-        enableWhen.__orString = true;
-        enableWhen.__answer = enableWhen.answerString;
-      }
-      this.chosenEnableWhenAnswerLayout = false;
-    },
     handleIntegerAnswer(enableWhen: EnableWhen): void {
       enableWhen.answerInteger ??= 0;
       this.chosenEnableWhen = enableWhen;
@@ -2628,13 +2681,6 @@ export default defineComponent({
       if (enableWhen?.answerInteger !== undefined) {
         enableWhen.__orString = false;
         enableWhen.__answer = enableWhen.answerInteger.toString();
-      }
-      this.chosenEnableWhenAnswerLayout = false;
-    },
-    setIntegerStringAnswer(enableWhen: EnableWhen | undefined): void {
-      if (enableWhen !== undefined) {
-        enableWhen.__orString = true;
-        enableWhen.__answer = enableWhen.answerString;
       }
       this.chosenEnableWhenAnswerLayout = false;
     },
@@ -2683,6 +2729,22 @@ export default defineComponent({
       if (enableWhen?.answerTime !== undefined) {
         enableWhen.__orString = false;
         enableWhen.__answer = enableWhen.answerTime;
+      }
+      this.chosenEnableWhenAnswerLayout = false;
+    },
+    handleStringAnswer(enableWhen: EnableWhen): void {
+      enableWhen.answerString ??= "";
+      this.chosenEnableWhen = enableWhen;
+      this.linkedItem = editorTools.getItemByLinkId(
+        this.chosenEnableWhen.question,
+        this.questionaireGUI!.item,
+      );
+      this.chosenEnableWhenAnswerLayout = true;
+    },
+    setStringAnswer(enableWhen: EnableWhen | undefined): void {
+      if (enableWhen?.answerString !== undefined) {
+        enableWhen.__orString = false;
+        enableWhen.__answer = enableWhen.answerString;
       }
       this.chosenEnableWhenAnswerLayout = false;
     },
