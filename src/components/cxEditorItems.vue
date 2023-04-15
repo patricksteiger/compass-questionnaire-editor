@@ -1119,7 +1119,7 @@
                               $t('views.editor.answer') +
                               (enableWhen.__orString
                                 ? ' (string)'
-                                : ' (quantity)')
+                                : ` (${enableWhen.__type})`)
                             "
                             class="col-4"
                             v-model="enableWhen.__answer"
@@ -1133,13 +1133,18 @@
                           <q-input
                             v-else-if="enableWhen.__type === 'reference'"
                             :disable="!selectedItem.__active"
-                            :label="$t('views.editor.answer')"
+                            :label="
+                              $t('views.editor.answer') +
+                              (enableWhen.__orString
+                                ? ' (string)'
+                                : ` (${enableWhen.__type})`)
+                            "
                             class="col-4"
                             v-model="enableWhen.__answer"
                             type="text"
                             readonly
                             clickable
-                            @click="() => handleReferenceAnswer(enableWhen)"
+                            @click="handleReferenceAnswer(enableWhen)"
                             dense
                           />
                           <q-input
@@ -1607,7 +1612,7 @@
               <div>
                 <q-btn
                   icon="add"
-                  @click="setCodingStringAnswer(chosenEnableWhen)"
+                  @click="setOrStringAnswer(chosenEnableWhen)"
                 />
               </div>
             </div>
@@ -1670,7 +1675,7 @@
               <div>
                 <q-btn
                   icon="add"
-                  @click="setCodingStringAnswer(chosenEnableWhen)"
+                  @click="setOrStringAnswer(chosenEnableWhen)"
                 />
               </div>
             </div>
@@ -1733,7 +1738,7 @@
               <div>
                 <q-btn
                   icon="add"
-                  @click="setCodingStringAnswer(chosenEnableWhen)"
+                  @click="setOrStringAnswer(chosenEnableWhen)"
                 />
               </div>
             </div>
@@ -1800,7 +1805,7 @@
               <div>
                 <q-btn
                   icon="add"
-                  @click="setCodingStringAnswer(chosenEnableWhen)"
+                  @click="setOrStringAnswer(chosenEnableWhen)"
                 />
               </div>
             </div>
@@ -1871,7 +1876,7 @@
               <div>
                 <q-btn
                   icon="add"
-                  @click="setCodingStringAnswer(chosenEnableWhen)"
+                  @click="setOrStringAnswer(chosenEnableWhen)"
                 />
               </div>
             </div>
@@ -1936,7 +1941,7 @@
               <div>
                 <q-btn
                   icon="add"
-                  @click="setCodingStringAnswer(chosenEnableWhen)"
+                  @click="setOrStringAnswer(chosenEnableWhen)"
                 />
               </div>
             </div>
@@ -1999,7 +2004,7 @@
               <div>
                 <q-btn
                   icon="add"
-                  @click="setCodingStringAnswer(chosenEnableWhen)"
+                  @click="setOrStringAnswer(chosenEnableWhen)"
                 />
               </div>
             </div>
@@ -2088,7 +2093,7 @@
               <div>
                 <q-btn
                   icon="add"
-                  @click="setCodingStringAnswer(chosenEnableWhen)"
+                  @click="setOrStringAnswer(chosenEnableWhen)"
                 />
               </div>
             </div>
@@ -2100,28 +2105,72 @@
               chosenEnableWhen.answerReference !== undefined
             "
           >
-            <q-input
-              :label="'Reference'"
-              class="col-4"
-              v-model="chosenEnableWhen.answerReference.reference"
-              type="text"
-              dense
-            />
-            <q-input
-              :label="'Display'"
-              class="col-4"
-              v-model="chosenEnableWhen.answerReference.display"
-              type="text"
-              dense
-            />
-            <q-input
-              :label="'Type'"
-              class="col-4"
-              v-model="chosenEnableWhen.answerReference.type"
-              type="text"
-              dense
-            />
-            <q-btn icon="add" @click="setReferenceAnswer(chosenEnableWhen)" />
+            <div v-if="itemTools.definedAnswerOption(linkedItem)">
+              <div><h6>AnswerOptions</h6></div>
+              <q-list bordered separator>
+                <q-item
+                  v-for="answerOption in linkedItem.answerOption"
+                  :key="answerOption.__id"
+                  clickable
+                  @dblclick="
+                  () => {
+                    chosenEnableWhen!.answerReference = editorTools.clone(answerOption.valueReference);
+                    setReferenceAnswer(chosenEnableWhen);
+                  }
+                  "
+                >
+                  <q-item-section>
+                    {{ answerOption.__formattedValueReference }}
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </div>
+            <div
+              v-if="
+                itemTools.undefinedAnswerOption(linkedItem) ||
+                linkedItem.answerConstraint === 'optionsOrType'
+              "
+            >
+              <div><h6>Custom reference</h6></div>
+              <q-input
+                label="Reference"
+                class="col-4"
+                v-model="chosenEnableWhen.answerReference.reference"
+                type="text"
+                dense
+              />
+              <q-input
+                label="Display"
+                class="col-4"
+                v-model="chosenEnableWhen.answerReference.display"
+                type="text"
+                dense
+              />
+              <q-input
+                label="Type"
+                class="col-4"
+                v-model="chosenEnableWhen.answerReference.type"
+                type="text"
+                dense
+              />
+              <q-btn icon="add" @click="setReferenceAnswer(chosenEnableWhen)" />
+            </div>
+            <div v-if="linkedItem.answerConstraint === 'optionsOrString'">
+              <div><h6>Custom string</h6></div>
+              <q-input
+                label="String"
+                class="col-4"
+                v-model="chosenEnableWhen.answerString"
+                type="text"
+                dense
+              />
+              <div>
+                <q-btn
+                  icon="add"
+                  @click="setOrStringAnswer(chosenEnableWhen)"
+                />
+              </div>
+            </div>
           </div>
         </q-page>
       </q-page-container>
@@ -2704,7 +2753,7 @@ export default defineComponent({
       }
       this.chosenEnableWhenAnswerLayout = false;
     },
-    setCodingStringAnswer(enableWhen: EnableWhen | undefined): void {
+    setOrStringAnswer(enableWhen: EnableWhen | undefined): void {
       if (enableWhen !== undefined) {
         enableWhen.__orString = true;
         enableWhen.__answer = enableWhen.answerString;
