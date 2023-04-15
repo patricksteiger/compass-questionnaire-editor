@@ -1115,14 +1115,19 @@
                           <q-input
                             v-else-if="enableWhen.__type === 'quantity'"
                             :disable="!selectedItem.__active"
-                            :label="$t('views.editor.answer')"
+                            :label="
+                              $t('views.editor.answer') +
+                              (enableWhen.__orString
+                                ? ' (string)'
+                                : ' (quantity)')
+                            "
                             class="col-4"
                             v-model="enableWhen.__answer"
                             type="text"
                             dense
                             readonly
                             clickable
-                            @click="() => handleQuantityAnswer(enableWhen)"
+                            @click="handleQuantityAnswer(enableWhen)"
                           />
                           <!-- enableWhen reference -->
                           <q-input
@@ -1533,7 +1538,7 @@
                   clickable
                   @dblclick="
                   () => {
-                    chosenEnableWhen!.answerCoding = answerOption.valueCoding;
+                    chosenEnableWhen!.answerCoding = editorTools.clone(answerOption.valueCoding);
                     setCodingAnswer(chosenEnableWhen);
                   }
                   "
@@ -2006,43 +2011,87 @@
               chosenEnableWhen.answerQuantity !== undefined
             "
           >
-            <q-input
-              :label="'Value'"
-              class="col-4"
-              v-model.number="chosenEnableWhen.answerQuantity.value"
-              @keypress="onlyNumberDec"
-              type="number"
-              dense
-            />
-            <q-input
-              :label="'Code'"
-              class="col-4"
-              v-model="chosenEnableWhen.answerQuantity.code"
-              type="text"
-              dense
-            />
-            <q-input
-              :label="'Unit'"
-              class="col-4"
-              v-model="chosenEnableWhen.answerQuantity.unit"
-              type="text"
-              dense
-            />
-            <q-input
-              :label="'System'"
-              class="col-4"
-              v-model="chosenEnableWhen.answerQuantity.system"
-              type="text"
-              dense
-            />
-            <q-select
-              :label="'Comparator'"
-              class="col-4"
-              v-model="chosenEnableWhen.answerQuantity.comparator"
-              :options="comparators"
-              dense
-            />
-            <q-btn icon="add" @click="setQuantityAnswer(chosenEnableWhen)" />
+            <div v-if="itemTools.definedAnswerOption(linkedItem)">
+              <div><h6>AnswerOptions</h6></div>
+              <q-list bordered separator>
+                <q-item
+                  v-for="answerOption in linkedItem.answerOption"
+                  :key="answerOption.__id"
+                  clickable
+                  @dblclick="
+                  () => {
+                    chosenEnableWhen!.answerQuantity = editorTools.clone(answerOption.valueQuantity);
+                    setQuantityAnswer(chosenEnableWhen);
+                  }
+                  "
+                >
+                  <q-item-section>
+                    {{ answerOption.__formattedValueQuantity }}
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </div>
+            <div
+              v-if="
+                itemTools.undefinedAnswerOption(linkedItem) ||
+                linkedItem.answerConstraint === 'optionsOrType'
+              "
+            >
+              <div><h6>Custom quantity</h6></div>
+              <q-input
+                :label="'Value'"
+                class="col-4"
+                v-model.number="chosenEnableWhen.answerQuantity.value"
+                @keypress="onlyNumberDec"
+                type="number"
+                dense
+              />
+              <q-input
+                :label="'Code'"
+                class="col-4"
+                v-model="chosenEnableWhen.answerQuantity.code"
+                type="text"
+                dense
+              />
+              <q-input
+                :label="'Unit'"
+                class="col-4"
+                v-model="chosenEnableWhen.answerQuantity.unit"
+                type="text"
+                dense
+              />
+              <q-input
+                :label="'System'"
+                class="col-4"
+                v-model="chosenEnableWhen.answerQuantity.system"
+                type="text"
+                dense
+              />
+              <q-select
+                :label="'Comparator'"
+                class="col-4"
+                v-model="chosenEnableWhen.answerQuantity.comparator"
+                :options="comparators"
+                dense
+              />
+              <q-btn icon="add" @click="setQuantityAnswer(chosenEnableWhen)" />
+            </div>
+            <div v-if="linkedItem.answerConstraint === 'optionsOrString'">
+              <div><h6>Custom string</h6></div>
+              <q-input
+                label="String"
+                class="col-4"
+                v-model="chosenEnableWhen.answerString"
+                type="text"
+                dense
+              />
+              <div>
+                <q-btn
+                  icon="add"
+                  @click="setCodingStringAnswer(chosenEnableWhen)"
+                />
+              </div>
+            </div>
           </div>
           <div
             class="q-pa-md"
@@ -2384,7 +2433,9 @@ export default defineComponent({
     const chosenEnableWhen: Ref<EnableWhen | undefined> = ref(undefined);
     const setDisplayToOld = (answerOption: AnswerOption): void => {
       if (answerOption.valueCoding !== undefined) {
-        answerOption.valueCoding = { ...answerOption.__oldValueCoding };
+        answerOption.valueCoding = editorTools.clone(
+          answerOption.__oldValueCoding,
+        );
         answerOption.__formattedValueCoding =
           answerOption.__oldFormattedValueCoding;
       }
@@ -2604,6 +2655,10 @@ export default defineComponent({
     handleQuantityAnswer(enableWhen: EnableWhen): void {
       enableWhen.answerQuantity ??= {};
       this.chosenEnableWhen = enableWhen;
+      this.linkedItem = editorTools.getItemByLinkId(
+        this.chosenEnableWhen.question,
+        this.questionaireGUI!.item,
+      );
       this.chosenEnableWhenAnswerLayout = true;
     },
     setQuantityAnswer(enableWhen: EnableWhen | undefined): void {
@@ -2617,6 +2672,10 @@ export default defineComponent({
     handleReferenceAnswer(enableWhen: EnableWhen): void {
       enableWhen.answerReference ??= {};
       this.chosenEnableWhen = enableWhen;
+      this.linkedItem = editorTools.getItemByLinkId(
+        this.chosenEnableWhen.question,
+        this.questionaireGUI!.item,
+      );
       this.chosenEnableWhenAnswerLayout = true;
     },
     setReferenceAnswer(enableWhen: EnableWhen | undefined): void {
