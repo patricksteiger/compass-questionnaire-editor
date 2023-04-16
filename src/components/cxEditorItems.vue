@@ -1336,8 +1336,12 @@
       </q-card>
     </q-dialog>
     <!-- enableWhen dialog -->
-    <q-dialog v-model="enableWhenLayout" v-if="selected !== null">
+    <q-dialog
+      v-model="enableWhenLayout"
+      v-if="selected !== null && questionaireGUI !== undefined"
+    >
       <cx-enable-When
+        :questionnaire="questionaireGUI"
         :internalID="selected"
         :enableWhenItem="enableWhenItem"
         v-on:choiceQuestion="onEnableWhenWithAnswerOption"

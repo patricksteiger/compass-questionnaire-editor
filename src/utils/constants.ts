@@ -113,9 +113,11 @@ export function isSelectableItem(item: Item): boolean {
   const selectableType = !notSelectableQuestionTypes.includes(
     item.type as NotSelectableItem,
   );
-  const emptyAnswerOption =
-    item.answerOption === undefined || item.answerOption.length === 0;
-  return selectableType && emptyAnswerOption;
+  const permissibleAnswerOption =
+    item.answerOption === undefined ||
+    item.answerOption.length === 0 ||
+    item.answerConstraint !== "optionsOnly";
+  return selectableType && permissibleAnswerOption;
 }
 
 export const COLORS = {

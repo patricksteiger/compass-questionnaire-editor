@@ -221,8 +221,7 @@
   </q-layout>
 </template>
 <script lang="ts">
-import { mapGetters } from "vuex";
-import { defineComponent, Ref, ref } from "vue";
+import { defineComponent, PropType, Ref, ref } from "vue";
 import { editorTools } from "../utils/editor";
 import {
   AnswerOption,
@@ -238,22 +237,30 @@ import { allowsAnswerChoice, isSelectableItem } from "@/utils/constants";
 
 export default defineComponent({
   props: {
+    questionnaire: {
+      type: Object as PropType<Questionnaire>,
+      required: true,
+    },
     internalID: {
       type: String,
       required: true,
     },
     enableWhenItem: {
-      type: Object,
+      type: Object as PropType<EnableWhen>,
       required: true,
     },
   },
-  setup() {
+  setup(prop) {
     const filter = ref(defaultLanguage);
-    const selectedItem: Ref<Item | undefined> = ref(undefined);
+    const item: Ref<Item[]> = ref(prop.questionnaire.item);
+    const linkId = ref(prop.enableWhenItem.question);
     const selected: Ref<string | null> = ref(null);
-    const item: Ref<Item[]> = ref([]);
-    const questionnaireGUI: Ref<Questionnaire | undefined> = ref(undefined);
-    const enableWhen: Ref<EnableWhen | undefined> = ref(undefined);
+    const linkedItem = editorTools.getItemByLinkId(linkId.value, item.value);
+    const selectedItem: Ref<Item | undefined> = ref(linkedItem);
+    // Fails if no LinkId was in question-field of enableWhen
+    if (selectedItem.value !== undefined) {
+      selected.value = selectedItem.value.__internalID;
+    }
     return {
       allowsAnswerChoice,
       splitterModel: ref(50), // start at 50%
@@ -262,25 +269,8 @@ export default defineComponent({
       selectedItem,
       selected,
       item,
-      questionnaireGUI,
-      enableWhen,
       isSelectableItem,
     };
-  },
-  created(): void {
-    this.enableWhen = this.enableWhenItem as EnableWhen;
-    this.questionnaireGUI = this.getQuestionnaireImportedJSON as Questionnaire;
-    this.item = this.questionnaireGUI.item;
-    this.selectedItem = editorTools.getItemByLinkId(
-      this.enableWhen.question,
-      this.item,
-    );
-    if (this.selectedItem !== undefined) {
-      this.selected = this.selectedItem.__internalID;
-    }
-  },
-  computed: {
-    ...mapGetters(["getQuestionnaireImportedJSON"]),
   },
   watch: {
     selected(val: string | null): void {
@@ -290,7 +280,7 @@ export default defineComponent({
       }
       const item = this.editorTools.getItemByInternalId(val, this.item);
       if (item === undefined) {
-        console.error(`LinkId ${val} is not on an available Node`);
+        console.error(`InternalId ${val} is not on an available Node`);
         return;
       }
       this.selectedItem = item;
@@ -300,11 +290,11 @@ export default defineComponent({
     onSelectQuestion(questionSelected: SelectedItem): void {
       this.$emit("question", questionSelected);
     },
-    filterItemToBeShown(node: Item): boolean {
+    filterItemToBeShown(item: Item): boolean {
       return (
-        node.__active &&
-        node.type !== "display" &&
-        node.__internalID !== this.internalID
+        item.__active &&
+        item.type !== "display" &&
+        item.__internalID !== this.internalID
       );
     },
     onSelectAnswer(answerOption: AnswerOption): void {
