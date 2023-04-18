@@ -241,12 +241,12 @@
                   round
                   color="primary"
                   icon="swap_vert"
-                  :disable="editorTools.hasNotMultipleItems(questionaireGUI!)"
+                  :disable="questionnaireTools.hasNotMultipleItems(questionaireGUI!)"
                   @click="swapLinkId(selectedItem!)"
                 >
                 </q-btn>
                 <q-tooltip
-                  v-if="editorTools.hasNotMultipleItems(questionaireGUI!)"
+                  v-if="questionnaireTools.hasNotMultipleItems(questionaireGUI!)"
                 >
                   Multiple items needed
                 </q-tooltip>
@@ -2441,6 +2441,7 @@ import { useQuasar } from "quasar";
 import { defineComponent, Ref, ref } from "vue";
 import { editorTools, UnreachableError } from "@/utils/editor";
 import { dateTools } from "@/utils/date";
+import { questionnaireTools } from "@/utils/questionnaire";
 import { mapGetters } from "vuex";
 import { v4 as uuidv4 } from "uuid";
 import cxEnableWhen from "@/components/cxEnableWhen.vue";
@@ -2580,6 +2581,7 @@ export default defineComponent({
       itemsAnwers: ref(""),
       editorTools,
       itemTools,
+      questionnaireTools,
       COLORS,
       uuidv4,
       chosenAnswerOptionLayout: ref(false),
@@ -2617,7 +2619,7 @@ export default defineComponent({
       }
       const questionnaires: Questionnaire[] = this.getQuestionnaires;
       for (const qre of questionnaires) {
-        const item = this.editorTools.getItemByInternalLinkId(
+        const item = this.questionnaireTools.getItemByInternalLinkId(
           internalLinkId,
           qre,
         );
@@ -2631,7 +2633,7 @@ export default defineComponent({
       oldLinkId: string,
       newLinkId: string,
     ): void {
-      const enableWhen = this.editorTools.getEnableWhenWithLinkId(
+      const enableWhen = this.questionnaireTools.getEnableWhenWithLinkId(
         qre,
         oldLinkId,
       );
@@ -2642,9 +2644,10 @@ export default defineComponent({
     swapLinkId(item: Item): void {
       this.newLinkId = item.linkId;
       const qre = this.questionaireGUI!;
-      this.otherLinkIds = this.editorTools
-        .getLinkIds(qre)
-        .filter((id) => id !== item.linkId);
+      this.otherLinkIds = this.questionnaireTools.getLinkIdsExcept(
+        qre,
+        item.linkId,
+      );
       this.otherLinkId = this.otherLinkIds[0];
       this.swapLinkIdLayout = true;
     },
@@ -2652,19 +2655,17 @@ export default defineComponent({
       const selectedLinkId = this.newLinkId;
       const questionnaires: Questionnaire[] = this.getQuestionnaires;
       for (const qre of questionnaires) {
-        const selectedItem = this.editorTools.getItemByInternalLinkId(
+        const selectedItem = this.questionnaireTools.getItemByInternalLinkId(
           internalLinkId,
           qre,
         );
-        const otherItem = this.editorTools.getItemByLinkId(
-          this.otherLinkId,
-          qre.item,
-        )!;
-        const selectedEnableWhen = this.editorTools.getEnableWhenWithLinkId(
+        const otherItem = this.questionnaireTools.getItemByLinkId(
           qre,
-          selectedLinkId,
-        );
-        const otherEnableWhen = this.editorTools.getEnableWhenWithLinkId(
+          this.otherLinkId,
+        )!;
+        const selectedEnableWhen =
+          this.questionnaireTools.getEnableWhenWithLinkId(qre, selectedLinkId);
+        const otherEnableWhen = this.questionnaireTools.getEnableWhenWithLinkId(
           qre,
           this.otherLinkId,
         );
@@ -2700,7 +2701,7 @@ export default defineComponent({
         return `LinkId must not exceed max length of ${MAX_LENGTH_LINKID}`;
       }
       const qre = this.questionaireGUI!;
-      if (this.editorTools.linkIdExistsInQuestionnaire(qre, linkId)) {
+      if (this.questionnaireTools.linkIdExistsInQuestionnaire(qre, linkId)) {
         return "LinkId must be unique in questionnaire.";
       }
       return undefined;
@@ -2708,9 +2709,9 @@ export default defineComponent({
     handleQuantityAnswer(enableWhen: EnableWhen): void {
       enableWhen.answerQuantity ??= {};
       this.chosenEnableWhen = enableWhen;
-      this.linkedItem = editorTools.getItemByLinkId(
+      this.linkedItem = questionnaireTools.getItemByLinkId(
+        this.questionaireGUI!,
         this.chosenEnableWhen.question,
-        this.questionaireGUI!.item,
       );
       this.chosenEnableWhenAnswerLayout = true;
     },
@@ -2725,9 +2726,9 @@ export default defineComponent({
     handleReferenceAnswer(enableWhen: EnableWhen): void {
       enableWhen.answerReference ??= {};
       this.chosenEnableWhen = enableWhen;
-      this.linkedItem = editorTools.getItemByLinkId(
+      this.linkedItem = questionnaireTools.getItemByLinkId(
+        this.questionaireGUI!,
         this.chosenEnableWhen.question,
-        this.questionaireGUI!.item,
       );
       this.chosenEnableWhenAnswerLayout = true;
     },
@@ -2742,9 +2743,9 @@ export default defineComponent({
     handleCodingAnswer(enableWhen: EnableWhen): void {
       enableWhen.answerCoding ??= {};
       this.chosenEnableWhen = enableWhen;
-      this.linkedItem = editorTools.getItemByLinkId(
+      this.linkedItem = questionnaireTools.getItemByLinkId(
+        this.questionaireGUI!,
         this.chosenEnableWhen.question,
-        this.questionaireGUI!.item,
       );
       this.chosenEnableWhenAnswerLayout = true;
     },
@@ -2767,9 +2768,9 @@ export default defineComponent({
     handleDecimalAnswer(enableWhen: EnableWhen): void {
       enableWhen.answerDecimal ??= 0.0;
       this.chosenEnableWhen = enableWhen;
-      this.linkedItem = editorTools.getItemByLinkId(
+      this.linkedItem = questionnaireTools.getItemByLinkId(
+        this.questionaireGUI!,
         this.chosenEnableWhen.question,
-        this.questionaireGUI!.item,
       );
       this.chosenEnableWhenAnswerLayout = true;
     },
@@ -2783,9 +2784,9 @@ export default defineComponent({
     handleIntegerAnswer(enableWhen: EnableWhen): void {
       enableWhen.answerInteger ??= 0;
       this.chosenEnableWhen = enableWhen;
-      this.linkedItem = editorTools.getItemByLinkId(
+      this.linkedItem = questionnaireTools.getItemByLinkId(
+        this.questionaireGUI!,
         this.chosenEnableWhen.question,
-        this.questionaireGUI!.item,
       );
       this.chosenEnableWhenAnswerLayout = true;
     },
@@ -2799,9 +2800,9 @@ export default defineComponent({
     handleDateAnswer(enableWhen: EnableWhen): void {
       enableWhen.answerDate ??= "";
       this.chosenEnableWhen = enableWhen;
-      this.linkedItem = editorTools.getItemByLinkId(
+      this.linkedItem = questionnaireTools.getItemByLinkId(
+        this.questionaireGUI!,
         this.chosenEnableWhen.question,
-        this.questionaireGUI!.item,
       );
       this.chosenEnableWhenAnswerLayout = true;
     },
@@ -2815,9 +2816,9 @@ export default defineComponent({
     handleDateTimeAnswer(enableWhen: EnableWhen): void {
       enableWhen.answerDateTime ??= "";
       this.chosenEnableWhen = enableWhen;
-      this.linkedItem = editorTools.getItemByLinkId(
+      this.linkedItem = questionnaireTools.getItemByLinkId(
+        this.questionaireGUI!,
         this.chosenEnableWhen.question,
-        this.questionaireGUI!.item,
       );
       this.chosenEnableWhenAnswerLayout = true;
     },
@@ -2831,9 +2832,9 @@ export default defineComponent({
     handleTimeAnswer(enableWhen: EnableWhen): void {
       enableWhen.answerTime ??= "";
       this.chosenEnableWhen = enableWhen;
-      this.linkedItem = editorTools.getItemByLinkId(
+      this.linkedItem = questionnaireTools.getItemByLinkId(
+        this.questionaireGUI!,
         this.chosenEnableWhen.question,
-        this.questionaireGUI!.item,
       );
       this.chosenEnableWhenAnswerLayout = true;
     },
@@ -2847,9 +2848,9 @@ export default defineComponent({
     handleStringAnswer(enableWhen: EnableWhen): void {
       enableWhen.answerString ??= "";
       this.chosenEnableWhen = enableWhen;
-      this.linkedItem = editorTools.getItemByLinkId(
+      this.linkedItem = questionnaireTools.getItemByLinkId(
+        this.questionaireGUI!,
         this.chosenEnableWhen.question,
-        this.questionaireGUI!.item,
       );
       this.chosenEnableWhenAnswerLayout = true;
     },
@@ -2963,7 +2964,7 @@ export default defineComponent({
       this.language = this.getLanguage;
       if (this.selectedItem !== undefined) {
         const internalLinkId = this.selectedItem.__linkId;
-        const newItem = this.editorTools.getItemByInternalLinkId(
+        const newItem = this.questionnaireTools.getItemByInternalLinkId(
           internalLinkId,
           this.questionaireGUI!,
         );
@@ -2972,7 +2973,7 @@ export default defineComponent({
       }
       if (this.lastSelectedItem !== undefined) {
         const internalLinkId = this.lastSelectedItem.__linkId;
-        const newItem = this.editorTools.getItemByInternalLinkId(
+        const newItem = this.questionnaireTools.getItemByInternalLinkId(
           internalLinkId,
           this.questionaireGUI!,
         );
@@ -3018,7 +3019,10 @@ export default defineComponent({
         //no value Item to go
         return;
       }
-      const itemSelected = this.editorTools.getItemByLinkId($event, this.item);
+      const itemSelected = this.questionnaireTools.getItemByLinkId(
+        this.questionaireGUI!,
+        $event,
+      );
       if (itemSelected === undefined) {
         this.triggerNegative();
         return;
@@ -3187,24 +3191,24 @@ export default defineComponent({
         return; // Don't allow to drag on itself
       }
 
-      const sourceItem = this.editorTools.getItemByInternalId(
+      const sourceItem = this.questionnaireTools.getItemByInternalId(
+        this.questionaireGUI!,
         sourceInternalId,
-        this.item,
       );
       if (sourceItem === undefined || !sourceItem.__active) {
         return;
       }
 
-      const targetItem = this.editorTools.getItemByInternalId(
+      const targetItem = this.questionnaireTools.getItemByInternalId(
+        this.questionaireGUI!,
         targetInternalId,
-        this.item,
       );
       if (targetItem === undefined || !targetItem.__active) {
         return;
       }
 
       // Check if sourceItem is the parent for target -> Not allowed
-      const itemNodeChild = this.editorTools.getItemByInternalId(
+      const itemNodeChild = this.itemTools.getItemByInternalId(
         targetItem.__internalID,
         sourceItem.item,
       );
@@ -3255,9 +3259,9 @@ export default defineComponent({
       droppedOnGroupNode: boolean,
     ) {
       const sourceBranchWithIndex =
-        this.editorTools.getBranchContainingInternalLinkID(
+        this.questionnaireTools.getBranchContainingInternalLinkID(
+          questionnaire,
           sourceInternalLinkId,
-          questionnaire.item,
         );
       if (sourceBranchWithIndex === undefined) {
         console.error(
@@ -3266,9 +3270,9 @@ export default defineComponent({
         return;
       }
       const targetBranchWithIndex =
-        this.editorTools.getBranchContainingInternalLinkID(
+        this.questionnaireTools.getBranchContainingInternalLinkID(
+          questionnaire,
           targetInternalLinkId,
-          questionnaire.item,
         );
       if (targetBranchWithIndex === undefined) {
         console.error(
@@ -3301,9 +3305,9 @@ export default defineComponent({
       this.editorTools.regenerateInternalLinkIDs(questionnaire);
     },
     toggleItem(internalId: string) {
-      const currentNode = this.editorTools.getItemByInternalId(
+      const currentNode = this.questionnaireTools.getItemByInternalId(
+        this.questionaireGUI!,
         internalId,
-        this.item,
       );
       if (currentNode === undefined) {
         console.error(
@@ -3314,10 +3318,14 @@ export default defineComponent({
       const questionnaires: Questionnaire[] = this.getQuestionnaires;
 
       if (!currentNode.__active) {
-        const linkIDs = this.editorTools.getAllLinkIDs(currentNode);
         const errorLangs: Language[] = [];
         for (const questionnaire of questionnaires) {
-          if (this.editorTools.enableWhenDependsOn(questionnaire, linkIDs)) {
+          if (
+            this.questionnaireTools.enableWhenDependsOn(
+              questionnaire,
+              currentNode,
+            )
+          ) {
             errorLangs.push(questionnaire.language);
           }
         }
@@ -3333,6 +3341,7 @@ export default defineComponent({
             currentNode.__disabled = false;
             return;
           }
+          const linkIDs = this.itemTools.getAllLinkIDs(currentNode);
           for (const questionnaire of questionnaires) {
             this.deleteEnableWhenWithQuestionID(questionnaire.item, linkIDs);
           }
@@ -3349,10 +3358,16 @@ export default defineComponent({
       }
     },
     isCondition(internalId: string): boolean {
-      const item = this.editorTools.getItemByInternalId(internalId, this.item);
+      const item = this.questionnaireTools.getItemByInternalId(
+        this.questionaireGUI!,
+        internalId,
+      );
       const linkId = item?.linkId;
       if (!linkId) return false;
-      return this.editorTools.isEnableWhenCondition(this.item, linkId);
+      return this.questionnaireTools.isEnableWhenCondition(
+        this.questionaireGUI!,
+        linkId,
+      );
     },
     onAddQuestion(linkId: string, questionType: ItemType): void {
       if (this.selectedItem === undefined) {
@@ -3386,11 +3401,11 @@ export default defineComponent({
       linkId: string,
       type: ItemType,
     ): void {
-      const item = this.editorTools.getItemByInternalLinkId(
+      const item = this.questionnaireTools.getItemByInternalLinkId(
         internalLinkId,
         questionnaire,
       );
-      const newItem = this.editorTools.createItemWithType(linkId, type);
+      const newItem = this.itemTools.createItemWithType(linkId, type);
       this.editorTools.addItemAndSetLinkIDs(newItem, item);
     },
     addQuestionToRootItem(
@@ -3398,7 +3413,7 @@ export default defineComponent({
       linkId: string,
       type: ItemType,
     ): void {
-      const newItem = this.editorTools.createItemWithType(linkId, type);
+      const newItem = this.itemTools.createItemWithType(linkId, type);
       const rootItems = questionnaire.item;
       this.editorTools.addItemToRootAndSetLinkIDs(newItem, rootItems);
     },
@@ -3483,7 +3498,10 @@ export default defineComponent({
       if (!answer) {
         return;
       }
-      const item = this.editorTools.getItemByInternalId(internalID, this.item);
+      const item = this.questionnaireTools.getItemByInternalId(
+        this.questionaireGUI!,
+        internalID,
+      );
       if (item === undefined) {
         console.error(`InternalId '${internalID}' does not exist`);
         return;
@@ -3503,9 +3521,9 @@ export default defineComponent({
       internalLinkId: string,
     ) {
       const branchWithIndex =
-        this.editorTools.getBranchContainingInternalLinkID(
+        this.questionnaireTools.getBranchContainingInternalLinkID(
+          questionnaire,
           internalLinkId,
-          questionnaire.item,
         );
       if (branchWithIndex === undefined) {
         console.error(
@@ -3514,7 +3532,7 @@ export default defineComponent({
         return;
       }
       const [branch, index] = branchWithIndex;
-      const linkIDs = this.editorTools.getAllLinkIDs(branch[index]);
+      const linkIDs = this.itemTools.getAllLinkIDs(branch[index]);
       branch.splice(index, 1); // Delete item
       if (linkIDs.size > 0) {
         this.deleteEnableWhenWithQuestionID(questionnaire.item, linkIDs);
@@ -3608,9 +3626,9 @@ export default defineComponent({
         this.selectedItem = undefined;
         return;
       }
-      this.selectedItem = this.editorTools.getItemByInternalId(
+      this.selectedItem = this.questionnaireTools.getItemByInternalId(
+        this.questionaireGUI!,
         internalId,
-        this.item,
       );
     },
     // TODO: How should switching to last selected change splitter?

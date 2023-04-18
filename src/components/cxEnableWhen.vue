@@ -234,6 +234,7 @@ import {
 } from "@/types";
 import { defaultLanguage } from "@/i18n";
 import { allowsAnswerChoice, isSelectableItem } from "@/utils/constants";
+import { questionnaireTools } from "@/utils/questionnaire";
 
 export default defineComponent({
   props: {
@@ -255,7 +256,10 @@ export default defineComponent({
     const item: Ref<Item[]> = ref(prop.questionnaire.item);
     const linkId = ref(prop.enableWhenItem.question);
     const selected: Ref<string | null> = ref(null);
-    const linkedItem = editorTools.getItemByLinkId(linkId.value, item.value);
+    const linkedItem = questionnaireTools.getItemByLinkId(
+      prop.questionnaire,
+      linkId.value,
+    );
     const selectedItem: Ref<Item | undefined> = ref(linkedItem);
     // Fails if no LinkId was in question-field of enableWhen
     if (selectedItem.value !== undefined) {
@@ -265,6 +269,7 @@ export default defineComponent({
       allowsAnswerChoice,
       splitterModel: ref(50), // start at 50%
       editorTools,
+      questionnaireTools,
       filter,
       selectedItem,
       selected,
@@ -278,7 +283,10 @@ export default defineComponent({
         this.selectedItem = undefined;
         return;
       }
-      const item = this.editorTools.getItemByInternalId(val, this.item);
+      const item = this.questionnaireTools.getItemByInternalId(
+        this.questionnaire,
+        val,
+      );
       if (item === undefined) {
         console.error(`InternalId ${val} is not on an available Node`);
         return;
