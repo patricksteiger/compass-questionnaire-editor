@@ -2,6 +2,7 @@ import { answerConstraints, enableBehaviors } from "@/types";
 import { z } from "zod";
 import { allItemTypes } from "@/utils/constants";
 import { enableWhenSchema } from "./enableWhen";
+import { extensionSchema } from "./extension";
 import {
   optionalBooleanSchema,
   optionalCodingSchema,
@@ -45,6 +46,10 @@ const answerValueSet = optionalStringSchema;
 
 const linkId = z.string();
 
+const extension = extensionSchema.array().optional();
+
+export type ParsedExtension = z.infer<typeof extensionSchema>;
+
 const baseItemSchema = z.object({
   linkId,
   definition,
@@ -55,6 +60,7 @@ const baseItemSchema = z.object({
   required,
   repeats,
   maxLength,
+  extension,
   answerConstraint,
   answerOption,
   answerValueSet,

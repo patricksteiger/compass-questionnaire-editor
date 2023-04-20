@@ -129,15 +129,30 @@ function getObjectWithoutItemsDisabled(
 
     if (item.extension !== undefined) {
       for (let i = item.extension.length - 1; i >= 0; i--) {
-        const ext = item.extension[i];
-        const isNotInteger = ext.valueInteger === undefined;
-        const isNotString =
-          ext.valueString === undefined || ext.valueString === "";
-        const isNotCoding = ext.valueCoding === undefined;
-        if (isNotInteger && isNotString && isNotCoding) {
-          item.extension.splice(i, 1);
-        } else if (!isNotInteger) {
-          ext.valueInteger = Number(ext.valueInteger);
+        const extension = item.extension[i];
+        switch (extension.__type) {
+          case "boolean":
+            if (extension.valueBoolean == null) {
+              item.extension.splice(i, 1);
+            }
+            break;
+          case "integer":
+            if (extension.valueInteger == null) {
+              item.extension.splice(i, 1);
+            }
+            break;
+          case "string":
+            if (!extension.valueString) {
+              item.extension.splice(i, 1);
+            }
+            break;
+          case "markdown":
+            if (!extension.valueMarkdown) {
+              item.extension.splice(i, 1);
+            }
+            break;
+          default:
+            throw new UnreachableError(extension);
         }
       }
 

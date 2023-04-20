@@ -118,12 +118,20 @@ export type AnswerOption = {
   valueReference?: Reference;
 };
 
-export type Extension = {
-  url: string;
-  valueInteger?: number;
-  valueString?: string;
-  valueCoding?: Coding;
-};
+export const extensionTypes = [
+  "boolean",
+  "coding",
+  "integer",
+  "string",
+] as const;
+export type ExtensionType = typeof extensionTypes[number];
+
+export type Extension = { url: string } & (
+  | { __type: "boolean"; valueBoolean: boolean }
+  | { __type: "integer"; valueInteger: number }
+  | { __type: "string"; valueString: string }
+  | { __type: "markdown"; valueMarkdown: string }
+);
 
 export type Question = {
   __linkId?: string;

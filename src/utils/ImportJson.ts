@@ -247,52 +247,6 @@ class FHIRValidation {
     }
 
     this.validateEnableWhen(item);
-
-    if (item.type === "integer") {
-      item.extension ??= [];
-      const extensionSet = [
-        {
-          url: "http://hl7.org/fhir/StructureDefinition/questionnaire-sliderStepValue",
-          targetIdx: 0,
-          type: "Integer",
-        },
-        {
-          url: "http://hl7.org/fhir/StructureDefinition/minValue",
-          targetIdx: 1,
-          type: "Integer",
-        },
-        {
-          url: "https://num-compass.science/fhir/StructureDefinition/LowRangeLabel",
-          targetIdx: 2,
-          type: "String",
-        },
-        {
-          url: "http://hl7.org/fhir/StructureDefinition/maxValue",
-          targetIdx: 3,
-          type: "Integer",
-        },
-        {
-          url: "https://num-compass.science/fhir/StructureDefinition/HighRangeLabel",
-          targetIdx: 4,
-          type: "String",
-        },
-      ] as const;
-
-      // FIXME: What is going on here?
-      for (const { url, targetIdx, type } of extensionSet) {
-        const index = item.extension.findIndex((e) => e.url === url);
-        if (index === -1) {
-          item.extension.splice(targetIdx, 0, {
-            url,
-            ["value" + type]: type === "String" ? "" : undefined,
-          });
-        } else {
-          const element = item.extension[index];
-          item.extension.splice(index, 1);
-          item.extension.splice(targetIdx, 0, element);
-        }
-      }
-    }
   }
 
   private addPropertiesNeededForGUIItemNode(item: Item) {

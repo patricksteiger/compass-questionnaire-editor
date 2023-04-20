@@ -1,5 +1,11 @@
 import { defaultLanguage } from "@/i18n";
-import { AnswerOption, EnableWhen, Item, Questionnaire } from "@/types";
+import {
+  AnswerOption,
+  EnableWhen,
+  Extension,
+  Item,
+  Questionnaire,
+} from "@/types";
 import {
   allowsAnswerChoice,
   getAnswerOptionIcon,
@@ -7,7 +13,11 @@ import {
 } from "../../constants";
 import { editorTools } from "../../editor";
 import { itemTools } from "../../item";
-import { ParsedAnswerOption, ParsedItem } from "../parsing/item";
+import {
+  ParsedAnswerOption,
+  ParsedExtension,
+  ParsedItem,
+} from "../parsing/item";
 import { ParsedQuestionnaire } from "../parsing/questionnaire";
 import { validatorUtils } from "../TransformerUtils";
 
@@ -35,7 +45,7 @@ export class QuestionnaireBuilder {
   }
 
   private fromItem(fhirItem: ParsedItem, internalLinkId: string): Item {
-    const { item, answerOption, text, answerValueSet } = fhirItem;
+    const { item, answerOption, extension, text, answerValueSet } = fhirItem;
     const enableWhen = this.fromEnableWhen(fhirItem);
     let newItem: Item[] | undefined = undefined;
     if (item !== undefined) {
@@ -55,6 +65,14 @@ export class QuestionnaireBuilder {
         newAnswerOption.push(this.fromAnswerOption(a));
       }
     }
+    let newExtension: Extension[] | undefined = undefined;
+    if (extension !== undefined) {
+      newExtension = [];
+      for (let i = 0; i < extension.length; i++) {
+        const e = extension[i];
+        newExtension.push(this.fromExtension(e));
+      }
+    }
     return {
       __active: true,
       __disabled: false,
@@ -69,11 +87,40 @@ export class QuestionnaireBuilder {
       ...fhirItem,
       answerOption: newAnswerOption,
       enableWhen,
+      extension: newExtension,
       text: text ?? "",
       required: fhirItem.required,
       repeats: fhirItem.repeats,
       item: newItem,
     };
+  }
+
+  private fromExtension(extension: ParsedExtension): Extension {
+    if (extension.valueBoolean !== undefined) {
+      return {
+        __type: "boolean",
+        url: extension.url,
+        valueBoolean: extension.valueBoolean,
+      };
+    } else if (extension.valueInteger !== undefined) {
+      return {
+        __type: "integer",
+        url: extension.url,
+        valueInteger: extension.valueInteger,
+      };
+    } else if (extension.valueMarkdown !== undefined) {
+      return {
+        __type: "markdown",
+        url: extension.url,
+        valueMarkdown: extension.valueMarkdown,
+      };
+    } else {
+      return {
+        __type: "string",
+        url: extension.url,
+        valueString: extension.valueString ?? "",
+      };
+    }
   }
 
   private fromAnswerOption(answerOption: ParsedAnswerOption): AnswerOption {

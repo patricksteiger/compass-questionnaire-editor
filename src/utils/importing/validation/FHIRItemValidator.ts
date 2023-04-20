@@ -37,6 +37,7 @@ export class FHIRItemValidator {
     this.validateLinkId(item);
     this.validateEnableWhenAndBehavior(item);
     this.validateAnswerValueSetAndOption(item);
+    this.validateExtension(item);
     this.validateMaxLength(item);
     this.validateRequired(item);
     this.validateRepeats(item);
@@ -249,6 +250,26 @@ export class FHIRItemValidator {
     enableWhen.answerCoding = undefined;
     enableWhen.answerQuantity = undefined;
     enableWhen.answerReference = undefined;
+  }
+
+  private validateExtension(item: ParsedItem): void {
+    if (item.extension === undefined) return;
+    for (const extension of item.extension) {
+      let count = 0;
+      if (extension.valueBoolean !== undefined) count++;
+      if (extension.valueInteger !== undefined) count++;
+      if (extension.valueString !== undefined) count++;
+      if (extension.valueMarkdown !== undefined) count++;
+      if (count === 0) {
+        this.errors.push(
+          `LinkId "${item.linkId}" has extension with no answer.`,
+        );
+      } else if (count > 1) {
+        this.errors.push(
+          `LinkId "${item.linkId}" has extension with multiple answers.`,
+        );
+      }
+    }
   }
 
   private validateRequired(item: ParsedItem): void {

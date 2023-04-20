@@ -113,31 +113,6 @@ class ItemTools {
       item.__OldAnswerValueSet = item.answerValueSet = "";
       item.__answerValueSetCheck = false;
     }
-    if (item.type === "integer") {
-      item.extension = [
-        {
-          url: "http://hl7.org/fhir/StructureDefinition/questionnaire-sliderStepValue",
-          valueInteger: undefined,
-        },
-        {
-          url: "http://hl7.org/fhir/StructureDefinition/minValue",
-          valueInteger: undefined,
-        },
-        {
-          url: "https://num-compass.science/fhir/StructureDefinition/LowRangeLabel",
-          valueString: "",
-        },
-        {
-          url: "http://hl7.org/fhir/StructureDefinition/maxValue",
-          valueInteger: undefined,
-        },
-        {
-          url: "https://num-compass.science/fhir/StructureDefinition/HighRangeLabel",
-          valueString: "",
-        },
-      ];
-    }
-
     return item;
   }
 }

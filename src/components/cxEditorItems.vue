@@ -948,17 +948,19 @@
                         <div class="row">
                           <div class="col-1">
                             <!-- Go to question Item -->
-                            <q-btn
-                              :disable="!selectedItem.__active"
-                              v-if="enableWhen.question !== ''"
-                              flat
-                              color="primary"
-                              icon="subdirectory_arrow_left"
-                              @click="onGotoItem(enableWhen.question)"
-                              ><q-tooltip>
+                            <div>
+                              <q-btn
+                                :disable="!selectedItem.__active"
+                                v-if="enableWhen.question !== ''"
+                                flat
+                                color="primary"
+                                icon="subdirectory_arrow_left"
+                                @click="onGotoItem(enableWhen.question)"
+                              />
+                              <q-tooltip>
                                 {{ $t("views.editor.navigateToItem") }}
-                              </q-tooltip></q-btn
-                            >
+                              </q-tooltip>
+                            </div>
                           </div>
                           <q-input
                             :disable="!selectedItem.__active"
@@ -1189,7 +1191,7 @@
               <!-- extension -->
               <!-- FIXME: rework extensions -->
               <q-expansion-item
-                v-if="selectedItem?.type === 'integer'"
+                v-if="selectedItem?.extension !== undefined"
                 :disable="!selectedItem.__active"
                 expand-separator
                 icon="account_tree"
@@ -1204,83 +1206,67 @@
                     class="rounded-borders"
                     :key="'Extensions'"
                   >
-                    <q-item-section>
-                      <q-card-section>
-                        <q-input
-                          v-if="
-                            selectedItem.type === 'integer' &&
-                            selectedItem.extension !== undefined
-                          "
-                          :disable="!selectedItem.__active"
-                          :label="$t('views.editor.sliderStepValue')"
-                          dense
-                          type="number"
-                          @keypress="onlyNumber"
-                          v-model="selectedItem.extension[0].valueInteger"
-                        ></q-input>
-                      </q-card-section>
-                    </q-item-section>
-                    <q-item-section>
-                      <q-card-section>
-                        <q-input
-                          v-if="
-                            selectedItem.type === 'integer' &&
-                            selectedItem.extension !== undefined
-                          "
-                          :disable="!selectedItem.__active"
-                          :label="$t('views.editor.minValue')"
-                          dense
-                          type="number"
-                          @keypress="onlyNumber"
-                          v-model="selectedItem.extension[1].valueInteger"
-                        ></q-input>
-                      </q-card-section>
-                    </q-item-section>
-                    <q-item-section>
-                      <q-card-section>
-                        <q-input
-                          v-if="
-                            selectedItem.type === 'integer' &&
-                            selectedItem.extension !== undefined
-                          "
-                          :disable="!selectedItem.__active"
-                          :label="$t('views.editor.lowRangeLabel')"
-                          dense
-                          v-model="selectedItem.extension[2].valueString"
-                        ></q-input>
-                      </q-card-section>
-                    </q-item-section>
-                    <q-item-section>
-                      <q-card-section>
-                        <q-input
-                          v-if="
-                            selectedItem.type === 'integer' &&
-                            selectedItem.extension !== undefined
-                          "
-                          :disable="!selectedItem.__active"
-                          :label="$t('views.editor.maxValue')"
-                          dense
-                          type="number"
-                          @keypress="onlyNumber"
-                          v-model="selectedItem.extension[3].valueInteger"
-                        ></q-input>
-                      </q-card-section>
-                    </q-item-section>
-                    <q-item-section>
-                      <q-card-section>
-                        <q-input
-                          v-if="
-                            selectedItem.type === 'integer' &&
-                            selectedItem.extension !== undefined
-                          "
-                          :disable="!selectedItem.__active"
-                          :label="$t('views.editor.highRangeLabel')"
-                          dense
-                          v-model="selectedItem.extension[4].valueString"
-                        ></q-input>
-                      </q-card-section>
-                    </q-item-section>
+                    <q-item
+                      v-for="(extension, index) in selectedItem.extension"
+                      :key="index"
+                    >
+                      <q-item-section>
+                        <q-card-section>
+                          <q-input
+                            v-if="extension.__type === 'integer'"
+                            :disable="!selectedItem.__active"
+                            :label="extension.url"
+                            dense
+                            type="number"
+                            @keypress="onlyNumber"
+                            v-model.number="extension.valueInteger"
+                          />
+                          <q-input
+                            v-else-if="extension.__type === 'string'"
+                            :disable="!selectedItem.__active"
+                            :label="extension.url"
+                            dense
+                            type="text"
+                            v-model="extension.valueString"
+                          />
+                          <q-input
+                            v-else-if="extension.__type === 'markdown'"
+                            :disable="!selectedItem.__active"
+                            :label="extension.url"
+                            dense
+                            autogrow
+                            type="textarea"
+                            v-model="extension.valueMarkdown"
+                          />
+                          <q-toggle
+                            v-else-if="extension.__type === 'boolean'"
+                            :disable="!selectedItem.__active"
+                            :label="extension.url"
+                            dense
+                            v-model="extension.valueBoolean"
+                          />
+                        </q-card-section>
+                      </q-item-section>
+                      <q-btn
+                        icon="highlight_off"
+                        flat
+                        color="grey-6"
+                        @click="removeExtension(index)"
+                      />
+                    </q-item>
                   </q-list>
+                  <!-- add predefined extension -->
+                  <div class="q-pa-sm">
+                    <q-btn
+                      padding="none xl"
+                      v-if="selectedItem.__active"
+                      fab
+                      icon="add"
+                      color="primary"
+                      label="Predefined extension"
+                      @click="addPredefinedExtension"
+                    />
+                  </div>
                 </q-card>
               </q-expansion-item>
             </q-list>
@@ -1346,6 +1332,14 @@
         :enableWhenItem="enableWhenItem"
         v-on:choiceQuestion="onEnableWhenWithAnswerOption"
         v-on:question="onSelectedQuestion"
+      />
+    </q-dialog>
+    <!-- extension dialog -->
+    <q-dialog v-model="extensionLayout" v-if="selectedItem !== undefined">
+      <cx-extension
+        :extensions="selectedItem.extension ?? []"
+        :predefinedExtensions="getExtensions(selectedItem)"
+        v-on:predefinedExtensionAdded="onAddedPredefinedExtension"
       />
     </q-dialog>
   </div>
@@ -2445,6 +2439,7 @@ import { questionnaireTools } from "@/utils/questionnaire";
 import { mapGetters } from "vuex";
 import { v4 as uuidv4 } from "uuid";
 import cxEnableWhen from "@/components/cxEnableWhen.vue";
+import cxExtension from "@/components/cxExtension.vue";
 import { i18n, defaultLanguage } from "@/i18n";
 import {
   AnswerOption,
@@ -2457,15 +2452,18 @@ import {
   enableBehaviors,
   comparators,
   answerConstraints,
+  Extension,
 } from "@/types";
 import { Language, languages } from "@/store";
 import { itemTools } from "@/utils/item";
 import { Validator } from "@/utils/validation/Validator";
 import { Warning } from "@/utils/validation/QuestionnaireValidator";
+import { getExtensions } from "@/utils/extension";
 
 export default defineComponent({
   components: {
     cxEnableWhen,
+    cxExtension,
   },
   setup() {
     const triggerNegative = () => {
@@ -2543,6 +2541,7 @@ export default defineComponent({
     const otherLinkId: Ref<string> = ref("");
     const linkedItem: Ref<Item | undefined> = ref(undefined);
     return {
+      getExtensions,
       addLinkIdLayout: ref(false),
       swapLinkIdLayout: ref(false),
       newLinkIdLayout: ref(false),
@@ -2572,6 +2571,7 @@ export default defineComponent({
       changedReference,
       enableWhenLayout: ref(false),
       chosenEnableWhenAnswerLayout: ref(false),
+      extensionLayout: ref(false),
       comparators,
       chosenEnableWhen,
       linkedItem,
@@ -3040,6 +3040,17 @@ export default defineComponent({
       if (this.editorTools.isNotIntegerKey($event.code)) {
         $event.preventDefault();
       }
+    },
+    addPredefinedExtension(): void {
+      this.selectedItem!.extension ??= [];
+      this.extensionLayout = true;
+    },
+    onAddedPredefinedExtension(e: Extension): void {
+      this.selectedItem!.extension!.push(e);
+      this.extensionLayout = false;
+    },
+    removeExtension(index: number): void {
+      this.selectedItem!.extension!.splice(index, 1);
     },
     // Called for answers from answerOption-item
     onEnableWhenWithAnswerOption(e: AnswerOption): void {
