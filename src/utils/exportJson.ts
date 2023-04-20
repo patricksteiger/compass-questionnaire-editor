@@ -136,6 +136,11 @@ function getObjectWithoutItemsDisabled(
               item.extension.splice(i, 1);
             }
             break;
+          case "decimal":
+            if (extension.valueDecimal == null) {
+              item.extension.splice(i, 1);
+            }
+            break;
           case "integer":
             if (extension.valueInteger == null) {
               item.extension.splice(i, 1);

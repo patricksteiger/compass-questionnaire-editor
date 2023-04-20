@@ -8,6 +8,40 @@ export type PredefinedExtension = Extension & {
   __tooltip: string;
 };
 
+const minValues: PredefinedExtension[] = [
+  {
+    __allowedItems: ["decimal"],
+    __type: "decimal",
+    __tooltip: "Inclusive lower bound for answer",
+    url: "http://hl7.org/fhir/StructureDefinition/minValue",
+    valueDecimal: 0,
+  },
+  {
+    __allowedItems: ["integer"],
+    __type: "integer",
+    __tooltip: "Inclusive lower bound for answer",
+    url: "http://hl7.org/fhir/StructureDefinition/minValue",
+    valueInteger: 0,
+  },
+];
+
+const maxValues: PredefinedExtension[] = [
+  {
+    __allowedItems: ["decimal"],
+    __type: "decimal",
+    __tooltip: "Inclusive upper bound for answer",
+    url: "http://hl7.org/fhir/StructureDefinition/maxValue",
+    valueDecimal: 0,
+  },
+  {
+    __allowedItems: ["integer"],
+    __type: "integer",
+    __tooltip: "Inclusive upper bound for answer",
+    url: "http://hl7.org/fhir/StructureDefinition/maxValue",
+    valueInteger: 0,
+  },
+];
+
 const getPredefinedExtensions = (): PredefinedExtension[] => [
   {
     __allowedItems: "all",
@@ -30,34 +64,8 @@ const getPredefinedExtensions = (): PredefinedExtension[] => [
     url: "http://hl7.org/fhir/StructureDefinition/questionnaire-sliderStepValue",
     valueInteger: 0,
   },
-  {
-    __allowedItems: [
-      "date",
-      "dateTime",
-      "time",
-      "decimal",
-      "integer",
-      "quantity",
-    ],
-    __type: "integer",
-    __tooltip: "Inclusive lower bound for answer",
-    url: "http://hl7.org/fhir/StructureDefinition/minValue",
-    valueInteger: 0,
-  },
-  {
-    __allowedItems: [
-      "date",
-      "dateTime",
-      "time",
-      "decimal",
-      "integer",
-      "quantity",
-    ],
-    __type: "integer",
-    __tooltip: "Inclusive upper bound for answer",
-    url: "http://hl7.org/fhir/StructureDefinition/maxValue",
-    valueInteger: 0,
-  },
+  ...minValues,
+  ...maxValues,
 ];
 
 export function getExtensions(item: Item): PredefinedExtension[] {

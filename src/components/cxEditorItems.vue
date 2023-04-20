@@ -1213,7 +1213,16 @@
                       <q-item-section>
                         <q-card-section>
                           <q-input
-                            v-if="extension.__type === 'integer'"
+                            v-if="extension.__type === 'decimal'"
+                            :disable="!selectedItem.__active"
+                            :label="extension.url"
+                            dense
+                            type="number"
+                            @keypress="onlyNumberDec"
+                            v-model.number="extension.valueDecimal"
+                          />
+                          <q-input
+                            v-else-if="extension.__type === 'integer'"
                             :disable="!selectedItem.__active"
                             :label="extension.url"
                             dense

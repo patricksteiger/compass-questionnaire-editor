@@ -27,7 +27,15 @@
                     <q-item-section>
                       <q-card-section>
                         <q-input
-                          v-if="extension.__type === 'integer'"
+                          v-if="extension.__type === 'decimal'"
+                          :label="extension.url"
+                          dense
+                          type="number"
+                          disable
+                          v-model.number="extension.valueDecimal"
+                        />
+                        <q-input
+                          v-else-if="extension.__type === 'integer'"
                           :label="extension.url"
                           dense
                           type="number"
@@ -41,6 +49,15 @@
                           type="text"
                           disable
                           v-model="extension.valueString"
+                        />
+                        <q-input
+                          v-else-if="extension.__type === 'markdown'"
+                          :label="extension.url"
+                          dense
+                          autogrow
+                          type="textarea"
+                          disable
+                          v-model="extension.valueMarkdown"
                         />
                         <q-toggle
                           v-else-if="extension.__type === 'boolean'"
