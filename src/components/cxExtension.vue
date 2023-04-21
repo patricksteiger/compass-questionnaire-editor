@@ -50,6 +50,15 @@
                           v-model.number="extension.valueInteger"
                         />
                         <q-input
+                          v-else-if="extension.__type === 'date'"
+                          :label="extension.url"
+                          dense
+                          type="text"
+                          disable
+                          :rules="[dateTools.isDate]"
+                          v-model="extension.valueDate"
+                        />
+                        <q-input
                           v-else-if="extension.__type === 'time'"
                           :label="extension.url"
                           dense

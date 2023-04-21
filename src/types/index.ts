@@ -118,18 +118,11 @@ export type AnswerOption = {
   valueReference?: Reference;
 };
 
-export const extensionTypes = [
-  "boolean",
-  "coding",
-  "integer",
-  "string",
-] as const;
-export type ExtensionType = typeof extensionTypes[number];
-
 export type Extension = { url: string } & (
   | { __type: "boolean"; valueBoolean: boolean }
   | { __type: "decimal"; valueDecimal: number }
   | { __type: "integer"; valueInteger: number }
+  | { __type: "date"; valueDate: string }
   | { __type: "time"; valueTime: string }
   | { __type: "string"; valueString: string }
   | { __type: "markdown"; valueMarkdown: string }

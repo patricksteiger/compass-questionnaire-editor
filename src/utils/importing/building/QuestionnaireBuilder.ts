@@ -114,6 +114,12 @@ export class QuestionnaireBuilder {
         url: extension.url,
         valueInteger: extension.valueInteger,
       };
+    } else if (extension.valueDate !== undefined) {
+      return {
+        __type: "date",
+        url: extension.url,
+        valueDate: extension.valueDate,
+      };
     } else if (extension.valueTime !== undefined) {
       return {
         __type: "time",
