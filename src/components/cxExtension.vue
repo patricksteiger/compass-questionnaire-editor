@@ -26,8 +26,15 @@
                   <q-item v-for="(extension, index) in extensions" :key="index">
                     <q-item-section>
                       <q-card-section>
+                        <q-toggle
+                          v-if="extension.__type === 'boolean'"
+                          :label="extension.url"
+                          dense
+                          disable
+                          v-model="extension.valueBoolean"
+                        />
                         <q-input
-                          v-if="extension.__type === 'decimal'"
+                          v-else-if="extension.__type === 'decimal'"
                           :label="extension.url"
                           dense
                           type="number"
@@ -41,6 +48,17 @@
                           type="number"
                           disable
                           v-model.number="extension.valueInteger"
+                        />
+                        <q-input
+                          v-else-if="extension.__type === 'time'"
+                          :label="extension.url"
+                          dense
+                          type="text"
+                          disable
+                          mask="fulltime"
+                          :rules="[dateTools.isTime]"
+                          fill-mask
+                          v-model="extension.valueTime"
                         />
                         <q-input
                           v-else-if="extension.__type === 'string'"
@@ -58,13 +76,6 @@
                           type="textarea"
                           disable
                           v-model="extension.valueMarkdown"
-                        />
-                        <q-toggle
-                          v-else-if="extension.__type === 'boolean'"
-                          :label="extension.url"
-                          dense
-                          disable
-                          v-model="extension.valueBoolean"
                         />
                       </q-card-section>
                     </q-item-section>
@@ -119,6 +130,7 @@ import { editorTools } from "../utils/editor";
 import { Extension } from "@/types";
 import { questionnaireTools } from "@/utils/questionnaire";
 import { PredefinedExtension } from "@/utils/extension";
+import { dateTools } from "@/utils/date";
 
 export default defineComponent({
   props: {
@@ -134,6 +146,7 @@ export default defineComponent({
   setup() {
     return {
       splitterModel: ref(50), // start at 50%
+      dateTools,
       editorTools,
       questionnaireTools,
     };

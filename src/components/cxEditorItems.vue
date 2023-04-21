@@ -1231,6 +1231,17 @@
                             v-model.number="extension.valueInteger"
                           />
                           <q-input
+                            v-else-if="extension.__type === 'time'"
+                            :disable="!selectedItem.__active"
+                            :label="extension.url"
+                            dense
+                            type="text"
+                            mask="fulltime"
+                            fill-mask
+                            :rules="[dateTools.isTime]"
+                            v-model="extension.valueTime"
+                          />
+                          <q-input
                             v-else-if="extension.__type === 'string'"
                             :disable="!selectedItem.__active"
                             :label="extension.url"

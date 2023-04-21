@@ -23,6 +23,13 @@ const minValues: PredefinedExtension[] = [
     url: "http://hl7.org/fhir/StructureDefinition/minValue",
     valueInteger: 0,
   },
+  {
+    __allowedItems: ["time"],
+    __type: "time",
+    __tooltip: "Inclusive lower bound for answer",
+    url: "http://hl7.org/fhir/StructureDefinition/minValue",
+    valueTime: "00:00:00",
+  },
 ];
 
 const maxValues: PredefinedExtension[] = [
@@ -40,6 +47,13 @@ const maxValues: PredefinedExtension[] = [
     url: "http://hl7.org/fhir/StructureDefinition/maxValue",
     valueInteger: 0,
   },
+  {
+    __allowedItems: ["time"],
+    __type: "time",
+    __tooltip: "Inclusive upper bound for answer",
+    url: "http://hl7.org/fhir/StructureDefinition/maxValue",
+    valueTime: "00:00:00",
+  },
 ];
 
 const getPredefinedExtensions = (): PredefinedExtension[] => [
@@ -48,7 +62,7 @@ const getPredefinedExtensions = (): PredefinedExtension[] => [
     __type: "boolean",
     __tooltip: "Items with hidden=true are not rendered for the user",
     url: "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
-    valueBoolean: false,
+    valueBoolean: true,
   },
   {
     __allowedItems: "all",
@@ -62,7 +76,7 @@ const getPredefinedExtensions = (): PredefinedExtension[] => [
     __type: "integer",
     __tooltip: "Indicates step size for slider-based controls",
     url: "http://hl7.org/fhir/StructureDefinition/questionnaire-sliderStepValue",
-    valueInteger: 0,
+    valueInteger: 1,
   },
   ...minValues,
   ...maxValues,

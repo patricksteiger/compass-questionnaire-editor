@@ -11,6 +11,7 @@ export const extensionSchema = z
     valueBoolean: optionalBooleanSchema,
     valueDecimal: optionalNumberSchema,
     valueInteger: optionalNumberSchema,
+    valueTime: optionalStringSchema,
     valueString: optionalStringSchema,
     valueMarkdown: optionalStringSchema,
   })

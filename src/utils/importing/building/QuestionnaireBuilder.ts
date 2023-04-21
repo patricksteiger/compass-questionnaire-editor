@@ -114,6 +114,12 @@ export class QuestionnaireBuilder {
         url: extension.url,
         valueInteger: extension.valueInteger,
       };
+    } else if (extension.valueTime !== undefined) {
+      return {
+        __type: "time",
+        url: extension.url,
+        valueTime: extension.valueTime,
+      };
     } else if (extension.valueMarkdown !== undefined) {
       return {
         __type: "markdown",

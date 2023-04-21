@@ -13,7 +13,7 @@ class DateTools {
     const match = s.match(DATE_REGEXP);
     return (
       (match !== null && match.length > 0 && s.length === match[0].length) ||
-      "value doesn't match dateTime-regex"
+      "value doesn't match YYYY, YYYY-MM, YYYY-MM-DD or YYYY-MM-DDThh:mm:ss+zz:zz"
     );
   }
 
@@ -22,7 +22,7 @@ class DateTools {
     const match = s.match(DATE_TIME_REGEXP);
     return (
       (match !== null && match.length > 0 && s.length === match[0].length) ||
-      "value doesn't match date-regex"
+      "value doesn't match YYYY, YYYY-MM or YYYY-MM-DD"
     );
   }
 
@@ -31,7 +31,7 @@ class DateTools {
     const match = s.match(TIME_REGEXP);
     return (
       (match !== null && match.length > 0 && s.length === match[0].length) ||
-      "value doesn't match time-regex"
+      "value doesn't match HH:MM:SS"
     );
   }
 }
