@@ -12,6 +12,7 @@ export const extensionSchema = z
     valueDecimal: optionalNumberSchema,
     valueInteger: optionalNumberSchema,
     valueDate: optionalStringSchema,
+    valueDateTime: optionalStringSchema,
     valueTime: optionalStringSchema,
     valueString: optionalStringSchema,
     valueMarkdown: optionalStringSchema,

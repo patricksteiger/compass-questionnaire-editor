@@ -120,6 +120,12 @@ export class QuestionnaireBuilder {
         url: extension.url,
         valueDate: extension.valueDate,
       };
+    } else if (extension.valueDateTime !== undefined) {
+      return {
+        __type: "dateTime",
+        url: extension.url,
+        valueDateTime: extension.valueDateTime,
+      };
     } else if (extension.valueTime !== undefined) {
       return {
         __type: "time",

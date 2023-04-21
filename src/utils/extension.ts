@@ -33,6 +33,13 @@ const minValues: PredefinedExtension[] = [
     valueDate: "2000-12-31",
   },
   {
+    __allowedItems: ["dateTime"],
+    __type: "dateTime",
+    __tooltip: MIN_VALUE_TOOLTIP,
+    url: MIN_VALUE_URL,
+    valueDateTime: "2017-01-01T00:00:00+01:00",
+  },
+  {
     __allowedItems: ["time"],
     __type: "time",
     __tooltip: MIN_VALUE_TOOLTIP,
@@ -64,6 +71,13 @@ const maxValues: PredefinedExtension[] = [
     __tooltip: MAX_VALUE_TOOLTIP,
     url: MAX_VALUE_URL,
     valueDate: "2000-12-31",
+  },
+  {
+    __allowedItems: ["dateTime"],
+    __type: "dateTime",
+    __tooltip: MAX_VALUE_TOOLTIP,
+    url: MAX_VALUE_URL,
+    valueDateTime: "2017-01-01T00:00:00+01:00",
   },
   {
     __allowedItems: ["time"],

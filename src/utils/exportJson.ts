@@ -151,6 +151,11 @@ function getObjectWithoutItemsDisabled(
               item.extension.splice(i, 1);
             }
             break;
+          case "dateTime":
+            if (dateTools.isDateTime(extension.valueDateTime) !== true) {
+              item.extension.splice(i, 1);
+            }
+            break;
           case "time":
             if (dateTools.isTime(extension.valueTime) !== true) {
               item.extension.splice(i, 1);

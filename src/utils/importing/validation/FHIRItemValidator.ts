@@ -260,6 +260,7 @@ export class FHIRItemValidator {
       if (extension.valueDecimal !== undefined) count++;
       if (extension.valueInteger !== undefined) count++;
       if (extension.valueDate !== undefined) count++;
+      if (extension.valueDateTime !== undefined) count++;
       if (extension.valueTime !== undefined) count++;
       if (extension.valueString !== undefined) count++;
       if (extension.valueMarkdown !== undefined) count++;
