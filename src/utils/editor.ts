@@ -233,8 +233,14 @@ class EditorTools {
     }
   }
 
+  isNumber(x: string | number | null | undefined): boolean {
+    return (
+      x != null && x !== "" && (typeof x === "number" || !isNaN(Number(x)))
+    );
+  }
+
   // FIXME: Implement proper handling of +/- for number inputs
-  isNotIntegerKey(code: string): boolean {
+  private isNotIntegerKey(code: string): boolean {
     // Number-KeyCodes: "Digit0" - "Digit9"
     const noNumberKeyCode =
       code.length !== 6 ||
@@ -244,14 +250,20 @@ class EditorTools {
     return noNumberKeyCode && code !== "Slash";
   }
 
-  isNotDecimalKey(code: string): boolean {
+  private isNotDecimalKey(code: string): boolean {
     return this.isNotIntegerKey(code) && code !== "Period" && code !== "Comma";
   }
 
-  isNumber(x: string | number | null | undefined): boolean {
-    return (
-      x != null && x !== "" && (typeof x === "number" || !isNaN(Number(x)))
-    );
+  onlyNumberDec($event: KeyboardEvent): void {
+    if (this.isNotDecimalKey($event.code)) {
+      $event.preventDefault();
+    }
+  }
+
+  onlyNumber($event: KeyboardEvent): void {
+    if (this.isNotIntegerKey($event.code)) {
+      $event.preventDefault();
+    }
   }
 
   onlyStringFalsy(

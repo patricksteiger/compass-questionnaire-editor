@@ -1189,124 +1189,13 @@
                 </q-card>
               </q-expansion-item>
               <!-- extension -->
-              <!-- FIXME: rework extensions -->
-              <q-expansion-item
-                v-if="selectedItem?.extension !== undefined"
-                :disable="!selectedItem.__active"
-                expand-separator
-                icon="account_tree"
-                :label="$t('views.editor.extensions')"
-              >
-                <q-separator />
-                <q-card>
-                  <q-list
-                    dense
-                    bordered
-                    padding
-                    class="rounded-borders"
-                    :key="'Extensions'"
-                  >
-                    <q-item
-                      v-for="(extension, index) in selectedItem.extension"
-                      :key="index"
-                    >
-                      <q-item-section>
-                        <q-card-section>
-                          <q-input
-                            v-if="extension.__type === 'decimal'"
-                            :disable="!selectedItem.__active"
-                            :label="extension.url"
-                            dense
-                            type="number"
-                            @keypress="onlyNumberDec"
-                            v-model.number="extension.valueDecimal"
-                          />
-                          <q-input
-                            v-else-if="extension.__type === 'integer'"
-                            :disable="!selectedItem.__active"
-                            :label="extension.url"
-                            dense
-                            type="number"
-                            @keypress="onlyNumber"
-                            v-model.number="extension.valueInteger"
-                          />
-                          <q-input
-                            v-else-if="extension.__type === 'date'"
-                            :disable="!selectedItem.__active"
-                            :label="extension.url"
-                            dense
-                            type="text"
-                            :rules="[dateTools.isDate]"
-                            v-model="extension.valueDate"
-                          />
-                          <q-input
-                            v-else-if="extension.__type === 'dateTime'"
-                            :disable="!selectedItem.__active"
-                            :label="extension.url"
-                            dense
-                            type="text"
-                            :rules="[dateTools.isDateTime]"
-                            v-model="extension.valueDateTime"
-                          />
-                          <q-input
-                            v-else-if="extension.__type === 'time'"
-                            :disable="!selectedItem.__active"
-                            :label="extension.url"
-                            dense
-                            type="text"
-                            mask="fulltime"
-                            fill-mask
-                            :rules="[dateTools.isTime]"
-                            v-model="extension.valueTime"
-                          />
-                          <q-input
-                            v-else-if="extension.__type === 'string'"
-                            :disable="!selectedItem.__active"
-                            :label="extension.url"
-                            dense
-                            type="text"
-                            v-model="extension.valueString"
-                          />
-                          <q-input
-                            v-else-if="extension.__type === 'markdown'"
-                            :disable="!selectedItem.__active"
-                            :label="extension.url"
-                            dense
-                            autogrow
-                            type="textarea"
-                            v-model="extension.valueMarkdown"
-                          />
-                          <q-toggle
-                            v-else-if="extension.__type === 'boolean'"
-                            :disable="!selectedItem.__active"
-                            :label="extension.url"
-                            dense
-                            v-model="extension.valueBoolean"
-                          />
-                        </q-card-section>
-                      </q-item-section>
-                      <q-btn
-                        icon="highlight_off"
-                        flat
-                        color="grey-6"
-                        @click="removeExtension(index)"
-                      />
-                    </q-item>
-                  </q-list>
-                  <!-- add predefined extension -->
-                  <div class="q-pa-sm">
-                    <q-btn
-                      padding="none xl"
-                      v-if="selectedItem.__active"
-                      fab
-                      icon="add"
-                      color="primary"
-                      label="Predefined extension"
-                      @click="addPredefinedExtension"
-                    />
-                  </div>
-                </q-card>
-              </q-expansion-item>
+              <cx-extension
+                v-if="selectedItem !== undefined"
+                :extensions="(selectedItem.extension ??= [])"
+                :predefinedExtensions="getExtensions(selectedItem)"
+                v-on:predefinedExtensionAdded="onAddedPredefinedExtension"
+                v-on:removeExtension="removeExtension"
+              />
             </q-list>
           </q-tab-panel>
         </q-tab-panels>
@@ -1370,14 +1259,6 @@
         :enableWhenItem="enableWhenItem"
         v-on:choiceQuestion="onEnableWhenWithAnswerOption"
         v-on:question="onSelectedQuestion"
-      />
-    </q-dialog>
-    <!-- extension dialog -->
-    <q-dialog v-model="extensionLayout" v-if="selectedItem !== undefined">
-      <cx-extension
-        :extensions="selectedItem.extension ?? []"
-        :predefinedExtensions="getExtensions(selectedItem)"
-        v-on:predefinedExtensionAdded="onAddedPredefinedExtension"
       />
     </q-dialog>
   </div>
@@ -2609,7 +2490,6 @@ export default defineComponent({
       changedReference,
       enableWhenLayout: ref(false),
       chosenEnableWhenAnswerLayout: ref(false),
-      extensionLayout: ref(false),
       comparators,
       chosenEnableWhen,
       linkedItem,
@@ -3070,22 +2950,13 @@ export default defineComponent({
       this.selected = itemSelected.__internalID;
     },
     onlyNumberDec($event: KeyboardEvent): void {
-      if (this.editorTools.isNotDecimalKey($event.code)) {
-        $event.preventDefault();
-      }
+      this.editorTools.onlyNumberDec($event);
     },
     onlyNumber($event: KeyboardEvent): void {
-      if (this.editorTools.isNotIntegerKey($event.code)) {
-        $event.preventDefault();
-      }
-    },
-    addPredefinedExtension(): void {
-      this.selectedItem!.extension ??= [];
-      this.extensionLayout = true;
+      this.editorTools.onlyNumber($event);
     },
     onAddedPredefinedExtension(e: Extension): void {
       this.selectedItem!.extension!.push(e);
-      this.extensionLayout = false;
     },
     removeExtension(index: number): void {
       this.selectedItem!.extension!.splice(index, 1);
