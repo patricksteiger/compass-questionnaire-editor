@@ -53,8 +53,5 @@ export default defineComponent({
   methods: {
     ...mapMutations(["switchToEditorScreen"]),
   },
-  data() {
-    return {};
-  },
 });
 </script>

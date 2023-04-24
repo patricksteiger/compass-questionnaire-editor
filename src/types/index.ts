@@ -244,5 +244,6 @@ export type Questionnaire = {
   // experimental is optional, so it can be deleted for exporting
   // experimental is null, so it can be used as a v-model
   experimental?: boolean | null;
+  extension?: Extension[];
   item: Item[];
 };

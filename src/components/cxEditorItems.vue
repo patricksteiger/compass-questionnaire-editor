@@ -1192,7 +1192,7 @@
               <cx-extension
                 v-if="selectedItem !== undefined"
                 :extensions="(selectedItem.extension ??= [])"
-                :predefinedExtensions="getExtensions(selectedItem)"
+                :predefinedExtensions="getItemExtensions(selectedItem)"
                 v-on:predefinedExtensionAdded="onAddedPredefinedExtension"
                 v-on:removeExtension="removeExtension"
               />
@@ -2377,7 +2377,7 @@ import { Language, languages } from "@/store";
 import { itemTools } from "@/utils/item";
 import { Validator } from "@/utils/validation/Validator";
 import { Warning } from "@/utils/validation/QuestionnaireValidator";
-import { getExtensions } from "@/utils/extension";
+import { getItemExtensions } from "@/utils/extension";
 
 export default defineComponent({
   components: {
@@ -2460,7 +2460,7 @@ export default defineComponent({
     const otherLinkId: Ref<string> = ref("");
     const linkedItem: Ref<Item | undefined> = ref(undefined);
     return {
-      getExtensions,
+      getItemExtensions,
       addLinkIdLayout: ref(false),
       swapLinkIdLayout: ref(false),
       newLinkIdLayout: ref(false),

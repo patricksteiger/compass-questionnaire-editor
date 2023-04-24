@@ -1,6 +1,7 @@
 import { Settings } from "@/store";
 import {
   EnableWhen,
+  Extension,
   Identifier,
   Item,
   operators,
@@ -112,70 +113,83 @@ function clearOptionsOrString(item: Item, enableWhenIndex: number): void {
   }
 }
 
-function getObjectWithoutItemsDisabled(
-  jsonObject: Questionnaire,
-): Questionnaire;
-function getObjectWithoutItemsDisabled(jsonObject: Item): Item;
-function getObjectWithoutItemsDisabled(
-  jsonObject: Questionnaire | Item,
-): Questionnaire | Item {
+function filterExtension(extensions: Extension[]): void {
+  for (let i = extensions.length - 1; i >= 0; i--) {
+    const extension = extensions[i];
+    switch (extension.__type) {
+      case "boolean":
+        if (extension.valueBoolean == null) {
+          extensions.splice(i, 1);
+        }
+        break;
+      case "decimal":
+        if (extension.valueDecimal == null) {
+          extensions.splice(i, 1);
+        }
+        break;
+      case "integer":
+        if (extension.valueInteger == null) {
+          extensions.splice(i, 1);
+        }
+        break;
+      case "date":
+        if (dateTools.isDate(extension.valueDate) !== true) {
+          extensions.splice(i, 1);
+        }
+        break;
+      case "dateTime":
+        if (dateTools.isDateTime(extension.valueDateTime) !== true) {
+          extensions.splice(i, 1);
+        }
+        break;
+      case "time":
+        if (dateTools.isTime(extension.valueTime) !== true) {
+          extensions.splice(i, 1);
+        }
+        break;
+      case "string":
+        if (!extension.valueString) {
+          extensions.splice(i, 1);
+        }
+        break;
+      case "markdown":
+        if (!extension.valueMarkdown) {
+          extensions.splice(i, 1);
+        }
+        break;
+      default:
+        throw new UnreachableError(extension);
+    }
+  }
+}
+
+function getFilteredQuestionnaire(qre: Questionnaire): Questionnaire {
+  for (const item of qre.item) {
+    filterItem(item);
+  }
+  if (qre.item.length === 0) {
+    delete (qre as Partial<Questionnaire>).item;
+  }
+  if (qre.extension !== undefined) {
+    filterExtension(qre.extension);
+    if (qre.extension.length === 0) {
+      delete qre.extension;
+    }
+  }
+  return qre;
+}
+
+function filterItem(jsonObject: Item): void {
   if (jsonObject.item === undefined) {
-    return jsonObject;
+    return;
   }
 
   // For items within item
   for (const item of jsonObject.item) {
-    getObjectWithoutItemsDisabled(item);
+    filterItem(item);
 
     if (item.extension !== undefined) {
-      for (let i = item.extension.length - 1; i >= 0; i--) {
-        const extension = item.extension[i];
-        switch (extension.__type) {
-          case "boolean":
-            if (extension.valueBoolean == null) {
-              item.extension.splice(i, 1);
-            }
-            break;
-          case "decimal":
-            if (extension.valueDecimal == null) {
-              item.extension.splice(i, 1);
-            }
-            break;
-          case "integer":
-            if (extension.valueInteger == null) {
-              item.extension.splice(i, 1);
-            }
-            break;
-          case "date":
-            if (dateTools.isDate(extension.valueDate) !== true) {
-              item.extension.splice(i, 1);
-            }
-            break;
-          case "dateTime":
-            if (dateTools.isDateTime(extension.valueDateTime) !== true) {
-              item.extension.splice(i, 1);
-            }
-            break;
-          case "time":
-            if (dateTools.isTime(extension.valueTime) !== true) {
-              item.extension.splice(i, 1);
-            }
-            break;
-          case "string":
-            if (!extension.valueString) {
-              item.extension.splice(i, 1);
-            }
-            break;
-          case "markdown":
-            if (!extension.valueMarkdown) {
-              item.extension.splice(i, 1);
-            }
-            break;
-          default:
-            throw new UnreachableError(extension);
-        }
-      }
-
+      filterExtension(item.extension);
       if (item.extension.length === 0) {
         delete item.extension;
       }
@@ -522,8 +536,6 @@ function getObjectWithoutItemsDisabled(
   if (jsonObject.item.length === 0) {
     delete jsonObject.item;
   }
-
-  return jsonObject;
 }
 
 function clearEnableWhenAnswers(enableWhen: EnableWhen): void {
@@ -547,7 +559,7 @@ const exportJsonQuestionnaire = {
   },
   getExportObject(jsonObject: Questionnaire): Questionnaire {
     const cloneObject = editorTools.clone(jsonObject);
-    const objWithoutItemsDisabled = getObjectWithoutItemsDisabled(cloneObject);
+    const objWithoutItemsDisabled = getFilteredQuestionnaire(cloneObject);
     const filteredInternalStateQRE = createQuestionnaireExportCopy(
       objWithoutItemsDisabled,
     );

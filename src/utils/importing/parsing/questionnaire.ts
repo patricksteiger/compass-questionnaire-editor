@@ -7,6 +7,7 @@ import {
   optionalStringSchema,
 } from "./schemas";
 import { z } from "zod";
+import { extensionSchema } from "./extension";
 
 const item = itemSchema.array().optional();
 
@@ -28,6 +29,8 @@ const experimental = optionalBooleanSchema;
 
 const identifier = identifierSchema.array().optional();
 
+const extension = extensionSchema.array().optional();
+
 export const questionnaireSchema = z
   .object({
     resourceType: z.literal("Questionnaire"),
@@ -43,6 +46,7 @@ export const questionnaireSchema = z
     lastReviewDate,
     title,
     experimental,
+    extension,
     item,
   })
   .passthrough();

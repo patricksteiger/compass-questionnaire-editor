@@ -35,11 +35,21 @@ export class QuestionnaireBuilder {
       newItem.push(this.fromItem(i, linkIdCount.toString()));
       linkIdCount++;
     }
+    const extension = this.qre.extension;
+    let newExtension: Extension[] | undefined = undefined;
+    if (extension !== undefined) {
+      newExtension = [];
+      for (let i = 0; i < extension.length; i++) {
+        const e = extension[i];
+        newExtension.push(this.fromExtension(e));
+      }
+    }
     return {
       ...this.qre,
       status,
       language,
       experimental,
+      extension: newExtension,
       item: newItem,
     };
   }

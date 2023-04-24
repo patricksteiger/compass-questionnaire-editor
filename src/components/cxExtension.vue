@@ -280,7 +280,14 @@ export default defineComponent({
       questionnaireTools,
     };
   },
-  emits: ["predefinedExtensionAdded", "removeExtension"],
+  emits: {
+    predefinedExtensionAdded(extension: Extension) {
+      return !!extension;
+    },
+    removeExtension(index: number) {
+      return index >= 0;
+    },
+  },
   methods: {
     onSelectedPredefinedExtension(extension: Extension): void {
       const clonedExtension = editorTools.clone(extension);

@@ -1,7 +1,11 @@
 import { Extension, Item } from "@/types";
 import { ItemType } from "./constants";
 
-export type AllowedItems = ItemType[] | "all";
+export type AllowedItems =
+  | ItemType[]
+  | "all_elements"
+  | "all_items"
+  | "questionnaire_only";
 
 export type PredefinedExtension = Extension & {
   __allowedItems: AllowedItems;
@@ -91,7 +95,7 @@ const maxValues: PredefinedExtension[] = [
 function getPredefinedExtensions(): PredefinedExtension[] {
   return [
     {
-      __allowedItems: "all",
+      __allowedItems: "all_items",
       __type: "boolean",
       __tooltip: "Items with hidden=true are not rendered for the user",
       url: "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
@@ -118,7 +122,7 @@ function getPredefinedExtensions(): PredefinedExtension[] {
       valueInteger: 1,
     },
     {
-      __allowedItems: "all",
+      __allowedItems: "all_elements",
       __type: "markdown",
       __tooltip: "Add notes for developers of the Questionnaire-resource",
       url: "http://hl7.org/fhir/StructureDefinition/designNote",
@@ -136,9 +140,20 @@ function getPredefinedExtensions(): PredefinedExtension[] {
   ];
 }
 
-export function getExtensions(item: Item): PredefinedExtension[] {
+export function getItemExtensions(item: Item): PredefinedExtension[] {
   return getPredefinedExtensions().filter(
     (ext) =>
-      ext.__allowedItems === "all" || ext.__allowedItems.includes(item.type),
+      ext.__allowedItems === "all_elements" ||
+      ext.__allowedItems === "all_items" ||
+      (ext.__allowedItems !== "questionnaire_only" &&
+        ext.__allowedItems.includes(item.type)),
+  );
+}
+
+export function getQuestionnaireExtensions(): PredefinedExtension[] {
+  return getPredefinedExtensions().filter(
+    (ext) =>
+      ext.__allowedItems === "all_elements" ||
+      ext.__allowedItems === "questionnaire_only",
   );
 }

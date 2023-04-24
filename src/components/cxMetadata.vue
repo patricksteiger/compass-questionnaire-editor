@@ -198,8 +198,9 @@
                         :label="$t('views.tabs.metadata.period.end')"
                       />
                     </div>
-                  </div> </q-card-section
-              ></q-item-section>
+                  </div>
+                </q-card-section>
+              </q-item-section>
             </q-list>
           </q-card>
         </q-expansion-item>
@@ -265,20 +266,39 @@
           <q-toggle color="red" v-model="experimental" />
         </q-item-section>
       </q-item>
+      <!-- extension -->
+      <cx-extension
+        v-if="questionnaire !== undefined"
+        :extensions="(questionnaire.extension ??= [])"
+        :predefinedExtensions="getQuestionnaireExtensions()"
+        v-on:predefinedExtensionAdded="onAddedPredefinedExtension"
+        v-on:removeExtension="removeExtension"
+      />
     </div>
   </div>
 </template>
 <script lang="ts">
 import { mapGetters } from "vuex";
-import { defineComponent, ref } from "vue";
-import { Identifier, status } from "@/types";
+import { defineComponent, Ref, ref } from "vue";
+import { Extension, Identifier, Questionnaire, status } from "@/types";
+import { getQuestionnaireExtensions } from "@/utils/extension";
+import cxExtension from "./cxExtension.vue";
 
 export default defineComponent({
+  components: {
+    cxExtension,
+  },
   setup() {
+    const questionnaire: Ref<Questionnaire | undefined> = ref(undefined);
     return {
       expanded: ref(true),
       statusOptions: status,
+      getQuestionnaireExtensions,
+      questionnaire,
     };
+  },
+  created() {
+    this.questionnaire = this.getQuestionnaireImportedJSON;
   },
   computed: {
     ...mapGetters(["getNameOfQuestionnaire", "getQuestionnaireImportedJSON"]),
@@ -372,6 +392,12 @@ export default defineComponent({
     },
   },
   methods: {
+    onAddedPredefinedExtension(extension: Extension): void {
+      this.questionnaire!.extension!.push(extension);
+    },
+    removeExtension(index: number): void {
+      this.questionnaire!.extension!.splice(index, 1);
+    },
     addEmptyId() {
       const newID: Identifier = {
         system: "",
