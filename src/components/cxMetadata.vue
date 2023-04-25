@@ -271,7 +271,7 @@
         v-if="questionnaire !== undefined"
         :extensions="(questionnaire.extension ??= [])"
         :predefinedExtensions="getQuestionnaireExtensions()"
-        v-on:predefinedExtensionAdded="onAddedPredefinedExtension"
+        v-on:addExtension="addExtension"
         v-on:removeExtension="removeExtension"
       />
     </div>
@@ -392,7 +392,7 @@ export default defineComponent({
     },
   },
   methods: {
-    onAddedPredefinedExtension(extension: Extension): void {
+    addExtension(extension: Extension): void {
       this.questionnaire!.extension!.push(extension);
     },
     removeExtension(index: number): void {
