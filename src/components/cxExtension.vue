@@ -20,15 +20,24 @@
             <q-card-section>
               <q-input
                 v-if="extension.__type === 'decimal'"
-                :label="extension.url"
+                :label="getExtensionLabel(extension)"
                 dense
                 type="number"
                 @keypress="onlyNumberDec"
                 v-model.number="extension.valueDecimal"
               />
               <q-input
+                v-else-if="extension.__type === 'code'"
+                :label="getExtensionLabel(extension)"
+                dense
+                type="text"
+                :error="!extension.valueCode"
+                error-message="Code must be non-empty"
+                v-model="extension.valueCode"
+              />
+              <q-input
                 v-else-if="extension.__type === 'integer'"
-                :label="extension.url"
+                :label="getExtensionLabel(extension)"
                 dense
                 type="number"
                 @keypress="onlyNumber"
@@ -36,7 +45,7 @@
               />
               <q-input
                 v-else-if="extension.__type === 'date'"
-                :label="extension.url"
+                :label="getExtensionLabel(extension)"
                 dense
                 type="text"
                 :rules="[dateTools.isDate]"
@@ -44,7 +53,7 @@
               />
               <q-input
                 v-else-if="extension.__type === 'dateTime'"
-                :label="extension.url"
+                :label="getExtensionLabel(extension)"
                 dense
                 type="text"
                 :rules="[dateTools.isDateTime]"
@@ -52,7 +61,7 @@
               />
               <q-input
                 v-else-if="extension.__type === 'time'"
-                :label="extension.url"
+                :label="getExtensionLabel(extension)"
                 dense
                 type="text"
                 mask="fulltime"
@@ -62,22 +71,26 @@
               />
               <q-input
                 v-else-if="extension.__type === 'string'"
-                :label="extension.url"
+                :label="getExtensionLabel(extension)"
                 dense
                 type="text"
+                :error="!extension.valueString"
+                error-message="String must be non-empty"
                 v-model="extension.valueString"
               />
               <q-input
                 v-else-if="extension.__type === 'markdown'"
-                :label="extension.url"
+                :label="getExtensionLabel(extension)"
                 dense
                 autogrow
                 type="textarea"
+                :error="!extension.valueMarkdown"
+                error-message="Markdown must be non-empty"
                 v-model="extension.valueMarkdown"
               />
               <q-toggle
                 v-else-if="extension.__type === 'boolean'"
-                :label="extension.url"
+                :label="getExtensionLabel(extension)"
                 dense
                 v-model="extension.valueBoolean"
               />
@@ -205,14 +218,22 @@
                         <q-card-section>
                           <q-toggle
                             v-if="extension.__type === 'boolean'"
-                            :label="extension.url"
+                            :label="getExtensionLabel(extension)"
                             dense
                             disable
                             v-model="extension.valueBoolean"
                           />
                           <q-input
+                            v-else-if="extension.__type === 'code'"
+                            :label="getExtensionLabel(extension)"
+                            dense
+                            type="text"
+                            disable
+                            v-model="extension.valueCode"
+                          />
+                          <q-input
                             v-else-if="extension.__type === 'decimal'"
-                            :label="extension.url"
+                            :label="getExtensionLabel(extension)"
                             dense
                             type="number"
                             disable
@@ -220,7 +241,7 @@
                           />
                           <q-input
                             v-else-if="extension.__type === 'integer'"
-                            :label="extension.url"
+                            :label="getExtensionLabel(extension)"
                             dense
                             type="number"
                             disable
@@ -228,7 +249,7 @@
                           />
                           <q-input
                             v-else-if="extension.__type === 'date'"
-                            :label="extension.url"
+                            :label="getExtensionLabel(extension)"
                             dense
                             type="text"
                             disable
@@ -237,7 +258,7 @@
                           />
                           <q-input
                             v-else-if="extension.__type === 'dateTime'"
-                            :label="extension.url"
+                            :label="getExtensionLabel(extension)"
                             dense
                             type="text"
                             disable
@@ -246,18 +267,18 @@
                           />
                           <q-input
                             v-else-if="extension.__type === 'time'"
-                            :label="extension.url"
+                            :label="getExtensionLabel(extension)"
                             dense
                             type="text"
                             disable
                             mask="fulltime"
-                            :rules="[dateTools.isTime]"
                             fill-mask
+                            :rules="[dateTools.isTime]"
                             v-model="extension.valueTime"
                           />
                           <q-input
                             v-else-if="extension.__type === 'string'"
-                            :label="extension.url"
+                            :label="getExtensionLabel(extension)"
                             dense
                             type="text"
                             disable
@@ -265,7 +286,7 @@
                           />
                           <q-input
                             v-else-if="extension.__type === 'markdown'"
-                            :label="extension.url"
+                            :label="getExtensionLabel(extension)"
                             dense
                             autogrow
                             type="textarea"
@@ -341,6 +362,9 @@ export default defineComponent({
         case "boolean":
           extension = { url, __type: type, valueBoolean: true };
           break;
+        case "code":
+          extension = { url, __type: type, valueCode: "" };
+          break;
         case "decimal":
           extension = { url, __type: type, valueDecimal: 0 };
           break;
@@ -388,6 +412,9 @@ export default defineComponent({
     },
     onlyNumber(event: KeyboardEvent): void {
       this.editorTools.onlyNumber(event);
+    },
+    getExtensionLabel(extension: Extension): string {
+      return `${extension.__type.toUpperCase()}: ${extension.url}`;
     },
   },
 });

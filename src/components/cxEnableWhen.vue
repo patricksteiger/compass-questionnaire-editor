@@ -79,8 +79,7 @@
               <div
                 v-if="
                   allowsAnswerChoice(selectedItem.type) &&
-                  selectedItem.answerOption !== undefined &&
-                  selectedItem.answerOption.length > 0
+                  itemTools.definedAnswerOption(selectedItem)
                 "
               >
                 <q-toolbar class="text-primary" bordered separator>
@@ -235,6 +234,7 @@ import {
 import { defaultLanguage } from "@/i18n";
 import { allowsAnswerChoice, isSelectableItem } from "@/utils/constants";
 import { questionnaireTools } from "@/utils/questionnaire";
+import { itemTools } from "@/utils/item";
 
 export default defineComponent({
   props: {
@@ -269,6 +269,7 @@ export default defineComponent({
       allowsAnswerChoice,
       splitterModel: ref(50), // start at 50%
       editorTools,
+      itemTools,
       questionnaireTools,
       filter,
       selectedItem,

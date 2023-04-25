@@ -120,6 +120,7 @@ export type AnswerOption = {
 
 export const extensionTypes = [
   "boolean",
+  "code",
   "decimal",
   "integer",
   "date",
@@ -131,6 +132,7 @@ export const extensionTypes = [
 
 export type Extension = { url: string } & (
   | { __type: "boolean"; valueBoolean: boolean }
+  | { __type: "code"; valueCode: string }
   | { __type: "decimal"; valueDecimal: number }
   | { __type: "integer"; valueInteger: number }
   | { __type: "date"; valueDate: string }

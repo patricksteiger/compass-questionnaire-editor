@@ -42,6 +42,7 @@ export class FHIRQuestionnaireValidator {
     for (const extension of qre.extension) {
       let count = 0;
       if (extension.valueBoolean !== undefined) count++;
+      if (extension.valueCode !== undefined) count++;
       if (extension.valueDecimal !== undefined) count++;
       if (extension.valueInteger !== undefined) count++;
       if (extension.valueDate !== undefined) count++;

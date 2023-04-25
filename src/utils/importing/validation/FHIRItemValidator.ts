@@ -257,6 +257,7 @@ export class FHIRItemValidator {
     for (const extension of item.extension) {
       let count = 0;
       if (extension.valueBoolean !== undefined) count++;
+      if (extension.valueCode !== undefined) count++;
       if (extension.valueDecimal !== undefined) count++;
       if (extension.valueInteger !== undefined) count++;
       if (extension.valueDate !== undefined) count++;

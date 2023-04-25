@@ -112,6 +112,12 @@ export class QuestionnaireBuilder {
         url: extension.url,
         valueBoolean: extension.valueBoolean,
       };
+    } else if (extension.valueCode !== undefined) {
+      return {
+        __type: "code",
+        url: extension.url,
+        valueCode: extension.valueCode,
+      };
     } else if (extension.valueDecimal !== undefined) {
       return {
         __type: "decimal",

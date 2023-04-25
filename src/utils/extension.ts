@@ -136,6 +136,13 @@ function getPredefinedExtensions(): PredefinedExtension[] {
       url: "http://hl7.org/fhir/StructureDefinition/questionnaire-sliderStepValue",
       valueInteger: 1,
     },
+    {
+      __allowedItems: ["attachment"],
+      __type: "code",
+      __tooltip: "Kind of attachment allowed as answer",
+      url: "http://hl7.org/fhir/StructureDefinition/mimeType",
+      valueCode: "application/pdf",
+    },
     ...minValues,
     ...maxValues,
   ];

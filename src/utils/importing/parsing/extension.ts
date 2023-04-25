@@ -9,6 +9,7 @@ export const extensionSchema = z
   .object({
     url: z.string(),
     valueBoolean: optionalBooleanSchema,
+    valueCode: optionalStringSchema,
     valueDecimal: optionalNumberSchema,
     valueInteger: optionalNumberSchema,
     valueDate: optionalStringSchema,
