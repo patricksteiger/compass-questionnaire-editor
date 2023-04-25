@@ -113,7 +113,7 @@
       </div>
     </q-card>
   </q-expansion-item>
-  <q-dialog v-model="predefinedExtensionLayout">
+  <q-dialog v-model="extensionLayout">
     <q-layout view="Lhh lpR fff" container class="bg-white">
       <q-page-container>
         <q-page padding>
@@ -124,7 +124,7 @@
             horizontal
           >
             <template v-slot:before>
-              <div v-if="predefinedLayout">
+              <div v-if="addPredefinedLayout">
                 <q-toolbar class="bg-primary text-white shadow-2">
                   <q-toolbar-title> Predefined extensions </q-toolbar-title>
                 </q-toolbar>
@@ -311,8 +311,8 @@ export default defineComponent({
     return {
       splitterLimits: ref([30, 100]),
       splitterModel: ref(60),
-      predefinedExtensionLayout: ref(false),
-      predefinedLayout: ref(false),
+      extensionLayout: ref(false),
+      addPredefinedLayout: ref(true),
       url,
       extensionTypes,
       type,
@@ -333,7 +333,7 @@ export default defineComponent({
     onSelectedPredefinedExtension(extension: Extension): void {
       const clonedExtension = editorTools.clone(extension);
       this.$emit("addExtension", clonedExtension);
-      this.predefinedExtensionLayout = false;
+      this.extensionLayout = false;
     },
     onSelectedCustomExtension(url: string, type: ExtensionType): void {
       let extension: Extension;
@@ -370,18 +370,18 @@ export default defineComponent({
           throw new UnreachableError(type);
       }
       this.$emit("addExtension", extension);
-      this.predefinedExtensionLayout = false;
+      this.extensionLayout = false;
     },
     removeExtension(index: number): void {
       this.$emit("removeExtension", index);
     },
     addPredefinedExtension(): void {
-      this.predefinedLayout = true;
-      this.predefinedExtensionLayout = true;
+      this.addPredefinedLayout = true;
+      this.extensionLayout = true;
     },
     addCustomExtension(): void {
-      this.predefinedLayout = false;
-      this.predefinedExtensionLayout = true;
+      this.addPredefinedLayout = false;
+      this.extensionLayout = true;
     },
     onlyNumberDec(event: KeyboardEvent): void {
       this.editorTools.onlyNumberDec(event);
