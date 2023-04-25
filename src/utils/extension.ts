@@ -97,7 +97,8 @@ function getPredefinedExtensions(): PredefinedExtension[] {
     {
       __allowedItems: "all_items",
       __type: "boolean",
-      __tooltip: "Items with hidden=true are not rendered for the user",
+      __tooltip:
+        "Items with hidden=true are not rendered for the user (includes child-elements)",
       url: "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
       valueBoolean: true,
     },

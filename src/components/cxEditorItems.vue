@@ -1193,7 +1193,7 @@
                 v-if="selectedItem !== undefined"
                 :extensions="(selectedItem.extension ??= [])"
                 :predefinedExtensions="getItemExtensions(selectedItem)"
-                v-on:predefinedExtensionAdded="onAddedPredefinedExtension"
+                v-on:addExtension="addExtension"
                 v-on:removeExtension="removeExtension"
               />
             </q-list>
@@ -2955,7 +2955,7 @@ export default defineComponent({
     onlyNumber($event: KeyboardEvent): void {
       this.editorTools.onlyNumber($event);
     },
-    onAddedPredefinedExtension(e: Extension): void {
+    addExtension(e: Extension): void {
       this.selectedItem!.extension!.push(e);
     },
     removeExtension(index: number): void {
