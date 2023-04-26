@@ -324,7 +324,6 @@ class FHIRValidation {
         );
       }
 
-      // FIXME: get type from linkId. exist maps to type boolean
       if (enableWhen.answerDecimal) {
         enableWhen.__answer = enableWhen.answerDecimal.toString();
         enableWhen.__type = "decimal";
@@ -333,7 +332,6 @@ class FHIRValidation {
         enableWhen.__answer = enableWhen.answerInteger.toString();
         enableWhen.__type = "integer";
       }
-      // FIXME: When can answerCoding be the type?
       if (enableWhen.answerCoding) {
         enableWhen.__answer = enableWhen.answerCoding.code;
         enableWhen.__type = "coding";

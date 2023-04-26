@@ -257,7 +257,6 @@
               class="row items-center justify-between text-bold text-h5 q-mb-md"
             >
               <!-- Question text -->
-              <!-- TODO: properly support resetting to old text -->
               <q-input
                 autogrow
                 v-if="selectedItem !== undefined"

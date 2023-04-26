@@ -154,13 +154,13 @@
 import FileUpload, { VueUploadItem } from "vue-upload-component";
 import { mapMutations, mapGetters } from "vuex";
 import { useQuasar } from "quasar";
-import { importJsonQuestionnaire } from "../utils/ImportJson";
 import { defineComponent, Ref, ref } from "vue";
 import { i18n } from "@/i18n";
 import { Questionnaire } from "@/types";
 import { Language } from "@/store";
 import { v4 as uuidv4 } from "uuid";
 import { transformer } from "@/utils/importing/Transformer";
+import { fileUtils } from "@/utils/importing/FileUtils";
 
 type LanguageInfo = {
   language: Language;
@@ -195,7 +195,7 @@ export default defineComponent({
       hideLoading() {
         $q.loading.hide();
       },
-      importJsonQuestionnaire,
+      fileUtils,
       alertError: ref(false),
       warnings,
       messageErrorFHIR,
@@ -233,9 +233,7 @@ export default defineComponent({
       reader.readAsText(newFile.file);
       reader.onload = () => {
         try {
-          const jsonFile = this.importJsonQuestionnaire.validateJson(
-            reader.result,
-          );
+          const jsonFile = this.fileUtils.validateJson(reader.result);
           if (transformer.isQuestionnaireResource(jsonFile)) {
             this.handleQuestionnaireResource(newFile, jsonFile);
           } else if (transformer.isBundleResource(jsonFile)) {
@@ -298,7 +296,7 @@ export default defineComponent({
           ...this.uploadedQuestionnaires.values(),
         ][0][0];
         for (const qre of questionnaires) {
-          const errors = this.importJsonQuestionnaire.validateItemStructure(
+          const errors = this.fileUtils.validateItemStructure(
             referenceQRE.item,
             qre.item,
           );
