@@ -104,16 +104,7 @@ export class FHIRItemValidator {
     answerOption: ParsedAnswerOption,
     item: ParsedItem,
   ): void {
-    let count = 0;
-    if (answerOption.valueCoding !== undefined) count++;
-    if (answerOption.valueDecimal !== undefined) count++;
-    if (answerOption.valueInteger !== undefined) count++;
-    if (answerOption.valueDate !== undefined) count++;
-    if (answerOption.valueDateTime !== undefined) count++;
-    if (answerOption.valueTime !== undefined) count++;
-    if (answerOption.valueString !== undefined) count++;
-    if (answerOption.valueQuantity !== undefined) count++;
-    if (answerOption.valueReference !== undefined) count++;
+    const count = fhirValidatorUtils.countAnswerOptionValue(answerOption);
     if (count > 1) {
       this.errors.push(
         `LinkId "${item.linkId}" has answerOption with more than 1 answer.`,
@@ -222,17 +213,7 @@ export class FHIRItemValidator {
     enableWhen: ParsedEnableWhen,
     item: ParsedItem,
   ): void {
-    let count = 0;
-    if (enableWhen.answerBoolean !== undefined) count++;
-    if (enableWhen.answerDecimal !== undefined) count++;
-    if (enableWhen.answerInteger !== undefined) count++;
-    if (enableWhen.answerTime !== undefined) count++;
-    if (enableWhen.answerDate !== undefined) count++;
-    if (enableWhen.answerDateTime !== undefined) count++;
-    if (enableWhen.answerString !== undefined) count++;
-    if (enableWhen.answerCoding !== undefined) count++;
-    if (enableWhen.answerQuantity !== undefined) count++;
-    if (enableWhen.answerReference !== undefined) count++;
+    const count = fhirValidatorUtils.countEnableWhenAnswer(enableWhen);
     if (count > 1) {
       this.errors.push(
         `LinkId "${item.linkId}" has enableWhen with more than 1 answer.`,
