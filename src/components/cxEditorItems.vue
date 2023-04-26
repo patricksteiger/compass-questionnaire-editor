@@ -492,7 +492,8 @@
                                 class="col-12"
                                 @keypress="onlyNumberDec"
                                 autogrow
-                                v-model="answerOption.valueDecimal"
+                                v-model.number="answerOption.valueDecimal"
+                                type="number"
                                 :disable="!selectedItem.__active"
                                 :label="
                                   answerOption.valueDecimal !==
@@ -540,7 +541,7 @@
                                 class="col-12"
                                 @keypress="onlyNumber"
                                 autogrow
-                                v-model="answerOption.valueInteger"
+                                v-model.number="answerOption.valueInteger"
                                 :disable="!selectedItem.__active"
                                 :label="
                                   answerOption.valueInteger !==
@@ -1572,7 +1573,7 @@
                 label="Decimal"
                 @keypress="onlyNumberDec"
                 class="col-4"
-                v-model="chosenEnableWhen.answerDecimal"
+                v-model.number="chosenEnableWhen.answerDecimal"
                 type="number"
                 dense
               />
@@ -1635,7 +1636,7 @@
                 label="Integer"
                 @keypress="onlyNumber"
                 class="col-4"
-                v-model="chosenEnableWhen.answerInteger"
+                v-model.number="chosenEnableWhen.answerInteger"
                 type="number"
                 dense
               />
@@ -3363,10 +3364,10 @@ export default defineComponent({
           answerOption.valueCoding = { code: "", display: "", system: "" };
           break;
         case "decimal":
-          answerOption.valueDecimal = "";
+          answerOption.valueDecimal = 0;
           break;
         case "integer":
-          answerOption.valueInteger = "";
+          answerOption.valueInteger = 0;
           break;
         case "date":
           answerOption.valueDate = "";

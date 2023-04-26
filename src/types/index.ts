@@ -92,8 +92,8 @@ export type AnswerOption = {
   __icon?: string;
   __newAnswer?: boolean;
   __oldValueCoding?: Coding;
-  __oldValueDecimal?: string | number;
-  __oldValueInteger?: string | number;
+  __oldValueDecimal?: number;
+  __oldValueInteger?: number;
   __oldValueDate?: string;
   __oldValueDateTime?: string;
   __oldValueTime?: string;
@@ -108,8 +108,8 @@ export type AnswerOption = {
   __oldFormattedValueReference?: string;
   __linkId?: string;
   valueCoding?: Coding;
-  valueDecimal?: string | number;
-  valueInteger?: string | number;
+  valueDecimal?: number;
+  valueInteger?: number;
   valueDate?: string;
   valueDateTime?: string;
   valueTime?: string;

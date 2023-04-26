@@ -333,7 +333,7 @@ function filterItem(item: Item): void {
             } else {
               if (editorTools.isNumber(enableWhen.__answer)) {
                 clearEnableWhenAnswers(enableWhen);
-                enableWhen.answerDecimal = parseFloat(enableWhen.__answer!);
+                enableWhen.answerDecimal = parseFloat(enableWhen.__answer);
               } else {
                 item.enableWhen.splice(i, 1);
               }
@@ -345,7 +345,7 @@ function filterItem(item: Item): void {
             } else {
               if (editorTools.isNumber(enableWhen.__answer)) {
                 clearEnableWhenAnswers(enableWhen);
-                enableWhen.answerInteger = parseInt(enableWhen.__answer!);
+                enableWhen.answerInteger = parseInt(enableWhen.__answer);
               } else {
                 item.enableWhen.splice(i, 1);
               }

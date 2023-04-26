@@ -1,6 +1,5 @@
 <template>
   <!-- extension -->
-  <!-- FIXME: rework extensions -->
   <q-expansion-item
     expand-separator
     icon="account_tree"

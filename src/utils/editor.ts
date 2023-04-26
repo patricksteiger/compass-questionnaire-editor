@@ -233,13 +233,12 @@ class EditorTools {
     }
   }
 
-  isNumber(x: string | number | null | undefined): boolean {
+  isNumber(x: string | number | null | undefined): x is string | number {
     return (
       x != null && x !== "" && (typeof x === "number" || !isNaN(Number(x)))
     );
   }
 
-  // FIXME: Implement proper handling of +/- for number inputs
   private isNotIntegerKey(code: string): boolean {
     // Number-KeyCodes: "Digit0" - "Digit9"
     const noNumberKeyCode =
