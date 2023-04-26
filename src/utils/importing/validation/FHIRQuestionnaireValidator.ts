@@ -1,5 +1,6 @@
 import { ParsedQuestionnaire } from "../parsing/questionnaire";
 import { FHIRItemValidator } from "./FHIRItemValidator";
+import { fhirValidatorUtils } from "./FHIRValidatorUtils";
 
 export type ValidationResult =
   | { state: "success"; data: ParsedQuestionnaire }
@@ -36,27 +37,17 @@ export class FHIRQuestionnaireValidator {
     }
   }
 
-  // TODO: refactor validation of extension for qre and items
   private validateExtension(qre: ParsedQuestionnaire, errors: string[]): void {
     if (qre.extension === undefined) return;
     for (const extension of qre.extension) {
-      let count = 0;
-      if (extension.valueBoolean !== undefined) count++;
-      if (extension.valueCode !== undefined) count++;
-      if (extension.valueDecimal !== undefined) count++;
-      if (extension.valueInteger !== undefined) count++;
-      if (extension.valueDate !== undefined) count++;
-      if (extension.valueDateTime !== undefined) count++;
-      if (extension.valueTime !== undefined) count++;
-      if (extension.valueString !== undefined) count++;
-      if (extension.valueMarkdown !== undefined) count++;
+      const count = fhirValidatorUtils.countExtensionValue(extension);
       if (count === 0) {
         errors.push(
-          `Questionnaire "${qre.language}" has extension with no answer.`,
+          `Questionnaire "${qre.language}" has extension with no value.`,
         );
       } else if (count > 1) {
         errors.push(
-          `Questionnaire "${qre.language}" has extension with multiple answers.`,
+          `Questionnaire "${qre.language}" has extension with multiple values.`,
         );
       }
     }

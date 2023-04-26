@@ -9,6 +9,7 @@ import {
 import { validatorUtils } from "../TransformerUtils";
 import { ParsedEnableWhen } from "../parsing/enableWhen";
 import { itemTools } from "@/utils/item";
+import { fhirValidatorUtils } from "./FHIRValidatorUtils";
 
 export class FHIRItemValidator {
   private linkIdSet: Set<string>;
@@ -255,23 +256,14 @@ export class FHIRItemValidator {
   private validateExtension(item: ParsedItem): void {
     if (item.extension === undefined) return;
     for (const extension of item.extension) {
-      let count = 0;
-      if (extension.valueBoolean !== undefined) count++;
-      if (extension.valueCode !== undefined) count++;
-      if (extension.valueDecimal !== undefined) count++;
-      if (extension.valueInteger !== undefined) count++;
-      if (extension.valueDate !== undefined) count++;
-      if (extension.valueDateTime !== undefined) count++;
-      if (extension.valueTime !== undefined) count++;
-      if (extension.valueString !== undefined) count++;
-      if (extension.valueMarkdown !== undefined) count++;
+      const count = fhirValidatorUtils.countExtensionValue(extension);
       if (count === 0) {
         this.errors.push(
-          `LinkId "${item.linkId}" has extension with no answer.`,
+          `LinkId "${item.linkId}" has extension with no value.`,
         );
       } else if (count > 1) {
         this.errors.push(
-          `LinkId "${item.linkId}" has extension with multiple answers.`,
+          `LinkId "${item.linkId}" has extension with multiple values.`,
         );
       }
     }
