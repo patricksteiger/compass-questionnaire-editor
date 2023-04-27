@@ -3461,16 +3461,15 @@ export default defineComponent({
     },
     deleteEnableWhenWithQuestionID(items: Item[], linkIDs: Set<string>) {
       for (const item of items) {
-        if (item.enableWhen !== undefined) {
-          for (let i = item.enableWhen.length - 1; i >= 0; i--) {
-            const enableWhen = item.enableWhen[i];
-            if (linkIDs.has(enableWhen.question)) {
-              item.enableWhen.splice(i, 1);
-            }
-          }
-        }
         if (item.item !== undefined) {
           this.deleteEnableWhenWithQuestionID(item.item, linkIDs);
+        }
+        if (item.enableWhen === undefined) continue;
+        for (let i = item.enableWhen.length - 1; i >= 0; i--) {
+          const enableWhen = item.enableWhen[i];
+          if (linkIDs.has(enableWhen.question)) {
+            item.enableWhen.splice(i, 1);
+          }
         }
       }
     },
@@ -3485,22 +3484,6 @@ export default defineComponent({
       "getQuestionnaires",
       "getUsedLanguages",
     ]),
-    answerTypeField() {
-      let type = "";
-      if (this.selectedItem === undefined) {
-        return type;
-      }
-      if (this.selectedItem.type === "date") {
-        type = "date";
-      }
-      if (
-        this.selectedItem.type === "decimal" ||
-        this.selectedItem.type === "integer"
-      ) {
-        type = "number";
-      }
-      return type;
-    },
     requiredItem: {
       get(): boolean | null {
         if (this.selectedItem === undefined) {
