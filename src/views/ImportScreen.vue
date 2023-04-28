@@ -154,7 +154,7 @@
 import FileUpload, { VueUploadItem } from "vue-upload-component";
 import { mapMutations, mapGetters } from "vuex";
 import { useQuasar } from "quasar";
-import { defineComponent, Ref, ref } from "vue";
+import { defineComponent, ref } from "vue";
 import { i18n } from "@/i18n";
 import { Questionnaire } from "@/types";
 import { Language } from "@/store";
@@ -179,14 +179,12 @@ export default defineComponent({
   },
   setup() {
     const $q = useQuasar();
-    const messageErrorFHIR: Ref<string[]> = ref([]);
-    const warnings: Ref<string[]> = ref([]);
-    const files: Ref<VueUploadItem[]> = ref([]);
+    const messageErrorFHIR = ref<string[]>([]);
+    const warnings = ref<string[]>([]);
+    const files = ref<VueUploadItem[]>([]);
     const messageError = ref("");
-    const uploadedQuestionnaires: Ref<Map<string, Questionnaire[]>> = ref(
-      new Map(),
-    );
-    const uploadedFiles: Ref<FileInfo[]> = ref([]);
+    const uploadedQuestionnaires = ref<Map<string, Questionnaire[]>>(new Map());
+    const uploadedFiles = ref<FileInfo[]>([]);
 
     return {
       showLoading() {

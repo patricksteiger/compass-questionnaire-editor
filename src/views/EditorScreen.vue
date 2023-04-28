@@ -36,6 +36,8 @@ import cxSettings from "@/components/cxSettings.vue";
 import { defineComponent, ref } from "vue";
 import { mapMutations } from "vuex";
 
+type Tab = "editor" | "metadata" | "settings";
+
 export default defineComponent({
   components: {
     cxEditorItems,
@@ -43,9 +45,8 @@ export default defineComponent({
     cxSettings,
   },
   setup() {
-    return {
-      tab: ref("editor"),
-    };
+    const tab = ref<Tab>("editor");
+    return { tab };
   },
   created() {
     this.switchToEditorScreen();
