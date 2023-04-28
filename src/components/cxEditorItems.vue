@@ -1198,7 +1198,9 @@
                   </div>
                 </q-card>
               </q-expansion-item>
-              <!-- extension -->
+            </q-list>
+            <!-- extension -->
+            <q-list padding bordered>
               <cx-extension
                 v-if="selectedItem !== undefined"
                 :extensions="(selectedItem.extension ??= [])"
@@ -1288,80 +1290,10 @@
   </div>
 
   <q-dialog v-model="languageLayout">
-    <q-layout view="Lhh lpR fff" container class="bg-white">
-      <q-page-container>
-        <q-page padding>
-          <q-splitter
-            v-model="languageSplitter"
-            style="height: 87vh"
-            :limits="languageSplitterLimits"
-            horizontal
-          >
-            <template v-slot:before>
-              <q-toolbar class="bg-primary text-white shadow-2">
-                <q-toolbar-title>{{
-                  $t("views.languages.selectedLanguages")
-                }}</q-toolbar-title>
-              </q-toolbar>
-              <div class="q-pa-md">
-                <q-list bordered separator>
-                  <q-item
-                    v-for="lang in getUsedLanguages"
-                    :key="lang"
-                    v-ripple
-                    clickable
-                    :class="getSelectedLanguageClass(lang)"
-                    @click="switchFromLanguageHub(lang)"
-                  >
-                    <q-item-section>
-                      <q-btn
-                        style="width: 50%"
-                        icon="delete"
-                        :disable="getUsedLanguages.length <= 1"
-                        @click="deleteLanguage(lang)"
-                      >
-                      </q-btn>
-                    </q-item-section>
-                    <q-item-section>
-                      <q-item-label>{{ lang }}</q-item-label>
-                    </q-item-section>
-                  </q-item>
-                </q-list>
-              </div>
-            </template>
-            <template v-slot:after>
-              <q-toolbar class="bg-primary text-white shadow-2">
-                <q-toolbar-title>{{
-                  $t("views.languages.notSelectedLanguages")
-                }}</q-toolbar-title>
-              </q-toolbar>
-              <div class="q-pa-md">
-                <q-list bordered separator>
-                  <q-item
-                    v-for="lang in getUnusedLanguages()"
-                    :key="lang"
-                    v-ripple
-                    clickable
-                    @click="addAndSwitchFromLanguageHub(lang)"
-                  >
-                    <q-item-section icon>
-                      <q-btn
-                        style="width: 50%"
-                        icon="add"
-                        @click="addLanguage(lang)"
-                      />
-                    </q-item-section>
-                    <q-item-section>
-                      <q-item-label>{{ lang }}</q-item-label>
-                    </q-item-section>
-                  </q-item>
-                </q-list>
-              </div>
-            </template>
-          </q-splitter>
-        </q-page>
-      </q-page-container>
-    </q-layout>
+    <cx-language-hub
+      v-on:switchFromLanguageHub="switchFromLanguageHub"
+      v-on:deleteLanguage="deleteLanguage"
+    />
   </q-dialog>
 
   <!-- ValidationHub -->
@@ -2312,6 +2244,7 @@ import { mapGetters } from "vuex";
 import { v4 as uuidv4 } from "uuid";
 import cxEnableWhen from "@/components/cxEnableWhen.vue";
 import cxExtension from "@/components/cxExtension.vue";
+import cxLanguageHub from "@/components/cxLanguageHub.vue";
 import cxValidationHub from "@/components/cxValidationHub.vue";
 import { i18n, defaultLanguage } from "@/i18n";
 import {
@@ -2335,6 +2268,7 @@ export default defineComponent({
   components: {
     cxEnableWhen,
     cxExtension,
+    cxLanguageHub,
     cxValidationHub,
   },
   setup() {
@@ -2354,6 +2288,7 @@ export default defineComponent({
     const otherLinkId = ref<string>("");
     const linkedItem = ref<Item | undefined>(undefined);
     return {
+      quasar: useQuasar(),
       getItemExtensions,
       addLinkIdLayout: ref(false),
       swapLinkIdLayout: ref(false),
@@ -2420,7 +2355,7 @@ export default defineComponent({
     changeLinkIdForItem(internalLinkId: string, newLinkId: string): void {
       const invalidLinkIdError = this.validateLinkId(newLinkId);
       if (invalidLinkIdError !== undefined) {
-        alert(invalidLinkIdError);
+        this.alertError(invalidLinkIdError);
         return;
       }
       const questionnaires: Questionnaire[] = this.getQuestionnaires;
@@ -2489,7 +2424,7 @@ export default defineComponent({
     addItemWithLinkId(linkId: string, type: ItemType): void {
       const invalidLinkId = this.validateLinkId(linkId);
       if (invalidLinkId !== undefined) {
-        alert(invalidLinkId);
+        this.alertError(invalidLinkId);
         return;
       }
       this.onAddQuestion(linkId, type);
@@ -2714,25 +2649,9 @@ export default defineComponent({
         (this.selectedItem.__active && this.selectedItem.type !== "display")
       );
     },
-    deleteLanguage(language: Language): void {
-      const accepted = confirm(
-        this.$t("views.languages.confirmDeletion", { language }),
-      );
-      if (!accepted) {
-        return;
-      }
-      this.$store.commit("removeLanguage", language);
-      const deletedCurrentQRE = this.language === language;
-      if (deletedCurrentQRE) {
-        this.refreshQuestionnaire();
-      }
-    },
-    addLanguage(language: Language): void {
-      this.$store.commit("addLanguage", language);
-    },
-    addAndSwitchFromLanguageHub(language: Language): void {
-      this.addLanguage(language);
-      this.switchFromLanguageHub(language);
+    // Only gets called if current language is deleted in LanguageHub
+    deleteLanguage(): void {
+      this.refreshQuestionnaire();
     },
     switchLanguage(language: Language): void {
       if (this.language !== language) {
@@ -2760,9 +2679,6 @@ export default defineComponent({
         this.selected = internalId;
       }
       this.validationLayout = false;
-    },
-    getSelectedLanguageClass(lang: Language): string {
-      return lang === this.language ? "bg-purple text-white" : "";
     },
     refreshQuestionnaire(): void {
       this.questionaireGUI = this.getQuestionnaireImportedJSON;
@@ -2820,11 +2736,7 @@ export default defineComponent({
         $event,
       );
       if (itemSelected === undefined) {
-        const $q = useQuasar();
-        $q.notify({
-          type: "negative",
-          message: i18n.global.t("views.editor.questionDontexist"),
-        });
+        this.alertError(i18n.global.t("views.editor.questionDontexist"));
         return;
       }
       this.lastSelected = this.selected;
@@ -3354,6 +3266,15 @@ export default defineComponent({
           }
         }
       }
+    },
+    alertError(message: string): void {
+      this.quasar.notify({
+        message,
+        position: "top",
+        type: "negative",
+        progress: true,
+        actions: [{ label: "Dismiss", color: "white" }],
+      });
     },
   },
   computed: {
