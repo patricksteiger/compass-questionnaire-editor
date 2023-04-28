@@ -224,7 +224,8 @@ export default defineComponent({
     },
     exportQuestionnaireBundle() {
       this.showLoading();
-      const focusedQuestionnaire = this.getQuestionnaireImportedJSON;
+      const focusedQuestionnaire: Questionnaire =
+        this.getQuestionnaireImportedJSON;
       this.validationErrorMessages =
         this.exportJsonQuestionnaire.validateQuestionnaire(
           focusedQuestionnaire,
@@ -246,7 +247,7 @@ export default defineComponent({
       this.hideLoading();
     },
     async exportQuestionnaire() {
-      let blob = undefined;
+      let blob: Blob | undefined = undefined;
       try {
         this.showLoading();
         const objToExport: Questionnaire = this.getQuestionnaireImportedJSON;

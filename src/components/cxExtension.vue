@@ -342,10 +342,10 @@ export default defineComponent({
     };
   },
   emits: {
-    addExtension(extension: Extension) {
+    addExtension(extension: Extension): boolean {
       return !!extension.url;
     },
-    removeExtension(index: number) {
+    removeExtension(index: number): boolean {
       return index >= 0;
     },
   },

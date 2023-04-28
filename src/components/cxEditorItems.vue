@@ -1364,68 +1364,11 @@
   </div>
 
   <q-dialog v-model="validationLayout">
-    <q-layout view="Lhh lpR fff" container class="bg-white">
-      <q-toolbar class="bg-primary text-white shadow-2">
-        <q-toolbar-title>Warnings</q-toolbar-title>
-      </q-toolbar>
-      <q-list separator>
-        <q-item v-for="result in validationResult" :key="result.language">
-          <div
-            class="q-pa-md"
-            v-if="result.metadata.length > 0 || result.items.length > 0"
-          >
-            <q-toolbar
-              class="bg-secondary text-white shadow-2"
-              clickable
-              @click="switchLanguageFromValidationHub(result.language)"
-            >
-              <q-toolbar-title>{{ result.language }}</q-toolbar-title>
-            </q-toolbar>
-            <div class="q-pa-md" v-if="result.metadata.length > 0">
-              Metadata:
-              <q-list bordered separator>
-                <q-item
-                  v-for="warning in result.metadata"
-                  :key="warning"
-                  clickable
-                  @click="switchLanguageFromValidationHub(result.language)"
-                >
-                  <q-item-section>
-                    <q-item-label>{{ warning }}</q-item-label>
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </div>
-            <div class="q-pa-md" v-if="result.items.length > 0">
-              Items:
-              <q-list bordered separator>
-                <q-item
-                  v-for="item in result.items"
-                  :key="item.linkId"
-                  clickable
-                  @click="
-                    switchToItemFromValidationHub(
-                      result.language,
-                      item.internalId,
-                    )
-                  "
-                >
-                  {{ item.linkId }}
-                  <q-list separator>
-                    <q-item v-for="warning in item.warnings" :key="warning">
-                      <q-item-section>
-                        <q-item-label>{{ warning }}</q-item-label>
-                      </q-item-section>
-                    </q-item>
-                  </q-list>
-                </q-item>
-              </q-list>
-            </div>
-          </div>
-        </q-item>
-      </q-list>
-      <div v-if="validationHasNoWarnings()">There are no warnings</div>
-    </q-layout>
+    <cx-validation-hub
+      :questionnaires="getQuestionnaires"
+      v-on:switchLanguageFromValidationHub="switchLanguageFromValidationHub"
+      v-on:switchToItemFromValidationHub="switchToItemFromValidationHub"
+    />
   </q-dialog>
 
   <!-- Choose answer for specific enableWhen types -->
@@ -2359,6 +2302,7 @@ import { mapGetters } from "vuex";
 import { v4 as uuidv4 } from "uuid";
 import cxEnableWhen from "@/components/cxEnableWhen.vue";
 import cxExtension from "@/components/cxExtension.vue";
+import cxValidationHub from "@/components/cxValidationHub.vue";
 import { i18n, defaultLanguage } from "@/i18n";
 import {
   AnswerOption,
@@ -2375,14 +2319,13 @@ import {
 } from "@/types";
 import { Language, languages } from "@/store";
 import { itemTools } from "@/utils/item";
-import { Validator } from "@/utils/validation/Validator";
-import { Warning } from "@/utils/validation/QuestionnaireValidator";
 import { getItemExtensions } from "@/utils/extension";
 
 export default defineComponent({
   components: {
     cxEnableWhen,
     cxExtension,
+    cxValidationHub,
   },
   setup() {
     const triggerNegative = () => {
@@ -2453,7 +2396,6 @@ export default defineComponent({
       );
     };
     const answerOptionItem: Ref<AnswerOption | undefined> = ref(undefined);
-    const validationResult: Ref<Warning[]> = ref([]);
     const newLinkId: Ref<string> = ref("");
     const newLinkIdType: Ref<ItemType> = ref("integer");
     const otherLinkIds: Ref<string[]> = ref([]);
@@ -2472,7 +2414,6 @@ export default defineComponent({
       languageSplitter: ref(40),
       languageSplitterLimits: ref([30, 60]),
       validationLayout: ref(false),
-      validationResult,
       answerConstraints,
       allowsAnswerChoice,
       triggerNegative,
@@ -2903,17 +2844,7 @@ export default defineComponent({
       return languages.filter((lang) => !this.getUsedLanguages.includes(lang));
     },
     validateState(): void {
-      const questionnaires: Questionnaire[] = this.getQuestionnaires;
-      this.validationResult = Validator.check(questionnaires);
       this.validationLayout = true;
-    },
-    validationHasNoWarnings(): boolean {
-      for (const result of this.validationResult) {
-        if (result.metadata.length > 0 || result.items.length > 0) {
-          return false;
-        }
-      }
-      return true;
     },
     validItemId(s: string): true | string {
       return s.length > 0 || "Selected linkId has to be non-empty";
