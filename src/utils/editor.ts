@@ -5,6 +5,7 @@ import {
   Coding,
   Quantity,
   Reference,
+  AnswerOption,
 } from "@/types";
 import { itemTools } from "./item";
 import { questionnaireTools } from "./questionnaire";
@@ -269,6 +270,60 @@ class EditorTools {
     n: number | string | undefined | null,
   ): n is "" | undefined | null {
     return n === "" || n === undefined || n === null;
+  }
+
+  setDisplayToOld(answerOption: AnswerOption): void {
+    if (answerOption.valueCoding !== undefined) {
+      answerOption.valueCoding = editorTools.clone(
+        answerOption.__oldValueCoding,
+      );
+      answerOption.__formattedValueCoding =
+        answerOption.__oldFormattedValueCoding;
+    }
+  }
+
+  changedQuantity(answerOption: AnswerOption): boolean {
+    if (answerOption.__newAnswer) return false;
+    const old = answerOption.__oldValueQuantity;
+    if (old === undefined) return false;
+    const current = answerOption.valueQuantity;
+    if (current === undefined) return true;
+    return (
+      current.code !== old.code ||
+      current.system !== old.system ||
+      current.unit !== old.unit ||
+      current.value !== old.value ||
+      current.comparator !== old.comparator
+    );
+  }
+
+  changedCoding(answerOption: AnswerOption): boolean {
+    if (answerOption.__newAnswer) return false;
+    const old = answerOption.__oldValueCoding;
+    if (old === undefined) return false;
+    const current = answerOption.valueCoding;
+    if (current === undefined) return true;
+    return (
+      current.code !== old.code ||
+      current.system !== old.system ||
+      current.display !== old.display ||
+      current.version !== old.version ||
+      current.userSelected !== old.userSelected
+    );
+  }
+
+  changedReference(answerOption: AnswerOption): boolean {
+    if (answerOption.__newAnswer) return false;
+    const old = answerOption.__oldValueReference;
+    if (old === undefined) return false;
+    const current = answerOption.valueReference;
+    if (current === undefined) return true;
+    // FIXME: Implement identifier equality
+    return (
+      current.type !== old.type ||
+      current.display !== old.display ||
+      current.reference !== old.reference
+    );
   }
 
   formatQuantity(quantity: Quantity): string {

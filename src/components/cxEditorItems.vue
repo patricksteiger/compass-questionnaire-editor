@@ -456,7 +456,7 @@
                                 clickable
                                 @click="handleAnswerOptionCoding(answerOption)"
                                 :label="
-                                  changedCoding(answerOption)
+                                  editorTools.changedCoding(answerOption)
                                     ? `${$t('views.editor.originalText')}: ${
                                         answerOption.__oldFormattedValueCoding
                                       }`
@@ -474,8 +474,10 @@
                                   icon="history"
                                   :disable="!selectedItem.__active"
                                   class="q-mr-sm text-grey-8"
-                                  v-if="changedCoding(answerOption)"
-                                  @click="setDisplayToOld(answerOption)"
+                                  v-if="editorTools.changedCoding(answerOption)"
+                                  @click="
+                                    editorTools.setDisplayToOld(answerOption)
+                                  "
                                   ><q-tooltip>
                                     {{ $t("components.reverseAnswer") }}
                                   </q-tooltip></q-btn
@@ -793,7 +795,7 @@
                                   handleAnswerOptionQuantity(answerOption)
                                 "
                                 :label="
-                                  changedQuantity(answerOption)
+                                  editorTools.changedQuantity(answerOption)
                                     ? `${$t('views.editor.originalText')}: ${
                                         answerOption.__oldFormattedValueQuantity
                                       }`
@@ -811,8 +813,12 @@
                                   icon="history"
                                   :disable="!selectedItem.__active"
                                   class="q-mr-sm text-grey-8"
-                                  v-if="changedQuantity(answerOption)"
-                                  @click="setDisplayToOld(answerOption)"
+                                  v-if="
+                                    editorTools.changedQuantity(answerOption)
+                                  "
+                                  @click="
+                                    editorTools.setDisplayToOld(answerOption)
+                                  "
                                   ><q-tooltip>
                                     {{ $t("components.reverseAnswer") }}
                                   </q-tooltip></q-btn
@@ -839,7 +845,7 @@
                                   handleAnswerOptionReference(answerOption)
                                 "
                                 :label="
-                                  changedReference(answerOption)
+                                  editorTools.changedReference(answerOption)
                                     ? `${$t('views.editor.originalText')}: ${
                                         answerOption.__oldFormattedValueReference
                                       }`
@@ -857,8 +863,12 @@
                                   icon="history"
                                   :disable="!selectedItem.__active"
                                   class="q-mr-sm text-grey-8"
-                                  v-if="changedReference(answerOption)"
-                                  @click="setDisplayToOld(answerOption)"
+                                  v-if="
+                                    editorTools.changedReference(answerOption)
+                                  "
+                                  @click="
+                                    editorTools.setDisplayToOld(answerOption)
+                                  "
                                   ><q-tooltip>
                                     {{ $t("components.reverseAnswer") }}
                                   </q-tooltip></q-btn
@@ -2328,13 +2338,6 @@ export default defineComponent({
     cxValidationHub,
   },
   setup() {
-    const triggerNegative = () => {
-      const $q = useQuasar();
-      $q.notify({
-        type: "negative",
-        message: i18n.global.t("views.editor.questionDontexist"),
-      });
-    };
     const questionaireGUI: Ref<Questionnaire | undefined> = ref(undefined);
     const selectedItem: Ref<Item | undefined> = ref(undefined);
     const lastSelectedItem: Ref<Item | undefined> = ref(undefined);
@@ -2342,59 +2345,11 @@ export default defineComponent({
     const lastSelected: Ref<string | null> = ref(null);
     const language: Ref<Language> = ref(defaultLanguage);
     const item: Ref<Item[]> = ref([]);
-    const enableWhen: EnableWhen = { question: "", operator: "" };
-    const enableWhenItem: Ref<EnableWhen> = ref(enableWhen);
+    const enableWhenItem: Ref<EnableWhen> = ref({
+      question: "",
+      operator: "",
+    } as EnableWhen);
     const chosenEnableWhen: Ref<EnableWhen | undefined> = ref(undefined);
-    const setDisplayToOld = (answerOption: AnswerOption): void => {
-      if (answerOption.valueCoding !== undefined) {
-        answerOption.valueCoding = editorTools.clone(
-          answerOption.__oldValueCoding,
-        );
-        answerOption.__formattedValueCoding =
-          answerOption.__oldFormattedValueCoding;
-      }
-    };
-    const changedCoding = (answerOption: AnswerOption): boolean => {
-      if (answerOption.__newAnswer) return false;
-      const old = answerOption.__oldValueCoding;
-      if (old === undefined) return false;
-      const current = answerOption.valueCoding;
-      if (current === undefined) return true;
-      return (
-        current.code !== old.code ||
-        current.system !== old.system ||
-        current.display !== old.display ||
-        current.version !== old.version ||
-        current.userSelected !== old.userSelected
-      );
-    };
-    const changedQuantity = (answerOption: AnswerOption): boolean => {
-      if (answerOption.__newAnswer) return false;
-      const old = answerOption.__oldValueQuantity;
-      if (old === undefined) return false;
-      const current = answerOption.valueQuantity;
-      if (current === undefined) return true;
-      return (
-        current.code !== old.code ||
-        current.system !== old.system ||
-        current.unit !== old.unit ||
-        current.value !== old.value ||
-        current.comparator !== old.comparator
-      );
-    };
-    const changedReference = (answerOption: AnswerOption): boolean => {
-      if (answerOption.__newAnswer) return false;
-      const old = answerOption.__oldValueReference;
-      if (old === undefined) return false;
-      const current = answerOption.valueReference;
-      if (current === undefined) return true;
-      // FIXME: Implement identifier equality
-      return (
-        current.type !== old.type ||
-        current.display !== old.display ||
-        current.reference !== old.reference
-      );
-    };
     const answerOptionItem: Ref<AnswerOption | undefined> = ref(undefined);
     const newLinkId: Ref<string> = ref("");
     const newLinkIdType: Ref<ItemType> = ref("integer");
@@ -2416,7 +2371,6 @@ export default defineComponent({
       validationLayout: ref(false),
       answerConstraints,
       allowsAnswerChoice,
-      triggerNegative,
       questionaireGUI,
       item,
       selected,
@@ -2425,10 +2379,6 @@ export default defineComponent({
       lastSelectedItem,
       enableWhenItem,
       enableBehaviors,
-      setDisplayToOld,
-      changedCoding,
-      changedQuantity,
-      changedReference,
       enableWhenLayout: ref(false),
       chosenEnableWhenAnswerLayout: ref(false),
       comparators,
@@ -2873,7 +2823,11 @@ export default defineComponent({
         $event,
       );
       if (itemSelected === undefined) {
-        this.triggerNegative();
+        const $q = useQuasar();
+        $q.notify({
+          type: "negative",
+          message: i18n.global.t("views.editor.questionDontexist"),
+        });
         return;
       }
       this.lastSelected = this.selected;
