@@ -220,7 +220,7 @@
   </q-layout>
 </template>
 <script lang="ts">
-import { defineComponent, PropType, Ref, ref } from "vue";
+import { defineComponent, PropType, ref } from "vue";
 import { editorTools } from "../utils/editor";
 import {
   AnswerOption,
@@ -253,15 +253,15 @@ export default defineComponent({
   },
   setup(prop) {
     const filter = ref(defaultLanguage);
-    const item: Ref<Item[]> = ref(prop.questionnaire.item);
+    const item = ref<Item[]>(prop.questionnaire.item);
     const linkId = ref(prop.enableWhenItem.question);
-    const selected: Ref<string | null> = ref(null);
+    const selected = ref<string | null>(null);
     const linkedItem = questionnaireTools.getItemByLinkId(
       prop.questionnaire,
       linkId.value,
     );
-    const selectedItem: Ref<Item | undefined> = ref(linkedItem);
-    // Fails if no LinkId was in question-field of enableWhen
+    const selectedItem = ref<Item | undefined>(linkedItem);
+    // If LinkId was already in question-field of enableWhen
     if (selectedItem.value !== undefined) {
       selected.value = selectedItem.value.__internalID;
     }

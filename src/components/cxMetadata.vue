@@ -279,7 +279,7 @@
 </template>
 <script lang="ts">
 import { mapGetters } from "vuex";
-import { defineComponent, Ref, ref } from "vue";
+import { defineComponent, ref } from "vue";
 import { Extension, Identifier, Questionnaire, status } from "@/types";
 import { getQuestionnaireExtensions } from "@/utils/extension";
 import cxExtension from "./cxExtension.vue";
@@ -289,7 +289,7 @@ export default defineComponent({
     cxExtension,
   },
   setup() {
-    const questionnaire: Ref<Questionnaire | undefined> = ref(undefined);
+    const questionnaire = ref<Questionnaire | undefined>(undefined);
     return {
       expanded: ref(true),
       statusOptions: status,

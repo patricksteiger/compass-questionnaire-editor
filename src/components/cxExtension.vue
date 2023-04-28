@@ -307,7 +307,7 @@
   </q-dialog>
 </template>
 <script lang="ts">
-import { defineComponent, PropType, Ref, ref } from "vue";
+import { defineComponent, PropType, ref } from "vue";
 import { editorTools, UnreachableError } from "../utils/editor";
 import { extensionTypes, Extension, ExtensionType } from "@/types";
 import { questionnaireTools } from "@/utils/questionnaire";
@@ -326,8 +326,8 @@ export default defineComponent({
     },
   },
   setup() {
-    const url: Ref<string> = ref("");
-    const type: Ref<ExtensionType> = ref("boolean");
+    const url = ref("");
+    const type = ref<ExtensionType>("boolean");
     return {
       splitterLimits: ref([30, 100]),
       splitterModel: ref(60),

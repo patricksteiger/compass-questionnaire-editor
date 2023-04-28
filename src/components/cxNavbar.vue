@@ -150,7 +150,7 @@
   </q-dialog>
 </template>
 <script lang="ts">
-import { defineComponent, Ref, ref } from "vue";
+import { defineComponent, ref } from "vue";
 import { mapGetters, mapMutations } from "vuex";
 import { useQuasar } from "quasar";
 import FileSaver from "file-saver";
@@ -174,7 +174,7 @@ export default defineComponent({
   },
   setup() {
     const $q = useQuasar();
-    const validationErrorMessages: Ref<string[]> = ref([]);
+    const validationErrorMessages = ref<string[]>([]);
     return {
       exportJsonQuestionnaire,
       showLoading() {

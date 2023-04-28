@@ -2304,7 +2304,7 @@ import {
   AnswerOptionType,
 } from "@/utils/constants";
 import { useQuasar } from "quasar";
-import { defineComponent, Ref, ref } from "vue";
+import { defineComponent, ref } from "vue";
 import { editorTools, UnreachableError } from "@/utils/editor";
 import { dateTools } from "@/utils/date";
 import { questionnaireTools } from "@/utils/questionnaire";
@@ -2338,24 +2338,21 @@ export default defineComponent({
     cxValidationHub,
   },
   setup() {
-    const questionaireGUI: Ref<Questionnaire | undefined> = ref(undefined);
-    const selectedItem: Ref<Item | undefined> = ref(undefined);
-    const lastSelectedItem: Ref<Item | undefined> = ref(undefined);
-    const selected: Ref<string | null> = ref(null);
-    const lastSelected: Ref<string | null> = ref(null);
-    const language: Ref<Language> = ref(defaultLanguage);
-    const item: Ref<Item[]> = ref([]);
-    const enableWhenItem: Ref<EnableWhen> = ref({
-      question: "",
-      operator: "",
-    } as EnableWhen);
-    const chosenEnableWhen: Ref<EnableWhen | undefined> = ref(undefined);
-    const answerOptionItem: Ref<AnswerOption | undefined> = ref(undefined);
-    const newLinkId: Ref<string> = ref("");
-    const newLinkIdType: Ref<ItemType> = ref("integer");
-    const otherLinkIds: Ref<string[]> = ref([]);
-    const otherLinkId: Ref<string> = ref("");
-    const linkedItem: Ref<Item | undefined> = ref(undefined);
+    const questionaireGUI = ref<Questionnaire | undefined>(undefined);
+    const selectedItem = ref<Item | undefined>(undefined);
+    const lastSelectedItem = ref<Item | undefined>(undefined);
+    const selected = ref<string | null>(null);
+    const lastSelected = ref<string | null>(null);
+    const language = ref<Language>(defaultLanguage);
+    const item = ref<Item[]>([]);
+    const enableWhenItem = ref<EnableWhen>({ question: "", operator: "" });
+    const chosenEnableWhen = ref<EnableWhen | undefined>(undefined);
+    const answerOptionItem = ref<AnswerOption | undefined>(undefined);
+    const newLinkId = ref<string>("");
+    const newLinkIdType = ref<ItemType>("integer");
+    const otherLinkIds = ref<string[]>([]);
+    const otherLinkId = ref<string>("");
+    const linkedItem = ref<Item | undefined>(undefined);
     return {
       getItemExtensions,
       addLinkIdLayout: ref(false),
