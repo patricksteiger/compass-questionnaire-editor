@@ -9,7 +9,7 @@
       <template v-slot:before>
         <div>
           <q-tree
-            :nodes="item"
+            :nodes="currentItems"
             node-key="__internalID"
             selected-color="primary"
             v-model:selected.sync="selected"
@@ -138,7 +138,7 @@
           <div v-if="addItemIsAllowed()">
             <q-page-sticky position="bottom-left" :offset="[18, 18]">
               <q-fab
-                v-model="fabLeft"
+                v-model="fabItem"
                 vertical-actions-align="left"
                 color="primary"
                 push
@@ -160,9 +160,9 @@
             </q-page-sticky>
           </div>
           <div v-if="addItemIsAllowed()">
-            <q-page-sticky position="bottom-left" :offset="[250, 18]">
+            <q-page-sticky position="bottom-left" :offset="[180, 18]">
               <q-fab
-                v-model="fabSimple"
+                v-model="fabAnswerchoice"
                 vertical-actions-align="left"
                 color="primary"
                 push
@@ -241,12 +241,16 @@
                   round
                   color="primary"
                   icon="swap_vert"
-                  :disable="questionnaireTools.hasNotMultipleItems(questionaireGUI!)"
+                  :disable="
+                    questionnaireTools.hasNotMultipleItems(currentQuestionnaire)
+                  "
                   @click="swapLinkId(selectedItem!)"
                 >
                 </q-btn>
                 <q-tooltip
-                  v-if="questionnaireTools.hasNotMultipleItems(questionaireGUI!)"
+                  v-if="
+                    questionnaireTools.hasNotMultipleItems(currentQuestionnaire)
+                  "
                 >
                   Multiple items needed
                 </q-tooltip>
@@ -1261,12 +1265,9 @@
       </q-card>
     </q-dialog>
     <!-- enableWhen dialog -->
-    <q-dialog
-      v-model="enableWhenLayout"
-      v-if="selected !== null && questionaireGUI !== undefined"
-    >
+    <q-dialog v-model="enableWhenLayout" v-if="selected !== null">
       <cx-enable-When
-        :questionnaire="questionaireGUI"
+        :questionnaire="currentQuestionnaire"
         :internalID="selected"
         :enableWhenItem="enableWhenItem"
         v-on:choiceQuestion="onEnableWhenWithAnswerOption"
@@ -2236,11 +2237,11 @@ import {
   AnswerOptionType,
 } from "@/utils/constants";
 import { useQuasar } from "quasar";
-import { defineComponent, ref } from "vue";
+import { computed, defineComponent, ref } from "vue";
 import { editorTools, UnreachableError } from "@/utils/editor";
 import { dateTools } from "@/utils/date";
 import { questionnaireTools } from "@/utils/questionnaire";
-import { mapGetters } from "vuex";
+import { mapGetters, useStore } from "vuex";
 import { v4 as uuidv4 } from "uuid";
 import cxEnableWhen from "@/components/cxEnableWhen.vue";
 import cxExtension from "@/components/cxExtension.vue";
@@ -2272,13 +2273,16 @@ export default defineComponent({
     cxValidationHub,
   },
   setup() {
-    const questionaireGUI = ref<Questionnaire | undefined>(undefined);
+    const store = useStore();
+    const currentQuestionnaire = ref<Questionnaire>(
+      computed(() => store.getters.getQuestionnaireImportedJSON).value,
+    );
     const selectedItem = ref<Item | undefined>(undefined);
     const lastSelectedItem = ref<Item | undefined>(undefined);
     const selected = ref<string | null>(null);
     const lastSelected = ref<string | null>(null);
     const language = ref<Language>(defaultLanguage);
-    const item = ref<Item[]>([]);
+    const currentItems = ref<Item[]>(currentQuestionnaire.value.item);
     const enableWhenItem = ref<EnableWhen>({ question: "", operator: "" });
     const chosenEnableWhen = ref<EnableWhen | undefined>(undefined);
     const answerOptionItem = ref<AnswerOption | undefined>(undefined);
@@ -2303,8 +2307,8 @@ export default defineComponent({
       validationLayout: ref(false),
       answerConstraints,
       allowsAnswerChoice,
-      questionaireGUI,
-      item,
+      currentQuestionnaire,
+      currentItems,
       selected,
       selectedItem,
       lastSelected,
@@ -2320,6 +2324,7 @@ export default defineComponent({
       choiceItemTypeIcons,
       alert: ref(false),
       itemsAnwers: ref(""),
+      dateTools,
       editorTools,
       itemTools,
       questionnaireTools,
@@ -2331,18 +2336,17 @@ export default defineComponent({
       languages,
       language,
       allowsMaxLength,
-      dateTools,
     };
   },
   created() {
     this.language = this.getLanguage;
-    this.questionaireGUI = this.getQuestionnaireImportedJSON as Questionnaire;
-    this.item = this.questionaireGUI.item;
+    // this.questionaireGUI = this.getQuestionnaireImportedJSON as Questionnaire;
+    // this.currentItems = this.currentQuestionnaire.item;
   },
   data() {
     return {
-      fabLeft: true,
-      fabSimple: true,
+      fabItem: true,
+      fabAnswerchoice: true,
       splitterModel: 40,
       limitsSpliter: [35, 100],
     };
@@ -2384,7 +2388,7 @@ export default defineComponent({
     },
     swapLinkId(item: Item): void {
       this.newLinkId = item.linkId;
-      const qre = this.questionaireGUI!;
+      const qre = this.currentQuestionnaire;
       this.otherLinkIds = this.questionnaireTools.getLinkIdsExcept(
         qre,
         item.linkId,
@@ -2441,7 +2445,7 @@ export default defineComponent({
       if (linkId.length > MAX_LENGTH_LINKID) {
         return `LinkId must not exceed max length of ${MAX_LENGTH_LINKID}`;
       }
-      const qre = this.questionaireGUI!;
+      const qre = this.currentQuestionnaire;
       if (this.questionnaireTools.linkIdExistsInQuestionnaire(qre, linkId)) {
         return "LinkId must be unique in questionnaire.";
       }
@@ -2451,7 +2455,7 @@ export default defineComponent({
       enableWhen.answerQuantity ??= {};
       this.chosenEnableWhen = enableWhen;
       this.linkedItem = questionnaireTools.getItemByLinkId(
-        this.questionaireGUI!,
+        this.currentQuestionnaire,
         this.chosenEnableWhen.question,
       );
       this.chosenEnableWhenAnswerLayout = true;
@@ -2468,7 +2472,7 @@ export default defineComponent({
       enableWhen.answerReference ??= {};
       this.chosenEnableWhen = enableWhen;
       this.linkedItem = questionnaireTools.getItemByLinkId(
-        this.questionaireGUI!,
+        this.currentQuestionnaire,
         this.chosenEnableWhen.question,
       );
       this.chosenEnableWhenAnswerLayout = true;
@@ -2485,7 +2489,7 @@ export default defineComponent({
       enableWhen.answerCoding ??= {};
       this.chosenEnableWhen = enableWhen;
       this.linkedItem = questionnaireTools.getItemByLinkId(
-        this.questionaireGUI!,
+        this.currentQuestionnaire,
         this.chosenEnableWhen.question,
       );
       this.chosenEnableWhenAnswerLayout = true;
@@ -2510,7 +2514,7 @@ export default defineComponent({
       enableWhen.answerDecimal ??= 0.0;
       this.chosenEnableWhen = enableWhen;
       this.linkedItem = questionnaireTools.getItemByLinkId(
-        this.questionaireGUI!,
+        this.currentQuestionnaire,
         this.chosenEnableWhen.question,
       );
       this.chosenEnableWhenAnswerLayout = true;
@@ -2526,7 +2530,7 @@ export default defineComponent({
       enableWhen.answerInteger ??= 0;
       this.chosenEnableWhen = enableWhen;
       this.linkedItem = questionnaireTools.getItemByLinkId(
-        this.questionaireGUI!,
+        this.currentQuestionnaire,
         this.chosenEnableWhen.question,
       );
       this.chosenEnableWhenAnswerLayout = true;
@@ -2542,7 +2546,7 @@ export default defineComponent({
       enableWhen.answerDate ??= "";
       this.chosenEnableWhen = enableWhen;
       this.linkedItem = questionnaireTools.getItemByLinkId(
-        this.questionaireGUI!,
+        this.currentQuestionnaire,
         this.chosenEnableWhen.question,
       );
       this.chosenEnableWhenAnswerLayout = true;
@@ -2558,7 +2562,7 @@ export default defineComponent({
       enableWhen.answerDateTime ??= "";
       this.chosenEnableWhen = enableWhen;
       this.linkedItem = questionnaireTools.getItemByLinkId(
-        this.questionaireGUI!,
+        this.currentQuestionnaire,
         this.chosenEnableWhen.question,
       );
       this.chosenEnableWhenAnswerLayout = true;
@@ -2574,7 +2578,7 @@ export default defineComponent({
       enableWhen.answerTime ??= "";
       this.chosenEnableWhen = enableWhen;
       this.linkedItem = questionnaireTools.getItemByLinkId(
-        this.questionaireGUI!,
+        this.currentQuestionnaire,
         this.chosenEnableWhen.question,
       );
       this.chosenEnableWhenAnswerLayout = true;
@@ -2590,7 +2594,7 @@ export default defineComponent({
       enableWhen.answerString ??= "";
       this.chosenEnableWhen = enableWhen;
       this.linkedItem = questionnaireTools.getItemByLinkId(
-        this.questionaireGUI!,
+        this.currentQuestionnaire,
         this.chosenEnableWhen.question,
       );
       this.chosenEnableWhenAnswerLayout = true;
@@ -2681,14 +2685,14 @@ export default defineComponent({
       this.validationLayout = false;
     },
     refreshQuestionnaire(): void {
-      this.questionaireGUI = this.getQuestionnaireImportedJSON;
-      this.item = this.getQuestionnaireImportedJSON.item;
+      this.currentQuestionnaire = this.getQuestionnaireImportedJSON;
+      this.currentItems = this.getQuestionnaireImportedJSON.item;
       this.language = this.getLanguage;
       if (this.selectedItem !== undefined) {
         const internalLinkId = this.selectedItem.__linkId;
         const newItem = this.questionnaireTools.getItemByInternalLinkId(
           internalLinkId,
-          this.questionaireGUI!,
+          this.currentQuestionnaire,
         );
         this.selectedItem = newItem;
         this.selected = newItem.__internalID;
@@ -2697,7 +2701,7 @@ export default defineComponent({
         const internalLinkId = this.lastSelectedItem.__linkId;
         const newItem = this.questionnaireTools.getItemByInternalLinkId(
           internalLinkId,
-          this.questionaireGUI!,
+          this.currentQuestionnaire,
         );
         this.lastSelectedItem = newItem;
         this.lastSelected = newItem.__internalID;
@@ -2732,7 +2736,7 @@ export default defineComponent({
         return;
       }
       const itemSelected = this.questionnaireTools.getItemByLinkId(
-        this.questionaireGUI!,
+        this.currentQuestionnaire,
         $event,
       );
       if (itemSelected === undefined) {
@@ -2906,7 +2910,7 @@ export default defineComponent({
       }
 
       const sourceItem = this.questionnaireTools.getItemByInternalId(
-        this.questionaireGUI!,
+        this.currentQuestionnaire,
         sourceInternalId,
       );
       if (sourceItem === undefined || !sourceItem.__active) {
@@ -2914,7 +2918,7 @@ export default defineComponent({
       }
 
       const targetItem = this.questionnaireTools.getItemByInternalId(
-        this.questionaireGUI!,
+        this.currentQuestionnaire,
         targetInternalId,
       );
       if (targetItem === undefined || !targetItem.__active) {
@@ -3020,7 +3024,7 @@ export default defineComponent({
     },
     toggleItem(internalId: string) {
       const currentNode = this.questionnaireTools.getItemByInternalId(
-        this.questionaireGUI!,
+        this.currentQuestionnaire,
         internalId,
       );
       if (currentNode === undefined) {
@@ -3073,13 +3077,13 @@ export default defineComponent({
     },
     isCondition(internalId: string): boolean {
       const item = this.questionnaireTools.getItemByInternalId(
-        this.questionaireGUI!,
+        this.currentQuestionnaire,
         internalId,
       );
       const linkId = item?.linkId;
       if (!linkId) return false;
       return this.questionnaireTools.isEnableWhenCondition(
-        this.questionaireGUI!,
+        this.currentQuestionnaire,
         linkId,
       );
     },
@@ -3184,6 +3188,7 @@ export default defineComponent({
           throw new UnreachableError(e);
       }
       this.selectedItem.answerOption.push(answerOption);
+      this.selectedItem.answerConstraint ||= "optionsOnly";
     },
     removeAnswerOption(e: AnswerOption) {
       if (this.selectedItem === undefined) {
@@ -3213,7 +3218,7 @@ export default defineComponent({
         return;
       }
       const item = this.questionnaireTools.getItemByInternalId(
-        this.questionaireGUI!,
+        this.currentQuestionnaire,
         internalID,
       );
       if (item === undefined) {
@@ -3326,14 +3331,17 @@ export default defineComponent({
   },
   watch: {
     selected(internalId: string | null) {
-      this.editorTools.removeConditionDependence(this.item);
-      this.editorTools.setConditionDependence(this.item, this.item);
+      this.editorTools.removeConditionDependence(this.currentItems);
+      this.editorTools.setConditionDependence(
+        this.currentItems,
+        this.currentItems,
+      );
       if (internalId === null) {
         this.selectedItem = undefined;
         return;
       }
       this.selectedItem = this.questionnaireTools.getItemByInternalId(
-        this.questionaireGUI!,
+        this.currentQuestionnaire,
         internalId,
       );
     },

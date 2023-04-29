@@ -150,8 +150,8 @@
   </q-dialog>
 </template>
 <script lang="ts">
-import { defineComponent, ref } from "vue";
-import { mapGetters, mapMutations } from "vuex";
+import { computed, defineComponent, ref } from "vue";
+import { mapGetters, mapMutations, useStore } from "vuex";
 import { useQuasar } from "quasar";
 import FileSaver from "file-saver";
 import { exportJsonQuestionnaire } from "../utils/exportJson";
@@ -166,16 +166,16 @@ export default defineComponent({
       "getCurrentScreen",
     ]),
   },
-  data() {
-    return {
-      questionnaireGUI: {},
-      messageError: "",
-    };
-  },
   setup() {
+    const store = useStore();
+    const currentQuestionnaire = ref<Questionnaire>(
+      computed(() => store.getters.getQuestionnaireImportedJSON).value,
+    );
     const $q = useQuasar();
     const validationErrorMessages = ref<string[]>([]);
+    const messageError = ref("");
     return {
+      currentQuestionnaire,
       exportJsonQuestionnaire,
       showLoading() {
         $q.loading.show();
@@ -185,6 +185,7 @@ export default defineComponent({
       },
       alertWantToLeaveScreen: ref(false),
       alertValidationError: ref(false),
+      messageError,
       validationErrorMessages,
       alertError: ref(false),
       alert: ref(false),
@@ -194,11 +195,6 @@ export default defineComponent({
       FileSaver,
       useQuasar,
     };
-  },
-  created() {
-    this.questionnaireGUI = this.getQuestionnaireImportedJSON
-      ? this.getQuestionnaireImportedJSON
-      : {};
   },
   methods: {
     ...mapMutations([

@@ -14,7 +14,7 @@ export const getDefaultQuestionnaire = (lang: Language): Questionnaire => {
     language: lang,
     identifier: [],
     url: "https://num-compass.science/de/",
-    name: name,
+    name: name.replace(" ", ""),
     title: name,
     version: "1.0",
     status: "draft",

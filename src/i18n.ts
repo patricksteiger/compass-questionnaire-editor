@@ -30,7 +30,7 @@ const e: SimpleEquals<typeof en, typeof de> = en;
 
 export type Locale = "de" | "en";
 
-const locale = process.env.VUE_APP_I18N_LOCALE || "en";
+const locale: Locale = process.env.VUE_APP_I18N_LOCALE || "en";
 const fallbackLocale = process.env.VUE_APP_I18N_FALLBACK_LOCALE || "en";
 
 export const i18n = createI18n({

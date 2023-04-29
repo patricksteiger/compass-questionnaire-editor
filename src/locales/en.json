@@ -64,7 +64,7 @@
       "itemConditions": "Conditions",
       "addNewCondition": "Add New Condition",
       "addItem": "New Item",
-      "addComplexItem": "Complex Item",
+      "addComplexItem": "Item",
       "addChoiceItem": "Answerchoice Item",
       "changeLanguage": "Language: {language}",
       "deleteItem": "Delete Item",
