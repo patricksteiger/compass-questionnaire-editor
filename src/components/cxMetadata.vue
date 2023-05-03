@@ -209,21 +209,45 @@
         v-if="$route.name !== 'Import'"
         v-model="URL"
         :label="$t('components.navigationBar.metadataItems.URL')"
+        clearable
+        @clear="
+          (_oldUrl: string | undefined) => {
+            URL = '';
+          }
+        "
       />
       <q-input
         v-if="$route.name !== 'Import'"
         v-model="version"
         :label="$t('components.navigationBar.version')"
+        clearable
+        @clear="
+          (_oldVersion: string | undefined) => {
+            version = '';
+          }
+        "
       />
       <q-input
         v-if="$route.name !== 'Import'"
         v-model="name"
         :label="$t('components.navigationBar.metadataItems.name')"
+        clearable
+        @clear="
+          (_oldName: string | undefined) => {
+            name = '';
+          }
+        "
       />
       <q-input
         v-if="$route.name !== 'Import'"
         v-model="title"
         :label="$t('components.navigationBar.metadataItems.title')"
+        clearable
+        @clear="
+          (_oldTitle: string | undefined) => {
+            title = '';
+          }
+        "
       />
       <q-select
         v-if="$route.name !== 'Import'"
@@ -248,6 +272,12 @@
         v-if="$route.name !== 'Import'"
         v-model="publisher"
         :label="$t('components.navigationBar.metadataItems.publisher')"
+        clearable
+        @clear="
+          (_oldPublisher: string | undefined) => {
+            publisher = '';
+          }
+        "
       />
       <q-input
         v-if="$route.name !== 'Import'"
@@ -264,27 +294,30 @@
       />
       <q-input
         v-if="$route.name !== 'Import'"
-        type="date"
+        type="text"
         class="col-12"
         stack-label
         v-model="date"
         :label="$t('components.navigationBar.metadataItems.date')"
+        :rules="[dateTools.isDateTimeOrEmpty]"
       />
       <q-input
         v-if="$route.name !== 'Import'"
-        type="date"
+        type="text"
         class="col-12"
         stack-label
         v-model="approvalDate"
         :label="$t('components.navigationBar.metadataItems.approvalDate')"
+        :rules="[dateTools.isDateOrEmpty]"
       />
       <q-input
         v-if="$route.name !== 'Import'"
-        type="date"
+        type="text"
         class="col-12"
         stack-label
         v-model="lastReviewDate"
         :label="$t('components.navigationBar.metadataItems.lastReviewDate')"
+        :rules="[dateTools.isDateOrEmpty]"
       />
 
       <q-item tag="label" v-ripple v-if="$route.name !== 'Import'">
@@ -314,6 +347,7 @@ import { defineComponent, ref } from "vue";
 import { Extension, Identifier, Questionnaire, status } from "@/types";
 import { getQuestionnaireExtensions } from "@/utils/extension";
 import cxExtension from "./cxExtension.vue";
+import { dateTools } from "@/utils/date";
 
 export default defineComponent({
   components: {
@@ -322,6 +356,7 @@ export default defineComponent({
   setup() {
     const questionnaire = ref<Questionnaire | undefined>(undefined);
     return {
+      dateTools,
       expanded: ref(true),
       statusOptions: status,
       getQuestionnaireExtensions,

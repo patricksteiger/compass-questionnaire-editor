@@ -608,15 +608,15 @@ const exportJsonQuestionnaire = {
       delete jsonObject.title;
     }
     //approvalDate
-    if (!jsonObject.date) {
+    if (dateTools.isDateTime(jsonObject.date) !== true) {
       delete jsonObject.date;
     }
     //approvalDate
-    if (!jsonObject.approvalDate) {
+    if (dateTools.isDate(jsonObject.approvalDate) !== true) {
       delete jsonObject.approvalDate;
     }
     //lastReviewDate
-    if (!jsonObject.lastReviewDate) {
+    if (dateTools.isDate(jsonObject.lastReviewDate) !== true) {
       delete jsonObject.lastReviewDate;
     }
     //experimental

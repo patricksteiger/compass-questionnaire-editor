@@ -32,6 +32,9 @@ export class QuestionnaireValidator {
     if (this.questionnaire.status === "unknown") {
       warnings.push("status is 'unknown'");
     }
+    if (!this.questionnaire.description) {
+      warnings.push("description is empty");
+    }
     return warnings;
   }
 
