@@ -233,6 +233,13 @@
       />
       <q-input
         v-if="$route.name !== 'Import'"
+        autogrow
+        v-model="description"
+        type="textarea"
+        label="Description"
+      />
+      <q-input
+        v-if="$route.name !== 'Import'"
         type="date"
         class="col-12"
         stack-label
@@ -356,6 +363,14 @@ export default defineComponent({
       },
       set(value: string) {
         this.$store.commit("setPublisher", value);
+      },
+    },
+    description: {
+      get() {
+        return this.$store.state.questionnaire.description;
+      },
+      set(value: string) {
+        this.$store.commit("setDescription", value);
       },
     },
     date: {

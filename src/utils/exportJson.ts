@@ -595,6 +595,10 @@ const exportJsonQuestionnaire = {
     if (!jsonObject.publisher) {
       delete jsonObject.publisher;
     }
+    //description
+    if (!jsonObject.description) {
+      delete jsonObject.description;
+    }
     //title
     if (!jsonObject.title) {
       delete jsonObject.title;

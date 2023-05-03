@@ -87,6 +87,9 @@ const metadataMutations = {
   setPublisher(state: StoreState, payload: string) {
     state.questionnaire.publisher = payload;
   },
+  setDescription(state: StoreState, payload: string) {
+    state.questionnaire.description = payload;
+  },
   setApprovalDate(state: StoreState, payload: string) {
     state.questionnaire.approvalDate = payload;
   },

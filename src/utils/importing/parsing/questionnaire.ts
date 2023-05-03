@@ -21,6 +21,7 @@ const name = optionalStringSchema;
 const title = optionalStringSchema;
 const version = optionalStringSchema;
 const publisher = optionalStringSchema;
+const description = optionalStringSchema;
 const date = optionalStringSchema;
 const approvalDate = optionalStringSchema;
 const lastReviewDate = optionalStringSchema;
@@ -41,6 +42,7 @@ export const questionnaireSchema = z
     language,
     name,
     publisher,
+    description,
     date,
     approvalDate,
     lastReviewDate,
