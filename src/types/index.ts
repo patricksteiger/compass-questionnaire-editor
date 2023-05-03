@@ -254,6 +254,7 @@ export type Questionnaire = {
   status: Status;
   publisher?: string;
   description?: string;
+  purpose?: string;
   date?: string;
   approvalDate?: string;
   lastReviewDate?: string;

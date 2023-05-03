@@ -23,6 +23,7 @@
         "date": "Date",
         "status": "Status",
         "description": "Description",
+        "purpose": "Purpose",
         "publisher": "Publisher",
         "approvalDate": "Approval Date",
         "lastReviewDate": "Last Review Date",

@@ -23,6 +23,7 @@
         "date": "Datum",
         "status": "Status",
         "description": "Beschreibung",
+        "purpose": "Zweckbestimmung",
         "publisher": "Publisher",
         "approvalDate": "Genehmigungsdatum",
         "lastReviewDate": "Letztes Überprüfungsdatum",

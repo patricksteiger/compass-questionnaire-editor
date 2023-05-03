@@ -237,11 +237,30 @@
         v-model="description"
         type="textarea"
         :label="$t('components.navigationBar.metadataItems.description')"
+        clearable
+        @clear="
+          (_oldDescription: string | undefined) => {
+            description = '';
+          }
+        "
       />
       <q-input
         v-if="$route.name !== 'Import'"
         v-model="publisher"
         :label="$t('components.navigationBar.metadataItems.publisher')"
+      />
+      <q-input
+        v-if="$route.name !== 'Import'"
+        autogrow
+        v-model="purpose"
+        type="textarea"
+        :label="$t('components.navigationBar.metadataItems.purpose')"
+        clearable
+        @clear="
+          (_oldPurpose: string | undefined) => {
+            purpose = '';
+          }
+        "
       />
       <q-input
         v-if="$route.name !== 'Import'"
@@ -376,6 +395,14 @@ export default defineComponent({
       },
       set(value: string) {
         this.$store.commit("setDescription", value);
+      },
+    },
+    purpose: {
+      get() {
+        return this.$store.state.questionnaire.purpose;
+      },
+      set(value: string) {
+        this.$store.commit("setPurpose", value);
       },
     },
     date: {

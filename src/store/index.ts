@@ -90,6 +90,9 @@ const metadataMutations = {
   setDescription(state: StoreState, payload: string) {
     state.questionnaire.description = payload;
   },
+  setPurpose(state: StoreState, payload: string) {
+    state.questionnaire.purpose = payload;
+  },
   setApprovalDate(state: StoreState, payload: string) {
     state.questionnaire.approvalDate = payload;
   },
