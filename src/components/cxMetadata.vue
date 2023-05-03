@@ -236,7 +236,12 @@
         autogrow
         v-model="description"
         type="textarea"
-        label="Description"
+        :label="$t('components.navigationBar.metadataItems.description')"
+      />
+      <q-input
+        v-if="$route.name !== 'Import'"
+        v-model="publisher"
+        :label="$t('components.navigationBar.metadataItems.publisher')"
       />
       <q-input
         v-if="$route.name !== 'Import'"
