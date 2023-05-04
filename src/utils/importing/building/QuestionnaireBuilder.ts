@@ -10,6 +10,7 @@ import {
   allowsAnswerChoice,
   getAnswerOptionIcon,
   getItemTypeIcon,
+  VersionAlgorithmCoding,
 } from "../../constants";
 import { editorTools } from "../../editor";
 import { itemTools } from "../../item";
@@ -44,8 +45,13 @@ export class QuestionnaireBuilder {
         newExtension.push(this.fromExtension(e));
       }
     }
+    let versAlg = undefined;
+    if (this.qre.versionAlgorithmCoding !== undefined) {
+      versAlg = this.qre.versionAlgorithmCoding as VersionAlgorithmCoding;
+    }
     return {
       ...this.qre,
+      versionAlgorithmCoding: versAlg,
       status,
       language,
       experimental,

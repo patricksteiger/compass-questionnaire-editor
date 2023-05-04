@@ -227,6 +227,14 @@
           }
         "
       />
+      <q-select
+        v-if="$route.name !== 'Import'"
+        v-model="versionAlgorithmCoding"
+        :label="$t('components.navigationBar.versionAlgorithm')"
+        :options="versionAlgorithmCodes"
+        clearable
+        @update:model-value="updateVersionAlgorithmCoding"
+      />
       <q-input
         v-if="$route.name !== 'Import'"
         v-model="name"
@@ -348,6 +356,11 @@ import { Extension, Identifier, Questionnaire, status } from "@/types";
 import { getQuestionnaireExtensions } from "@/utils/extension";
 import cxExtension from "./cxExtension.vue";
 import { dateTools } from "@/utils/date";
+import {
+  getVersionAlgorithmCoding,
+  VersionAlgorithmCode,
+  versionAlgorithmCodes,
+} from "@/utils/constants";
 
 export default defineComponent({
   components: {
@@ -355,16 +368,23 @@ export default defineComponent({
   },
   setup() {
     const questionnaire = ref<Questionnaire | undefined>(undefined);
+    const versionAlgorithmCoding = ref<VersionAlgorithmCode | null>(null);
     return {
       dateTools,
       expanded: ref(true),
       statusOptions: status,
       getQuestionnaireExtensions,
       questionnaire,
+      versionAlgorithmCoding,
+      versionAlgorithmCodes,
     };
   },
   created() {
     this.questionnaire = this.getQuestionnaireImportedJSON;
+    if (this.questionnaire?.versionAlgorithmCoding) {
+      this.versionAlgorithmCoding =
+        this.questionnaire.versionAlgorithmCoding.code;
+    }
   },
   computed: {
     ...mapGetters(["getNameOfQuestionnaire", "getQuestionnaireImportedJSON"]),
@@ -380,7 +400,7 @@ export default defineComponent({
       get() {
         return this.$store.state.questionnaire.identifier;
       },
-      set(value: string) {
+      set(value: Identifier[]) {
         this.$store.commit("setIdentifier", value);
       },
     },
@@ -474,6 +494,14 @@ export default defineComponent({
     },
   },
   methods: {
+    updateVersionAlgorithmCoding(code: VersionAlgorithmCode | null): void {
+      if (code === null) {
+        this.questionnaire!.versionAlgorithmCoding = undefined;
+      } else {
+        const coding = getVersionAlgorithmCoding(code);
+        this.questionnaire!.versionAlgorithmCoding = coding;
+      }
+    },
     addExtension(extension: Extension): void {
       this.questionnaire!.extension!.push(extension);
     },

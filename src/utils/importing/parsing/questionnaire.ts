@@ -8,6 +8,10 @@ import {
 } from "./schemas";
 import { z } from "zod";
 import { extensionSchema } from "./extension";
+import {
+  versionAlgorithmSystem,
+  versionAlgorithmVersion,
+} from "@/utils/constants";
 
 const item = itemSchema.array().optional();
 
@@ -20,6 +24,45 @@ const url = optionalStringSchema;
 const name = optionalStringSchema;
 const title = optionalStringSchema;
 const version = optionalStringSchema;
+
+// TODO: Add userSelected to versionAlgorithmCoding
+function versionAlgorithmHelper<T extends string, R extends string>(
+  code: T,
+  display: R,
+) {
+  return z.object({
+    code: z.literal(code),
+    display: z
+      .literal(display)
+      .optional()
+      .refine((_d) => display),
+    system: z
+      .literal(versionAlgorithmSystem)
+      .optional()
+      .refine((_s) => versionAlgorithmSystem),
+    version: z
+      .literal(versionAlgorithmVersion)
+      .optional()
+      .refine((_v) => versionAlgorithmVersion),
+  });
+}
+
+const versionSemver = versionAlgorithmHelper("semver", "SemVer");
+const versionInteger = versionAlgorithmHelper("integer", "Integer");
+const versionAlpha = versionAlgorithmHelper("alpha", "Alphabetical");
+const versionDate = versionAlgorithmHelper("date", "Date");
+const versionNatural = versionAlgorithmHelper("natural", "Natural");
+
+const versionAlgorithmCoding = z
+  .union([
+    versionSemver,
+    versionInteger,
+    versionAlpha,
+    versionDate,
+    versionNatural,
+  ])
+  .optional();
+
 const publisher = optionalStringSchema;
 const description = optionalStringSchema;
 const purpose = optionalStringSchema;
@@ -40,6 +83,7 @@ export const questionnaireSchema = z
     status,
     url,
     version,
+    versionAlgorithmCoding,
     language,
     name,
     publisher,

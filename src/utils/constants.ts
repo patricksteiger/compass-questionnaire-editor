@@ -120,6 +120,60 @@ export function isSelectableItem(item: Item): boolean {
   return selectableType && permissibleAnswerOption;
 }
 
+export const versionAlgorithmSystem = "http://hl7.org/fhir/version-algorithm";
+export const versionAlgorithmVersion = "5.0.0";
+export const versionAlgorithmCodes = [
+  "semver",
+  "integer",
+  "alpha",
+  "date",
+  "natural",
+] as const;
+export const versionAlgorithms = [
+  {
+    code: "semver",
+    display: "SemVer",
+    system: versionAlgorithmSystem,
+    version: versionAlgorithmVersion,
+    userSelected: undefined,
+  },
+  {
+    code: "integer",
+    display: "Integer",
+    system: versionAlgorithmSystem,
+    version: versionAlgorithmVersion,
+    userSelected: undefined,
+  },
+  {
+    code: "alpha",
+    display: "Alphabetical",
+    system: versionAlgorithmSystem,
+    version: versionAlgorithmVersion,
+    userSelected: undefined,
+  },
+  {
+    code: "date",
+    display: "Date",
+    system: versionAlgorithmSystem,
+    version: versionAlgorithmVersion,
+    userSelected: undefined,
+  },
+  {
+    code: "natural",
+    display: "Natural",
+    system: versionAlgorithmSystem,
+    version: versionAlgorithmVersion,
+    userSelected: undefined,
+  },
+] as const;
+export type VersionAlgorithmCode = typeof versionAlgorithms[number]["code"];
+export type VersionAlgorithmCoding = typeof versionAlgorithms[number];
+export function getVersionAlgorithmCoding(
+  code: VersionAlgorithmCode,
+): VersionAlgorithmCoding {
+  return versionAlgorithms.find((v) => v.code === code)!;
+}
+
 export const COLORS = {
   itemDragOver: "rgb(2,123,227,0.5)",
 } as const;

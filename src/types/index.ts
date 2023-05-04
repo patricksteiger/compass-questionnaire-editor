@@ -3,6 +3,7 @@ import {
   AnswerOptionType,
   ItemType,
   NotSelectableItem,
+  VersionAlgorithmCoding,
 } from "@/utils/constants";
 import { QTree } from "quasar";
 
@@ -250,6 +251,7 @@ export type Questionnaire = {
   url?: string;
   name?: string;
   version?: string;
+  versionAlgorithmCoding?: VersionAlgorithmCoding;
   title?: string;
   status: Status;
   publisher?: string;
