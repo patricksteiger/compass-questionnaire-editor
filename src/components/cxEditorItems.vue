@@ -466,9 +466,11 @@
                                       }`
                                     : answerOption.__type
                                 "
-                                ><template v-slot:error>
-                                  {{ $t("components.fieldEmpty") }} </template
-                                ><template v-slot:prepend>
+                              >
+                                <template v-slot:error>
+                                  {{ $t("components.fieldEmpty") }}
+                                </template>
+                                <template v-slot:prepend>
                                   <q-icon :name="answerOption.__icon" />
                                 </template>
                                 <!-- reverse original text answer -->

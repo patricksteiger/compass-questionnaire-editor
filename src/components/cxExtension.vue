@@ -10,6 +10,7 @@
       <q-list
         dense
         bordered
+        separator
         padding
         class="rounded-borders"
         :key="'Extensions'"
@@ -17,6 +18,13 @@
         <q-item v-for="(extension, index) in extensions" :key="index">
           <q-item-section>
             <q-card-section>
+              <q-input
+                label="URL"
+                dense
+                type="text"
+                readonly
+                v-model="extension.url"
+              />
               <q-input
                 v-if="extension.__type === 'decimal'"
                 :label="getExtensionLabel(extension)"
@@ -90,8 +98,7 @@
               <q-toggle
                 v-else-if="extension.__type === 'boolean'"
                 :label="getExtensionLabel(extension)"
-                dense
-                v-model="extension.valueBoolean"
+                v-model.boolean="extension.valueBoolean"
               />
             </q-card-section>
           </q-item-section>
@@ -413,7 +420,7 @@ export default defineComponent({
       this.editorTools.onlyNumber(event);
     },
     getExtensionLabel(extension: Extension): string {
-      return `${extension.__type.toUpperCase()}: ${extension.url}`;
+      return extension.__type.toUpperCase();
     },
   },
 });
