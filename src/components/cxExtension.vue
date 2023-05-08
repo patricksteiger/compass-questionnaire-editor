@@ -222,19 +222,23 @@
                     >
                       <q-item-section>
                         <q-card-section>
+                          <q-input
+                            label="URL"
+                            dense
+                            type="text"
+                            readonly
+                            v-model="extension.url"
+                          />
                           <q-toggle
                             v-if="extension.__type === 'boolean'"
                             :label="getExtensionLabel(extension)"
-                            dense
-                            disable
-                            v-model="extension.valueBoolean"
+                            v-model.boolean="extension.valueBoolean"
                           />
                           <q-input
                             v-else-if="extension.__type === 'code'"
                             :label="getExtensionLabel(extension)"
                             dense
                             type="text"
-                            disable
                             v-model="extension.valueCode"
                           />
                           <q-input
@@ -242,7 +246,6 @@
                             :label="getExtensionLabel(extension)"
                             dense
                             type="number"
-                            disable
                             v-model.number="extension.valueDecimal"
                           />
                           <q-input
@@ -250,7 +253,6 @@
                             :label="getExtensionLabel(extension)"
                             dense
                             type="number"
-                            disable
                             v-model.number="extension.valueInteger"
                           />
                           <q-input
@@ -258,7 +260,6 @@
                             :label="getExtensionLabel(extension)"
                             dense
                             type="text"
-                            disable
                             :rules="[dateTools.isDate]"
                             v-model="extension.valueDate"
                           />
@@ -267,7 +268,6 @@
                             :label="getExtensionLabel(extension)"
                             dense
                             type="text"
-                            disable
                             :rules="[dateTools.isDateTime]"
                             v-model="extension.valueDateTime"
                           />
@@ -276,7 +276,6 @@
                             :label="getExtensionLabel(extension)"
                             dense
                             type="text"
-                            disable
                             mask="fulltime"
                             fill-mask
                             :rules="[dateTools.isTime]"
@@ -287,7 +286,6 @@
                             :label="getExtensionLabel(extension)"
                             dense
                             type="text"
-                            disable
                             v-model="extension.valueString"
                           />
                           <q-input
@@ -296,7 +294,6 @@
                             dense
                             autogrow
                             type="textarea"
-                            disable
                             v-model="extension.valueMarkdown"
                           />
                         </q-card-section>
