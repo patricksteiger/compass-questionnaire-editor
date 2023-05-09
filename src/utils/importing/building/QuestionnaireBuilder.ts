@@ -33,13 +33,13 @@ export class QuestionnaireBuilder {
     const newItem: Item[] = [];
     let linkIdCount = 0;
     for (const i of this.qre.item) {
+      // FIXME: set internal state based on hidden-extension
       newItem.push(this.fromItem(i, linkIdCount.toString()));
       linkIdCount++;
     }
     const extension = this.qre.extension;
-    let newExtension: Extension[] | undefined = undefined;
+    const newExtension: Extension[] = [];
     if (extension !== undefined) {
-      newExtension = [];
       for (let i = 0; i < extension.length; i++) {
         const e = extension[i];
         newExtension.push(this.fromExtension(e));
@@ -81,9 +81,8 @@ export class QuestionnaireBuilder {
         newAnswerOption.push(this.fromAnswerOption(a));
       }
     }
-    let newExtension: Extension[] | undefined = undefined;
+    const newExtension: Extension[] = [];
     if (extension !== undefined) {
-      newExtension = [];
       for (let i = 0; i < extension.length; i++) {
         const e = extension[i];
         newExtension.push(this.fromExtension(e));

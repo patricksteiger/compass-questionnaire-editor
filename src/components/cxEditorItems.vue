@@ -30,7 +30,7 @@
                   @dragleave="onDragLeave"
                   @drop="onDrop($event, false)"
                   :id="prop.node.__internalID"
-                ></div>
+                />
                 <div
                   class="row items-center justify-between"
                   style="width: 100%; flex-wrap: nowrap"
@@ -46,10 +46,9 @@
                       :name="prop.node.__icon"
                       size="15px"
                       class="q-mr-sm text-grey-8"
-                      ><q-tooltip>
-                        {{ prop.node.type }}
-                      </q-tooltip></q-icon
                     >
+                      <q-tooltip>{{ prop.node.type }}</q-tooltip>
+                    </q-icon>
                     <div class="col-12 q-body-1 text-weight-bold">
                       {{ prop.node.text }}
                     </div>
@@ -58,7 +57,7 @@
                     class="row items-center justify-end"
                     style="width: 190px; min-width: 190px"
                   >
-                    <!-- reverse original text question -->
+                    <!-- reverse item.text to original value -->
                     <div style="width: 30px">
                       <q-btn
                         :disable="!prop.node.__active"
@@ -72,25 +71,27 @@
                           !prop.node.__newQuestion
                         "
                         @click="prop.node.text = prop.node.__oldText"
-                        ><q-tooltip>
-                          {{ $t("views.editor.reverseText") }}
-                        </q-tooltip></q-btn
                       >
+                        <q-tooltip>
+                          {{ $t("views.editor.reverseText") }}
+                        </q-tooltip>
+                      </q-btn>
                     </div>
+                    <!-- toggle item -->
                     <div v-if="!prop.node.__disabled">
                       <q-toggle
                         size="xs"
                         v-model="prop.node.__active"
-                        :disable="prop.node.__disabled"
-                        @click="toggleItem(prop.node.__internalID)"
-                        ><q-tooltip>
+                        @click="toggleItem(prop.node)"
+                      >
+                        <q-tooltip>
                           {{
                             prop.node.__active
                               ? $t("views.editor.disableItem")
                               : $t("views.editor.enableItem")
                           }}
-                        </q-tooltip></q-toggle
-                      >
+                        </q-tooltip>
+                      </q-toggle>
                     </div>
                     <div style="width: 30px">
                       <q-btn
@@ -369,9 +370,10 @@
                   (!!selectedItem.answerConstraint &&
                     itemTools.undefinedAnswerChoices(selectedItem))
                 "
-                :disable="
-                  !selectedItem.answerConstraint &&
-                  itemTools.undefinedAnswerChoices(selectedItem)
+                :error-message="
+                  !selectedItem.answerConstraint
+                    ? 'If answerOptions or answerValueSet are defined, answerConstraint must be defined'
+                    : 'If answerConstraint is defined, answerOptions or answerValueSet must be defined'
                 "
               />
             </div>
@@ -2266,7 +2268,7 @@ import {
 } from "@/types";
 import { Language, languages } from "@/store";
 import { itemTools } from "@/utils/item";
-import { getItemExtensions } from "@/utils/extension";
+import { getItemExtensions, HIDDEN_EXTENSION_URL } from "@/utils/extension";
 
 export default defineComponent({
   components: {
@@ -2295,6 +2297,7 @@ export default defineComponent({
     const otherLinkId = ref<string>("");
     const linkedItem = ref<Item | undefined>(undefined);
     return {
+      HIDDEN_EXTENSION_URL,
       quasar: useQuasar(),
       getItemExtensions,
       addLinkIdLayout: ref(false),
@@ -3025,37 +3028,19 @@ export default defineComponent({
 
       this.editorTools.regenerateInternalLinkIDs(questionnaire);
     },
-    toggleItem(internalId: string) {
-      const currentNode = this.questionnaireTools.getItemByInternalId(
-        this.currentQuestionnaire,
-        internalId,
-      );
-      if (currentNode === undefined) {
-        console.error(
-          `InternalId ${internalId} does not exist in questionnaire`,
-        );
-        return;
-      }
-      const questionnaires: Questionnaire[] = this.getQuestionnaires;
-
+    toggleItem(currentNode: Item) {
       if (!currentNode.__active) {
-        const errorLangs: Language[] = [];
-        for (const questionnaire of questionnaires) {
-          if (
-            this.questionnaireTools.enableWhenDependsOn(
-              questionnaire,
-              currentNode,
-            )
-          ) {
-            errorLangs.push(questionnaire.language);
-          }
-        }
-        if (errorLangs.length !== 0) {
+        if (
+          this.questionnaireTools.enableWhenDependsOn(
+            this.currentQuestionnaire,
+            currentNode,
+          )
+        ) {
           const answer = confirm(
-            `Questionnaires with languages [${errorLangs}] have questions that depend on at least one of the questions you want to deactivate. ` +
+            `Questionnaire has questions that depend on at least one of the questions you want to deactivate. ` +
               "Keeping the LinkId on these conditions would harm the logical integrity of the questionnaire. " +
               "They will therefore be removed. \n" +
-              "Please be aware that if you reactivate the question you have to relink these conditions.",
+              "Please be aware that if you reactivate the question you have to relink these enableWhen.",
           );
           if (!answer) {
             currentNode.__active = true;
@@ -3063,20 +3048,11 @@ export default defineComponent({
             return;
           }
           const linkIDs = this.itemTools.getAllLinkIDs(currentNode);
-          for (const questionnaire of questionnaires) {
-            this.deleteEnableWhenWithQuestionID(questionnaire.item, linkIDs);
-          }
+          this.deleteEnableWhenWithQuestionID(this.currentItems, linkIDs);
         }
       }
-      const internalLinkId = currentNode.__linkId;
       const toggle = currentNode.__active;
-      for (const questionnaire of questionnaires) {
-        this.editorTools.toggleEntireItem(
-          internalLinkId,
-          questionnaire,
-          toggle,
-        );
-      }
+      this.editorTools.toggleEntireItem(currentNode, toggle);
     },
     isCondition(internalId: string): boolean {
       const item = this.questionnaireTools.getItemByInternalId(

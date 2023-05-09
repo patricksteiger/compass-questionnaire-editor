@@ -218,6 +218,7 @@ export type Item = {
   __icon: string;
   // unique ID based on uuidv4 and Date
   __internalID: string;
+  // is false if question was imported, used to revert values to original value after changes
   __newQuestion: boolean;
   __oldText?: string;
   __dependenceCondition?: Condition;

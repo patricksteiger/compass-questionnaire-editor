@@ -7,6 +7,7 @@ import {
   Reference,
   AnswerOption,
 } from "@/types";
+import { HIDDEN_EXTENSION_URL } from "./extension";
 import { itemTools } from "./item";
 import { questionnaireTools } from "./questionnaire";
 
@@ -99,16 +100,14 @@ class EditorTools {
     return true;
   }
 
-  toggleEntireItem(
-    internalLinkId: string,
-    questionnaire: Questionnaire,
-    activateToggle: boolean,
-  ): void {
-    const disableItem = questionnaireTools.getItemByInternalLinkId(
-      internalLinkId,
-      questionnaire,
-    );
+  toggleEntireItem(disableItem: Item, activateToggle: boolean): void {
     if (disableItem.__disabled) return;
+    const hiddenExtension = disableItem.extension!.find(
+      (e) => e.__type === "boolean" && e.url === HIDDEN_EXTENSION_URL,
+    )!;
+    if (hiddenExtension.__type === "boolean") {
+      hiddenExtension.valueBoolean = !activateToggle;
+    }
     disableItem.__active = activateToggle;
     if (disableItem.item) {
       this.toggleChildren(disableItem.item, activateToggle);
@@ -119,6 +118,12 @@ class EditorTools {
     for (const item of items) {
       item.__active = activate;
       item.__disabled = !activate;
+      const hiddenExtension = item.extension!.find(
+        (e) => e.__type === "boolean" && e.url === HIDDEN_EXTENSION_URL,
+      )!;
+      if (hiddenExtension.__type === "boolean") {
+        hiddenExtension.valueBoolean = !activate;
+      }
       if (item.item) {
         this.toggleChildren(item.item, activate);
       }

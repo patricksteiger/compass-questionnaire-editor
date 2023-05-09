@@ -95,11 +95,16 @@
                 error-message="Markdown must be non-empty"
                 v-model="extension.valueMarkdown"
               />
-              <q-toggle
-                v-else-if="extension.__type === 'boolean'"
-                :label="getExtensionLabel(extension)"
-                v-model.boolean="extension.valueBoolean"
-              />
+              <div v-else-if="extension.__type === 'boolean'">
+                <q-toggle
+                  :label="getExtensionLabel(extension)"
+                  v-model.boolean="extension.valueBoolean"
+                  :disable="disableGUIExtension(extension)"
+                />
+                <q-tooltip v-if="disableGUIExtension(extension)">
+                  Hidden can only be changed using the toggle in the item-tree
+                </q-tooltip>
+              </div>
             </q-card-section>
           </q-item-section>
           <q-btn
@@ -107,6 +112,7 @@
             flat
             color="grey-6"
             @click="removeExtension(index)"
+            :disable="disableGUIExtension(extension)"
           />
         </q-item>
       </q-list>
@@ -192,10 +198,16 @@
                     <div>
                       <q-btn
                         icon="add"
-                        :disable="!url"
+                        :disable="invalidToAddCustomExtension(url, type)"
                         @click="onSelectedCustomExtension(url, type)"
                       />
-                      <q-tooltip v-if="!url"> URL must be non-empty </q-tooltip>
+                      <q-tooltip v-if="invalidToAddCustomExtension(url, type)">
+                        {{
+                          !url
+                            ? "URL must be non-empty"
+                            : "Hidden extension already exists and cannot be added"
+                        }}
+                      </q-tooltip>
                     </div>
                   </q-card>
                 </div>
@@ -229,11 +241,17 @@
                             readonly
                             v-model="extension.url"
                           />
-                          <q-toggle
-                            v-if="extension.__type === 'boolean'"
-                            :label="getExtensionLabel(extension)"
-                            v-model.boolean="extension.valueBoolean"
-                          />
+                          <div v-if="extension.__type === 'boolean'">
+                            <q-toggle
+                              :label="getExtensionLabel(extension)"
+                              v-model.boolean="extension.valueBoolean"
+                              :disable="disableGUIExtension(extension)"
+                            />
+                            <q-tooltip v-if="disableGUIExtension(extension)">
+                              Hidden can only be changed using the toggle in the
+                              item-tree
+                            </q-tooltip>
+                          </div>
                           <q-input
                             v-else-if="extension.__type === 'code'"
                             :label="getExtensionLabel(extension)"
@@ -315,7 +333,7 @@ import { defineComponent, PropType, ref } from "vue";
 import { editorTools, UnreachableError } from "../utils/editor";
 import { extensionTypes, Extension, ExtensionType } from "@/types";
 import { questionnaireTools } from "@/utils/questionnaire";
-import { PredefinedExtension } from "@/utils/extension";
+import { HIDDEN_EXTENSION_URL, PredefinedExtension } from "@/utils/extension";
 import { dateTools } from "@/utils/date";
 
 export default defineComponent({
@@ -343,6 +361,7 @@ export default defineComponent({
       dateTools,
       editorTools,
       questionnaireTools,
+      HIDDEN_EXTENSION_URL,
     };
   },
   emits: {
@@ -354,10 +373,16 @@ export default defineComponent({
     },
   },
   methods: {
+    disableGUIExtension(extension: Extension): boolean {
+      return extension.url === HIDDEN_EXTENSION_URL;
+    },
     onSelectedPredefinedExtension(extension: Extension): void {
       const clonedExtension = editorTools.clone(extension);
       this.$emit("addExtension", clonedExtension);
       this.extensionLayout = false;
+    },
+    invalidToAddCustomExtension(url: string, type: ExtensionType): boolean {
+      return !url || (type === "boolean" && url === HIDDEN_EXTENSION_URL);
     },
     onSelectedCustomExtension(url: string, type: ExtensionType): void {
       let extension: Extension;

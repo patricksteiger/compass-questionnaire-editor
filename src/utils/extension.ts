@@ -92,16 +92,26 @@ const maxValues: PredefinedExtension[] = [
   },
 ];
 
+export const HIDDEN_EXTENSION_URL =
+  "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden";
+
+export const getHiddenExtension = (): Extension => ({
+  __type: "boolean",
+  url: HIDDEN_EXTENSION_URL,
+  valueBoolean: false,
+});
+
+// {
+//   __allowedItems: "all_items",
+//   __type: "boolean",
+//   __tooltip:
+//     "Items with hidden=true are not rendered for the user (includes child-elements)",
+//   url: "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
+//   valueBoolean: true,
+// },
+
 function getPredefinedExtensions(): PredefinedExtension[] {
   return [
-    {
-      __allowedItems: "all_items",
-      __type: "boolean",
-      __tooltip:
-        "Items with hidden=true are not rendered for the user (includes child-elements)",
-      url: "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
-      valueBoolean: true,
-    },
     {
       __allowedItems: [
         "boolean",

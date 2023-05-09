@@ -2,6 +2,7 @@ import { i18n } from "@/i18n";
 import { Item } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { allowsAnswerChoice, getItemTypeIcon, ItemType } from "./constants";
+import { getHiddenExtension } from "./extension";
 import { ParsedItem } from "./importing/parsing/item";
 
 class ItemTools {
@@ -94,13 +95,13 @@ class ItemTools {
       __icon: getItemTypeIcon(type),
       __internalID: itemTools.createInternalId(),
       __active: true,
+      __disabled: false,
       __linkId: "",
       __newQuestion: true,
-      __disabled: false,
       item: undefined,
       linkId: linkId,
       text: itemTools.getDefaultText(),
-      extension: [],
+      extension: [getHiddenExtension()],
       required: itemTools.getDefaultRequired(type),
       repeats: itemTools.getDefaultRepeats(type),
     };
