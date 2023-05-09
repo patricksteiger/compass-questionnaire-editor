@@ -412,7 +412,7 @@
             </div>
             <!-- Answers/Conditions -->
             <q-list padding bordered>
-              <!-- AnswersOption section -->
+              <!-- AnswerOption section -->
               <q-expansion-item
                 v-if="
                   selectedItem !== undefined &&
@@ -484,10 +484,11 @@
                                   @click="
                                     editorTools.setDisplayToOld(answerOption)
                                   "
-                                  ><q-tooltip>
-                                    {{ $t("components.reverseAnswer") }}
-                                  </q-tooltip></q-btn
                                 >
+                                  <q-tooltip>
+                                    {{ $t("components.reverseAnswer") }}
+                                  </q-tooltip>
+                                </q-btn>
                               </q-input>
                             </div>
                             <!-- answerOption decimal -->
@@ -946,7 +947,7 @@
                 :disable="!selectedItem.__active"
                 expand-separator
                 icon="account_tree"
-                :label="$t('views.editor.itemConditions')"
+                :label="$t('views.editor.enableWhen')"
                 default-opened
               >
                 <q-separator />
