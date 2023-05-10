@@ -96,8 +96,8 @@
       "UUID": "UUID",
       "regenerateUUID": "Regenerate UUID",
       "showQuestionContidions": "Show Item Conditions",
-      "disableItem": "Disable Item",
-      "enableItem": "Enable Item",
+      "disableItem": "Hide Item",
+      "enableItem": "Show Item",
       "originalText": "Original Text",
       "optionsAnswers": {
         "choice": "Choice",

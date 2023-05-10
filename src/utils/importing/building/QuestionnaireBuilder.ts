@@ -7,6 +7,11 @@ import {
   Questionnaire,
 } from "@/types";
 import {
+  getHiddenExtension,
+  HiddenExtension,
+  HIDDEN_EXTENSION_URL,
+} from "@/utils/extension";
+import {
   allowsAnswerChoice,
   getAnswerOptionIcon,
   getItemTypeIcon,
@@ -32,9 +37,10 @@ export class QuestionnaireBuilder {
     this.qre.item ??= [];
     const newItem: Item[] = [];
     let linkIdCount = 0;
-    for (const i of this.qre.item) {
-      // FIXME: set internal state based on hidden-extension
-      newItem.push(this.fromItem(i, linkIdCount.toString()));
+    for (const parsedItem of this.qre.item) {
+      const item = this.fromItem(parsedItem, linkIdCount.toString());
+      this.handleHiddenFor(item);
+      newItem.push(item);
       linkIdCount++;
     }
     const extension = this.qre.extension;
@@ -58,6 +64,50 @@ export class QuestionnaireBuilder {
       extension: newExtension,
       item: newItem,
     };
+  }
+
+  private handleHiddenFor(item: Item): void {
+    const extension = item.extension!;
+    let hiddenExtension = extension.find(
+      (e) => e.__type === "boolean" && e.url === HIDDEN_EXTENSION_URL,
+    ) as HiddenExtension | undefined;
+    if (hiddenExtension === undefined) {
+      hiddenExtension = getHiddenExtension();
+      extension.push(hiddenExtension);
+    }
+    if (hiddenExtension.valueBoolean) {
+      item.__active = false;
+      // First hidden item still needs to allow toggle
+      item.__disabled = false;
+      if (item.item !== undefined) {
+        for (const child of item.item) {
+          this.setHiddenFor(child);
+        }
+      }
+    } else if (item.item !== undefined) {
+      for (const child of item.item) {
+        this.handleHiddenFor(child);
+      }
+    }
+  }
+
+  private setHiddenFor(item: Item): void {
+    const extension = item.extension!;
+    let hiddenExtension = extension.find(
+      (e) => e.__type === "boolean" && e.url === HIDDEN_EXTENSION_URL,
+    ) as HiddenExtension | undefined;
+    if (hiddenExtension === undefined) {
+      hiddenExtension = getHiddenExtension();
+      extension.push(hiddenExtension);
+    }
+    hiddenExtension.valueBoolean = true;
+    item.__active = false;
+    item.__disabled = true;
+    if (item.item !== undefined) {
+      for (const child of item.item) {
+        this.setHiddenFor(child);
+      }
+    }
   }
 
   private fromItem(fhirItem: ParsedItem, internalLinkId: string): Item {

@@ -95,11 +95,14 @@ const maxValues: PredefinedExtension[] = [
 export const HIDDEN_EXTENSION_URL =
   "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden";
 
-export const getHiddenExtension = (): Extension => ({
-  __type: "boolean",
-  url: HIDDEN_EXTENSION_URL,
-  valueBoolean: false,
-});
+export type HiddenExtension = {
+  __type: "boolean";
+  url: typeof HIDDEN_EXTENSION_URL;
+  valueBoolean: boolean;
+};
+export function getHiddenExtension(): HiddenExtension {
+  return { __type: "boolean", url: HIDDEN_EXTENSION_URL, valueBoolean: false };
+}
 
 // {
 //   __allowedItems: "all_items",
