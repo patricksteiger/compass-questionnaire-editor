@@ -6,11 +6,7 @@ import {
   Item,
   Questionnaire,
 } from "@/types";
-import {
-  getHiddenExtension,
-  HiddenExtension,
-  HIDDEN_EXTENSION_URL,
-} from "@/utils/extension";
+import { getOrAddHiddenExtension } from "@/utils/extension";
 import {
   allowsAnswerChoice,
   getAnswerOptionIcon,
@@ -68,13 +64,7 @@ export class QuestionnaireBuilder {
 
   private handleHiddenFor(item: Item): void {
     const extension = item.extension!;
-    let hiddenExtension = extension.find(
-      (e) => e.__type === "boolean" && e.url === HIDDEN_EXTENSION_URL,
-    ) as HiddenExtension | undefined;
-    if (hiddenExtension === undefined) {
-      hiddenExtension = getHiddenExtension();
-      extension.push(hiddenExtension);
-    }
+    const hiddenExtension = getOrAddHiddenExtension(extension);
     if (hiddenExtension.valueBoolean) {
       item.__active = false;
       // First hidden item still needs to allow toggle
@@ -93,13 +83,7 @@ export class QuestionnaireBuilder {
 
   private setHiddenFor(item: Item): void {
     const extension = item.extension!;
-    let hiddenExtension = extension.find(
-      (e) => e.__type === "boolean" && e.url === HIDDEN_EXTENSION_URL,
-    ) as HiddenExtension | undefined;
-    if (hiddenExtension === undefined) {
-      hiddenExtension = getHiddenExtension();
-      extension.push(hiddenExtension);
-    }
+    const hiddenExtension = getOrAddHiddenExtension(extension);
     hiddenExtension.valueBoolean = true;
     item.__active = false;
     item.__disabled = true;

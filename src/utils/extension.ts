@@ -100,6 +100,24 @@ export type HiddenExtension = {
   url: typeof HIDDEN_EXTENSION_URL;
   valueBoolean: boolean;
 };
+export function isHiddenExtension(
+  extension: Extension,
+): extension is HiddenExtension {
+  return (
+    extension.__type === "boolean" && extension.url === HIDDEN_EXTENSION_URL
+  );
+}
+export function getOrAddHiddenExtension(
+  extensions: Extension[],
+): HiddenExtension {
+  let hiddenExtension = extensions.find(isHiddenExtension);
+  if (hiddenExtension === undefined) {
+    hiddenExtension = getHiddenExtension();
+    extensions.push(hiddenExtension);
+  }
+  return hiddenExtension;
+}
+
 export function getHiddenExtension(): HiddenExtension {
   return { __type: "boolean", url: HIDDEN_EXTENSION_URL, valueBoolean: false };
 }

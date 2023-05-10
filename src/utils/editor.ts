@@ -7,7 +7,7 @@ import {
   Reference,
   AnswerOption,
 } from "@/types";
-import { HiddenExtension, HIDDEN_EXTENSION_URL } from "./extension";
+import { getOrAddHiddenExtension } from "./extension";
 import { itemTools } from "./item";
 
 // Used for exhaustive switch-statements
@@ -102,9 +102,7 @@ class EditorTools {
   toggleEntireItem(disableItem: Item, activateToggle: boolean): void {
     if (disableItem.__disabled) return;
     const extension = disableItem.extension!;
-    const hiddenExtension = extension.find(
-      (e) => e.__type === "boolean" && e.url === HIDDEN_EXTENSION_URL,
-    ) as HiddenExtension;
+    const hiddenExtension = getOrAddHiddenExtension(extension);
     hiddenExtension.valueBoolean = !activateToggle;
     disableItem.__active = activateToggle;
     if (disableItem.item) {
@@ -117,9 +115,7 @@ class EditorTools {
       item.__active = activate;
       item.__disabled = !activate;
       const extension = item.extension!;
-      const hiddenExtension = extension.find(
-        (e) => e.__type === "boolean" && e.url === HIDDEN_EXTENSION_URL,
-      ) as HiddenExtension;
+      const hiddenExtension = getOrAddHiddenExtension(extension);
       hiddenExtension.valueBoolean = !activate;
       if (item.item) {
         this.toggleChildren(item.item, activate);
