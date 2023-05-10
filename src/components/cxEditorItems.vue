@@ -473,7 +473,13 @@
                                   {{ $t("components.fieldEmpty") }}
                                 </template>
                                 <template v-slot:prepend>
-                                  <q-icon :name="answerOption.__icon" />
+                                  <div>
+                                    <q-checkbox
+                                      v-model="answerOption.initialSelected"
+                                      size="sm"
+                                    />
+                                    <q-tooltip>initialSelected</q-tooltip>
+                                  </div>
                                 </template>
                                 <!-- reverse original text answer -->
                                 <q-btn
@@ -516,7 +522,13 @@
                                 "
                               >
                                 <template v-slot:prepend>
-                                  <q-icon :name="answerOption.__icon" />
+                                  <div>
+                                    <q-checkbox
+                                      v-model="answerOption.initialSelected"
+                                      size="sm"
+                                    />
+                                    <q-tooltip>initialSelected</q-tooltip>
+                                  </div>
                                 </template>
                                 <!-- reverse original text answer -->
                                 <div>
@@ -551,6 +563,7 @@
                                 class="col-12"
                                 @keypress="onlyNumber"
                                 autogrow
+                                type="number"
                                 v-model.number="answerOption.valueInteger"
                                 :disable="!selectedItem.__active"
                                 :label="
@@ -564,7 +577,13 @@
                                 "
                               >
                                 <template v-slot:prepend>
-                                  <q-icon :name="answerOption.__icon" />
+                                  <div>
+                                    <q-checkbox
+                                      v-model="answerOption.initialSelected"
+                                      size="sm"
+                                    />
+                                    <q-tooltip>initialSelected</q-tooltip>
+                                  </div>
                                 </template>
                                 <!-- reverse original text answer -->
                                 <div>
@@ -615,7 +634,13 @@
                                   Valid examples: 2000, 2000-01, 2000-12-30
                                 </q-tooltip>
                                 <template v-slot:prepend>
-                                  <q-icon :name="answerOption.__icon" />
+                                  <div>
+                                    <q-checkbox
+                                      v-model="answerOption.initialSelected"
+                                      size="sm"
+                                    />
+                                    <q-tooltip>initialSelected</q-tooltip>
+                                  </div>
                                 </template>
                                 <!-- reverse original text answer -->
                                 <div>
@@ -667,7 +692,13 @@
                                   2000-12-30T12:33:59+01:00
                                 </q-tooltip>
                                 <template v-slot:prepend>
-                                  <q-icon :name="answerOption.__icon" />
+                                  <div>
+                                    <q-checkbox
+                                      v-model="answerOption.initialSelected"
+                                      size="sm"
+                                    />
+                                    <q-tooltip>initialSelected</q-tooltip>
+                                  </div>
                                 </template>
                                 <!-- reverse original text answer -->
                                 <div>
@@ -715,8 +746,15 @@
                                       }`
                                     : answerOption.__type
                                 "
-                                ><template v-slot:prepend>
-                                  <q-icon :name="answerOption.__icon" />
+                              >
+                                <template v-slot:prepend>
+                                  <div>
+                                    <q-checkbox
+                                      v-model="answerOption.initialSelected"
+                                      size="sm"
+                                    />
+                                    <q-tooltip>initialSelected</q-tooltip>
+                                  </div>
                                 </template>
                                 <!-- reverse original time answer -->
                                 <q-btn
@@ -734,10 +772,11 @@
                                     answerOption.valueTime =
                                       answerOption.__oldValueTime
                                   "
-                                  ><q-tooltip>
-                                    {{ $t("components.reverseAnswer") }}
-                                  </q-tooltip></q-btn
                                 >
+                                  <q-tooltip>
+                                    {{ $t("components.reverseAnswer") }}
+                                  </q-tooltip>
+                                </q-btn>
                               </q-input>
                             </div>
                             <!-- answerOption string -->
@@ -759,8 +798,15 @@
                                       }`
                                     : answerOption.__type
                                 "
-                                ><template v-slot:prepend>
-                                  <q-icon :name="answerOption.__icon" />
+                              >
+                                <template v-slot:prepend>
+                                  <div>
+                                    <q-checkbox
+                                      v-model="answerOption.initialSelected"
+                                      size="sm"
+                                    />
+                                    <q-tooltip>initialSelected</q-tooltip>
+                                  </div>
                                 </template>
                                 <!-- reverse original text answer -->
                                 <q-btn
@@ -810,10 +856,18 @@
                                       }`
                                     : answerOption.__type
                                 "
-                                ><template v-slot:error>
-                                  {{ $t("components.fieldEmpty") }} </template
-                                ><template v-slot:prepend>
-                                  <q-icon :name="answerOption.__icon" />
+                              >
+                                <template v-slot:error>
+                                  {{ $t("components.fieldEmpty") }}
+                                </template>
+                                <template v-slot:prepend>
+                                  <div>
+                                    <q-checkbox
+                                      v-model="answerOption.initialSelected"
+                                      size="sm"
+                                    />
+                                    <q-tooltip>initialSelected</q-tooltip>
+                                  </div>
                                 </template>
                                 <!-- reverse original text answer -->
                                 <q-btn
@@ -828,10 +882,11 @@
                                   @click="
                                     editorTools.setDisplayToOld(answerOption)
                                   "
-                                  ><q-tooltip>
-                                    {{ $t("components.reverseAnswer") }}
-                                  </q-tooltip></q-btn
                                 >
+                                  <q-tooltip>
+                                    {{ $t("components.reverseAnswer") }}
+                                  </q-tooltip>
+                                </q-btn>
                               </q-input>
                             </div>
                             <!-- answerOption reference -->
@@ -860,10 +915,18 @@
                                       }`
                                     : answerOption.__type
                                 "
-                                ><template v-slot:error>
-                                  {{ $t("components.fieldEmpty") }} </template
-                                ><template v-slot:prepend>
-                                  <q-icon :name="answerOption.__icon" />
+                              >
+                                <template v-slot:error>
+                                  {{ $t("components.fieldEmpty") }}
+                                </template>
+                                <template v-slot:prepend>
+                                  <div>
+                                    <q-checkbox
+                                      v-model="answerOption.initialSelected"
+                                      size="sm"
+                                    />
+                                    <q-tooltip>initialSelected</q-tooltip>
+                                  </div>
                                 </template>
                                 <!-- reverse original text answer -->
                                 <q-btn
@@ -878,10 +941,11 @@
                                   @click="
                                     editorTools.setDisplayToOld(answerOption)
                                   "
-                                  ><q-tooltip>
-                                    {{ $t("components.reverseAnswer") }}
-                                  </q-tooltip></q-btn
                                 >
+                                  <q-tooltip>
+                                    {{ $t("components.reverseAnswer") }}
+                                  </q-tooltip>
+                                </q-btn>
                               </q-input>
                             </div>
                           </q-item-section>
@@ -896,10 +960,11 @@
                                   icon="highlight_off"
                                   :disable="!selectedItem.__active"
                                   @click="removeAnswerOption(answerOption)"
-                                  ><q-tooltip>
-                                    {{ $t("components.remove") }}
-                                  </q-tooltip></q-btn
                                 >
+                                  <q-tooltip>
+                                    {{ $t("components.remove") }}
+                                  </q-tooltip>
+                                </q-btn>
                               </div>
                             </div>
                           </q-item-section>
@@ -3134,10 +3199,11 @@ export default defineComponent({
         __id: itemTools.createAnswerOptionId(),
         __newAnswer: true,
         __type: e.name,
+        initialSelected: false,
       };
       switch (e.name) {
         case "coding":
-          answerOption.valueCoding = { code: "", display: "", system: "" };
+          answerOption.valueCoding = {};
           break;
         case "decimal":
           answerOption.valueDecimal = 0;
@@ -3146,13 +3212,13 @@ export default defineComponent({
           answerOption.valueInteger = 0;
           break;
         case "date":
-          answerOption.valueDate = "";
+          answerOption.valueDate = "2000-01-01";
           break;
         case "dateTime":
-          answerOption.valueDateTime = "";
+          answerOption.valueDateTime = "2000-01-01T00:00:00+01:00";
           break;
         case "time":
-          answerOption.valueTime = "";
+          answerOption.valueTime = "00:00:00";
           break;
         case "string":
           answerOption.valueString = "";

@@ -93,8 +93,12 @@ export class QuestionnaireValidator {
 
   private answerOption(item: Item, warnings: string[]): void {
     if (item.answerOption === undefined) return;
+    let initialSelectedCount = 0;
     for (let i = 0; i < item.answerOption.length; i++) {
       const answerOption = item.answerOption[i];
+      if (answerOption.initialSelected) {
+        initialSelectedCount++;
+      }
       switch (answerOption.__type) {
         case "coding":
           if (editorTools.isEmptyObject(answerOption.valueCoding)) {
@@ -174,6 +178,11 @@ export class QuestionnaireValidator {
         default:
           throw new UnreachableError(answerOption.__type);
       }
+    }
+    if (!item.repeats && initialSelectedCount > 1) {
+      warnings.push(
+        "There cannot be multiple initialSelected answerOptions for items that do not repeat",
+      );
     }
   }
 

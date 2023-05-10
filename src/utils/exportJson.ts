@@ -201,6 +201,7 @@ function filterItem(item: Item): void {
   if (item.answerValueSet) {
     delete item.answerOption;
   } else if (item.answerOption !== undefined) {
+    // FIXME: How to resolve multiple initialSelected answerOptions for non-repeating items?
     for (let i = item.answerOption.length - 1; i >= 0; i--) {
       const answer = item.answerOption[i];
       if (answer.__type === "coding") {

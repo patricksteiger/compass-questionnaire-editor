@@ -117,6 +117,7 @@ export type AnswerOption = {
   valueString?: string;
   valueQuantity?: Quantity;
   valueReference?: Reference;
+  initialSelected: boolean;
 };
 
 export const extensionTypes = [

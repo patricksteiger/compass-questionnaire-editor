@@ -203,8 +203,10 @@ export class QuestionnaireBuilder {
   }
 
   private fromAnswerOption(answerOption: ParsedAnswerOption): AnswerOption {
+    const initialSelected = answerOption.initialSelected ?? false;
     const result: AnswerOption = {
       ...answerOption,
+      initialSelected,
       __id: itemTools.createAnswerOptionId(),
     };
     if (result.valueCoding !== undefined) {
