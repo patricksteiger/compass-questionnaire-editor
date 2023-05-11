@@ -208,6 +208,7 @@ export class QuestionnaireBuilder {
       ...answerOption,
       initialSelected,
       __id: itemTools.createAnswerOptionId(),
+      __type: "coding",
     };
     if (result.valueCoding !== undefined) {
       result.__type = "coding";
@@ -260,6 +261,8 @@ export class QuestionnaireBuilder {
         result.valueReference,
       );
       result.__oldFormattedValueReference = result.__formattedValueReference;
+    } else {
+      throw new Error("Unreachable: answerOption has no defined value!");
     }
     return result;
   }

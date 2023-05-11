@@ -89,7 +89,7 @@ export type Coding = {
 
 export type AnswerOption = {
   __id?: string;
-  __type?: AnswerOptionType;
+  __type: AnswerOptionType;
   __icon?: string;
   __newAnswer?: boolean;
   __oldValueCoding?: Coding;

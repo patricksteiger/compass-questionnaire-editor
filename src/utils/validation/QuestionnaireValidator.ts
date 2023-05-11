@@ -170,11 +170,6 @@ export class QuestionnaireValidator {
             );
           }
           break;
-        case undefined:
-          console.error(
-            `answerOption at index ${i}: __type should never be undefined`,
-          );
-          break;
         default:
           throw new UnreachableError(answerOption.__type);
       }
