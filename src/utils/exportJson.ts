@@ -201,7 +201,6 @@ function filterItem(item: Item): void {
   if (item.answerValueSet) {
     delete item.answerOption;
   } else if (item.answerOption !== undefined) {
-    // FIXME: How to resolve multiple initialSelected answerOptions for non-repeating items?
     for (let i = item.answerOption.length - 1; i >= 0; i--) {
       const answer = item.answerOption[i];
       if (answer.__type === "coding") {
@@ -292,6 +291,13 @@ function filterItem(item: Item): void {
     }
     if (item.answerOption.length === 0) {
       delete item.answerOption;
+    } else if (!item.repeats) {
+      const firstSelected = item.answerOption.findIndex(
+        (a) => a.initialSelected,
+      );
+      for (let i = firstSelected + 1; i < item.answerOption.length; i++) {
+        item.answerOption[i].initialSelected = false;
+      }
     }
   }
 

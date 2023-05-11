@@ -181,7 +181,7 @@ export class QuestionnaireValidator {
     }
     if (!item.repeats && initialSelectedCount > 1) {
       warnings.push(
-        "There cannot be multiple initialSelected answerOptions for items that do not repeat",
+        "There cannot be multiple initialSelected answerOptions for items that do not repeat. Only the first initialSelected answerOption will be exported with initialSelected=true!",
       );
     }
   }
