@@ -23,6 +23,15 @@
                 v-model="initial.valueBoolean"
                 dense
               />
+              <q-input
+                v-else-if="initial.__type === 'decimal'"
+                label="Decimal"
+                @keypress="onlyNumberDec"
+                class="col-4"
+                v-model.number="initial.valueDecimal"
+                type="number"
+                dense
+              />
             </q-card-section>
           </q-item-section>
           <div class="col-2">
@@ -51,6 +60,7 @@
 
 <script lang="ts">
 import { Initial, Item } from "@/types";
+import { editorTools } from "@/utils/editor";
 import { defineComponent, PropType, ref } from "vue";
 
 export default defineComponent({
@@ -64,6 +74,7 @@ export default defineComponent({
     const initials = ref<Initial[]>(prop.selectedItem.initial);
     return {
       initials,
+      editorTools,
     };
   },
   emits: {
@@ -77,13 +88,25 @@ export default defineComponent({
   methods: {
     addInitial(): void {
       let initial: Initial;
-      if (this.selectedItem.type === "boolean") {
-        initial = { __type: "boolean", valueBoolean: false };
-        this.$emit("addInitial", initial);
+      switch (this.selectedItem.type) {
+        case "boolean":
+          initial = { __type: "boolean", valueBoolean: false };
+          this.$emit("addInitial", initial);
+          break;
+        case "decimal":
+          initial = { __type: "decimal", valueDecimal: 0 };
+          this.$emit("addInitial", initial);
+          break;
       }
     },
     removeInitial(index: number): void {
       this.$emit("removeInitial", index);
+    },
+    onlyNumberDec($event: KeyboardEvent): void {
+      this.editorTools.onlyNumberDec($event);
+    },
+    onlyNumber($event: KeyboardEvent): void {
+      this.editorTools.onlyNumber($event);
     },
   },
 });

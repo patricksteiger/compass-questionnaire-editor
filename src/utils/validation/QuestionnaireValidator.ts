@@ -72,9 +72,10 @@ export class QuestionnaireValidator {
     for (const initial of item.initial) {
       switch (initial.__type) {
         case "boolean":
+        case "decimal":
           break;
         default:
-          throw new UnreachableError(initial.__type);
+          throw new UnreachableError(initial);
       }
     }
   }

@@ -205,7 +205,9 @@ export const answerConstraints = [
 ] as const;
 export type AnswerConstraint = typeof answerConstraints[number];
 
-export type Initial = { __type: "boolean"; valueBoolean: boolean };
+export type Initial =
+  | { __type: "boolean"; valueBoolean: boolean }
+  | { __type: "decimal"; valueDecimal: number };
 
 /*
  * Fields with "__"-prefix are used for internal state management

@@ -158,6 +158,8 @@ export class QuestionnaireBuilder {
   private fromInitial(initial: ParsedInitial): Initial {
     if (initial.valueBoolean !== undefined) {
       return { __type: "boolean", valueBoolean: initial.valueBoolean };
+    } else if (initial.valueDecimal !== undefined) {
+      return { __type: "decimal", valueDecimal: initial.valueDecimal };
     }
     throw new Error(
       `Initial has missing implementation: ${JSON.stringify(initial)}`,

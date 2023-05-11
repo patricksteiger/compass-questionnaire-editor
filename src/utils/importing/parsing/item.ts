@@ -52,6 +52,7 @@ export type ParsedExtension = z.infer<typeof extensionSchema>;
 
 const initialSchema = z.object({
   valueBoolean: optionalBooleanSchema,
+  valueDecimal: optionalNumberSchema,
 });
 
 const initial = initialSchema.array().optional();

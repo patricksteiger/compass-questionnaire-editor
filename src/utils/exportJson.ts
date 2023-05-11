@@ -190,8 +190,13 @@ function filterInitial(item: Item): void {
     switch (initial.__type) {
       case "boolean":
         break;
+      case "decimal":
+        if (initial.valueDecimal !== 0 && !initial.valueDecimal) {
+          item.initial.splice(i, 1);
+        }
+        break;
       default:
-        throw new UnreachableError(initial.__type);
+        throw new UnreachableError(initial);
     }
   }
 }
