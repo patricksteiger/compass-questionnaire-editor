@@ -1273,7 +1273,7 @@
                 </q-card>
               </q-expansion-item>
             </q-list>
-            <!-- extension -->
+            <!-- extension component -->
             <q-list padding bordered>
               <cx-extension
                 v-if="selectedItem !== undefined"
@@ -1281,6 +1281,15 @@
                 :predefinedExtensions="getItemExtensions(selectedItem)"
                 v-on:addExtension="addExtension"
                 v-on:removeExtension="removeExtension"
+              />
+            </q-list>
+            <!-- initial component -->
+            <q-list padding bordered>
+              <cx-initial
+                v-if="selectedItem !== undefined && allowsInitial(selectedItem)"
+                :selectedItem="selectedItem"
+                v-on:addInitial="addInitial"
+                v-on:removeInitial="removeInitial"
               />
             </q-list>
           </q-tab-panel>
@@ -2305,6 +2314,7 @@ import {
   MAX_LENGTH_LINKID,
   allowsAnswerChoice,
   AnswerOptionType,
+  allowsInitial,
 } from "@/utils/constants";
 import { useQuasar } from "quasar";
 import { computed, defineComponent, ref } from "vue";
@@ -2315,6 +2325,7 @@ import { mapGetters, useStore } from "vuex";
 import { v4 as uuidv4 } from "uuid";
 import cxEnableWhen from "@/components/cxEnableWhen.vue";
 import cxExtension from "@/components/cxExtension.vue";
+import cxInitial from "@/components/cxInitial.vue";
 import cxLanguageHub from "@/components/cxLanguageHub.vue";
 import cxValidationHub from "@/components/cxValidationHub.vue";
 import { i18n, defaultLanguage } from "@/i18n";
@@ -2330,6 +2341,7 @@ import {
   comparators,
   answerConstraints,
   Extension,
+  Initial,
 } from "@/types";
 import { Language, languages } from "@/store";
 import { itemTools } from "@/utils/item";
@@ -2339,6 +2351,7 @@ export default defineComponent({
   components: {
     cxEnableWhen,
     cxExtension,
+    cxInitial,
     cxLanguageHub,
     cxValidationHub,
   },
@@ -2362,6 +2375,7 @@ export default defineComponent({
     const otherLinkId = ref<string>("");
     const linkedItem = ref<Item | undefined>(undefined);
     return {
+      allowsInitial,
       HIDDEN_EXTENSION_URL,
       quasar: useQuasar(),
       getItemExtensions,
@@ -2829,6 +2843,12 @@ export default defineComponent({
     },
     removeExtension(index: number): void {
       this.selectedItem!.extension!.splice(index, 1);
+    },
+    addInitial(e: Initial): void {
+      this.selectedItem!.initial.push(e);
+    },
+    removeInitial(index: number): void {
+      this.selectedItem!.initial.splice(index, 1);
     },
     // Called for answers from answerOption-item
     onEnableWhenWithAnswerOption(e: AnswerOption): void {

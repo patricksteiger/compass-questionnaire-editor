@@ -1,5 +1,4 @@
 <template>
-  <!-- extension -->
   <q-expansion-item
     expand-separator
     icon="account_tree"

@@ -93,6 +93,7 @@
       "maxValue": "Max Value",
       "highRangeLabel": "High Range Label",
       "extensions": "Extensions",
+      "initials": "Initials",
       "UUID": "UUID",
       "regenerateUUID": "Regeneriere UUID",
       "showQuestionContidions": "Zeige Element Conditions",
