@@ -270,6 +270,13 @@ export class FHIRItemValidator {
               );
             }
             break;
+          case "integer":
+            if (initial.valueInteger === undefined) {
+              this.errors.push(
+                `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
+              );
+            }
+            break;
           default:
           // TODO: Add UnreachableException for inital
         }

@@ -1,7 +1,7 @@
 <template>
   <q-expansion-item
     expand-separator
-    icon="account_tree"
+    :icon="selectedItem.__icon"
     :label="$t('views.editor.initials')"
   >
     <q-separator />
@@ -16,22 +16,47 @@
       >
         <q-item v-for="(initial, index) in initials" :key="index">
           <q-item-section>
-            {{ index + 1 }}
-            <q-card-section class="col-10">
-              <q-toggle
-                v-if="initial.__type === 'boolean'"
-                v-model="initial.valueBoolean"
-                dense
-              />
-              <q-input
-                v-else-if="initial.__type === 'decimal'"
-                label="Decimal"
-                @keypress="onlyNumberDec"
-                class="col-4"
-                v-model.number="initial.valueDecimal"
-                type="number"
-                dense
-              />
+            <q-card-section>
+              <div class="row" v-if="initial.__type === 'boolean'">
+                <q-toggle
+                  v-model.boolean="initial.valueBoolean"
+                  :label="(index + 1).toString()"
+                  left-label
+                  dense
+                />
+              </div>
+              <div class="row" v-else-if="initial.__type === 'decimal'">
+                <q-input
+                  label="Decimal"
+                  @keypress="onlyNumberDec"
+                  class="col-12"
+                  v-model.number="initial.valueDecimal"
+                  type="number"
+                  dense
+                >
+                  <template v-slot:prepend>
+                    <div>
+                      {{ index + 1 }}
+                    </div>
+                  </template>
+                </q-input>
+              </div>
+              <div class="row" v-else-if="initial.__type === 'integer'">
+                <q-input
+                  label="Integer"
+                  @keypress="onlyNumber"
+                  class="col-12"
+                  v-model.number="initial.valueInteger"
+                  type="number"
+                  dense
+                >
+                  <template v-slot:prepend>
+                    <div>
+                      {{ index + 1 }}
+                    </div>
+                  </template>
+                </q-input>
+              </div>
             </q-card-section>
           </q-item-section>
           <div class="col-2">
@@ -95,6 +120,10 @@ export default defineComponent({
           break;
         case "decimal":
           initial = { __type: "decimal", valueDecimal: 0 };
+          this.$emit("addInitial", initial);
+          break;
+        case "integer":
+          initial = { __type: "integer", valueInteger: 0 };
           this.$emit("addInitial", initial);
           break;
       }

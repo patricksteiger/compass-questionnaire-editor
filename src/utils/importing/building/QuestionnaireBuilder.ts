@@ -160,7 +160,10 @@ export class QuestionnaireBuilder {
       return { __type: "boolean", valueBoolean: initial.valueBoolean };
     } else if (initial.valueDecimal !== undefined) {
       return { __type: "decimal", valueDecimal: initial.valueDecimal };
+    } else if (initial.valueInteger !== undefined) {
+      return { __type: "integer", valueInteger: initial.valueInteger };
     }
+
     throw new Error(
       `Initial has missing implementation: ${JSON.stringify(initial)}`,
     );

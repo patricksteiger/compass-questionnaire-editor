@@ -84,6 +84,11 @@ export class QuestionnaireValidator {
             warnings.push(`inital at position ${i + 1} has empty valueDecimal`);
           }
           break;
+        case "integer":
+          if (initial.valueInteger !== 0 && !initial.valueInteger) {
+            warnings.push(`inital at position ${i + 1} has empty valueInteger`);
+          }
+          break;
         default:
           throw new UnreachableError(initial);
       }
