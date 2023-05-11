@@ -205,6 +205,8 @@ export const answerConstraints = [
 ] as const;
 export type AnswerConstraint = typeof answerConstraints[number];
 
+export type Initial = { __type: "boolean"; valueBoolean: boolean };
+
 /*
  * Fields with "__"-prefix are used for internal state management
  */
@@ -241,6 +243,7 @@ export type Item = {
   extension?: Extension[];
   required: boolean | undefined;
   repeats: boolean | undefined;
+  initial: Initial[];
 };
 
 export const status = ["draft", "active", "retired", "unknown"] as const;

@@ -104,6 +104,7 @@ class ItemTools {
       extension: [getHiddenExtension()],
       required: itemTools.getDefaultRequired(type),
       repeats: itemTools.getDefaultRepeats(type),
+      initial: [],
     };
   }
 

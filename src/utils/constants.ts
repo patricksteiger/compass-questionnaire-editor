@@ -36,6 +36,10 @@ export function allowsMaxLength(item: Item | ParsedItem): boolean {
   );
 }
 
+export function allowsInitial(item: Item | ParsedItem): boolean {
+  return item.type !== "display" && item.type !== "group";
+}
+
 export const itemTypeIcons = [
   { name: "group", icon: "group_work", label: "Group" },
   { name: "display", icon: "description", label: "Display" },

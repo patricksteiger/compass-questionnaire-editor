@@ -40,7 +40,7 @@ export class FHIRQuestionnaireValidator {
   private validateExtension(qre: ParsedQuestionnaire, errors: string[]): void {
     if (qre.extension === undefined) return;
     for (const extension of qre.extension) {
-      const count = fhirValidatorUtils.countExtensionValue(extension);
+      const count = fhirValidatorUtils.countValueInvariants(extension);
       if (count === 0) {
         errors.push(
           `Questionnaire "${qre.language}" has extension with no value.`,

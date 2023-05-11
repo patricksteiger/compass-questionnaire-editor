@@ -3,6 +3,7 @@ import {
   AnswerOption,
   EnableWhen,
   Extension,
+  Initial,
   Item,
   Questionnaire,
 } from "@/types";
@@ -18,6 +19,7 @@ import { itemTools } from "../../item";
 import {
   ParsedAnswerOption,
   ParsedExtension,
+  ParsedInitial,
   ParsedItem,
 } from "../parsing/item";
 import { ParsedQuestionnaire } from "../parsing/questionnaire";
@@ -95,7 +97,8 @@ export class QuestionnaireBuilder {
   }
 
   private fromItem(fhirItem: ParsedItem, internalLinkId: string): Item {
-    const { item, answerOption, extension, text, answerValueSet } = fhirItem;
+    const { item, answerOption, extension, initial, text, answerValueSet } =
+      fhirItem;
     const enableWhen = this.fromEnableWhen(fhirItem);
     let newItem: Item[] | undefined = undefined;
     if (item !== undefined) {
@@ -122,6 +125,13 @@ export class QuestionnaireBuilder {
         newExtension.push(this.fromExtension(e));
       }
     }
+    const newInitial: Initial[] = [];
+    if (initial !== undefined) {
+      for (let i = 0; i < initial.length; i++) {
+        const e = initial[i];
+        newInitial.push(this.fromInitial(e));
+      }
+    }
     return {
       __active: true,
       __disabled: false,
@@ -140,8 +150,18 @@ export class QuestionnaireBuilder {
       text: text ?? "",
       required: fhirItem.required,
       repeats: fhirItem.repeats,
+      initial: newInitial,
       item: newItem,
     };
+  }
+
+  private fromInitial(initial: ParsedInitial): Initial {
+    if (initial.valueBoolean !== undefined) {
+      return { __type: "boolean", valueBoolean: initial.valueBoolean };
+    }
+    throw new Error(
+      `Initial has missing implementation: ${JSON.stringify(initial)}`,
+    );
   }
 
   private fromExtension(extension: ParsedExtension): Extension {

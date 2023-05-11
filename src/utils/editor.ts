@@ -66,6 +66,10 @@ class EditorTools {
     return !this.isEmptyObject(obj);
   }
 
+  nonEmptyArray<T>(val: T[] | undefined): val is T[] {
+    return val !== undefined && val.length > 0;
+  }
+
   private assingNewInternalLinkIDsToChildren(item: Item): void {
     if (item.item === undefined) return;
     let idCount = 0;

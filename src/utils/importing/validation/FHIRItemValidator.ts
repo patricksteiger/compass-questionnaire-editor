@@ -1,6 +1,7 @@
 import { ParsedAnswerOption, ParsedItem } from "../parsing/item";
 import { ParsedQuestionnaire } from "../parsing/questionnaire";
 import {
+  allowsInitial,
   allowsMaxLength,
   MAX_ALLOWED_LEVELS,
   MAX_ALLOWED_LEVELS_FOR_GROUPS,
@@ -10,6 +11,7 @@ import { validatorUtils } from "../TransformerUtils";
 import { ParsedEnableWhen } from "../parsing/enableWhen";
 import { itemTools } from "@/utils/item";
 import { fhirValidatorUtils } from "./FHIRValidatorUtils";
+import { editorTools } from "@/utils/editor";
 
 export class FHIRItemValidator {
   private linkIdSet: Set<string>;
@@ -39,6 +41,8 @@ export class FHIRItemValidator {
     this.validateEnableWhenAndBehavior(item);
     this.validateAnswerValueSetAndOption(item);
     this.validateExtension(item);
+    this.validateInitial(item);
+    this.validateInitialAndAnswerOption(item);
     this.validateMaxLength(item);
     this.validateRequired(item);
     this.validateRepeats(item);
@@ -78,7 +82,7 @@ export class FHIRItemValidator {
     if (item.answerValueSet === "") {
       item.answerValueSet = undefined;
     }
-    if (item.answerOption !== undefined && item.answerOption.length === 0) {
+    if (!editorTools.nonEmptyArray(item.answerOption)) {
       item.answerOption = undefined;
     }
     if (item.answerValueSet && item.answerOption) {
@@ -104,7 +108,7 @@ export class FHIRItemValidator {
     answerOption: ParsedAnswerOption,
     item: ParsedItem,
   ): void {
-    const count = fhirValidatorUtils.countAnswerOptionValue(answerOption);
+    const count = fhirValidatorUtils.countValueInvariants(answerOption);
     if (count > 1) {
       this.errors.push(
         `LinkId "${item.linkId}" has answerOption with more than 1 answer.`,
@@ -213,7 +217,7 @@ export class FHIRItemValidator {
     enableWhen: ParsedEnableWhen,
     item: ParsedItem,
   ): void {
-    const count = fhirValidatorUtils.countEnableWhenAnswer(enableWhen);
+    const count = fhirValidatorUtils.countAnswerInvariants(enableWhen);
     if (count > 1) {
       this.errors.push(
         `LinkId "${item.linkId}" has enableWhen with more than 1 answer.`,
@@ -234,10 +238,41 @@ export class FHIRItemValidator {
     enableWhen.answerReference = undefined;
   }
 
+  private validateInitial(item: ParsedItem): void {
+    if (!editorTools.nonEmptyArray(item.initial)) return;
+    if (!allowsInitial(item)) {
+      this.errors.push(
+        `LinkId "${item.linkId}" has type "${item.type}" which does not allow initial values.`,
+      );
+      return;
+    }
+    for (const initial of item.initial) {
+      const count = fhirValidatorUtils.countValueInvariants(initial);
+      if (count === 0) {
+        this.errors.push(`LinkId "${item.linkId}" has initial with no value.`);
+      } else if (count > 1) {
+        this.errors.push(
+          `LinkId "${item.linkId}" has initial with multiple values.`,
+        );
+      }
+    }
+  }
+
+  private validateInitialAndAnswerOption(item: ParsedItem): void {
+    if (
+      editorTools.nonEmptyArray(item.initial) &&
+      editorTools.nonEmptyArray(item.answerOption)
+    ) {
+      this.errors.push(
+        `LinkId ${item.linkId} has initial and answerOption defined. Only 1 is allowed.`,
+      );
+    }
+  }
+
   private validateExtension(item: ParsedItem): void {
     if (item.extension === undefined) return;
     for (const extension of item.extension) {
-      const count = fhirValidatorUtils.countExtensionValue(extension);
+      const count = fhirValidatorUtils.countValueInvariants(extension);
       if (count === 0) {
         this.errors.push(
           `LinkId "${item.linkId}" has extension with no value.`,

@@ -50,6 +50,14 @@ const extension = extensionSchema.array().optional();
 
 export type ParsedExtension = z.infer<typeof extensionSchema>;
 
+const initialSchema = z.object({
+  valueBoolean: optionalBooleanSchema,
+});
+
+const initial = initialSchema.array().optional();
+
+export type ParsedInitial = z.infer<typeof initialSchema>;
+
 const baseItemSchema = z.object({
   linkId,
   definition,
@@ -64,6 +72,7 @@ const baseItemSchema = z.object({
   answerConstraint,
   answerOption,
   answerValueSet,
+  initial,
 });
 
 export type ParsedItem = z.infer<typeof baseItemSchema> & {

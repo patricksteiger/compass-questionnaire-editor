@@ -184,6 +184,18 @@ function getFilteredQuestionnaire(qre: Questionnaire): Questionnaire {
   return qre;
 }
 
+function filterInitial(item: Item): void {
+  for (let i = item.initial.length - 1; i >= 0; i--) {
+    const initial = item.initial[i];
+    switch (initial.__type) {
+      case "boolean":
+        break;
+      default:
+        throw new UnreachableError(initial.__type);
+    }
+  }
+}
+
 function filterItem(item: Item): void {
   if (item.extension !== undefined) {
     filterExtension(item.extension);
@@ -192,6 +204,8 @@ function filterItem(item: Item): void {
     }
   }
 
+  // TODO: Maybe rework how answerValueSet, answerOption and initial are exported?
+  // First delete values then delete others based on that? ...
   //remove empty answerValueSet
   if (item.answerValueSet === "") {
     delete item.answerValueSet;
@@ -291,14 +305,22 @@ function filterItem(item: Item): void {
     }
     if (item.answerOption.length === 0) {
       delete item.answerOption;
-    } else if (!item.repeats) {
-      const firstSelected = item.answerOption.findIndex(
-        (a) => a.initialSelected,
-      );
-      for (let i = firstSelected + 1; i < item.answerOption.length; i++) {
-        item.answerOption[i].initialSelected = false;
+    } else {
+      item.initial = [];
+      if (!item.repeats) {
+        const firstSelected = item.answerOption.findIndex(
+          (a) => a.initialSelected,
+        );
+        for (let i = firstSelected + 1; i < item.answerOption.length; i++) {
+          item.answerOption[i].initialSelected = false;
+        }
       }
     }
+  }
+
+  filterInitial(item);
+  if (item.initial.length === 0) {
+    delete (item as Partial<Item>).initial;
   }
 
   if (itemTools.undefinedAnswerChoices(item)) {

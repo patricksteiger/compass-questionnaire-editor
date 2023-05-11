@@ -1,32 +1,28 @@
 import { editorTools } from "@/utils/editor";
-import { ParsedEnableWhen } from "../parsing/enableWhen";
-import { ParsedAnswerOption, ParsedExtension } from "../parsing/item";
 
 class FHIRValidatorUtils {
-  countExtensionValue(extension: ParsedExtension): number {
+  countValueInvariants<T extends object>(object: T): number {
     let count = 0;
-    for (const key of editorTools.objectKeys(extension)) {
-      if (key.startsWith("value") && extension[key] !== undefined) {
+    for (const key of editorTools.objectKeys(object)) {
+      if (
+        typeof key === "string" &&
+        key.startsWith("value") &&
+        object[key] !== undefined
+      ) {
         count++;
       }
     }
     return count;
   }
 
-  countAnswerOptionValue(answerOption: ParsedAnswerOption): number {
+  countAnswerInvariants<T extends object>(object: T): number {
     let count = 0;
-    for (const key of editorTools.objectKeys(answerOption)) {
-      if (key.startsWith("value") && answerOption[key] !== undefined) {
-        count++;
-      }
-    }
-    return count;
-  }
-
-  countEnableWhenAnswer(enableWhen: ParsedEnableWhen): number {
-    let count = 0;
-    for (const key of editorTools.objectKeys(enableWhen)) {
-      if (key.startsWith("answer") && enableWhen[key] !== undefined) {
+    for (const key of editorTools.objectKeys(object)) {
+      if (
+        typeof key === "string" &&
+        key.startsWith("answer") &&
+        object[key] !== undefined
+      ) {
         count++;
       }
     }

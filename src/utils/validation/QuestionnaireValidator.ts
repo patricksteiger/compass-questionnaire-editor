@@ -51,6 +51,8 @@ export class QuestionnaireValidator {
     this.text(item, warnings);
     this.enableWhen(item, warnings);
     this.answerOptionAndValueSetAndConstraint(item, warnings);
+    this.answerOptionAndInitial(item, warnings);
+    this.initial(item, warnings);
     if (warnings.length > 0) {
       const warning: ItemWarning = {
         linkId: item.linkId,
@@ -63,6 +65,28 @@ export class QuestionnaireValidator {
       for (const element of item.item) {
         this.item(element, itemWarnings);
       }
+    }
+  }
+
+  private initial(item: Item, _warnings: string[]): void {
+    for (const initial of item.initial) {
+      switch (initial.__type) {
+        case "boolean":
+          break;
+        default:
+          throw new UnreachableError(initial.__type);
+      }
+    }
+  }
+
+  private answerOptionAndInitial(item: Item, warnings: string[]): void {
+    if (
+      editorTools.nonEmptyArray(item.answerOption) &&
+      editorTools.nonEmptyArray(item.initial)
+    ) {
+      warnings.push(
+        "answerOption and initial should not have defined elements at the same time",
+      );
     }
   }
 
