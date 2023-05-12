@@ -76,22 +76,30 @@ export class QuestionnaireValidator {
     }
     for (let i = 0; i < item.initial.length; i++) {
       const initial = item.initial[i];
+      const pos = i + 1;
       switch (initial.__type) {
         case "boolean":
           break;
         case "decimal":
           if (initial.valueDecimal !== 0 && !initial.valueDecimal) {
-            warnings.push(`inital at position ${i + 1} has empty valueDecimal`);
+            warnings.push(`inital at position ${pos} has empty valueDecimal`);
           }
           break;
         case "integer":
           if (initial.valueInteger !== 0 && !initial.valueInteger) {
-            warnings.push(`inital at position ${i + 1} has empty valueInteger`);
+            warnings.push(`inital at position ${pos} has empty valueInteger`);
           }
           break;
         case "date":
           if (dateTools.isDate(initial.valueDate) !== true) {
-            warnings.push(`inital at position ${i + 1} has invalid valueDate`);
+            warnings.push(`inital at position ${pos} has invalid valueDate`);
+          }
+          break;
+        case "dateTime":
+          if (dateTools.isDateTime(initial.valueDateTime) !== true) {
+            warnings.push(
+              `inital at position ${pos} has invalid valueDateTime`,
+            );
           }
           break;
         default:

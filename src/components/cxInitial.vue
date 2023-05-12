@@ -73,6 +73,22 @@
                   </template>
                 </q-input>
               </div>
+              <div class="row" v-else-if="initial.__type === 'dateTime'">
+                <q-input
+                  :label="initial.__type.toUpperCase()"
+                  class="col-12"
+                  v-model="initial.valueDateTime"
+                  :rules="[dateTools.isDateTime]"
+                  type="text"
+                  dense
+                >
+                  <template v-slot:prepend>
+                    <div>
+                      {{ index + 1 }}
+                    </div>
+                  </template>
+                </q-input>
+              </div>
             </q-card-section>
           </q-item-section>
           <div class="col-2">
@@ -143,6 +159,12 @@ export default defineComponent({
           break;
         case "date":
           initial = { __type: "date", valueDate: "2000-01-01" };
+          break;
+        case "dateTime":
+          initial = {
+            __type: "dateTime",
+            valueDateTime: "2000-01-01T00:00:00+01:00",
+          };
           break;
         default:
           throw new Error(

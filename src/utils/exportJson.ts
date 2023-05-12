@@ -205,6 +205,11 @@ function filterInitial(item: Item): void {
           item.initial.splice(i, 1);
         }
         break;
+      case "dateTime":
+        if (dateTools.isDateTime(initial.valueDateTime) !== true) {
+          item.initial.splice(i, 1);
+        }
+        break;
       default:
         throw new UnreachableError(initial);
     }
