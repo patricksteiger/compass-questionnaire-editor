@@ -169,14 +169,18 @@
 
 <script lang="ts">
 import { Initial, Item } from "@/types";
+import { InitialItemType } from "@/utils/constants";
 import { editorTools } from "@/utils/editor";
 import { defineComponent, PropType, ref } from "vue";
 import { dateTools } from "../utils/date";
 
+// display- and group-items don't allow initial and are filtered in cxEditorItems
+type InitialItem = Omit<Item, "type"> & { type: InitialItemType };
+
 export default defineComponent({
   props: {
     selectedItem: {
-      type: Object as PropType<Item>,
+      type: Object as PropType<InitialItem>,
       required: true,
     },
   },

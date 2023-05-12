@@ -36,9 +36,9 @@ export function allowsMaxLength(item: Item | ParsedItem): boolean {
   );
 }
 
-export function allowsInitial(
-  type: ItemType,
-): type is Exclude<ItemType, "display" | "group"> {
+export type InitialItemType = Exclude<ItemType, "display" | "group">;
+
+export function allowsInitial(type: ItemType): type is InitialItemType {
   return type !== "display" && type !== "group";
 }
 
