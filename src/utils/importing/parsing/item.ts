@@ -56,6 +56,7 @@ const initialSchema = z.object({
   valueInteger: optionalNumberSchema,
   valueDate: optionalStringSchema,
   valueDateTime: optionalStringSchema,
+  valueTime: optionalStringSchema,
 });
 
 const initial = initialSchema.array().optional();

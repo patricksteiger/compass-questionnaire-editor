@@ -71,7 +71,7 @@ export class QuestionnaireValidator {
   private initial(item: Item, warnings: string[]): void {
     if (!item.repeats && item.initial.length > 1) {
       warnings.push(
-        "initial can not have more than 1 element if item does not repeat",
+        "initial can not have more than 1 element if item does not repeat. Only the first valid element will be exported",
       );
     }
     for (let i = 0; i < item.initial.length; i++) {
@@ -100,6 +100,11 @@ export class QuestionnaireValidator {
             warnings.push(
               `inital at position ${pos} has invalid valueDateTime`,
             );
+          }
+          break;
+        case "time":
+          if (dateTools.isTime(initial.valueTime) !== true) {
+            warnings.push(`inital at position ${pos} has invalid valueTime`);
           }
           break;
         default:

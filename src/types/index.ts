@@ -210,7 +210,8 @@ export type Initial =
   | { __type: "decimal"; valueDecimal: number }
   | { __type: "integer"; valueInteger: number }
   | { __type: "date"; valueDate: string }
-  | { __type: "dateTime"; valueDateTime: string };
+  | { __type: "dateTime"; valueDateTime: string }
+  | { __type: "time"; valueTime: string };
 
 /*
  * Fields with "__"-prefix are used for internal state management

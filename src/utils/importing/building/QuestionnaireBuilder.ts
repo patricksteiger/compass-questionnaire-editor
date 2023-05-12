@@ -166,10 +166,11 @@ export class QuestionnaireBuilder {
       return { __type: "date", valueDate: initial.valueDate };
     } else if (initial.valueDateTime !== undefined) {
       return { __type: "dateTime", valueDateTime: initial.valueDateTime };
+    } else if (initial.valueTime !== undefined) {
+      return { __type: "time", valueTime: initial.valueTime };
     }
-
     throw new Error(
-      `Initial has missing implementation: ${JSON.stringify(initial)}`,
+      `fromInitial has missing implementation: ${JSON.stringify(initial)}`,
     );
   }
 
