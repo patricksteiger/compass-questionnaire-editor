@@ -1275,7 +1275,7 @@
             </q-list>
             <!-- extension component -->
             <q-list padding bordered>
-              <cx-extension
+              <cxExtension
                 v-if="selectedItem !== undefined"
                 :extensions="(selectedItem.extension ??= [])"
                 :predefinedExtensions="getItemExtensions(selectedItem)"
@@ -1285,11 +1285,11 @@
             </q-list>
             <!-- initial component -->
             <q-list padding bordered>
-              <cx-initial
+              <cxInitial
                 v-if="
                   selectedItem !== undefined && allowsInitial(selectedItem.type)
                 "
-                :selectedItem="selectedItem"
+                :selectedItem="selectedItem as InitialItem"
                 v-on:addInitial="addInitial"
                 v-on:removeInitial="removeInitial"
               />
@@ -2317,6 +2317,8 @@ import {
   allowsAnswerChoice,
   AnswerOptionType,
   allowsInitial,
+  // eslint-disable-next-line no-unused-vars
+  InitialItem,
 } from "@/utils/constants";
 import { useQuasar } from "quasar";
 import { computed, defineComponent, ref } from "vue";

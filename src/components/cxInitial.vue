@@ -160,93 +160,48 @@
           icon="add"
           color="primary"
           label="Initial"
-          @click="addInitial"
+          @click="addInitialTo(selectedItem)"
         />
       </div>
     </q-card>
   </q-expansion-item>
 </template>
 
-<script lang="ts">
-import { Initial, Item } from "@/types";
-import { InitialItemType } from "@/utils/constants";
+<script setup lang="ts">
+import { Initial } from "@/types";
+import { InitialItem } from "@/utils/constants";
 import { editorTools } from "@/utils/editor";
-import { defineComponent, PropType, ref } from "vue";
+import { itemTools } from "@/utils/item";
+import { ref } from "vue";
 import { dateTools } from "../utils/date";
 
-// display- and group-items don't allow initial and are filtered in cxEditorItems
-type InitialItem = Omit<Item, "type"> & { type: InitialItemType };
+const props = defineProps<{
+  selectedItem: InitialItem;
+}>();
 
-export default defineComponent({
-  props: {
-    selectedItem: {
-      type: Object as PropType<InitialItem>,
-      required: true,
-    },
-  },
-  setup(prop) {
-    const initials = ref<Initial[]>(prop.selectedItem.initial);
-    return {
-      initials,
-      dateTools,
-      editorTools,
-    };
-  },
-  emits: {
-    addInitial(initial: Initial): boolean {
-      return !!initial;
-    },
-    removeInitial(index: number): boolean {
-      return index >= 0;
-    },
-  },
-  methods: {
-    addInitial(): void {
-      let initial: Initial;
-      switch (this.selectedItem.type) {
-        case "boolean":
-          initial = { __type: "boolean", valueBoolean: false };
-          break;
-        case "decimal":
-          initial = { __type: "decimal", valueDecimal: 0 };
-          break;
-        case "integer":
-          initial = { __type: "integer", valueInteger: 0 };
-          break;
-        case "date":
-          initial = { __type: "date", valueDate: "2000-01-01" };
-          break;
-        case "dateTime":
-          initial = {
-            __type: "dateTime",
-            valueDateTime: "2000-01-01T00:00:00+01:00",
-          };
-          break;
-        case "time":
-          initial = { __type: "time", valueTime: "00:00:00" };
-          break;
-        case "string":
-          initial = { __type: "string", valueString: "" };
-          break;
-        case "url":
-          initial = { __type: "url", valueUri: "" };
-          break;
-        default:
-          throw new Error(
-            `Missing implementation for addInitial: ${this.selectedItem.type}`,
-          );
-      }
-      this.$emit("addInitial", initial);
-    },
-    removeInitial(index: number): void {
-      this.$emit("removeInitial", index);
-    },
-    onlyNumberDec($event: KeyboardEvent): void {
-      this.editorTools.onlyNumberDec($event);
-    },
-    onlyNumber($event: KeyboardEvent): void {
-      this.editorTools.onlyNumber($event);
-    },
-  },
-});
+const initials = ref<Initial[]>(props.selectedItem.initial);
+
+const emit = defineEmits<{
+  // eslint-disable-next-line no-unused-vars
+  (e: "addInitial", _initial: Initial): void;
+  // eslint-disable-next-line no-unused-vars
+  (e: "removeInitial", _index: number): void;
+}>();
+
+function addInitialTo(item: InitialItem): void {
+  const initial = itemTools.getInitialFrom(item);
+  emit("addInitial", initial);
+}
+
+function removeInitial(index: number): void {
+  emit("removeInitial", index);
+}
+
+function onlyNumberDec($event: KeyboardEvent): void {
+  editorTools.onlyNumberDec($event);
+}
+
+function onlyNumber($event: KeyboardEvent): void {
+  editorTools.onlyNumber($event);
+}
 </script>

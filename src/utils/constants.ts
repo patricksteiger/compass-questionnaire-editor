@@ -42,6 +42,9 @@ export function allowsInitial(type: ItemType): type is InitialItemType {
   return type !== "display" && type !== "group";
 }
 
+// display- and group-items don't allow initial and are filtered in cxEditorItems
+export type InitialItem = Omit<Item, "type"> & { type: InitialItemType };
+
 export const itemTypeIcons = [
   { name: "group", icon: "group_work", label: "Group" },
   { name: "display", icon: "description", label: "Display" },

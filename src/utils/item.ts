@@ -1,7 +1,12 @@
 import { i18n } from "@/i18n";
-import { Item } from "@/types";
+import { Initial, Item } from "@/types";
 import { v4 as uuidv4 } from "uuid";
-import { allowsAnswerChoice, getItemTypeIcon, ItemType } from "./constants";
+import {
+  allowsAnswerChoice,
+  getItemTypeIcon,
+  InitialItem,
+  ItemType,
+} from "./constants";
 import { getHiddenExtension } from "./extension";
 import { ParsedItem } from "./importing/parsing/item";
 
@@ -116,6 +121,32 @@ class ItemTools {
       item.__answerValueSetCheck = false;
     }
     return item;
+  }
+
+  getInitialFrom(item: InitialItem): Initial {
+    switch (item.type) {
+      case "boolean":
+        return { __type: "boolean", valueBoolean: false };
+      case "decimal":
+        return { __type: "decimal", valueDecimal: 0 };
+      case "integer":
+        return { __type: "integer", valueInteger: 0 };
+      case "date":
+        return { __type: "date", valueDate: "2000-01-01" };
+      case "dateTime":
+        return {
+          __type: "dateTime",
+          valueDateTime: "2000-01-01T00:00:00+01:00",
+        };
+      case "time":
+        return { __type: "time", valueTime: "00:00:00" };
+      case "string":
+        return { __type: "string", valueString: "" };
+      case "url":
+        return { __type: "url", valueUri: "" };
+      default:
+        throw new Error(`Missing implementation for addInitial: ${item.type}`);
+    }
   }
 }
 
