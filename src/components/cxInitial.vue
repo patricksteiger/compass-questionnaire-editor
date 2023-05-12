@@ -27,7 +27,7 @@
               </div>
               <div class="row" v-else-if="initial.__type === 'decimal'">
                 <q-input
-                  label="Decimal"
+                  :label="initial.__type.toUpperCase()"
                   @keypress="onlyNumberDec"
                   class="col-12"
                   v-model.number="initial.valueDecimal"
@@ -43,11 +43,27 @@
               </div>
               <div class="row" v-else-if="initial.__type === 'integer'">
                 <q-input
-                  label="Integer"
+                  :label="initial.__type.toUpperCase()"
                   @keypress="onlyNumber"
                   class="col-12"
                   v-model.number="initial.valueInteger"
                   type="number"
+                  dense
+                >
+                  <template v-slot:prepend>
+                    <div>
+                      {{ index + 1 }}
+                    </div>
+                  </template>
+                </q-input>
+              </div>
+              <div class="row" v-else-if="initial.__type === 'date'">
+                <q-input
+                  :label="initial.__type.toUpperCase()"
+                  class="col-12"
+                  v-model="initial.valueDate"
+                  :rules="[dateTools.isDate]"
+                  type="text"
                   dense
                 >
                   <template v-slot:prepend>
@@ -87,6 +103,7 @@
 import { Initial, Item } from "@/types";
 import { editorTools } from "@/utils/editor";
 import { defineComponent, PropType, ref } from "vue";
+import { dateTools } from "../utils/date";
 
 export default defineComponent({
   props: {
@@ -99,6 +116,7 @@ export default defineComponent({
     const initials = ref<Initial[]>(prop.selectedItem.initial);
     return {
       initials,
+      dateTools,
       editorTools,
     };
   },
@@ -116,17 +134,22 @@ export default defineComponent({
       switch (this.selectedItem.type) {
         case "boolean":
           initial = { __type: "boolean", valueBoolean: false };
-          this.$emit("addInitial", initial);
           break;
         case "decimal":
           initial = { __type: "decimal", valueDecimal: 0 };
-          this.$emit("addInitial", initial);
           break;
         case "integer":
           initial = { __type: "integer", valueInteger: 0 };
-          this.$emit("addInitial", initial);
           break;
+        case "date":
+          initial = { __type: "date", valueDate: "2000-01-01" };
+          break;
+        default:
+          throw new Error(
+            `Missing implementation for addInitial: ${this.selectedItem.type}`,
+          );
       }
+      this.$emit("addInitial", initial);
     },
     removeInitial(index: number): void {
       this.$emit("removeInitial", index);

@@ -200,9 +200,17 @@ function filterInitial(item: Item): void {
           item.initial.splice(i, 1);
         }
         break;
+      case "date":
+        if (dateTools.isDate(initial.valueDate) !== true) {
+          item.initial.splice(i, 1);
+        }
+        break;
       default:
         throw new UnreachableError(initial);
     }
+  }
+  if (!item.repeats && item.initial.length > 1) {
+    item.initial = [item.initial[0]];
   }
 }
 

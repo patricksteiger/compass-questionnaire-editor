@@ -89,6 +89,11 @@ export class QuestionnaireValidator {
             warnings.push(`inital at position ${i + 1} has empty valueInteger`);
           }
           break;
+        case "date":
+          if (dateTools.isDate(initial.valueDate) !== true) {
+            warnings.push(`inital at position ${i + 1} has invalid valueDate`);
+          }
+          break;
         default:
           throw new UnreachableError(initial);
       }

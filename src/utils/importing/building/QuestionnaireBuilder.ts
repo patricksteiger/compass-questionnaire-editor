@@ -162,6 +162,8 @@ export class QuestionnaireBuilder {
       return { __type: "decimal", valueDecimal: initial.valueDecimal };
     } else if (initial.valueInteger !== undefined) {
       return { __type: "integer", valueInteger: initial.valueInteger };
+    } else if (initial.valueDate !== undefined) {
+      return { __type: "date", valueDate: initial.valueDate };
     }
 
     throw new Error(
