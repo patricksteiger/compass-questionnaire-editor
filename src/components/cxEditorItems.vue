@@ -1286,7 +1286,9 @@
             <!-- initial component -->
             <q-list padding bordered>
               <cx-initial
-                v-if="selectedItem !== undefined && allowsInitial(selectedItem)"
+                v-if="
+                  selectedItem !== undefined && allowsInitial(selectedItem.type)
+                "
                 :selectedItem="selectedItem"
                 v-on:addInitial="addInitial"
                 v-on:removeInitial="removeInitial"

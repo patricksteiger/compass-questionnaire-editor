@@ -36,8 +36,10 @@ export function allowsMaxLength(item: Item | ParsedItem): boolean {
   );
 }
 
-export function allowsInitial(item: Item | ParsedItem): boolean {
-  return item.type !== "display" && item.type !== "group";
+export function allowsInitial(
+  type: ItemType,
+): type is Exclude<ItemType, "display" | "group"> {
+  return type !== "display" && type !== "group";
 }
 
 export const itemTypeIcons = [

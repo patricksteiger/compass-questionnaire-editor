@@ -107,6 +107,23 @@
                   </template>
                 </q-input>
               </div>
+              <div class="row" v-else-if="initial.__type === 'string'">
+                <q-input
+                  :label="initial.__type.toUpperCase()"
+                  class="col-12"
+                  v-model="initial.valueString"
+                  :error="!initial.valueString"
+                  error-message="String must be non-empty"
+                  type="text"
+                  dense
+                >
+                  <template v-slot:prepend>
+                    <div>
+                      {{ index + 1 }}
+                    </div>
+                  </template>
+                </q-input>
+              </div>
             </q-card-section>
           </q-item-section>
           <div class="col-2">
@@ -186,6 +203,9 @@ export default defineComponent({
           break;
         case "time":
           initial = { __type: "time", valueTime: "00:00:00" };
+          break;
+        case "string":
+          initial = { __type: "string", valueString: "" };
           break;
         default:
           throw new Error(

@@ -107,6 +107,11 @@ export class QuestionnaireValidator {
             warnings.push(`inital at position ${pos} has invalid valueTime`);
           }
           break;
+        case "string":
+          if (!initial.valueString) {
+            warnings.push(`inital at position ${pos} has empty valueString`);
+          }
+          break;
         default:
           throw new UnreachableError(initial);
       }

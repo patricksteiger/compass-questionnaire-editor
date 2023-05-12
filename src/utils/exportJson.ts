@@ -215,6 +215,11 @@ function filterInitial(item: Item): void {
           item.initial.splice(i, 1);
         }
         break;
+      case "string":
+        if (!initial.valueString) {
+          item.initial.splice(i, 1);
+        }
+        break;
       default:
         throw new UnreachableError(initial);
     }

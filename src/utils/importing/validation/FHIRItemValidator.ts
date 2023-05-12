@@ -240,7 +240,7 @@ export class FHIRItemValidator {
 
   private validateInitial(item: ParsedItem): void {
     if (!editorTools.nonEmptyArray(item.initial)) return;
-    if (!allowsInitial(item)) {
+    if (!allowsInitial(item.type)) {
       this.errors.push(
         `LinkId "${item.linkId}" has type "${item.type}" which does not allow initial values.`,
       );
@@ -293,6 +293,13 @@ export class FHIRItemValidator {
             break;
           case "time":
             if (initial.valueTime === undefined) {
+              this.errors.push(
+                `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
+              );
+            }
+            break;
+          case "string":
+            if (initial.valueString === undefined) {
               this.errors.push(
                 `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
               );

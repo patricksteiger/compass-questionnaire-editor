@@ -168,7 +168,10 @@ export class QuestionnaireBuilder {
       return { __type: "dateTime", valueDateTime: initial.valueDateTime };
     } else if (initial.valueTime !== undefined) {
       return { __type: "time", valueTime: initial.valueTime };
+    } else if (initial.valueString !== undefined) {
+      return { __type: "string", valueString: initial.valueString };
     }
+
     throw new Error(
       `fromInitial has missing implementation: ${JSON.stringify(initial)}`,
     );
