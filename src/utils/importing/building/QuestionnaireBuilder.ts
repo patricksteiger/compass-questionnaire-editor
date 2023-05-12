@@ -170,6 +170,8 @@ export class QuestionnaireBuilder {
       return { __type: "time", valueTime: initial.valueTime };
     } else if (initial.valueString !== undefined) {
       return { __type: "string", valueString: initial.valueString };
+    } else if (initial.valueUri !== undefined) {
+      return { __type: "url", valueUri: initial.valueUri };
     }
 
     throw new Error(

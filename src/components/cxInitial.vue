@@ -124,6 +124,23 @@
                   </template>
                 </q-input>
               </div>
+              <div class="row" v-else-if="initial.__type === 'url'">
+                <q-input
+                  :label="initial.__type.toUpperCase()"
+                  class="col-12"
+                  v-model="initial.valueUri"
+                  :error="!initial.valueUri"
+                  error-message="URL must be non-empty"
+                  type="text"
+                  dense
+                >
+                  <template v-slot:prepend>
+                    <div>
+                      {{ index + 1 }}
+                    </div>
+                  </template>
+                </q-input>
+              </div>
             </q-card-section>
           </q-item-section>
           <div class="col-2">
@@ -206,6 +223,9 @@ export default defineComponent({
           break;
         case "string":
           initial = { __type: "string", valueString: "" };
+          break;
+        case "url":
+          initial = { __type: "url", valueUri: "" };
           break;
         default:
           throw new Error(

@@ -112,6 +112,11 @@ export class QuestionnaireValidator {
             warnings.push(`inital at position ${pos} has empty valueString`);
           }
           break;
+        case "url":
+          if (!initial.valueUri) {
+            warnings.push(`inital at position ${pos} has empty valueUri`);
+          }
+          break;
         default:
           throw new UnreachableError(initial);
       }
