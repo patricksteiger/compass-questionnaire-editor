@@ -146,6 +146,8 @@ class ItemTools {
         return { __type: "url", valueUri: "" };
       case "coding":
         return { __type: "coding", valueCoding: {} };
+      case "quantity":
+        return { __type: "quantity", valueQuantity: {} };
       default:
         throw new Error(`Missing implementation for addInitial: ${item.type}`);
     }

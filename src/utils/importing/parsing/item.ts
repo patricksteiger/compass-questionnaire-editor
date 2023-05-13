@@ -60,6 +60,7 @@ const initialSchema = z.object({
   valueString: optionalStringSchema,
   valueUri: optionalStringSchema,
   valueCoding: optionalCodingSchema,
+  valueQuantity: optionalQuantitySchema,
 });
 
 const initial = initialSchema.array().optional();

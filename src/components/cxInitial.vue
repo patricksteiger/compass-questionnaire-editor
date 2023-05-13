@@ -145,7 +145,7 @@
                 class="row"
                 v-else-if="initial.__type === 'coding'"
                 clickable
-                @click="changeCoding(initial)"
+                @click="showComplexDialog(initial)"
               >
                 <q-field
                   :label="initial.__type.toUpperCase()"
@@ -158,6 +158,32 @@
                   <template v-slot:control>
                     <div>
                       {{ editorTools.formatCoding(initial.valueCoding) }}
+                    </div>
+                  </template>
+                  <template v-slot:prepend>
+                    <div>
+                      {{ index + 1 }}
+                    </div>
+                  </template>
+                </q-field>
+              </div>
+              <div
+                class="row"
+                v-else-if="initial.__type === 'quantity'"
+                clickable
+                @click="showComplexDialog(initial)"
+              >
+                <q-field
+                  :label="initial.__type.toUpperCase()"
+                  stack-label
+                  class="col-12"
+                  :error="editorTools.isEmptyObject(initial.valueQuantity)"
+                  error-message="Quantity must be non-empty"
+                  dense
+                >
+                  <template v-slot:control>
+                    <div>
+                      {{ editorTools.formatQuantity(initial.valueQuantity) }}
                     </div>
                   </template>
                   <template v-slot:prepend>
@@ -207,6 +233,12 @@
               v-on:addCoding="(_coding) => (complexLayout = false)"
             />
           </div>
+          <div v-else-if="selectedInitial.__type === 'quantity'">
+            <cxQuantity
+              :quantity="selectedInitial.valueQuantity"
+              v-on:addQuantity="(_quantity) => (complexLayout = false)"
+            />
+          </div>
         </q-page>
       </q-page-container>
     </q-layout>
@@ -221,6 +253,7 @@ import { itemTools } from "@/utils/item";
 import { ref } from "vue";
 import { dateTools } from "../utils/date";
 import cxCoding from "@/components/datatypes/cxCoding.vue";
+import cxQuantity from "@/components/datatypes/cxQuantity.vue";
 
 const complexLayout = ref(false);
 
@@ -232,7 +265,7 @@ const initials = ref<Initial[]>(props.selectedItem.initial);
 
 const selectedInitial = ref<Initial | undefined>(undefined);
 
-function changeCoding(initial: Initial): void {
+function showComplexDialog(initial: Initial): void {
   selectedInitial.value = initial;
   complexLayout.value = true;
 }

@@ -36,7 +36,7 @@
       dense
     />
     <q-separator />
-    <q-btn class="col-4" icon="add" @click="addCoding(coding)" />
+    <q-btn class="col-4" icon="add" @click="addCoding(codingValue)" />
   </div>
 </template>
 

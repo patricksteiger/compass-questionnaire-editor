@@ -122,6 +122,11 @@ export class QuestionnaireValidator {
             warnings.push(`inital at position ${pos} has empty valueCoding`);
           }
           break;
+        case "quantity":
+          if (editorTools.isEmptyObject(initial.valueQuantity)) {
+            warnings.push(`inital at position ${pos} has empty valueQuantity`);
+          }
+          break;
         default:
           throw new UnreachableError(initial);
       }
