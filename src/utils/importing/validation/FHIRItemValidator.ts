@@ -250,13 +250,13 @@ export class FHIRItemValidator {
       const count = fhirValidatorUtils.countValueInvariants(initial);
       if (count === 0) {
         this.errors.push(`LinkId "${item.linkId}" has initial with no value.`);
-        return;
+        continue;
       }
       if (count > 1) {
         this.errors.push(
           `LinkId "${item.linkId}" has initial with multiple values.`,
         );
-        return;
+        continue;
       }
       switch (item.type) {
         case "boolean":
@@ -324,6 +324,13 @@ export class FHIRItemValidator {
           break;
         case "quantity":
           if (initial.valueQuantity === undefined) {
+            this.errors.push(
+              `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
+            );
+          }
+          break;
+        case "reference":
+          if (initial.valueReference === undefined) {
             this.errors.push(
               `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
             );

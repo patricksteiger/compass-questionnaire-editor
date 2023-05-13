@@ -127,6 +127,11 @@ export class QuestionnaireValidator {
             warnings.push(`inital at position ${pos} has empty valueQuantity`);
           }
           break;
+        case "reference":
+          if (editorTools.isEmptyObject(initial.valueReference)) {
+            warnings.push(`inital at position ${pos} has empty valueReference`);
+          }
+          break;
         default:
           throw new UnreachableError(initial);
       }

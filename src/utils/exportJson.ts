@@ -235,6 +235,11 @@ function filterInitial(item: Item): void {
           item.initial.splice(i, 1);
         }
         break;
+      case "reference":
+        if (editorTools.isEmptyObject(initial.valueReference)) {
+          item.initial.splice(i, 1);
+        }
+        break;
       default:
         throw new UnreachableError(initial);
     }

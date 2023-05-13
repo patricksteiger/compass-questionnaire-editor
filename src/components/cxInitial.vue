@@ -193,6 +193,32 @@
                   </template>
                 </q-field>
               </div>
+              <div
+                class="row"
+                v-else-if="initial.__type === 'reference'"
+                clickable
+                @click="showComplexDialog(initial)"
+              >
+                <q-field
+                  :label="initial.__type.toUpperCase()"
+                  stack-label
+                  class="col-12"
+                  :error="editorTools.isEmptyObject(initial.valueReference)"
+                  error-message="Reference must be non-empty"
+                  dense
+                >
+                  <template v-slot:control>
+                    <div>
+                      {{ editorTools.formatReference(initial.valueReference) }}
+                    </div>
+                  </template>
+                  <template v-slot:prepend>
+                    <div>
+                      {{ index + 1 }}
+                    </div>
+                  </template>
+                </q-field>
+              </div>
             </q-card-section>
           </q-item-section>
           <div class="col-2">
@@ -239,6 +265,15 @@
               v-on:addQuantity="(_quantity) => (complexLayout = false)"
             />
           </div>
+          <div v-else-if="selectedInitial.__type === 'reference'">
+            <cxReference
+              :reference="selectedInitial.valueReference"
+              v-on:addReference="(_reference) => (complexLayout = false)"
+            />
+          </div>
+          <div v-else>
+            Type {{ selectedInitial.__type }} is not a complex type!
+          </div>
         </q-page>
       </q-page-container>
     </q-layout>
@@ -254,6 +289,7 @@ import { ref } from "vue";
 import { dateTools } from "../utils/date";
 import cxCoding from "@/components/datatypes/cxCoding.vue";
 import cxQuantity from "@/components/datatypes/cxQuantity.vue";
+import cxReference from "@/components/datatypes/cxReference.vue";
 
 const props = defineProps<{
   selectedItem: InitialItem;
