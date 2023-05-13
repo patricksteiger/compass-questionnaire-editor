@@ -59,6 +59,7 @@ const initialSchema = z.object({
   valueTime: optionalStringSchema,
   valueString: optionalStringSchema,
   valueUri: optionalStringSchema,
+  valueCoding: optionalCodingSchema,
 });
 
 const initial = initialSchema.array().optional();

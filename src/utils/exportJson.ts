@@ -225,6 +225,11 @@ function filterInitial(item: Item): void {
           item.initial.splice(i, 1);
         }
         break;
+      case "coding":
+        if (editorTools.isEmptyObject(initial.valueCoding)) {
+          item.initial.splice(i, 1);
+        }
+        break;
       default:
         throw new UnreachableError(initial);
     }

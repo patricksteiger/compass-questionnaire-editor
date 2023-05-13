@@ -213,7 +213,8 @@ export type Initial =
   | { __type: "dateTime"; valueDateTime: string }
   | { __type: "time"; valueTime: string }
   | { __type: "string"; valueString: string }
-  | { __type: "url"; valueUri: string };
+  | { __type: "url"; valueUri: string }
+  | { __type: "coding"; valueCoding: Coding };
 
 /*
  * Fields with "__"-prefix are used for internal state management

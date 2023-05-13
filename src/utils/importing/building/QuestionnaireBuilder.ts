@@ -172,6 +172,8 @@ export class QuestionnaireBuilder {
       return { __type: "string", valueString: initial.valueString };
     } else if (initial.valueUri !== undefined) {
       return { __type: "url", valueUri: initial.valueUri };
+    } else if (initial.valueCoding !== undefined) {
+      return { __type: "coding", valueCoding: initial.valueCoding };
     }
 
     throw new Error(

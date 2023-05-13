@@ -141,6 +141,32 @@
                   </template>
                 </q-input>
               </div>
+              <div
+                class="row"
+                v-else-if="initial.__type === 'coding'"
+                clickable
+                @click="changeCoding(initial)"
+              >
+                <q-field
+                  :label="initial.__type.toUpperCase()"
+                  stack-label
+                  class="col-12"
+                  :error="editorTools.isEmptyObject(initial.valueCoding)"
+                  error-message="Coding must be non-empty"
+                  dense
+                >
+                  <template v-slot:control>
+                    <div>
+                      {{ editorTools.formatCoding(initial.valueCoding) }}
+                    </div>
+                  </template>
+                  <template v-slot:prepend>
+                    <div>
+                      {{ index + 1 }}
+                    </div>
+                  </template>
+                </q-field>
+              </div>
             </q-card-section>
           </q-item-section>
           <div class="col-2">
@@ -165,6 +191,26 @@
       </div>
     </q-card>
   </q-expansion-item>
+
+  <q-dialog v-model="complexLayout" v-if="selectedInitial !== undefined">
+    <q-layout view="Lhh lpR fff" container class="bg-white">
+      <q-page-container>
+        <q-page padding>
+          <q-toolbar class="bg-primary text-white shadow-2">
+            <q-toolbar-title>
+              {{ `Initial: ${selectedInitial.__type}` }}
+            </q-toolbar-title>
+          </q-toolbar>
+          <div v-if="selectedInitial.__type === 'coding'">
+            <cxCoding
+              :coding="selectedInitial.valueCoding"
+              v-on:addCoding="(_coding) => (complexLayout = false)"
+            />
+          </div>
+        </q-page>
+      </q-page-container>
+    </q-layout>
+  </q-dialog>
 </template>
 
 <script setup lang="ts">
@@ -174,12 +220,22 @@ import { editorTools } from "@/utils/editor";
 import { itemTools } from "@/utils/item";
 import { ref } from "vue";
 import { dateTools } from "../utils/date";
+import cxCoding from "@/components/datatypes/cxCoding.vue";
+
+const complexLayout = ref(false);
 
 const props = defineProps<{
   selectedItem: InitialItem;
 }>();
 
 const initials = ref<Initial[]>(props.selectedItem.initial);
+
+const selectedInitial = ref<Initial | undefined>(undefined);
+
+function changeCoding(initial: Initial): void {
+  selectedInitial.value = initial;
+  complexLayout.value = true;
+}
 
 const emit = defineEmits<{
   // eslint-disable-next-line no-unused-vars
