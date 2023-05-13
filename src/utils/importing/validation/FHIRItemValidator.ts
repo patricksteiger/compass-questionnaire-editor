@@ -250,88 +250,90 @@ export class FHIRItemValidator {
       const count = fhirValidatorUtils.countValueInvariants(initial);
       if (count === 0) {
         this.errors.push(`LinkId "${item.linkId}" has initial with no value.`);
-      } else if (count > 1) {
+        return;
+      }
+      if (count > 1) {
         this.errors.push(
           `LinkId "${item.linkId}" has initial with multiple values.`,
         );
-      } else {
-        switch (item.type) {
-          case "boolean":
-            if (initial.valueBoolean === undefined) {
-              this.errors.push(
-                `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
-              );
-            }
-            break;
-          case "decimal":
-            if (initial.valueDecimal === undefined) {
-              this.errors.push(
-                `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
-              );
-            }
-            break;
-          case "integer":
-            if (initial.valueInteger === undefined) {
-              this.errors.push(
-                `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
-              );
-            }
-            break;
-          case "date":
-            if (initial.valueDate === undefined) {
-              this.errors.push(
-                `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
-              );
-            }
-            break;
-          case "dateTime":
-            if (initial.valueDateTime === undefined) {
-              this.errors.push(
-                `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
-              );
-            }
-            break;
-          case "time":
-            if (initial.valueTime === undefined) {
-              this.errors.push(
-                `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
-              );
-            }
-            break;
-          case "string":
-            if (initial.valueString === undefined) {
-              this.errors.push(
-                `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
-              );
-            }
-            break;
-          case "url":
-            if (initial.valueUri === undefined) {
-              this.errors.push(
-                `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
-              );
-            }
-            break;
-          case "coding":
-            if (initial.valueCoding === undefined) {
-              this.errors.push(
-                `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
-              );
-            }
-            break;
-          case "quantity":
-            if (initial.valueQuantity === undefined) {
-              this.errors.push(
-                `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
-              );
-            }
-            break;
-          default:
-            // TODO: Add UnreachableException for inital
-            throw new Error(
-              `Missing implementation for initial-validation: ${item.type}`,
+        return;
+      }
+      switch (item.type) {
+        case "boolean":
+          if (initial.valueBoolean === undefined) {
+            this.errors.push(
+              `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
             );
-        }
+          }
+          break;
+        case "decimal":
+          if (initial.valueDecimal === undefined) {
+            this.errors.push(
+              `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
+            );
+          }
+          break;
+        case "integer":
+          if (initial.valueInteger === undefined) {
+            this.errors.push(
+              `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
+            );
+          }
+          break;
+        case "date":
+          if (initial.valueDate === undefined) {
+            this.errors.push(
+              `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
+            );
+          }
+          break;
+        case "dateTime":
+          if (initial.valueDateTime === undefined) {
+            this.errors.push(
+              `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
+            );
+          }
+          break;
+        case "time":
+          if (initial.valueTime === undefined) {
+            this.errors.push(
+              `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
+            );
+          }
+          break;
+        case "string":
+          if (initial.valueString === undefined) {
+            this.errors.push(
+              `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
+            );
+          }
+          break;
+        case "url":
+          if (initial.valueUri === undefined) {
+            this.errors.push(
+              `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
+            );
+          }
+          break;
+        case "coding":
+          if (initial.valueCoding === undefined) {
+            this.errors.push(
+              `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
+            );
+          }
+          break;
+        case "quantity":
+          if (initial.valueQuantity === undefined) {
+            this.errors.push(
+              `LinkId "${item.linkId}" of type "${item.type}" has initial with invalid value-type.`,
+            );
+          }
+          break;
+        default:
+          // TODO: Add UnreachableException for inital
+          throw new Error(
+            `Missing implementation for initial-validation: ${item.type}`,
+          );
       }
     }
   }

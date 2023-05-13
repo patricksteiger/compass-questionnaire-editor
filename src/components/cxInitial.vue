@@ -255,8 +255,6 @@ import { dateTools } from "../utils/date";
 import cxCoding from "@/components/datatypes/cxCoding.vue";
 import cxQuantity from "@/components/datatypes/cxQuantity.vue";
 
-const complexLayout = ref(false);
-
 const props = defineProps<{
   selectedItem: InitialItem;
 }>();
@@ -264,6 +262,7 @@ const props = defineProps<{
 const initials = ref<Initial[]>(props.selectedItem.initial);
 
 const selectedInitial = ref<Initial | undefined>(undefined);
+const complexLayout = ref(false);
 
 function showComplexDialog(initial: Initial): void {
   selectedInitial.value = initial;
