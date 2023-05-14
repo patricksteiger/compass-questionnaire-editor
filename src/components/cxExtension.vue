@@ -435,10 +435,10 @@ export default defineComponent({
       this.extensionLayout = true;
     },
     onlyNumberDec(event: KeyboardEvent): void {
-      this.editorTools.onlyNumberDec(event);
+      this.editorTools.onlyDecimal(event);
     },
     onlyNumber(event: KeyboardEvent): void {
-      this.editorTools.onlyNumber(event);
+      this.editorTools.onlyInteger(event);
     },
     getExtensionLabel(extension: Extension): string {
       return extension.__type.toUpperCase();

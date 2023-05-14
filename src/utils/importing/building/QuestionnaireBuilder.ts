@@ -178,6 +178,8 @@ export class QuestionnaireBuilder {
       return { __type: "quantity", valueQuantity: initial.valueQuantity };
     } else if (initial.valueReference !== undefined) {
       return { __type: "reference", valueReference: initial.valueReference };
+    } else if (initial.valueAttachment !== undefined) {
+      return { __type: "attachment", valueAttachment: initial.valueAttachment };
     }
 
     throw new Error(

@@ -2837,10 +2837,10 @@ export default defineComponent({
       this.selected = itemSelected.__internalID;
     },
     onlyNumberDec($event: KeyboardEvent): void {
-      this.editorTools.onlyNumberDec($event);
+      this.editorTools.onlyDecimal($event);
     },
     onlyNumber($event: KeyboardEvent): void {
-      this.editorTools.onlyNumber($event);
+      this.editorTools.onlyInteger($event);
     },
     addExtension(e: Extension): void {
       this.selectedItem!.extension!.push(e);

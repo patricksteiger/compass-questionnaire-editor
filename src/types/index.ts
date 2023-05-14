@@ -205,6 +205,27 @@ export const answerConstraints = [
 ] as const;
 export type AnswerConstraint = typeof answerConstraints[number];
 
+export type Attachment = {
+  contentType?: string;
+  language?: string;
+  // base64Binary
+  data?: string;
+  // Where Attachment can be found. Usually used without data
+  url?: string;
+  size?: number;
+  // base64Binary
+  hash?: string;
+  title?: string;
+  // dateTime
+  creation?: string;
+  height?: number;
+  width?: number;
+  frames?: number;
+  duration?: number;
+  pages?: number;
+};
+
+// FIXME: add text-type
 export type Initial =
   | { __type: "boolean"; valueBoolean: boolean }
   | { __type: "decimal"; valueDecimal: number }
@@ -216,7 +237,8 @@ export type Initial =
   | { __type: "url"; valueUri: string }
   | { __type: "coding"; valueCoding: Coding }
   | { __type: "quantity"; valueQuantity: Quantity }
-  | { __type: "reference"; valueReference: Reference };
+  | { __type: "reference"; valueReference: Reference }
+  | { __type: "attachment"; valueAttachment: Attachment };
 
 /*
  * Fields with "__"-prefix are used for internal state management

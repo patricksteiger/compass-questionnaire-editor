@@ -132,6 +132,20 @@ export class QuestionnaireValidator {
             warnings.push(`inital at position ${pos} has empty valueReference`);
           }
           break;
+        case "attachment":
+          if (editorTools.isEmptyObject(initial.valueAttachment)) {
+            warnings.push(
+              `inital at position ${pos} has empty valueAttachment`,
+            );
+          } else if (
+            !initial.valueAttachment.contentType &&
+            initial.valueAttachment.data
+          ) {
+            warnings.push(
+              `inital at position ${pos} has empty contentType while data is present`,
+            );
+          }
+          break;
         default:
           throw new UnreachableError(initial);
       }

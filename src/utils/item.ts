@@ -150,6 +150,8 @@ class ItemTools {
         return { __type: "quantity", valueQuantity: {} };
       case "reference":
         return { __type: "reference", valueReference: {} };
+      case "attachment":
+        return { __type: "attachment", valueAttachment: {} };
       default:
         throw new Error(`Missing implementation for addInitial: ${item.type}`);
     }

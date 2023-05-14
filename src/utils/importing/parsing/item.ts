@@ -4,6 +4,7 @@ import { allItemTypes } from "@/utils/constants";
 import { enableWhenSchema } from "./enableWhen";
 import { extensionSchema } from "./extension";
 import {
+  optionalAttachmentSchema,
   optionalBooleanSchema,
   optionalCodingSchema,
   optionalNumberSchema,
@@ -62,6 +63,7 @@ const initialSchema = z.object({
   valueCoding: optionalCodingSchema,
   valueQuantity: optionalQuantitySchema,
   valueReference: optionalReferenceSchema,
+  valueAttachment: optionalAttachmentSchema,
 });
 
 const initial = initialSchema.array().optional();

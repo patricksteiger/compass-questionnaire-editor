@@ -75,3 +75,23 @@ export const referenceSchema = z.object({
 export type ParsedReference = z.infer<typeof referenceSchema>;
 
 export const optionalReferenceSchema = referenceSchema.optional();
+
+export const attachmentSchema = z.object({
+  contentType: optionalStringSchema,
+  language: optionalStringSchema,
+  data: optionalStringSchema,
+  url: optionalStringSchema,
+  size: optionalNumberSchema,
+  hash: optionalStringSchema,
+  title: optionalStringSchema,
+  creation: optionalStringSchema,
+  height: optionalNumberSchema,
+  width: optionalNumberSchema,
+  frames: optionalNumberSchema,
+  duration: optionalNumberSchema,
+  pages: optionalNumberSchema,
+});
+
+export type ParsedAttachment = z.infer<typeof attachmentSchema>;
+
+export const optionalAttachmentSchema = attachmentSchema.optional();

@@ -221,13 +221,13 @@ export default defineComponent({
       this.messageErrorFHIR = [];
       this.warnings = [];
       this.showLoading();
-      const reader = new FileReader();
       if (newFile.file === undefined) {
         this.messageError = `Couldn't read file: ${newFile.name}`;
         this.alertError = true;
         this.hideLoading();
         return;
       }
+      const reader = new FileReader();
       reader.readAsText(newFile.file);
       reader.onload = () => {
         try {

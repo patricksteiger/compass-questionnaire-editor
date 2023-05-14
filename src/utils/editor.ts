@@ -6,6 +6,7 @@ import {
   Quantity,
   Reference,
   AnswerOption,
+  Attachment,
 } from "@/types";
 import { getOrAddHiddenExtension } from "./extension";
 import { itemTools } from "./item";
@@ -242,28 +243,38 @@ class EditorTools {
     );
   }
 
-  private isNotIntegerKey(code: string): boolean {
+  private isNotDigitKey(code: string): boolean {
     // Number-KeyCodes: "Digit0" - "Digit9"
-    const noNumberKeyCode =
+    return (
       code.length !== 6 ||
       !code.startsWith("Digit") ||
       code[5] < "0" ||
-      code[5] > "9";
-    return noNumberKeyCode && code !== "Slash";
+      code[5] > "9"
+    );
+  }
+
+  private isNotIntegerKey(code: string): boolean {
+    return this.isNotDigitKey(code) && code !== "Slash";
   }
 
   private isNotDecimalKey(code: string): boolean {
     return this.isNotIntegerKey(code) && code !== "Period" && code !== "Comma";
   }
 
-  onlyNumberDec($event: KeyboardEvent): void {
+  onlyDecimal($event: KeyboardEvent): void {
     if (this.isNotDecimalKey($event.code)) {
       $event.preventDefault();
     }
   }
 
-  onlyNumber($event: KeyboardEvent): void {
+  onlyInteger($event: KeyboardEvent): void {
     if (this.isNotIntegerKey($event.code)) {
+      $event.preventDefault();
+    }
+  }
+
+  onlyPositiveInteger($event: KeyboardEvent): void {
+    if (this.isNotDigitKey($event.code)) {
       $event.preventDefault();
     }
   }
@@ -384,6 +395,17 @@ class EditorTools {
     if (reference.identifier) {
       const prefix = result.length > 0 ? " " : "";
       result += prefix + `[with Identifier]`;
+    }
+    return result;
+  }
+
+  formatAttachment(attachment: Attachment): string {
+    let result = attachment.title ?? "";
+    if (attachment.contentType) {
+      result += ` (${attachment.contentType})`;
+    }
+    if (attachment.size) {
+      result += ` [${attachment.size} Bytes]`;
     }
     return result;
   }

@@ -219,6 +219,34 @@
                   </template>
                 </q-field>
               </div>
+              <div
+                class="row"
+                v-else-if="initial.__type === 'attachment'"
+                clickable
+                @click="showComplexDialog(initial)"
+              >
+                <q-field
+                  :label="initial.__type.toUpperCase()"
+                  stack-label
+                  class="col-12"
+                  :error="editorTools.isEmptyObject(initial.valueAttachment)"
+                  error-message="Attachment must be non-empty"
+                  dense
+                >
+                  <template v-slot:control>
+                    <div>
+                      {{
+                        editorTools.formatAttachment(initial.valueAttachment)
+                      }}
+                    </div>
+                  </template>
+                  <template v-slot:prepend>
+                    <div>
+                      {{ index + 1 }}
+                    </div>
+                  </template>
+                </q-field>
+              </div>
             </q-card-section>
           </q-item-section>
           <div class="col-2">
@@ -271,6 +299,12 @@
               v-on:addReference="(_reference) => (complexLayout = false)"
             />
           </div>
+          <div v-else-if="selectedInitial.__type === 'attachment'">
+            <cxAttachment
+              :attachment="selectedInitial.valueAttachment"
+              v-on:addAttachment="(_attachment) => (complexLayout = false)"
+            />
+          </div>
           <div v-else>
             Type {{ selectedInitial.__type }} is not a complex type!
           </div>
@@ -290,6 +324,7 @@ import { dateTools } from "../utils/date";
 import cxCoding from "@/components/datatypes/cxCoding.vue";
 import cxQuantity from "@/components/datatypes/cxQuantity.vue";
 import cxReference from "@/components/datatypes/cxReference.vue";
+import cxAttachment from "@/components/datatypes/cxAttachment.vue";
 
 const props = defineProps<{
   selectedItem: InitialItem;
@@ -322,10 +357,10 @@ function removeInitial(index: number): void {
 }
 
 function onlyNumberDec($event: KeyboardEvent): void {
-  editorTools.onlyNumberDec($event);
+  editorTools.onlyDecimal($event);
 }
 
 function onlyNumber($event: KeyboardEvent): void {
-  editorTools.onlyNumber($event);
+  editorTools.onlyInteger($event);
 }
 </script>
