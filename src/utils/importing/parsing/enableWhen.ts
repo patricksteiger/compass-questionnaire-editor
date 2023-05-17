@@ -1,6 +1,7 @@
 import { operators } from "@/types";
 import { z } from "zod";
 import {
+  optionalAttachmentSchema,
   optionalBooleanSchema,
   optionalCodingSchema,
   optionalNumberSchema,
@@ -22,6 +23,7 @@ export const enableWhenSchema = z.object({
   answerCoding: optionalCodingSchema,
   answerQuantity: optionalQuantitySchema,
   answerReference: optionalReferenceSchema,
+  answerAttachment: optionalAttachmentSchema,
 });
 
 export type ParsedEnableWhen = z.infer<typeof enableWhenSchema>;

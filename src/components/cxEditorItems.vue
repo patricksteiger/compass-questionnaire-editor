@@ -1098,6 +1098,19 @@
                             @click="handleCodingAnswer(enableWhen)"
                             dense
                           />
+                          <!-- enableWhen attachment -->
+                          <q-input
+                            v-else-if="enableWhen.__type === 'attachment'"
+                            :disable="!selectedItem.__active"
+                            :label="$t('views.editor.answer') + ' (attachment)'"
+                            class="col-4"
+                            v-model="enableWhen.__answer"
+                            :type="'text'"
+                            readonly
+                            clickable
+                            @click="handleAttachmentAnswer(enableWhen)"
+                            dense
+                          />
                           <!-- enableWhen decimal -->
                           <q-input
                             v-else-if="enableWhen.__type === 'decimal'"
@@ -1500,6 +1513,19 @@
                 />
               </div>
             </div>
+          </div>
+          <div
+            v-else-if="
+              chosenEnableWhen.__type === 'attachment' &&
+              chosenEnableWhen.answerAttachment !== undefined
+            "
+          >
+            <cxAttachment
+              :attachment="chosenEnableWhen.answerAttachment"
+              v-on:addAttachment="
+                (_attachment) => setAttachmentAnswer(chosenEnableWhen)
+              "
+            />
           </div>
           <div
             class="q-pa-md"
@@ -2330,6 +2356,7 @@ import { v4 as uuidv4 } from "uuid";
 import cxEnableWhen from "@/components/cxEnableWhen.vue";
 import cxExtension from "@/components/cxExtension.vue";
 import cxInitial from "@/components/cxInitial.vue";
+import cxAttachment from "@/components/datatypes/cxAttachment.vue";
 import cxLanguageHub from "@/components/cxLanguageHub.vue";
 import cxValidationHub from "@/components/cxValidationHub.vue";
 import { i18n, defaultLanguage } from "@/i18n";
@@ -2356,6 +2383,7 @@ export default defineComponent({
     cxEnableWhen,
     cxExtension,
     cxInitial,
+    cxAttachment,
     cxLanguageHub,
     cxValidationHub,
   },
@@ -2570,6 +2598,23 @@ export default defineComponent({
       if (enableWhen?.answerReference !== undefined) {
         enableWhen.__answer = this.editorTools.formatReference(
           enableWhen.answerReference,
+        );
+      }
+      this.chosenEnableWhenAnswerLayout = false;
+    },
+    handleAttachmentAnswer(enableWhen: EnableWhen): void {
+      enableWhen.answerAttachment ??= {};
+      this.chosenEnableWhen = enableWhen;
+      this.linkedItem = questionnaireTools.getItemByLinkId(
+        this.currentQuestionnaire,
+        this.chosenEnableWhen.question,
+      );
+      this.chosenEnableWhenAnswerLayout = true;
+    },
+    setAttachmentAnswer(enableWhen: EnableWhen | undefined): void {
+      if (enableWhen?.answerAttachment !== undefined) {
+        enableWhen.__answer = this.editorTools.formatAttachment(
+          enableWhen.answerAttachment,
         );
       }
       this.chosenEnableWhenAnswerLayout = false;
@@ -2952,11 +2997,6 @@ export default defineComponent({
         this.selectedItem.enableWhen === undefined
       ) {
         throw new Error("Remove can't be used with no conditions!");
-      }
-      if (index < 0 || index >= this.selectedItem.enableWhen.length) {
-        throw new Error(
-          `Out of bounds index removing condition! Size: ${this.selectedItem.enableWhen.length}, index: ${index}.`,
-        );
       }
       this.selectedItem.enableWhen.splice(index, 1);
     },

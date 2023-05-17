@@ -37,7 +37,8 @@ export type AnswerType =
   | "time"
   | "dateTime"
   | "reference"
-  | "quantity";
+  | "quantity"
+  | "attachment";
 
 export const operators = ["exists", "=", "!=", ">", "<", ">=", "<="] as const;
 export type Operator = typeof operators[number] | "";
@@ -77,6 +78,7 @@ export type EnableWhen = {
   answerCoding?: Coding;
   answerQuantity?: Quantity;
   answerReference?: Reference;
+  answerAttachment?: Attachment;
 };
 
 export type Coding = {

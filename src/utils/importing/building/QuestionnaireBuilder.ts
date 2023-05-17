@@ -321,9 +321,7 @@ export class QuestionnaireBuilder {
       );
       if (linkedItem !== undefined) {
         result.__type =
-          linkedItem.type !== "display" &&
-          linkedItem.type !== "group" &&
-          linkedItem.type !== "attachment"
+          linkedItem.type !== "display" && linkedItem.type !== "group"
             ? linkedItem.type
             : undefined;
         // FIXME: is __answerOption still needed?
@@ -381,6 +379,10 @@ export class QuestionnaireBuilder {
         if (result.__answerOption) {
           result.__type = "reference";
         }
+      } else if (enableWhen.answerAttachment !== undefined) {
+        result.__answer = editorTools.formatAttachment(
+          enableWhen.answerAttachment,
+        );
       }
       resultEnableWhen.push(result);
     }

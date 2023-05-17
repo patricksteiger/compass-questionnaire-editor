@@ -66,7 +66,7 @@
       dense
     />
     <q-input
-      label="Hash"
+      label="SHA-1 Hash"
       class="col-4"
       v-model="attachmentValue.hash"
       type="text"
@@ -169,9 +169,9 @@ function handleFileUpload(
     attachment.title = file.name;
     attachment.contentType = file.type;
     attachment.size = size;
+    attachment.hash = hash;
     attachment.data = data;
     shortData.value = getShortenedData(data);
-    attachment.hash = hash;
   };
   reader.readAsArrayBuffer(file);
 }

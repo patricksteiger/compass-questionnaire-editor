@@ -111,11 +111,7 @@ export function getItemTypeIcon(type: ItemType): ItemTypeIcon {
   return icon.icon;
 }
 
-export const notSelectableQuestionTypes = [
-  "attachment",
-  "display",
-  "group",
-] as const;
+export const notSelectableQuestionTypes = ["display", "group"] as const;
 export type NotSelectableItem = typeof notSelectableQuestionTypes[number];
 
 export function isSelectableItem(item: Item): boolean {

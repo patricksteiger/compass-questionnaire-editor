@@ -401,6 +401,12 @@ export class QuestionnaireValidator {
           `enableWhen at position ${index + 1} has empty reference`,
         );
       }
+    } else if (enableWhen.__type === "attachment") {
+      if (editorTools.isEmptyObject(enableWhen.answerAttachment)) {
+        warnings.push(
+          `enableWhen at position ${index + 1} has empty attachment`,
+        );
+      }
     }
   }
 

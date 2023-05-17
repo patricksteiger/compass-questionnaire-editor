@@ -586,6 +586,11 @@ function filterItem(item: Item): void {
               }
             }
             break;
+          case "attachment":
+            if (editorTools.isEmptyObject(enableWhen.answerAttachment)) {
+              item.enableWhen.splice(i, 1);
+            }
+            break;
           case undefined:
             console.error(
               `enableWhen linking to ${enableWhen.question} had no type`,

@@ -175,11 +175,7 @@ export class FHIRItemValidator {
       if (enableWhen.answerDateTime === undefined) {
         this.clearOptionsOrString(enableWhen, linkedItem);
       }
-    } else if (
-      linkedItem.type === "group" ||
-      linkedItem.type === "display" ||
-      linkedItem.type === "attachment"
-    ) {
+    } else if (linkedItem.type === "group" || linkedItem.type === "display") {
       enableWhen.operator = "exists";
       this.resetEnableWhenAnswers(enableWhen);
       this.warnings.push(
@@ -195,6 +191,10 @@ export class FHIRItemValidator {
       }
     } else if (linkedItem.type === "coding") {
       if (enableWhen.answerCoding === undefined) {
+        this.clearOptionsOrString(enableWhen, linkedItem);
+      }
+    } else if (linkedItem.type === "attachment") {
+      if (enableWhen.answerAttachment === undefined) {
         this.clearOptionsOrString(enableWhen, linkedItem);
       }
     }
