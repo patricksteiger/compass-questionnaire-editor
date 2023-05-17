@@ -115,6 +115,7 @@
                   :error="!initial.valueString"
                   error-message="String must be non-empty"
                   type="text"
+                  autogrow
                   dense
                 >
                   <template v-slot:prepend>

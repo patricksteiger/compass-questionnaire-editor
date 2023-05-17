@@ -11,7 +11,7 @@ import { validatorUtils } from "../TransformerUtils";
 import { ParsedEnableWhen } from "../parsing/enableWhen";
 import { itemTools } from "@/utils/item";
 import { fhirValidatorUtils } from "./FHIRValidatorUtils";
-import { editorTools } from "@/utils/editor";
+import { editorTools, UnreachableError } from "@/utils/editor";
 
 export class FHIRItemValidator {
   private linkIdSet: Set<string>;
@@ -301,6 +301,7 @@ export class FHIRItemValidator {
             );
           }
           break;
+        case "text":
         case "string":
           if (initial.valueString === undefined) {
             this.errors.push(
@@ -344,10 +345,7 @@ export class FHIRItemValidator {
           }
           break;
         default:
-          // TODO: Add UnreachableException for inital
-          throw new Error(
-            `Missing implementation for initial-validation: ${item.type}`,
-          );
+          throw new UnreachableError(item.type);
       }
     }
   }

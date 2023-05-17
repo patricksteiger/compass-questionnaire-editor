@@ -7,6 +7,7 @@ import {
   InitialItem,
   ItemType,
 } from "./constants";
+import { UnreachableError } from "./editor";
 import { getHiddenExtension } from "./extension";
 import { ParsedItem } from "./importing/parsing/item";
 
@@ -140,6 +141,7 @@ class ItemTools {
         };
       case "time":
         return { __type: "time", valueTime: "00:00:00" };
+      case "text":
       case "string":
         return { __type: "string", valueString: "" };
       case "url":
@@ -153,7 +155,7 @@ class ItemTools {
       case "attachment":
         return { __type: "attachment", valueAttachment: {} };
       default:
-        throw new Error(`Missing implementation for addInitial: ${item.type}`);
+        throw new UnreachableError(item.type);
     }
   }
 }

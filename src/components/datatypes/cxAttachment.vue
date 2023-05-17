@@ -1,5 +1,12 @@
 <template>
   <div class="q-pa-md">
+    <q-file
+      outlined
+      v-model="uploadedFile"
+      label="Choose file"
+      @update:model-value="(file) => handleFileUpload(file, attachmentValue)"
+      @rejected="(errors) => handleFileUploadRejected(errors)"
+    />
     <q-input
       label="Title"
       class="col-4"
@@ -112,13 +119,6 @@
       type="number"
       @keypress="onlyPositiveInteger"
       dense
-    />
-    <q-file
-      outlined
-      v-model="uploadedFile"
-      label="Upload file"
-      @update:model-value="(file) => handleFileUpload(file, attachmentValue)"
-      @rejected="(errors) => handleFileUploadRejected(errors)"
     />
     <q-separator />
     <q-btn class="col-4" icon="add" @click="addAttachment(attachmentValue)" />
