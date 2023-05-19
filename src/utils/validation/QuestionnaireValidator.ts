@@ -16,9 +16,11 @@ export type ItemWarning = {
   warnings: string[];
 };
 
+// FIXME: Separate warnings to warnings and errors
 export class QuestionnaireValidator {
   constructor(private readonly questionnaire: Questionnaire) {}
 
+  // TODO: Add extension to validation
   check(): Warning {
     return {
       language: this.questionnaire.language,

@@ -1,10 +1,10 @@
 <template>
   <q-list bordered class="bg-grey">
     <cxExtension
-      :extensions="extensionValue.extension"
+      :extensions="extensions"
       :predefinedExtensions="[]"
-      v-on:addExtension="(ext: Extension) => extensionValue.extension.push(ext)"
-      v-on:removeExtension="(index: number) => extensionValue.extension.splice(index, 1)"
+      v-on:addExtension="(ext: Extension) => extensions.push(ext)"
+      v-on:removeExtension="(index: number) => extensions.splice(index, 1)"
     />
   </q-list>
 </template>
@@ -15,11 +15,9 @@ import { ref } from "vue";
 import { ComplexExtension, Extension } from "@/types";
 import cxExtension from "@/components/cxExtension.vue";
 
-// const splitterModel = ref(50);
-
 const props = defineProps<{
   extension: ComplexExtension;
 }>();
 
-const extensionValue = ref(props.extension);
+const extensions = ref(props.extension.extension);
 </script>

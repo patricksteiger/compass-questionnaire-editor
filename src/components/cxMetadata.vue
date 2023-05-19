@@ -354,7 +354,7 @@ import { mapGetters } from "vuex";
 import { defineComponent, ref } from "vue";
 import { Extension, Identifier, Questionnaire, status } from "@/types";
 import { getQuestionnaireExtensions } from "@/utils/extension";
-import cxExtension from "./cxExtension.vue";
+import cxExtension from "@/components/cxExtension.vue";
 import { dateTools } from "@/utils/date";
 import {
   getVersionAlgorithmCoding,

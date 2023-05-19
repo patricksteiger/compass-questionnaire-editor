@@ -321,9 +321,22 @@
                             type="textarea"
                             v-model="extension.valueMarkdown"
                           />
-                          <!-- TODO: How should already added complex extensions be viewed? -->
                           <div v-else-if="extension.__type === 'complex'">
-                            Complex extension {{ extension.url }}
+                            <div
+                              v-if="
+                                editorTools.nonEmptyArray(extension.extension)
+                              "
+                            >
+                              <div v-if="extension.extension.length > 1">
+                                Complex extension with
+                                {{ extension.extension.length }} children
+                              </div>
+                              <div v-else>
+                                Complex extension with
+                                {{ extension.extension.length }} child
+                              </div>
+                            </div>
+                            <div v-else>Empty complex extension</div>
                           </div>
                         </q-card-section>
                       </q-item-section>
@@ -339,92 +352,81 @@
     </q-layout>
   </q-dialog>
 </template>
-<script lang="ts">
-import { defineComponent, PropType, ref } from "vue";
+
+<script setup lang="ts">
+import { ref } from "vue";
 import { editorTools } from "../utils/editor";
 import { extensionTypes, Extension, ExtensionType } from "@/types";
-import { questionnaireTools } from "@/utils/questionnaire";
 import { HIDDEN_EXTENSION_URL, PredefinedExtension } from "@/utils/extension";
 import { dateTools } from "@/utils/date";
 import cxComplexExtension from "@/components/cxComplexExtension.vue";
 import { itemTools } from "@/utils/item";
 
-export default defineComponent({
-  components: {
-    cxComplexExtension,
-  },
-  props: {
-    extensions: {
-      type: Object as PropType<Extension[]>,
-      required: true,
-    },
-    predefinedExtensions: {
-      type: Object as PropType<PredefinedExtension[]>,
-      required: false,
-    },
-  },
-  setup() {
-    const url = ref("");
-    const type = ref<ExtensionType>("boolean");
-    return {
-      splitterLimits: ref([30, 100]),
-      splitterModel: ref(60),
-      extensionLayout: ref(false),
-      addPredefinedLayout: ref(true),
-      url,
-      extensionTypes,
-      type,
-      dateTools,
-      editorTools,
-      questionnaireTools,
-      HIDDEN_EXTENSION_URL,
-    };
-  },
-  emits: {
-    addExtension(extension: Extension): boolean {
-      return !!extension.url;
-    },
-    removeExtension(index: number): boolean {
-      return index >= 0;
-    },
-  },
-  methods: {
-    disableGUIExtension(extension: Extension): boolean {
-      return extension.url === HIDDEN_EXTENSION_URL;
-    },
-    onSelectedPredefinedExtension(extension: Extension): void {
-      const clonedExtension = editorTools.clone(extension);
-      this.$emit("addExtension", clonedExtension);
-      this.extensionLayout = false;
-    },
-    invalidToAddCustomExtension(url: string, type: ExtensionType): boolean {
-      return !url || (type === "boolean" && url === HIDDEN_EXTENSION_URL);
-    },
-    onSelectedCustomExtension(url: string, type: ExtensionType): void {
-      const extension = itemTools.getExtensionFrom(url, type);
-      this.$emit("addExtension", extension);
-      this.extensionLayout = false;
-    },
-    removeExtension(index: number): void {
-      this.$emit("removeExtension", index);
-    },
-    addPredefinedExtension(): void {
-      this.addPredefinedLayout = true;
-      this.extensionLayout = true;
-    },
-    addCustomExtension(): void {
-      this.addPredefinedLayout = false;
-      this.extensionLayout = true;
-    },
-    onlyNumberDec(event: KeyboardEvent): void {
-      this.editorTools.onlyDecimal(event);
-    },
-    onlyNumber(event: KeyboardEvent): void {
-      this.editorTools.onlyInteger(event);
-    },
-    getExtensionLabel(extension: Extension): string {
-      return extension.__type.toUpperCase();
-    },
-  },
-});
+// eslint-disable-next-line no-unused-vars
+const props = defineProps<{
+  extensions: Extension[];
+  predefinedExtensions: PredefinedExtension[];
+}>();
+
+const url = ref("");
+const type = ref<ExtensionType>("boolean");
+const splitterLimits = ref([30, 100]);
+const splitterModel = ref(60);
+const extensionLayout = ref(false);
+const addPredefinedLayout = ref(true);
+
+const emit = defineEmits<{
+  // eslint-disable-next-line no-unused-vars
+  (e: "addExtension", extension: Extension): void;
+  // eslint-disable-next-line no-unused-vars
+  (e: "removeExtension", index: number): void;
+}>();
+
+function disableGUIExtension(extension: Extension): boolean {
+  return extension.url === HIDDEN_EXTENSION_URL;
+}
+function onSelectedPredefinedExtension(extension: Extension): void {
+  const clonedExtension = editorTools.clone(extension);
+  emit("addExtension", clonedExtension);
+  extensionLayout.value = false;
+}
+
+function invalidToAddCustomExtension(
+  url: string,
+  type: ExtensionType,
+): boolean {
+  return !url || (type === "boolean" && url === HIDDEN_EXTENSION_URL);
+}
+
+function onSelectedCustomExtension(url: string, type: ExtensionType): void {
+  const extension = itemTools.getExtensionFrom(url, type);
+  emit("addExtension", extension);
+  extensionLayout.value = false;
+}
+
+function removeExtension(index: number): void {
+  emit("removeExtension", index);
+}
+
+function addPredefinedExtension(): void {
+  addPredefinedLayout.value = true;
+  extensionLayout.value = true;
+}
+
+function addCustomExtension(): void {
+  addPredefinedLayout.value = false;
+  extensionLayout.value = true;
+}
+
+function onlyNumberDec(event: KeyboardEvent): void {
+  editorTools.onlyDecimal(event);
+}
+
+function onlyNumber(event: KeyboardEvent): void {
+  editorTools.onlyInteger(event);
+}
+
+function getExtensionLabel(extension: Extension): string {
+  return extension.__type.toUpperCase();
+}
 </script>
