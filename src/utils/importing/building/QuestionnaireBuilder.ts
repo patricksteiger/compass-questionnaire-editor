@@ -236,13 +236,23 @@ export class QuestionnaireBuilder {
         url: extension.url,
         valueMarkdown: extension.valueMarkdown,
       };
-    } else {
+    } else if (extension.valueString !== undefined) {
       return {
         __type: "string",
         url: extension.url,
-        valueString: extension.valueString ?? "",
+        valueString: extension.valueString,
       };
+    } else if (editorTools.nonEmptyArray(extension.extension)) {
+      const newExtension: Extension[] = [];
+      for (const child of extension.extension) {
+        const ext = this.fromExtension(child);
+        newExtension.push(ext);
+      }
+      return { __type: "complex", url: extension.url, extension: newExtension };
     }
+    throw new Error(
+      `fromExtension is missing implementation: ${JSON.stringify(extension)}`,
+    );
   }
 
   private fromAnswerOption(answerOption: ParsedAnswerOption): AnswerOption {

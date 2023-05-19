@@ -104,6 +104,10 @@
                   Hidden can only be changed using the toggle in the item-tree
                 </q-tooltip>
               </div>
+              <div v-else-if="extension.__type === 'complex'">
+                <!-- <q-btn icon="add" @click="handleComplexExtension(extension)" /> -->
+                <cxComplexExtension :extension="extension" />
+              </div>
             </q-card-section>
           </q-item-section>
           <q-btn
@@ -118,6 +122,7 @@
       <div class="q-pa-sm">
         <!-- add predefined extension -->
         <q-btn
+          v-if="editorTools.nonEmptyArray(predefinedExtensions)"
           padding="none xl"
           fab
           icon="add"
@@ -152,7 +157,10 @@
                 <q-toolbar class="bg-primary text-white shadow-2">
                   <q-toolbar-title> Predefined extensions </q-toolbar-title>
                 </q-toolbar>
-                <div class="q-pa-md" v-if="predefinedExtensions.length > 0">
+                <div
+                  class="q-pa-md"
+                  v-if="editorTools.nonEmptyArray(predefinedExtensions)"
+                >
                   <q-card>
                     <q-list
                       dense
@@ -313,6 +321,10 @@
                             type="textarea"
                             v-model="extension.valueMarkdown"
                           />
+                          <!-- TODO: How should already added complex extensions be viewed? -->
+                          <div v-else-if="extension.__type === 'complex'">
+                            Complex extension {{ extension.url }}
+                          </div>
                         </q-card-section>
                       </q-item-section>
                     </q-item>
@@ -329,13 +341,18 @@
 </template>
 <script lang="ts">
 import { defineComponent, PropType, ref } from "vue";
-import { editorTools, UnreachableError } from "../utils/editor";
+import { editorTools } from "../utils/editor";
 import { extensionTypes, Extension, ExtensionType } from "@/types";
 import { questionnaireTools } from "@/utils/questionnaire";
 import { HIDDEN_EXTENSION_URL, PredefinedExtension } from "@/utils/extension";
 import { dateTools } from "@/utils/date";
+import cxComplexExtension from "@/components/cxComplexExtension.vue";
+import { itemTools } from "@/utils/item";
 
 export default defineComponent({
+  components: {
+    cxComplexExtension,
+  },
   props: {
     extensions: {
       type: Object as PropType<Extension[]>,
@@ -343,7 +360,7 @@ export default defineComponent({
     },
     predefinedExtensions: {
       type: Object as PropType<PredefinedExtension[]>,
-      required: true,
+      required: false,
     },
   },
   setup() {
@@ -384,42 +401,7 @@ export default defineComponent({
       return !url || (type === "boolean" && url === HIDDEN_EXTENSION_URL);
     },
     onSelectedCustomExtension(url: string, type: ExtensionType): void {
-      let extension: Extension;
-      switch (type) {
-        case "boolean":
-          extension = { url, __type: type, valueBoolean: true };
-          break;
-        case "code":
-          extension = { url, __type: type, valueCode: "" };
-          break;
-        case "decimal":
-          extension = { url, __type: type, valueDecimal: 0 };
-          break;
-        case "integer":
-          extension = { url, __type: type, valueInteger: 0 };
-          break;
-        case "date":
-          extension = { url, __type: type, valueDate: "2000-12-31" };
-          break;
-        case "dateTime":
-          extension = {
-            url,
-            __type: type,
-            valueDateTime: "2017-01-01T00:00:00+01:00",
-          };
-          break;
-        case "time":
-          extension = { url, __type: type, valueTime: "00:00:00" };
-          break;
-        case "string":
-          extension = { url, __type: type, valueString: "" };
-          break;
-        case "markdown":
-          extension = { url, __type: type, valueMarkdown: "" };
-          break;
-        default:
-          throw new UnreachableError(type);
-      }
+      const extension = itemTools.getExtensionFrom(url, type);
       this.$emit("addExtension", extension);
       this.extensionLayout = false;
     },

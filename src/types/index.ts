@@ -123,6 +123,7 @@ export type AnswerOption = {
 };
 
 export const extensionTypes = [
+  "complex",
   "boolean",
   "code",
   "decimal",
@@ -134,19 +135,28 @@ export const extensionTypes = [
   "markdown",
 ] as const;
 
-export type Extension = { url: string } & (
-  | { __type: "boolean"; valueBoolean: boolean }
-  | { __type: "code"; valueCode: string }
-  | { __type: "decimal"; valueDecimal: number }
-  | { __type: "integer"; valueInteger: number }
-  | { __type: "date"; valueDate: string }
-  | { __type: "dateTime"; valueDateTime: string }
-  | { __type: "time"; valueTime: string }
-  | { __type: "string"; valueString: string }
-  | { __type: "markdown"; valueMarkdown: string }
-);
+type extTypes = typeof extensionTypes;
 
-export type ExtensionType = Extension["__type"];
+export type ExtensionType = extTypes[number];
+
+export type ComplexExtension = {
+  __type: extTypes[0];
+  url: string;
+  extension: Extension[];
+};
+
+export type Extension = { url: string } & (
+  | ComplexExtension
+  | { __type: extTypes[1]; valueBoolean: boolean }
+  | { __type: extTypes[2]; valueCode: string }
+  | { __type: extTypes[3]; valueDecimal: number }
+  | { __type: extTypes[4]; valueInteger: number }
+  | { __type: extTypes[5]; valueDate: string }
+  | { __type: extTypes[6]; valueDateTime: string }
+  | { __type: extTypes[7]; valueTime: string }
+  | { __type: extTypes[8]; valueString: string }
+  | { __type: extTypes[9]; valueMarkdown: string }
+);
 
 export type Question = {
   __linkId?: string;

@@ -5,7 +5,7 @@ import {
   optionalStringSchema,
 } from "./schemas";
 
-export const extensionSchema = z
+const baseExtensionSchema = z
   .object({
     url: z.string(),
     valueBoolean: optionalBooleanSchema,
@@ -19,3 +19,12 @@ export const extensionSchema = z
     valueMarkdown: optionalStringSchema,
   })
   .passthrough();
+
+export type ParsedExtension = z.infer<typeof baseExtensionSchema> & {
+  extension?: ParsedExtension[];
+};
+
+export const extensionSchema: z.ZodType<ParsedExtension> =
+  baseExtensionSchema.extend({
+    extension: z.lazy(() => extensionSchema.array().optional()),
+  });

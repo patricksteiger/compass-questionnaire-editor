@@ -1,4 +1,8 @@
-import { ParsedAnswerOption, ParsedItem } from "../parsing/item";
+import {
+  ParsedAnswerOption,
+  ParsedExtension,
+  ParsedItem,
+} from "../parsing/item";
 import { ParsedQuestionnaire } from "../parsing/questionnaire";
 import {
   allowsInitial,
@@ -361,19 +365,35 @@ export class FHIRItemValidator {
     }
   }
 
-  private validateExtension(item: ParsedItem): void {
-    if (item.extension === undefined) return;
-    for (const extension of item.extension) {
+  private validateExtensionHelper(
+    extensions: ParsedExtension[],
+    item: ParsedItem,
+  ): void {
+    for (const extension of extensions) {
       const count = fhirValidatorUtils.countValueInvariants(extension);
-      if (count === 0) {
+      if (editorTools.nonEmptyArray(extension.extension)) {
+        if (count > 0) {
+          this.errors.push(
+            `LinkId "${item.linkId}" has extension with defined values and extension.`,
+          );
+        } else {
+          this.validateExtensionHelper(extension.extension, item);
+        }
+      } else if (count === 0) {
         this.errors.push(
-          `LinkId "${item.linkId}" has extension with no value.`,
+          `LinkId "${item.linkId}" has extension with no value or extension.`,
         );
       } else if (count > 1) {
         this.errors.push(
           `LinkId "${item.linkId}" has extension with multiple values.`,
         );
       }
+    }
+  }
+
+  private validateExtension(item: ParsedItem): void {
+    if (item.extension !== undefined) {
+      this.validateExtensionHelper(item.extension, item);
     }
   }
 

@@ -1,5 +1,5 @@
 import { i18n } from "@/i18n";
-import { Initial, Item } from "@/types";
+import { Extension, ExtensionType, Initial, Item } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import {
   allowsAnswerChoice,
@@ -156,6 +156,37 @@ class ItemTools {
         return { __type: "attachment", valueAttachment: {} };
       default:
         throw new UnreachableError(item.type);
+    }
+  }
+
+  getExtensionFrom(url: string, type: ExtensionType): Extension {
+    switch (type) {
+      case "boolean":
+        return { url, __type: type, valueBoolean: true };
+      case "code":
+        return { url, __type: type, valueCode: "" };
+      case "decimal":
+        return { url, __type: type, valueDecimal: 0 };
+      case "integer":
+        return { url, __type: type, valueInteger: 0 };
+      case "date":
+        return { url, __type: type, valueDate: "2000-12-31" };
+      case "dateTime":
+        return {
+          url,
+          __type: type,
+          valueDateTime: "2017-01-01T00:00:00+01:00",
+        };
+      case "time":
+        return { url, __type: type, valueTime: "00:00:00" };
+      case "string":
+        return { url, __type: type, valueString: "" };
+      case "markdown":
+        return { url, __type: type, valueMarkdown: "" };
+      case "complex":
+        return { url, __type: type, extension: [] };
+      default:
+        throw new UnreachableError(type);
     }
   }
 }
