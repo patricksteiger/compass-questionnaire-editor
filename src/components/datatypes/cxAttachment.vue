@@ -40,7 +40,7 @@
     <div class="row justify-between">
       <q-input
         label="Shortened data"
-        class="col-6"
+        class="col-8"
         v-model="shortData"
         type="text"
         readonly
@@ -49,6 +49,7 @@
       <q-btn
         label="Clear data"
         :disable="!shortData"
+        dense
         @click="
           () => {
             attachmentValue.data = undefined;
@@ -72,14 +73,23 @@
       type="text"
       dense
     />
-    <q-input
-      label="Creation"
-      class="col-4"
-      v-model="attachmentValue.creation"
-      type="text"
-      :rules="[dateTools.isDateTimeOrEmpty]"
-      dense
-    />
+    <div class="row justify-between">
+      <q-input
+        label="Creation"
+        class="col-8"
+        v-model="attachmentValue.creation"
+        type="text"
+        :rules="[dateTools.isDateTimeOrEmpty]"
+        dense
+      />
+      <q-btn
+        label="Now"
+        dense
+        @click="
+          () => (attachmentValue.creation = dateTools.getCurrentDateTime())
+        "
+      />
+    </div>
     <q-input
       label="Height"
       class="col-4"
@@ -165,7 +175,7 @@ function handleFileUpload(
     const data = base64From(fileBuffer);
     const hashBuffer = await crypto.subtle.digest("SHA-1", fileBuffer);
     const hash = base64From(hashBuffer);
-    // TODO: set creation for attachment
+    attachment.creation = dateTools.getCurrentDateTime();
     attachment.title = file.name;
     attachment.contentType = file.type;
     attachment.size = size;

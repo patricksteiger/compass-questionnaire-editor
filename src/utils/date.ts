@@ -61,6 +61,30 @@ class DateTools {
       "value doesn't match HH:MM:SS"
     );
   }
+
+  getCurrentDate(): string {
+    const now = new Date();
+    const yyyy = this.padClock(now.getFullYear());
+    const mm = this.padClock(now.getMonth() + 1);
+    const dd = this.padClock(now.getDate());
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  getCurrentDateTime(): string {
+    return new Date().toISOString();
+  }
+
+  getCurrentTime(): string {
+    const now = new Date();
+    const hh = this.padClock(now.getHours());
+    const mm = this.padClock(now.getMinutes());
+    const ss = this.padClock(now.getSeconds());
+    return `${hh}:${mm}:${ss}`;
+  }
+
+  private padClock(time: number): string {
+    return time < 10 ? `0${time}` : time.toString();
+  }
 }
 
 export const dateTools = new DateTools();

@@ -2677,7 +2677,7 @@ export default defineComponent({
       this.chosenEnableWhenAnswerLayout = false;
     },
     handleDateAnswer(enableWhen: EnableWhen): void {
-      enableWhen.answerDate ??= "";
+      enableWhen.answerDate ??= dateTools.getCurrentDate();
       this.chosenEnableWhen = enableWhen;
       this.linkedItem = questionnaireTools.getItemByLinkId(
         this.currentQuestionnaire,
@@ -2693,7 +2693,7 @@ export default defineComponent({
       this.chosenEnableWhenAnswerLayout = false;
     },
     handleDateTimeAnswer(enableWhen: EnableWhen): void {
-      enableWhen.answerDateTime ??= "";
+      enableWhen.answerDateTime ??= dateTools.getCurrentDateTime();
       this.chosenEnableWhen = enableWhen;
       this.linkedItem = questionnaireTools.getItemByLinkId(
         this.currentQuestionnaire,
@@ -2709,7 +2709,7 @@ export default defineComponent({
       this.chosenEnableWhenAnswerLayout = false;
     },
     handleTimeAnswer(enableWhen: EnableWhen): void {
-      enableWhen.answerTime ??= "";
+      enableWhen.answerTime ??= dateTools.getCurrentTime();
       this.chosenEnableWhen = enableWhen;
       this.linkedItem = questionnaireTools.getItemByLinkId(
         this.currentQuestionnaire,

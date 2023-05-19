@@ -7,6 +7,7 @@ import {
   InitialItem,
   ItemType,
 } from "./constants";
+import { dateTools } from "./date";
 import { UnreachableError } from "./editor";
 import { getHiddenExtension } from "./extension";
 import { ParsedItem } from "./importing/parsing/item";
@@ -133,14 +134,14 @@ class ItemTools {
       case "integer":
         return { __type: "integer", valueInteger: 0 };
       case "date":
-        return { __type: "date", valueDate: "2000-01-01" };
+        return { __type: "date", valueDate: dateTools.getCurrentDate() };
       case "dateTime":
         return {
           __type: "dateTime",
-          valueDateTime: "2000-01-01T00:00:00+01:00",
+          valueDateTime: dateTools.getCurrentDateTime(),
         };
       case "time":
-        return { __type: "time", valueTime: "00:00:00" };
+        return { __type: "time", valueTime: dateTools.getCurrentTime() };
       case "text":
       case "string":
         return { __type: "string", valueString: "" };
@@ -170,15 +171,15 @@ class ItemTools {
       case "integer":
         return { url, __type: type, valueInteger: 0 };
       case "date":
-        return { url, __type: type, valueDate: "2000-12-31" };
+        return { url, __type: type, valueDate: dateTools.getCurrentDate() };
       case "dateTime":
         return {
           url,
           __type: type,
-          valueDateTime: "2017-01-01T00:00:00+01:00",
+          valueDateTime: dateTools.getCurrentDateTime(),
         };
       case "time":
-        return { url, __type: type, valueTime: "00:00:00" };
+        return { url, __type: type, valueTime: dateTools.getCurrentTime() };
       case "string":
         return { url, __type: type, valueString: "" };
       case "markdown":

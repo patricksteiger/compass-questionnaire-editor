@@ -87,6 +87,18 @@
                       {{ index + 1 }}
                     </div>
                   </template>
+                  <template v-slot:after>
+                    <div>
+                      <q-btn
+                        label="Now"
+                        @click="
+                          () =>
+                            (initial.valueDateTime =
+                              dateTools.getCurrentDateTime())
+                        "
+                      />
+                    </div>
+                  </template>
                 </q-input>
               </div>
               <div class="row" v-else-if="initial.__type === 'time'">

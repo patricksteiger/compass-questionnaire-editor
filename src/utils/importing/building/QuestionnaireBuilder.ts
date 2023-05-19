@@ -255,69 +255,84 @@ export class QuestionnaireBuilder {
     );
   }
 
-  private fromAnswerOption(answerOption: ParsedAnswerOption): AnswerOption {
-    const initialSelected = answerOption.initialSelected ?? false;
-    const result: AnswerOption = {
-      ...answerOption,
+  private fromAnswerOption(
+    parsedAnswerOption: ParsedAnswerOption,
+  ): AnswerOption {
+    const initialSelected = parsedAnswerOption.initialSelected ?? false;
+    const answerOption: AnswerOption = {
+      ...parsedAnswerOption,
       initialSelected,
       __id: itemTools.createAnswerOptionId(),
       __type: "coding",
     };
-    if (result.valueCoding !== undefined) {
-      result.__type = "coding";
-      result.__icon = getAnswerOptionIcon(result.__type);
-      result.valueCoding.code ??= "";
-      result.valueCoding.system ??= "";
-      result.valueCoding.display ??= "";
-      result.__oldValueCoding = editorTools.clone(result.valueCoding);
-      result.__formattedValueCoding = editorTools.formatCoding(
-        result.valueCoding,
+    if (answerOption.valueCoding !== undefined) {
+      answerOption.__type = "coding";
+      answerOption.__icon = getAnswerOptionIcon(answerOption.__type);
+      answerOption.valueCoding.code ??= "";
+      answerOption.valueCoding.system ??= "";
+      answerOption.valueCoding.display ??= "";
+      answerOption.__oldValueCoding = editorTools.clone(
+        answerOption.valueCoding,
       );
-      result.__oldFormattedValueCoding = result.__formattedValueCoding;
-    } else if (result.valueDecimal !== undefined) {
-      result.__type = "decimal";
-      result.__icon = getAnswerOptionIcon(result.__type);
-      result.__oldValueDecimal = result.valueDecimal;
-    } else if (result.valueInteger !== undefined) {
-      result.__type = "integer";
-      result.__icon = getAnswerOptionIcon(result.__type);
-      result.__oldValueInteger = result.valueInteger;
-    } else if (result.valueDate !== undefined) {
-      result.__type = "date";
-      result.__icon = getAnswerOptionIcon(result.__type);
-      result.__oldValueDate = result.valueDate;
-    } else if (result.valueDateTime !== undefined) {
-      result.__type = "dateTime";
-      result.__icon = getAnswerOptionIcon(result.__type);
-      result.__oldValueDateTime = result.valueDateTime;
-    } else if (result.valueTime !== undefined) {
-      result.__type = "time";
-      result.__icon = getAnswerOptionIcon(result.__type);
-      result.__oldValueTime = result.valueTime;
-    } else if (result.valueString !== undefined) {
-      result.__type = "string";
-      result.__icon = getAnswerOptionIcon(result.__type);
-      result.__oldValueString = result.valueString;
-    } else if (result.valueQuantity !== undefined) {
-      result.__type = "quantity";
-      result.__icon = getAnswerOptionIcon(result.__type);
-      result.__oldValueQuantity = editorTools.clone(result.valueQuantity);
-      result.__formattedValueQuantity = editorTools.formatQuantity(
-        result.valueQuantity,
+      answerOption.__formattedValueCoding = editorTools.formatCoding(
+        answerOption.valueCoding,
       );
-      result.__oldFormattedValueQuantity = result.__formattedValueQuantity;
-    } else if (result.valueReference !== undefined) {
-      result.__type = "reference";
-      result.__icon = getAnswerOptionIcon(result.__type);
-      result.__oldValueReference = editorTools.clone(result.valueReference);
-      result.__formattedValueReference = editorTools.formatReference(
-        result.valueReference,
+      answerOption.__oldFormattedValueCoding =
+        answerOption.__formattedValueCoding;
+    } else if (answerOption.valueDecimal !== undefined) {
+      answerOption.__type = "decimal";
+      answerOption.__icon = getAnswerOptionIcon(answerOption.__type);
+      answerOption.__oldValueDecimal = answerOption.valueDecimal;
+    } else if (answerOption.valueInteger !== undefined) {
+      answerOption.__type = "integer";
+      answerOption.__icon = getAnswerOptionIcon(answerOption.__type);
+      answerOption.__oldValueInteger = answerOption.valueInteger;
+    } else if (answerOption.valueDate !== undefined) {
+      answerOption.__type = "date";
+      answerOption.__icon = getAnswerOptionIcon(answerOption.__type);
+      answerOption.__oldValueDate = answerOption.valueDate;
+    } else if (answerOption.valueDateTime !== undefined) {
+      answerOption.__type = "dateTime";
+      answerOption.__icon = getAnswerOptionIcon(answerOption.__type);
+      answerOption.__oldValueDateTime = answerOption.valueDateTime;
+    } else if (answerOption.valueTime !== undefined) {
+      answerOption.__type = "time";
+      answerOption.__icon = getAnswerOptionIcon(answerOption.__type);
+      answerOption.__oldValueTime = answerOption.valueTime;
+    } else if (answerOption.valueString !== undefined) {
+      answerOption.__type = "string";
+      answerOption.__icon = getAnswerOptionIcon(answerOption.__type);
+      answerOption.__oldValueString = answerOption.valueString;
+    } else if (answerOption.valueQuantity !== undefined) {
+      answerOption.__type = "quantity";
+      answerOption.__icon = getAnswerOptionIcon(answerOption.__type);
+      answerOption.__oldValueQuantity = editorTools.clone(
+        answerOption.valueQuantity,
       );
-      result.__oldFormattedValueReference = result.__formattedValueReference;
+      answerOption.__formattedValueQuantity = editorTools.formatQuantity(
+        answerOption.valueQuantity,
+      );
+      answerOption.__oldFormattedValueQuantity =
+        answerOption.__formattedValueQuantity;
+    } else if (answerOption.valueReference !== undefined) {
+      answerOption.__type = "reference";
+      answerOption.__icon = getAnswerOptionIcon(answerOption.__type);
+      answerOption.__oldValueReference = editorTools.clone(
+        answerOption.valueReference,
+      );
+      answerOption.__formattedValueReference = editorTools.formatReference(
+        answerOption.valueReference,
+      );
+      answerOption.__oldFormattedValueReference =
+        answerOption.__formattedValueReference;
     } else {
-      throw new Error("Unreachable: answerOption has no defined value!");
+      throw new Error(
+        `fromAnswerOption missing implementation: ${JSON.stringify(
+          answerOption,
+        )}`,
+      );
     }
-    return result;
+    return answerOption;
   }
 
   private fromEnableWhen(fhirItem: ParsedItem): EnableWhen[] | undefined {
