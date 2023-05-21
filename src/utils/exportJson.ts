@@ -1,4 +1,3 @@
-import { Settings } from "@/store";
 import {
   EnableWhen,
   Extension,
@@ -7,7 +6,6 @@ import {
   operators,
   Questionnaire,
 } from "@/types";
-import { i18n } from "../i18n";
 import { allowsMaxLength } from "./constants";
 import { dateTools } from "./date";
 import { editorTools, UnreachableError } from "./editor";
@@ -65,41 +63,6 @@ function deepCopyFilteredObject<T extends object>(object: T): T {
 
 function createQuestionnaireExportCopy(qre: Questionnaire): Questionnaire {
   return deepCopyFilteredObject(qre);
-}
-
-function forEach(items: Item[], tracer: (i: Item) => void): void {
-  for (const item of items) {
-    tracer(item);
-    if (item.item !== undefined) {
-      forEach(item.item, tracer);
-    }
-  }
-}
-
-function validateQREGroups(qre: Questionnaire, errorMessages: string[]): void {
-  const emptyGroupTracer = (item: Item): void => {
-    if (item.type === "group") {
-      if (item.item === undefined || item.item.length === 0) {
-        const message = i18n.global.t(
-          "messagesErrors.ExportValidation.emptyGroup",
-          { linkId: item.linkId },
-        );
-        errorMessages.push(message);
-      } else {
-        for (const i of item.item) {
-          if (i.__active) {
-            return; // group has at least 1 active item
-          }
-        }
-        const message = i18n.global.t(
-          "messagesErrors.ExportValidation.onlyInactiveItems",
-          { linkId: item.linkId },
-        );
-        errorMessages.push(message);
-      }
-    }
-  };
-  forEach(qre.item, emptyGroupTracer);
 }
 
 function clearOptionsOrString(item: Item, enableWhenIndex: number): void {
@@ -649,12 +612,7 @@ function clearEnableWhenAnswers(enableWhen: EnableWhen): void {
   enableWhen.answerReference = undefined;
 }
 
-const exportJsonQuestionnaire = {
-  validateQuestionnaire(qre: Questionnaire, _settings: Settings): string[] {
-    const errorMessages: string[] = [];
-    validateQREGroups(qre, errorMessages);
-    return errorMessages;
-  },
+const exportTools = {
   getExportObject(jsonObject: Questionnaire): Questionnaire {
     const cloneObject = editorTools.clone(jsonObject);
     const objWithoutItemsDisabled = getFilteredQuestionnaire(cloneObject);
@@ -675,6 +633,9 @@ const exportJsonQuestionnaire = {
       entry: entries,
     };
     return bundle;
+  },
+  serializeToJSON(obj: Questionnaire | QuestionnaireBundle): string {
+    return JSON.stringify(obj, null, 2);
   },
   clearMetadataFields(jsonObject: Questionnaire) {
     //Version
@@ -778,7 +739,6 @@ const exportJsonQuestionnaire = {
     }
     return jsonObject;
   },
-  i18n: i18n,
 };
 
-export { exportJsonQuestionnaire };
+export { exportTools };

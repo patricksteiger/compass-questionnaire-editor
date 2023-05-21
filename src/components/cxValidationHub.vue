@@ -5,7 +5,7 @@
         <q-toolbar-title>Errors</q-toolbar-title>
       </q-toolbar>
       <div class="q-pa-md" v-if="validationHasErrors()">
-        Elements with errors will be deleted during export!
+        Elements with errors will be deleted/altered during export!
       </div>
       <q-list separator>
         <q-item v-for="result in validationResult" :key="result.language">

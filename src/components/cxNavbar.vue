@@ -154,8 +154,9 @@ import { computed, defineComponent, ref } from "vue";
 import { mapGetters, mapMutations, useStore } from "vuex";
 import { useQuasar } from "quasar";
 import FileSaver from "file-saver";
-import { exportJsonQuestionnaire } from "../utils/exportJson";
+import { exportTools } from "../utils/exportJson";
 import { Questionnaire } from "@/types";
+import { ErrorChecker } from "@/utils/validation/ErrorChecker";
 
 export default defineComponent({
   computed: {
@@ -176,7 +177,7 @@ export default defineComponent({
     const messageError = ref("");
     return {
       currentQuestionnaire,
-      exportJsonQuestionnaire,
+      exportTools,
       showLoading() {
         $q.loading.show();
       },
@@ -219,23 +220,19 @@ export default defineComponent({
       this.$router.push("Import");
     },
     exportQuestionnaireBundle() {
-      this.showLoading();
-      const focusedQuestionnaire: Questionnaire =
-        this.getQuestionnaireImportedJSON;
-      this.validationErrorMessages =
-        this.exportJsonQuestionnaire.validateQuestionnaire(
-          focusedQuestionnaire,
-          this.$store.state.settings,
-        );
-      if (this.validationErrorMessages.length > 0) {
-        this.hideLoading();
-        this.alertValidationError = true;
-        return;
-      }
       const questionnaires: Questionnaire[] = this.getQuestionnaires;
-      const exportBundle =
-        this.exportJsonQuestionnaire.getExportBundle(questionnaires);
-      const exportBundleJson = JSON.stringify(exportBundle, null, 2);
+      const languagesWithErrors = ErrorChecker.haveErrors(questionnaires);
+      if (languagesWithErrors.length > 0) {
+        const accepted = confirm(
+          `Questionnaires [${languagesWithErrors}] have errors. This means elements with errors are deleted/altered before being exported. Do you want to continue?`,
+        );
+        if (!accepted) {
+          return;
+        }
+      }
+      this.showLoading();
+      const exportBundle = this.exportTools.getExportBundle(questionnaires);
+      const exportBundleJson = this.exportTools.serializeToJSON(exportBundle);
       const blob = new Blob([exportBundleJson], {
         type: "application/json;charset=utf-8",
       });
@@ -243,23 +240,22 @@ export default defineComponent({
       this.hideLoading();
     },
     async exportQuestionnaire() {
+      const objToExport: Questionnaire = this.getQuestionnaireImportedJSON;
+      if (ErrorChecker.hasErrors(objToExport)) {
+        const accepted = confirm(
+          `Questionnaire "${objToExport.language}" has errors. This means elements with errors are deleted/altered before being exported. Do you want to continue?`,
+        );
+        if (!accepted) {
+          return;
+        }
+      }
       let blob: Blob | undefined = undefined;
       try {
         this.showLoading();
-        const objToExport: Questionnaire = this.getQuestionnaireImportedJSON;
-        this.validationErrorMessages =
-          this.exportJsonQuestionnaire.validateQuestionnaire(
-            objToExport,
-            this.$store.state.settings,
-          );
-        if (this.validationErrorMessages.length > 0) {
-          this.hideLoading();
-          this.alertValidationError = true;
-          return;
-        }
         const exportQuestionnaire =
-          this.exportJsonQuestionnaire.getExportObject(objToExport);
-        const objFinalToExport = JSON.stringify(exportQuestionnaire, null, 2);
+          this.exportTools.getExportObject(objToExport);
+        const objFinalToExport =
+          this.exportTools.serializeToJSON(exportQuestionnaire);
         blob = new Blob([objFinalToExport], {
           type: "application/json;charset=utf-8",
         });

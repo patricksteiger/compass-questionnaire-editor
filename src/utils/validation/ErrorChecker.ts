@@ -1,3 +1,4 @@
+import { Language } from "@/store";
 import { Item, Questionnaire } from "@/types";
 import { dateTools } from "@/utils/date";
 import { editorTools, UnreachableError } from "@/utils/editor";
@@ -19,6 +20,25 @@ export class ErrorChecker {
 
   static check(questionnaire: Questionnaire): Errors {
     return new ErrorChecker(questionnaire).validate();
+  }
+
+  static nonEmpty(errors: Errors): boolean {
+    return errors.metadata.length > 0 || errors.items.length > 0;
+  }
+
+  static hasErrors(questionnaire: Questionnaire): boolean {
+    const errors = ErrorChecker.check(questionnaire);
+    return ErrorChecker.nonEmpty(errors);
+  }
+
+  static haveErrors(questionnaires: Questionnaire[]): Language[] {
+    const languages: Language[] = [];
+    for (const questionnaire of questionnaires) {
+      if (ErrorChecker.hasErrors(questionnaire)) {
+        languages.push(questionnaire.language);
+      }
+    }
+    return languages;
   }
 
   validate(): Errors {
