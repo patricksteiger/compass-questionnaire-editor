@@ -20,7 +20,7 @@
       flat
       stack
       no-caps
-      @click="exportQuestionnaire"
+      @click="validateExportQuestionnaire"
       >{{ $t("components.navigationBar.ExportJSONBtn") }}</q-btn
     >
     <q-btn
@@ -29,7 +29,7 @@
       flat
       stack
       no-caps
-      @click="exportQuestionnaireBundle"
+      @click="validateExportBundle"
       >{{ $t("components.navigationBar.ExportBundleJSONBtn") }}</q-btn
     >
     <q-btn
@@ -148,6 +148,18 @@
       </q-card-actions>
     </q-card>
   </q-dialog>
+  <q-dialog v-model="confirmQuestionnaireLayout" persistent>
+    <cxConfirmDialog
+      :message="confirmMessage"
+      v-on:confirmation="exportQuestionnaire"
+    />
+  </q-dialog>
+  <q-dialog v-model="confirmBundleLayout" persistent>
+    <cxConfirmDialog
+      :message="confirmMessage"
+      v-on:confirmation="exportQuestionnaireBundle"
+    />
+  </q-dialog>
 </template>
 <script lang="ts">
 import { computed, defineComponent, ref } from "vue";
@@ -157,8 +169,12 @@ import FileSaver from "file-saver";
 import { exportTools } from "../utils/exportJson";
 import { Questionnaire } from "@/types";
 import { ErrorChecker } from "@/utils/validation/ErrorChecker";
+import cxConfirmDialog from "@/components/cxConfirmDialog.vue";
 
 export default defineComponent({
+  components: {
+    cxConfirmDialog,
+  },
   computed: {
     ...mapGetters([
       "getNameOfQuestionnaire",
@@ -175,7 +191,11 @@ export default defineComponent({
     const $q = useQuasar();
     const validationErrorMessages = ref<string[]>([]);
     const messageError = ref("");
+    const confirmMessage = ref<string>("");
     return {
+      confirmMessage,
+      confirmQuestionnaireLayout: ref(false),
+      confirmBundleLayout: ref(false),
       currentQuestionnaire,
       exportTools,
       showLoading() {
@@ -219,18 +239,19 @@ export default defineComponent({
       this.resetQuestionnaire();
       this.$router.push("Import");
     },
-    exportQuestionnaireBundle() {
+    validateExportBundle() {
       const questionnaires: Questionnaire[] = this.getQuestionnaires;
       const languagesWithErrors = ErrorChecker.haveErrors(questionnaires);
       if (languagesWithErrors.length > 0) {
-        const accepted = confirm(
-          `Questionnaires [${languagesWithErrors}] have errors. This means elements with errors are deleted/altered before being exported. Do you want to continue?`,
-        );
-        if (!accepted) {
-          return;
-        }
+        this.confirmMessage = `Questionnaires [${languagesWithErrors}] have errors. This means elements with errors are deleted/altered before being exported. Do you want to continue?`;
+        this.confirmBundleLayout = true;
+      } else {
+        this.exportQuestionnaireBundle();
       }
+    },
+    exportQuestionnaireBundle() {
       this.showLoading();
+      const questionnaires: Questionnaire[] = this.getQuestionnaires;
       const exportBundle = this.exportTools.getExportBundle(questionnaires);
       const exportBundleJson = this.exportTools.serializeToJSON(exportBundle);
       const blob = new Blob([exportBundleJson], {
@@ -239,19 +260,20 @@ export default defineComponent({
       this.FileSaver.saveAs(blob, `${this.getNameOfQuestionnaire}-Bundle.json`);
       this.hideLoading();
     },
-    async exportQuestionnaire() {
-      const objToExport: Questionnaire = this.getQuestionnaireImportedJSON;
-      if (ErrorChecker.hasErrors(objToExport)) {
-        const accepted = confirm(
-          `Questionnaire "${objToExport.language}" has errors. This means elements with errors are deleted/altered before being exported. Do you want to continue?`,
-        );
-        if (!accepted) {
-          return;
-        }
+    validateExportQuestionnaire() {
+      const questionnaire: Questionnaire = this.getQuestionnaireImportedJSON;
+      if (ErrorChecker.hasErrors(questionnaire)) {
+        this.confirmMessage = `Questionnaire "${questionnaire.language}" has errors. This means elements with errors are deleted/altered before being exported. Do you want to continue?`;
+        this.confirmQuestionnaireLayout = true;
+      } else {
+        this.exportQuestionnaire();
       }
+    },
+    async exportQuestionnaire() {
       let blob: Blob | undefined = undefined;
       try {
         this.showLoading();
+        const objToExport: Questionnaire = this.getQuestionnaireImportedJSON;
         const exportQuestionnaire =
           this.exportTools.getExportObject(objToExport);
         const objFinalToExport =
