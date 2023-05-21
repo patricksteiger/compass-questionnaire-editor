@@ -1385,7 +1385,7 @@
   </div>
 
   <q-dialog v-model="languageLayout">
-    <cx-language-hub
+    <cxLanguageHub
       v-on:switchFromLanguageHub="switchFromLanguageHub"
       v-on:deleteLanguage="deleteLanguage"
     />
@@ -1401,8 +1401,8 @@
   </div>
 
   <q-dialog v-model="validationLayout">
-    <cx-validation-hub
-      :questionnaires="getQuestionnaires"
+    <cxValidationHub
+      :validationResult="validationResult"
       v-on:switchLanguageFromValidationHub="switchLanguageFromValidationHub"
       v-on:switchToItemFromValidationHub="switchToItemFromValidationHub"
     />
@@ -2377,6 +2377,8 @@ import {
 import { Language, languages } from "@/store";
 import { itemTools } from "@/utils/item";
 import { getItemExtensions, HIDDEN_EXTENSION_URL } from "@/utils/extension";
+import { QuestionnaireReport } from "@/utils/validation/QuestionnaireValidator";
+import { Validator } from "@/utils/validation/Validator";
 
 export default defineComponent({
   components: {
@@ -2406,6 +2408,7 @@ export default defineComponent({
     const otherLinkIds = ref<string[]>([]);
     const otherLinkId = ref<string>("");
     const linkedItem = ref<Item | undefined>(undefined);
+    const validationResult = ref<QuestionnaireReport[]>([]);
     return {
       allowsInitial,
       HIDDEN_EXTENSION_URL,
@@ -2422,6 +2425,7 @@ export default defineComponent({
       languageSplitter: ref(40),
       languageSplitterLimits: ref([30, 60]),
       validationLayout: ref(false),
+      validationResult,
       answerConstraints,
       allowsAnswerChoice,
       currentQuestionnaire,
@@ -2845,6 +2849,7 @@ export default defineComponent({
       return languages.filter((lang) => !this.getUsedLanguages.includes(lang));
     },
     validateState(): void {
+      this.validationResult = Validator.check(this.getQuestionnaires);
       this.validationLayout = true;
     },
     validItemId(s: string): true | string {

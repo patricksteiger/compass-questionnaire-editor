@@ -1,9 +1,12 @@
 import { Questionnaire } from "@/types";
-import { QuestionnaireValidator, Warning } from "./QuestionnaireValidator";
+import {
+  QuestionnaireValidator,
+  QuestionnaireReport,
+} from "./QuestionnaireValidator";
 
 export class Validator {
-  static check(questionnaires: Questionnaire[]): Warning[] {
-    const warnings: Warning[] = [];
+  static check(questionnaires: Questionnaire[]): QuestionnaireReport[] {
+    const warnings: QuestionnaireReport[] = [];
     for (const qre of questionnaires) {
       const qreValidator = new QuestionnaireValidator(qre);
       warnings.push(qreValidator.check());
