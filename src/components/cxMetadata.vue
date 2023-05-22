@@ -338,8 +338,53 @@
           <q-toggle color="red" v-model="experimental" />
         </q-item-section>
       </q-item>
+
+      <q-expansion-item label="SubjectType">
+        <q-list
+          v-if="$route.name !== 'Import' && questionnaire !== undefined"
+          bordered
+          separator
+          dense
+          padding
+          class="rounded-borders"
+        >
+          <q-item
+            v-for="(subjectType, index) in questionnaire.subjectType"
+            :key="index"
+          >
+            <q-item-section>
+              <div class="row">
+                <q-select
+                  :options="resourceTypes"
+                  :model-value="subjectType"
+                  @update:model-value="(v) => (questionnaire!.subjectType[index] = v)"
+                >
+                  <template v-slot:prepend>
+                    <div>{{ index + 1 }}</div>
+                  </template>
+                </q-select>
+              </div>
+            </q-item-section>
+            <q-btn
+              flat
+              icon="highlight_off"
+              color="grey-6"
+              @click="() => questionnaire!.subjectType.splice(index, 1)"
+            />
+          </q-item>
+        </q-list>
+        <q-btn
+          icon="add"
+          label="SubjectType"
+          padding="none xl"
+          color="primary"
+          fab
+          @click="() => questionnaire!.subjectType.push('Patient')"
+        />
+      </q-expansion-item>
+
       <!-- extension -->
-      <cx-extension
+      <cxExtension
         v-if="questionnaire !== undefined"
         :extensions="(questionnaire.extension ??= [])"
         :predefinedExtensions="getQuestionnaireExtensions()"
@@ -361,6 +406,7 @@ import {
   VersionAlgorithmCode,
   versionAlgorithmCodes,
 } from "@/utils/constants";
+import { resourceTypes } from "@/utils/resourceType";
 
 export default defineComponent({
   components: {
@@ -375,6 +421,7 @@ export default defineComponent({
       statusOptions: status,
       getQuestionnaireExtensions,
       questionnaire,
+      resourceTypes,
       versionAlgorithmCoding,
       versionAlgorithmCodes,
     };

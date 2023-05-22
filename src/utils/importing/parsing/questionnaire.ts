@@ -12,6 +12,7 @@ import {
   versionAlgorithmSystem,
   versionAlgorithmVersion,
 } from "@/utils/constants";
+import { resourceTypes } from "@/utils/resourceType";
 
 const item = itemSchema.array().optional();
 
@@ -72,6 +73,8 @@ const lastReviewDate = optionalStringSchema;
 
 const experimental = optionalBooleanSchema;
 
+const subjectType = z.enum(resourceTypes).array().optional();
+
 const identifier = identifierSchema.array().optional();
 
 const extension = extensionSchema.array().optional();
@@ -81,6 +84,7 @@ export const questionnaireSchema = z
     resourceType: z.literal("Questionnaire"),
     identifier,
     status,
+    subjectType,
     url,
     version,
     versionAlgorithmCoding,

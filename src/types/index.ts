@@ -5,6 +5,7 @@ import {
   NotSelectableItem,
   VersionAlgorithmCoding,
 } from "@/utils/constants";
+import { ResourceType } from "@/utils/resourceType";
 import { QTree } from "quasar";
 
 export type VueProp = {
@@ -297,22 +298,23 @@ export type Status = typeof status[number];
 export type Questionnaire = {
   resourceType: "Questionnaire";
   language: Language;
-  identifier?: Identifier[];
   url?: string;
-  name?: string;
+  identifier?: Identifier[];
   version?: string;
   versionAlgorithmCoding?: VersionAlgorithmCoding;
+  name?: string;
   title?: string;
   status: Status;
+  // experimental is optional, so it can be deleted for exporting
+  // experimental is null, so it can be used as a v-model
+  experimental?: boolean | null;
+  subjectType: ResourceType[];
   publisher?: string;
   description?: string;
   purpose?: string;
   date?: string;
   approvalDate?: string;
   lastReviewDate?: string;
-  // experimental is optional, so it can be deleted for exporting
-  // experimental is null, so it can be used as a v-model
-  experimental?: boolean | null;
   extension?: Extension[];
   item: Item[];
 };

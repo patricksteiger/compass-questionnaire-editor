@@ -32,6 +32,7 @@ export class QuestionnaireBuilder {
     const status = this.qre.status ?? "unknown";
     const language = this.qre.language ?? defaultLanguage;
     const experimental = this.qre.experimental ?? null;
+    const subjectType = this.qre.subjectType ?? [];
     this.qre.item ??= [];
     const newItem: Item[] = [];
     let linkIdCount = 0;
@@ -55,6 +56,7 @@ export class QuestionnaireBuilder {
     }
     return {
       ...this.qre,
+      subjectType,
       versionAlgorithmCoding: versAlg,
       status,
       language,

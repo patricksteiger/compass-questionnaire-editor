@@ -138,6 +138,9 @@ function filterExtension(extensions: Extension[]): void {
 }
 
 function getFilteredQuestionnaire(qre: Questionnaire): Questionnaire {
+  if (qre.subjectType !== undefined && qre.subjectType.length === 0) {
+    delete (qre as Partial<Questionnaire>).subjectType;
+  }
   for (const item of qre.item) {
     filterItem(item);
   }

@@ -10,6 +10,8 @@ import {
   optionalStringSchema,
 } from "./schemas";
 
+// TODO: Add answerUri
+// TODO: Change integer to BigInt? How to handle q-input?
 export const enableWhenSchema = z.object({
   question: z.string(),
   operator: z.enum(operators),
