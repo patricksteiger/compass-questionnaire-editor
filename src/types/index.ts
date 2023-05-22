@@ -295,6 +295,11 @@ export type Item = {
 export const status = ["draft", "active", "retired", "unknown"] as const;
 export type Status = typeof status[number];
 
+// TODO: code
+// TODO: copyright/copyrightLabel
+// TODO: contact
+// TODO: useContext
+// TODO: derivedFrom
 export type Questionnaire = {
   resourceType: "Questionnaire";
   language: Language;
@@ -309,10 +314,11 @@ export type Questionnaire = {
   // experimental is null, so it can be used as a v-model
   experimental?: boolean | null;
   subjectType: ResourceType[];
+  date?: string;
   publisher?: string;
   description?: string;
   purpose?: string;
-  date?: string;
+  copyright?: string;
   approvalDate?: string;
   lastReviewDate?: string;
   extension?: Extension[];

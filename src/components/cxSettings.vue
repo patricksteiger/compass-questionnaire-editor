@@ -30,11 +30,32 @@
       </q-list>
     </div>
   </div>
+  <div class="row justify-center">
+    <q-input
+      class="col-12"
+      label="Copyright"
+      v-model="questionnaire.copyright"
+      type="textarea"
+      autogrow
+      clearable
+    />
+  </div>
 </template>
+
 <script lang="ts">
-import { defineComponent } from "vue";
+import { store } from "@/store";
+import { Questionnaire } from "@/types";
+import { computed, defineComponent, ref } from "vue";
 
 export default defineComponent({
+  setup() {
+    const questionnaire = ref<Questionnaire>(
+      computed(() => store.getters.getQuestionnaireImportedJSON).value,
+    );
+    return {
+      questionnaire,
+    };
+  },
   computed: {
     answerValueset: {
       get() {

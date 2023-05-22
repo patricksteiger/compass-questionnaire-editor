@@ -67,6 +67,7 @@ const versionAlgorithmCoding = z
 const publisher = optionalStringSchema;
 const description = optionalStringSchema;
 const purpose = optionalStringSchema;
+const copyright = optionalStringSchema;
 const date = optionalStringSchema;
 const approvalDate = optionalStringSchema;
 const lastReviewDate = optionalStringSchema;
@@ -93,6 +94,7 @@ export const questionnaireSchema = z
     publisher,
     description,
     purpose,
+    copyright,
     date,
     approvalDate,
     lastReviewDate,

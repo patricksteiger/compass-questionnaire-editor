@@ -396,7 +396,7 @@
 </template>
 <script lang="ts">
 import { mapGetters } from "vuex";
-import { defineComponent, ref } from "vue";
+import { computed, defineComponent, ref } from "vue";
 import { Extension, Identifier, Questionnaire, status } from "@/types";
 import { getQuestionnaireExtensions } from "@/utils/extension";
 import cxExtension from "@/components/cxExtension.vue";
@@ -407,14 +407,19 @@ import {
   versionAlgorithmCodes,
 } from "@/utils/constants";
 import { resourceTypes } from "@/utils/resourceType";
+import { store } from "@/store";
 
 export default defineComponent({
   components: {
     cxExtension,
   },
   setup() {
-    const questionnaire = ref<Questionnaire | undefined>(undefined);
-    const versionAlgorithmCoding = ref<VersionAlgorithmCode | null>(null);
+    const questionnaire = ref<Questionnaire>(
+      computed(() => store.getters.getQuestionnaireImportedJSON).value,
+    );
+    let versionAlgorithmCoding = ref<VersionAlgorithmCode | null>(
+      questionnaire.value.versionAlgorithmCoding?.code ?? null,
+    );
     return {
       dateTools,
       expanded: ref(true),
@@ -426,15 +431,8 @@ export default defineComponent({
       versionAlgorithmCodes,
     };
   },
-  created() {
-    this.questionnaire = this.getQuestionnaireImportedJSON;
-    if (this.questionnaire?.versionAlgorithmCoding) {
-      this.versionAlgorithmCoding =
-        this.questionnaire.versionAlgorithmCoding.code;
-    }
-  },
   computed: {
-    ...mapGetters(["getNameOfQuestionnaire", "getQuestionnaireImportedJSON"]),
+    ...mapGetters(["getNameOfQuestionnaire"]),
     version: {
       get() {
         return this.$store.state.questionnaire.version;
