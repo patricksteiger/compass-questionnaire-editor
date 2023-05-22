@@ -323,6 +323,14 @@
                 keep-color
                 v-model="repeatedItem"
               />
+              <!-- readOnly toggle -->
+              <q-toggle
+                left-label
+                label="readOnly"
+                color="purple"
+                keep-color
+                v-model="selectedItem.readOnly"
+              />
             </div>
             <div
               class="row items-center justify-between text-bold text-h5 q-mb-md"
@@ -1287,9 +1295,8 @@
               </q-expansion-item>
             </q-list>
             <!-- extension component -->
-            <q-list padding bordered>
+            <q-list v-if="selectedItem !== undefined" padding bordered>
               <cxExtension
-                v-if="selectedItem !== undefined"
                 :extensions="(selectedItem.extension ??= [])"
                 :predefinedExtensions="getItemExtensions(selectedItem)"
                 v-on:addExtension="addExtension"
@@ -1297,21 +1304,28 @@
               />
             </q-list>
             <!-- initial component -->
-            <q-list padding bordered>
+            <q-list
+              v-if="
+                selectedItem !== undefined && allowsInitial(selectedItem.type)
+              "
+              padding
+              bordered
+            >
               <cxInitial
-                v-if="
-                  selectedItem !== undefined && allowsInitial(selectedItem.type)
-                "
                 :selectedItem="selectedItem as InitialItem"
                 v-on:addInitial="addInitial"
                 v-on:removeInitial="removeInitial"
               />
             </q-list>
-            <q-list padding bordered>
-              <cxCode
-                v-if="selectedItem !== undefined"
-                :codes="selectedItem.code"
-              />
+            <!-- code component -->
+            <q-list
+              padding
+              bordered
+              v-if="
+                selectedItem !== undefined && selectedItem.type !== 'display'
+              "
+            >
+              <cxCode :codes="selectedItem.code" />
             </q-list>
           </q-tab-panel>
         </q-tab-panels>

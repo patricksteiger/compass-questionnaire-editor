@@ -156,6 +156,7 @@ export class QuestionnaireBuilder {
       text: text ?? "",
       required: fhirItem.required,
       repeats: fhirItem.repeats,
+      readOnly: fhirItem.readOnly,
       initial: newInitial,
       item: newItem,
     };

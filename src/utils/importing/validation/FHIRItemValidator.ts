@@ -47,9 +47,11 @@ export class FHIRItemValidator {
     this.validateExtension(item);
     this.validateInitial(item);
     this.validateInitialAndAnswerOption(item);
+    this.validateCode(item);
     this.validateMaxLength(item);
     this.validateRequired(item);
     this.validateRepeats(item);
+    this.validateReadOnly(item);
     if (validatorUtils.emptyList(item.item)) return;
     if (item.type === "display") {
       this.errors.push(
@@ -242,6 +244,15 @@ export class FHIRItemValidator {
     enableWhen.answerReference = undefined;
   }
 
+  private validateCode(item: ParsedItem): void {
+    if (item.type === "display" && editorTools.nonEmptyArray(item.code)) {
+      this.errors.push(
+        `LinkId "${item.linkId}" has type "${item.type}" which does not allow field "code".`,
+      );
+      return;
+    }
+  }
+
   private validateInitial(item: ParsedItem): void {
     if (!editorTools.nonEmptyArray(item.initial)) return;
     if (!allowsInitial(item.type)) {
@@ -405,13 +416,11 @@ export class FHIRItemValidator {
           `LinkId "${item.linkId}" is of type "${item.type}" which does not allow field "required". "required" has been deleted.`,
         );
       }
-    } else {
-      if (item.required === undefined) {
-        item.required = false;
-        this.warnings.push(
-          `LinkId "${item.linkId}" is of type "${item.type}" which allows field "required". "required" has been initialized to false.`,
-        );
-      }
+    } else if (item.required === undefined) {
+      item.required = itemTools.getDefaultRequired(item.type);
+      this.warnings.push(
+        `LinkId "${item.linkId}" is of type "${item.type}" which allows field "required". "required" has been initialized to ${item.required}.`,
+      );
     }
   }
 
@@ -423,13 +432,27 @@ export class FHIRItemValidator {
           `LinkId ${item.linkId} is of type "${item.type}" which does not allow field "repeats". "repeats" has been deleted.`,
         );
       }
-    } else {
-      if (item.repeats === undefined) {
-        item.repeats = false;
+    } else if (item.repeats === undefined) {
+      item.repeats = itemTools.getDefaultRepeats(item.type);
+      this.warnings.push(
+        `LinkId ${item.linkId} is of type "${item.type}" which allows field "repeats". "repeats" has been initialized to ${item.repeats}.`,
+      );
+    }
+  }
+
+  private validateReadOnly(item: ParsedItem): void {
+    if (item.type === "display") {
+      if (item.readOnly !== undefined) {
+        item.readOnly = undefined;
         this.warnings.push(
-          `LinkId ${item.linkId} is of type "${item.type}" which allows field "repeats". "repeats" has been initialized to false.`,
+          `LinkId ${item.linkId} is of type "${item.type}" which does not allow field "readOnly". "readOnly" has been deleted.`,
         );
       }
+    } else if (item.readOnly === undefined) {
+      item.readOnly = itemTools.getDefaultReadOnly(item.type);
+      this.warnings.push(
+        `LinkId ${item.linkId} is of type "${item.type}" which allows field "readOnly". "readOnly" has been initialized to ${item.readOnly}.`,
+      );
     }
   }
 

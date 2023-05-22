@@ -28,6 +28,9 @@ class ItemTools {
   getDefaultRepeats(type: ItemType): false | undefined {
     return type !== "display" ? false : undefined;
   }
+  getDefaultReadOnly(type: ItemType): false | undefined {
+    return type !== "display" ? false : undefined;
+  }
   definedAnswerChoices(item: Item | ParsedItem): boolean {
     return !this.undefinedAnswerChoices(item);
   }
@@ -111,6 +114,7 @@ class ItemTools {
       extension: [getHiddenExtension()],
       required: itemTools.getDefaultRequired(type),
       repeats: itemTools.getDefaultRepeats(type),
+      readOnly: itemTools.getDefaultReadOnly(type),
       initial: [],
       code: [],
     };

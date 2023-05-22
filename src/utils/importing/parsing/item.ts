@@ -23,6 +23,7 @@ const enableWhen = enableWhenSchema.array().optional();
 const enableBehavior = z.enum(enableBehaviors).optional();
 const required = optionalBooleanSchema;
 const repeats = optionalBooleanSchema;
+const readOnly = optionalBooleanSchema;
 const maxLength = optionalNumberSchema;
 
 const answerConstraint = z.enum(answerConstraints).optional();
@@ -82,6 +83,7 @@ const baseItemSchema = z.object({
   enableBehavior,
   required,
   repeats,
+  readOnly,
   maxLength,
   extension,
   answerConstraint,

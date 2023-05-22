@@ -256,7 +256,9 @@ export type Initial =
 /*
  * Fields with "__"-prefix are used for internal state management
  */
-// TODO: add initial-field
+// TODO: prefix
+// TODO: disabledDisplay
+// TODO: readOnly
 export type Item = {
   __active: boolean;
   /*
@@ -290,13 +292,15 @@ export type Item = {
   code: Coding[];
   required: boolean | undefined;
   repeats: boolean | undefined;
+  readOnly: boolean | undefined;
   initial: Initial[];
 };
 
 export const status = ["draft", "active", "retired", "unknown"] as const;
 export type Status = typeof status[number];
 
-// TODO: code
+// TODO: effectivePeriod
+// TODO: version
 // TODO: contact
 // TODO: useContext
 // TODO: derivedFrom
