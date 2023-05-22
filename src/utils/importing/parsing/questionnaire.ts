@@ -2,6 +2,7 @@ import { languages } from "@/store";
 import { itemSchema } from "./item";
 import { status as statusOptions } from "@/types";
 import {
+  codingSchema,
   identifierSchema,
   optionalBooleanSchema,
   optionalStringSchema,
@@ -75,6 +76,8 @@ const lastReviewDate = optionalStringSchema;
 
 const experimental = optionalBooleanSchema;
 
+const code = codingSchema.array().optional();
+
 const subjectType = z.enum(resourceTypes).array().optional();
 
 const identifier = identifierSchema.array().optional();
@@ -102,6 +105,7 @@ export const questionnaireSchema = z
     lastReviewDate,
     title,
     experimental,
+    code,
     extension,
     item,
   })

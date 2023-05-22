@@ -339,7 +339,16 @@
         </q-item-section>
       </q-item>
 
-      <q-expansion-item label="SubjectType">
+      <!-- extension -->
+      <cxExtension
+        v-if="questionnaire !== undefined"
+        :extensions="(questionnaire.extension ??= [])"
+        :predefinedExtensions="getQuestionnaireExtensions()"
+        v-on:addExtension="addExtension"
+        v-on:removeExtension="removeExtension"
+      />
+
+      <q-expansion-item icon="quickreply" label="SubjectType">
         <q-list
           v-if="$route.name !== 'Import' && questionnaire !== undefined"
           bordered
@@ -382,15 +391,6 @@
           @click="() => questionnaire!.subjectType.push('Patient')"
         />
       </q-expansion-item>
-
-      <!-- extension -->
-      <cxExtension
-        v-if="questionnaire !== undefined"
-        :extensions="(questionnaire.extension ??= [])"
-        :predefinedExtensions="getQuestionnaireExtensions()"
-        v-on:addExtension="addExtension"
-        v-on:removeExtension="removeExtension"
-      />
     </div>
   </div>
 </template>

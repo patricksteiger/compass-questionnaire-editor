@@ -1307,6 +1307,12 @@
                 v-on:removeInitial="removeInitial"
               />
             </q-list>
+            <q-list padding bordered>
+              <cxCode
+                v-if="selectedItem !== undefined"
+                :codes="selectedItem.code"
+              />
+            </q-list>
           </q-tab-panel>
         </q-tab-panels>
       </template>
@@ -2356,9 +2362,10 @@ import { v4 as uuidv4 } from "uuid";
 import cxEnableWhen from "@/components/cxEnableWhen.vue";
 import cxExtension from "@/components/cxExtension.vue";
 import cxInitial from "@/components/cxInitial.vue";
-import cxAttachment from "@/components/datatypes/cxAttachment.vue";
 import cxLanguageHub from "@/components/cxLanguageHub.vue";
 import cxValidationHub from "@/components/cxValidationHub.vue";
+import cxCode from "@/components/cxCode.vue";
+import cxAttachment from "@/components/datatypes/cxAttachment.vue";
 import { i18n, defaultLanguage } from "@/i18n";
 import {
   AnswerOption,
@@ -2385,6 +2392,7 @@ export default defineComponent({
     cxEnableWhen,
     cxExtension,
     cxInitial,
+    cxCode,
     cxAttachment,
     cxLanguageHub,
     cxValidationHub,

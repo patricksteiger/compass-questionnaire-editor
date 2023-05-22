@@ -287,6 +287,7 @@ export type Item = {
   answerOption?: AnswerOption[];
   answerValueSet?: string;
   extension?: Extension[];
+  code: Coding[];
   required: boolean | undefined;
   repeats: boolean | undefined;
   initial: Initial[];
@@ -296,7 +297,6 @@ export const status = ["draft", "active", "retired", "unknown"] as const;
 export type Status = typeof status[number];
 
 // TODO: code
-// TODO: copyright/copyrightLabel
 // TODO: contact
 // TODO: useContext
 // TODO: derivedFrom
@@ -322,6 +322,7 @@ export type Questionnaire = {
   copyrightLabel?: string;
   approvalDate?: string;
   lastReviewDate?: string;
+  code: Coding[];
   extension?: Extension[];
   item: Item[];
 };

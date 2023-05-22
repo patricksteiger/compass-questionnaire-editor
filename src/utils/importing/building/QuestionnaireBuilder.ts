@@ -33,6 +33,7 @@ export class QuestionnaireBuilder {
     const language = this.qre.language ?? defaultLanguage;
     const experimental = this.qre.experimental ?? null;
     const subjectType = this.qre.subjectType ?? [];
+    const code = this.qre.code ?? [];
     this.qre.item ??= [];
     const newItem: Item[] = [];
     let linkIdCount = 0;
@@ -56,6 +57,7 @@ export class QuestionnaireBuilder {
     }
     return {
       ...this.qre,
+      code,
       subjectType,
       versionAlgorithmCoding: versAlg,
       status,
@@ -102,6 +104,7 @@ export class QuestionnaireBuilder {
     const { item, answerOption, extension, initial, text, answerValueSet } =
       fhirItem;
     const enableWhen = this.fromEnableWhen(fhirItem);
+    const code = fhirItem.code ?? [];
     let newItem: Item[] | undefined = undefined;
     if (item !== undefined) {
       newItem = [];
@@ -146,6 +149,7 @@ export class QuestionnaireBuilder {
       __answerValueSetCheck: answerValueSet !== undefined,
       __linkId: internalLinkId,
       ...fhirItem,
+      code,
       answerOption: newAnswerOption,
       enableWhen,
       extension: newExtension,

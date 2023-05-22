@@ -4,6 +4,7 @@ import { allItemTypes } from "@/utils/constants";
 import { enableWhenSchema } from "./enableWhen";
 import { extensionSchema } from "./extension";
 import {
+  codingSchema,
   optionalAttachmentSchema,
   optionalBooleanSchema,
   optionalCodingSchema,
@@ -70,6 +71,8 @@ const initial = initialSchema.array().optional();
 
 export type ParsedInitial = z.infer<typeof initialSchema>;
 
+const code = codingSchema.array().optional();
+
 const baseItemSchema = z.object({
   linkId,
   definition,
@@ -85,6 +88,7 @@ const baseItemSchema = z.object({
   answerOption,
   answerValueSet,
   initial,
+  code,
 });
 
 export type ParsedItem = z.infer<typeof baseItemSchema> & {

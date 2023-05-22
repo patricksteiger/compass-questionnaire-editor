@@ -112,6 +112,7 @@ class ItemTools {
       required: itemTools.getDefaultRequired(type),
       repeats: itemTools.getDefaultRepeats(type),
       initial: [],
+      code: [],
     };
   }
 

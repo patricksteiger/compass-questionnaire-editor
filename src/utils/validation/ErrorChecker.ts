@@ -1,5 +1,5 @@
 import { Language } from "@/store";
-import { Item, Questionnaire } from "@/types";
+import { Coding, Item, Questionnaire } from "@/types";
 import { dateTools } from "@/utils/date";
 import { editorTools, UnreachableError } from "@/utils/editor";
 import { itemTools } from "../item";
@@ -67,6 +67,7 @@ export class ErrorChecker {
     this.answerOptionAndValueSetAndConstraint(item, errors);
     this.answerOptionAndInitial(item, errors);
     this.initial(item, errors);
+    this.code(item.code, errors);
     if (errors.length > 0) {
       const error: ItemError = {
         linkId: item.linkId,
@@ -384,10 +385,22 @@ export class ErrorChecker {
   }
 
   private primary(): string[] {
-    return [];
+    const errors: string[] = [];
+    return errors;
   }
 
   private secondary(): string[] {
-    return [];
+    const errors: string[] = [];
+    this.code(this.questionnaire.code, errors);
+    return errors;
+  }
+
+  private code(codes: Coding[], errors: string[]) {
+    for (let pos = 1; pos <= codes.length; pos++) {
+      const code = this.questionnaire.code[pos - 1];
+      if (editorTools.isEmptyObject(code)) {
+        errors.push(`code at position ${pos} has empty coding`);
+      }
+    }
   }
 }

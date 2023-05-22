@@ -19,23 +19,20 @@
           clearable
         />
       </div>
+      <div>
+        <cxCode :codes="questionnaire.code" />
+      </div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { store } from "@/store";
 import { Questionnaire } from "@/types";
-import { computed, defineComponent, ref } from "vue";
+import { computed, ref } from "vue";
+import cxCode from "@/components/cxCode.vue";
 
-export default defineComponent({
-  setup() {
-    const questionnaire = ref<Questionnaire>(
-      computed(() => store.getters.getQuestionnaireImportedJSON).value,
-    );
-    return {
-      questionnaire,
-    };
-  },
-});
+const questionnaire = ref<Questionnaire>(
+  computed(() => store.getters.getQuestionnaireImportedJSON).value,
+);
 </script>

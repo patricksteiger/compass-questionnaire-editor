@@ -137,6 +137,15 @@ function filterExtension(extensions: Extension[]): void {
   }
 }
 
+function filterCode(resource: Item | Questionnaire): void {
+  for (let i = resource.code.length - 1; i >= 0; i--) {
+    const code = resource.code[i];
+    if (editorTools.isEmptyObject(code)) {
+      resource.code.splice(i, 1);
+    }
+  }
+}
+
 function getFilteredQuestionnaire(qre: Questionnaire): Questionnaire {
   if (qre.subjectType.length === 0) {
     delete (qre as Partial<Questionnaire>).subjectType;
@@ -146,6 +155,10 @@ function getFilteredQuestionnaire(qre: Questionnaire): Questionnaire {
   }
   if (!qre.copyrightLabel) {
     delete qre.copyrightLabel;
+  }
+  filterCode(qre);
+  if (qre.code.length === 0) {
+    delete (qre as Partial<Questionnaire>).code;
   }
   for (const item of qre.item) {
     filterItem(item);
@@ -238,6 +251,11 @@ function filterItem(item: Item): void {
     if (item.extension.length === 0) {
       delete item.extension;
     }
+  }
+
+  filterCode(item);
+  if (item.code.length === 0) {
+    delete (item as Partial<Item>).code;
   }
 
   // TODO: Maybe rework how answerValueSet, answerOption and initial are exported?
