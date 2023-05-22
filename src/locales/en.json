@@ -107,9 +107,9 @@
       }
     },
     "tabsTitles": {
-      "ediorQRE": "Questionnaire Items",
-      "metadata": "Questionnaire Metadata",
-      "settings": "Editor Settings"
+      "editorQRE": "Questionnaire Items",
+      "primary": "Questionnaire Primary",
+      "secondary": "Questionnaire Secondary"
     },
     "tabs": {
       "metadata": {
@@ -134,14 +134,6 @@
             "userSelected": "User Selected"
           },
           "text": "Text"
-        }
-      },
-      "settings": {
-        "Answers": {
-          "title": "Answers",
-          "AnswerValueset": "Answer Value Set",
-          "OpenChoice": "Open Choice Enabled",
-          "Choice": "Choice Enabled"
         }
       }
     }

@@ -144,6 +144,9 @@ function getFilteredQuestionnaire(qre: Questionnaire): Questionnaire {
   if (!qre.copyright) {
     delete qre.copyright;
   }
+  if (!qre.copyrightLabel) {
+    delete qre.copyrightLabel;
+  }
   for (const item of qre.item) {
     filterItem(item);
   }

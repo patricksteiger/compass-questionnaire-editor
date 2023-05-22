@@ -5,8 +5,9 @@ import { editorTools, UnreachableError } from "@/utils/editor";
 import { itemTools } from "../item";
 
 export type Errors = {
-  metadata: string[];
   items: ItemError[];
+  primary: string[];
+  secondary: string[];
 };
 
 export type ItemError = {
@@ -23,7 +24,11 @@ export class ErrorChecker {
   }
 
   static nonEmpty(errors: Errors): boolean {
-    return errors.metadata.length > 0 || errors.items.length > 0;
+    return (
+      errors.items.length > 0 ||
+      errors.primary.length > 0 ||
+      errors.secondary.length > 0
+    );
   }
 
   static hasErrors(questionnaire: Questionnaire): boolean {
@@ -42,13 +47,10 @@ export class ErrorChecker {
   }
 
   validate(): Errors {
-    const metadata = this.metadata();
+    const primary = this.primary();
+    const secondary = this.secondary();
     const items = this.items();
-    return { metadata, items };
-  }
-
-  private metadata(): string[] {
-    return [];
+    return { items, primary, secondary };
   }
 
   private items(): ItemError[] {
@@ -379,5 +381,13 @@ export class ErrorChecker {
         }
       }
     }
+  }
+
+  private primary(): string[] {
+    return [];
+  }
+
+  private secondary(): string[] {
+    return [];
   }
 }

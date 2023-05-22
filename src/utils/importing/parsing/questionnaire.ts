@@ -68,6 +68,7 @@ const publisher = optionalStringSchema;
 const description = optionalStringSchema;
 const purpose = optionalStringSchema;
 const copyright = optionalStringSchema;
+const copyrightLabel = optionalStringSchema;
 const date = optionalStringSchema;
 const approvalDate = optionalStringSchema;
 const lastReviewDate = optionalStringSchema;
@@ -95,6 +96,7 @@ export const questionnaireSchema = z
     description,
     purpose,
     copyright,
+    copyrightLabel,
     date,
     approvalDate,
     lastReviewDate,

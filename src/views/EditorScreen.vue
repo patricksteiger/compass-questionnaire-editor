@@ -8,9 +8,9 @@
     align="justify"
     narrow-indicator
   >
-    <q-tab name="editor" :label="$t('views.tabsTitles.ediorQRE')" />
-    <q-tab name="metadata" :label="$t('views.tabsTitles.metadata')" />
-    <q-tab name="settings" :label="$t('views.tabsTitles.settings')" />
+    <q-tab name="editor" :label="$t('views.tabsTitles.editorQRE')" />
+    <q-tab name="primary" :label="$t('views.tabsTitles.primary')" />
+    <q-tab name="secondary" :label="$t('views.tabsTitles.secondary')" />
   </q-tabs>
 
   <q-separator />
@@ -20,11 +20,11 @@
       <cx-editor-items />
     </q-tab-panel>
 
-    <q-tab-panel name="metadata">
+    <q-tab-panel name="primary">
       <cx-metadata />
     </q-tab-panel>
 
-    <q-tab-panel name="settings">
+    <q-tab-panel name="secondary">
       <cx-settings />
     </q-tab-panel>
   </q-tab-panels>
@@ -36,7 +36,7 @@ import cxSettings from "@/components/cxSettings.vue";
 import { defineComponent, ref } from "vue";
 import { mapMutations } from "vuex";
 
-type Tab = "editor" | "metadata" | "settings";
+type Tab = "editor" | "primary" | "secondary";
 
 export default defineComponent({
   components: {

@@ -17,23 +17,8 @@
             >
               <q-toolbar-title>{{ result.language }}</q-toolbar-title>
             </q-toolbar>
-            <div class="q-pa-md" v-if="result.errors.metadata.length > 0">
-              Metadata:
-              <q-list bordered separator>
-                <q-item
-                  v-for="error in result.errors.metadata"
-                  :key="error"
-                  clickable
-                  @click="switchLanguageFromValidationHub(result.language)"
-                >
-                  <q-item-section>
-                    <q-item-label>{{ error }}</q-item-label>
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </div>
             <div class="q-pa-md" v-if="result.errors.items.length > 0">
-              Items:
+              Tab: {{ $t("views.tabsTitles.editorQRE") }}
               <q-list bordered separator>
                 <q-item
                   v-for="item in result.errors.items"
@@ -54,6 +39,36 @@
                       </q-item-section>
                     </q-item>
                   </q-list>
+                </q-item>
+              </q-list>
+            </div>
+            <div class="q-pa-md" v-if="result.errors.primary.length > 0">
+              Tab: {{ $t("views.tabsTitles.primary") }}
+              <q-list bordered separator>
+                <q-item
+                  v-for="error in result.errors.primary"
+                  :key="error"
+                  clickable
+                  @click="switchLanguageFromValidationHub(result.language)"
+                >
+                  <q-item-section>
+                    <q-item-label>{{ error }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </div>
+            <div class="q-pa-md" v-if="result.errors.secondary.length > 0">
+              Tab: {{ $t("views.tabsTitles.secondary") }}
+              <q-list bordered separator>
+                <q-item
+                  v-for="error in result.errors.secondary"
+                  :key="error"
+                  clickable
+                  @click="switchLanguageFromValidationHub(result.language)"
+                >
+                  <q-item-section>
+                    <q-item-label>{{ error }}</q-item-label>
+                  </q-item-section>
                 </q-item>
               </q-list>
             </div>
@@ -78,23 +93,8 @@
             >
               <q-toolbar-title>{{ result.language }}</q-toolbar-title>
             </q-toolbar>
-            <div class="q-pa-md" v-if="result.warnings.metadata.length > 0">
-              Metadata:
-              <q-list bordered separator>
-                <q-item
-                  v-for="warning in result.warnings.metadata"
-                  :key="warning"
-                  clickable
-                  @click="switchLanguageFromValidationHub(result.language)"
-                >
-                  <q-item-section>
-                    <q-item-label>{{ warning }}</q-item-label>
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </div>
             <div class="q-pa-md" v-if="result.warnings.items.length > 0">
-              Items:
+              Tab: {{ $t("views.tabsTitles.editorQRE") }}
               <q-list bordered separator>
                 <q-item
                   v-for="item in result.warnings.items"
@@ -118,6 +118,36 @@
                 </q-item>
               </q-list>
             </div>
+            <div class="q-pa-md" v-if="result.warnings.primary.length > 0">
+              Tab: {{ $t("views.tabsTitles.primary") }}
+              <q-list bordered separator>
+                <q-item
+                  v-for="warning in result.warnings.primary"
+                  :key="warning"
+                  clickable
+                  @click="switchLanguageFromValidationHub(result.language)"
+                >
+                  <q-item-section>
+                    <q-item-label>{{ warning }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </div>
+            <div class="q-pa-md" v-if="result.warnings.secondary.length > 0">
+              Tab: {{ $t("views.tabsTitles.secondary") }}
+              <q-list bordered separator>
+                <q-item
+                  v-for="warning in result.warnings.secondary"
+                  :key="warning"
+                  clickable
+                  @click="switchLanguageFromValidationHub(result.language)"
+                >
+                  <q-item-section>
+                    <q-item-label>{{ warning }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </div>
           </div>
         </q-item>
       </q-list>
@@ -130,7 +160,9 @@
 
 <script setup lang="ts">
 import { Language } from "@/store";
+import { ErrorChecker } from "@/utils/validation/ErrorChecker";
 import { QuestionnaireReport } from "@/utils/validation/QuestionnaireValidator";
+import { WarningChecker } from "@/utils/validation/WarningChecker";
 
 const props = defineProps<{
   validationResult: QuestionnaireReport[];
@@ -159,12 +191,10 @@ function switchToItemFromValidationHub(
   emit("switchToItemFromValidationHub", language, internalId);
 }
 function nonEmptyErrors(result: QuestionnaireReport): boolean {
-  const { errors } = result;
-  return errors.metadata.length > 0 || errors.items.length > 0;
+  return ErrorChecker.nonEmpty(result.errors);
 }
 function nonEmptyWarnings(result: QuestionnaireReport): boolean {
-  const { warnings } = result;
-  return warnings.metadata.length > 0 || warnings.items.length > 0;
+  return WarningChecker.nonEmpty(result.warnings);
 }
 function validationHasErrors(): boolean {
   return props.validationResult.some(nonEmptyErrors);

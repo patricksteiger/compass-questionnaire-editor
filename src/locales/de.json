@@ -107,9 +107,9 @@
       }
     },
     "tabsTitles": {
-      "ediorQRE": "Fragebogenelemente",
-      "metadata": "Fragebogenmetadaten",
-      "settings": "Editorkonfiguration"
+      "editorQRE": "Fragebogenelemente",
+      "primary": "Fragebogen primär",
+      "secondary": "Fragebogen sekundär"
     },
     "tabs": {
       "metadata": {
@@ -134,14 +134,6 @@
             "userSelected": "User Selected"
           },
           "text": "Text"
-        }
-      },
-      "settings": {
-        "Answers": {
-          "title": "Antworten",
-          "AnswerValueset": "Antwortwertemengen",
-          "OpenChoice": "Freie Auswahl aktiviert",
-          "Choice": "Auswahl aktiviert"
         }
       }
     }

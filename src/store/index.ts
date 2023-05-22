@@ -37,12 +37,6 @@ export const isSupportedLanguage = (lang: string): lang is Language => {
   return languages.includes(lang as Language);
 };
 
-export type Settings = {
-  answers: {
-    answerValueSet: boolean;
-  };
-};
-
 // Init is used for the first switch from "/"-path to "import"-path in router.
 // Switching between screens is done when creating Screen-components (see ImportScreen, EditorScreen)
 export type Screen = "init" | "import" | "editor";
@@ -50,7 +44,6 @@ export type Screen = "init" | "import" | "editor";
 export type StoreState = {
   questionnaire: Questionnaire;
   questionnaireRepo: Map<Language, Questionnaire>;
-  settings: Settings;
   currentScreen: Screen;
 };
 
@@ -105,19 +98,12 @@ const metadataMutations = {
   },
 };
 
-const settingsMutations = {
-  setAnswerValueSet(state: StoreState, payload: boolean) {
-    state.settings.answers.answerValueSet = payload;
-  },
-};
-
 const setQuestionnaireMutations = {
   setNewEmptyQuestionnaire(state: StoreState): void {
     const qre = getDefaultQuestionnaire(defaultLanguage);
     state.questionnaire = qre;
     state.questionnaireRepo.clear();
     state.questionnaireRepo.set(qre.language, qre);
-    state.settings.answers.answerValueSet = true;
   },
   setQuestionnaireBundle(state: StoreState, payload: Questionnaire[]): void {
     if (payload.length === 0) {
@@ -135,7 +121,6 @@ const setQuestionnaireMutations = {
     state.questionnaire = getDefaultQuestionnaire(language);
     state.questionnaireRepo.clear();
     state.questionnaireRepo.set(language, state.questionnaire);
-    state.settings.answers.answerValueSet = true;
   },
 };
 
@@ -179,18 +164,12 @@ export const store = createStore<StoreState>({
   state: {
     questionnaire: defaultQuestionnaire,
     questionnaireRepo: new Map(),
-    settings: {
-      answers: {
-        answerValueSet: true,
-      },
-    },
     currentScreen: "init",
   },
   mutations: {
     ...setQuestionnaireMutations,
     ...languageMutations,
     ...metadataMutations,
-    ...settingsMutations,
     ...screenMutations,
   },
   actions: {},
@@ -204,10 +183,6 @@ export const store = createStore<StoreState>({
     },
     getLanguage(state): Language {
       return state.questionnaire.language;
-    },
-    //Settings
-    getAnswerValueSet(state) {
-      return state.settings.answers.answerValueSet;
     },
     getQuestionnaireImportedJSON(state): Questionnaire {
       return state.questionnaire;

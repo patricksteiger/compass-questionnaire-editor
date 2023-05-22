@@ -386,7 +386,7 @@
                 allowsAnswerChoice(selectedItem.type)
               "
             >
-              <div v-if="getAnswerValueSet">
+              <div>
                 <q-checkbox
                   :label="
                     selectedItem.__answerValueSetCheck
@@ -3399,7 +3399,6 @@ export default defineComponent({
   computed: {
     ...mapGetters([
       "getQuestionnaireImportedJSON",
-      "getAnswerValueSet",
       "getOpenChoice",
       "getChoice",
       "getLanguage",

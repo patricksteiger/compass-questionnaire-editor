@@ -187,3 +187,4 @@ export const MAX_ALLOWED_LEVELS = 5;
 export const MAX_ALLOWED_LEVELS_FOR_GROUPS = MAX_ALLOWED_LEVELS - 1;
 export const DRAG_KEY_INTERNAL_ID = "internalId";
 export const MAX_LENGTH_LINKID = 255;
+export const COPYRIGHT_LABEL_LENGTH_LIMIT = 50;

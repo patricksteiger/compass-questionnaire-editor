@@ -319,6 +319,7 @@ export type Questionnaire = {
   description?: string;
   purpose?: string;
   copyright?: string;
+  copyrightLabel?: string;
   approvalDate?: string;
   lastReviewDate?: string;
   extension?: Extension[];
