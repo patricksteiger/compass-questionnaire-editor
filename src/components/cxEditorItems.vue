@@ -50,7 +50,7 @@
                       <q-tooltip>{{ prop.node.type }}</q-tooltip>
                     </q-icon>
                     <div class="col-12 q-body-1 text-weight-bold">
-                      {{ prop.node.text }}
+                      {{ prop.node.prefix }} {{ prop.node.text }}
                     </div>
                   </div>
                   <div
@@ -102,9 +102,9 @@
                         class="q-mr-sm text-grey-8"
                         @click="deleteItem(prop.key)"
                       >
-                        <q-tooltip>{{
-                          $t("views.editor.deleteItem")
-                        }}</q-tooltip>
+                        <q-tooltip>
+                          {{ $t("views.editor.deleteItem") }}
+                        </q-tooltip>
                       </q-btn>
                     </div>
                     <div class="q-body-1">
@@ -112,10 +112,11 @@
                         name="drag_indicator"
                         size="20px"
                         class="q-mr-sm text-grey-5"
-                        ><q-tooltip>
-                          {{ $t("views.editor.dragItem") }}
-                        </q-tooltip></q-icon
                       >
+                        <q-tooltip>
+                          {{ $t("views.editor.dragItem") }}
+                        </q-tooltip>
+                      </q-icon>
                     </div>
                   </div>
                 </div>
@@ -125,7 +126,7 @@
                   style="width: 100%"
                 >
                   <span>
-                    {{ prop.node.type }}: {{ prop.node.linkId }}
+                    LinkId: {{ prop.node.linkId }}
                     <q-tooltip>
                       {{ $t("components.linkId") }}
                     </q-tooltip>
