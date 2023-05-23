@@ -262,6 +262,10 @@ function filterItem(item: Item): void {
     delete item.prefix;
   }
 
+  if (!item.disabledDisplay) {
+    delete (item as Partial<Item>).disabledDisplay;
+  }
+
   // TODO: Maybe rework how answerValueSet, answerOption and initial are exported?
   // First delete values then delete others based on that? ...
   //remove empty answerValueSet

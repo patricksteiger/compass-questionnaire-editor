@@ -110,6 +110,7 @@ class ItemTools {
       __newQuestion: true,
       item: undefined,
       linkId: linkId,
+      disabledDisplay: null,
       text: itemTools.getDefaultText(),
       extension: [getHiddenExtension()],
       required: itemTools.getDefaultRequired(type),

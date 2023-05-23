@@ -1,4 +1,4 @@
-import { answerConstraints, enableBehaviors } from "@/types";
+import { answerConstraints, disabledDisplays, enableBehaviors } from "@/types";
 import { z } from "zod";
 import { allItemTypes } from "@/utils/constants";
 import { enableWhenSchema } from "./enableWhen";
@@ -22,6 +22,7 @@ const type = z.enum(allItemTypes);
 const enableWhen = enableWhenSchema.array().optional();
 
 const enableBehavior = z.enum(enableBehaviors).optional();
+const disabledDisplay = z.enum(disabledDisplays).optional();
 const required = optionalBooleanSchema;
 const repeats = optionalBooleanSchema;
 const readOnly = optionalBooleanSchema;
@@ -82,6 +83,7 @@ const baseItemSchema = z.object({
   type,
   enableWhen,
   enableBehavior,
+  disabledDisplay,
   required,
   repeats,
   readOnly,

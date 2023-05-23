@@ -1013,9 +1013,8 @@
                 </q-card>
               </q-expansion-item>
               <!-- enableWhen behavior -->
-              <div>
+              <div v-if="selectedItem !== undefined">
                 <q-select
-                  v-if="selectedItem !== undefined"
                   v-model="selectedItem.enableBehavior"
                   label="enableBehavior"
                   :options="enableBehaviors"
@@ -1028,6 +1027,17 @@
                     !!selectedItem.enableWhen &&
                     selectedItem.enableWhen.length > 1
                   "
+                />
+                <q-toggle
+                  v-model="selectedItem.disabledDisplay"
+                  :label="
+                    selectedItem.disabledDisplay !== null
+                      ? `DisabledDisplay: ${selectedItem.disabledDisplay}`
+                      : 'DisabledDisplay'
+                  "
+                  false-value="hidden"
+                  true-value="protected"
+                  toggle-indeterminate
                 />
               </div>
               <!-- enableWhen -->

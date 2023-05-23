@@ -211,6 +211,9 @@ export type Identifier = {
 export const enableBehaviors = ["all", "any"] as const;
 export type EnableBehavior = typeof enableBehaviors[number];
 
+export const disabledDisplays = ["hidden", "protected"] as const;
+export type DisabledDisplay = typeof disabledDisplays[number];
+
 export const answerConstraints = [
   "optionsOnly",
   "optionsOrType",
@@ -238,7 +241,6 @@ export type Attachment = {
   pages?: number;
 };
 
-// FIXME: add text-type
 export type Initial =
   | { __type: "boolean"; valueBoolean: boolean }
   | { __type: "decimal"; valueDecimal: number }
@@ -256,7 +258,6 @@ export type Initial =
 /*
  * Fields with "__"-prefix are used for internal state management
  */
-// TODO: disabledDisplay
 export type Item = {
   __active: boolean;
   /*
@@ -281,6 +282,7 @@ export type Item = {
   type: ItemType;
   enableWhen?: EnableWhen[];
   enableBehavior?: EnableBehavior | null;
+  disabledDisplay: DisabledDisplay | null;
   text: string;
   definition?: string;
   answerConstraint?: AnswerConstraint | null;

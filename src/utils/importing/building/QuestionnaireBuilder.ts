@@ -104,6 +104,7 @@ export class QuestionnaireBuilder {
     const { item, answerOption, extension, initial, text, answerValueSet } =
       fhirItem;
     const enableWhen = this.fromEnableWhen(fhirItem);
+    const disabledDisplay = fhirItem.disabledDisplay ?? null;
     const code = fhirItem.code ?? [];
     let newItem: Item[] | undefined = undefined;
     if (item !== undefined) {
@@ -152,6 +153,7 @@ export class QuestionnaireBuilder {
       code,
       answerOption: newAnswerOption,
       enableWhen,
+      disabledDisplay,
       extension: newExtension,
       text: text ?? "",
       required: fhirItem.required,
