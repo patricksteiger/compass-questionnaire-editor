@@ -327,6 +327,10 @@
         :label="$t('components.navigationBar.metadataItems.lastReviewDate')"
         :rules="[dateTools.isDateOrEmpty]"
       />
+      <div v-if="$route.name !== 'Import'">
+        EffectivePeriod:
+        <cxPeriod :period="questionnaire.effectivePeriod" />
+      </div>
 
       <q-item tag="label" v-ripple v-if="$route.name !== 'Import'">
         <q-item-section>
@@ -400,6 +404,7 @@ import { computed, defineComponent, ref } from "vue";
 import { Extension, Identifier, Questionnaire, status } from "@/types";
 import { getQuestionnaireExtensions } from "@/utils/extension";
 import cxExtension from "@/components/cxExtension.vue";
+import cxPeriod from "@/components/datatypes/cxPeriod.vue";
 import { dateTools } from "@/utils/date";
 import {
   getVersionAlgorithmCoding,
@@ -412,6 +417,7 @@ import { store } from "@/store";
 export default defineComponent({
   components: {
     cxExtension,
+    cxPeriod,
   },
   setup() {
     const questionnaire = ref<Questionnaire>(

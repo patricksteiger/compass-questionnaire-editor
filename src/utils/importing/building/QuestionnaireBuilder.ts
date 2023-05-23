@@ -34,6 +34,7 @@ export class QuestionnaireBuilder {
     const experimental = this.qre.experimental ?? null;
     const subjectType = this.qre.subjectType ?? [];
     const code = this.qre.code ?? [];
+    const effectivePeriod = this.qre.effectivePeriod ?? {};
     this.qre.item ??= [];
     const newItem: Item[] = [];
     let linkIdCount = 0;
@@ -61,6 +62,7 @@ export class QuestionnaireBuilder {
       subjectType,
       versionAlgorithmCoding: versAlg,
       status,
+      effectivePeriod,
       language,
       experimental,
       extension: newExtension,

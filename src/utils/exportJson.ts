@@ -4,6 +4,7 @@ import {
   Identifier,
   Item,
   operators,
+  Period,
   Questionnaire,
 } from "@/types";
 import { allowsMaxLength } from "./constants";
@@ -146,6 +147,17 @@ function filterCode(resource: Item | Questionnaire): void {
   }
 }
 
+function filterPeriod(period: Period): void {
+  const start = dateTools.isDateTime(period.start);
+  if (start !== true) {
+    period.start = undefined;
+  }
+  const end = dateTools.isDateTime(period.end);
+  if (end !== true) {
+    period.end = undefined;
+  }
+}
+
 function getFilteredQuestionnaire(qre: Questionnaire): Questionnaire {
   if (qre.subjectType.length === 0) {
     delete (qre as Partial<Questionnaire>).subjectType;
@@ -159,6 +171,10 @@ function getFilteredQuestionnaire(qre: Questionnaire): Questionnaire {
   filterCode(qre);
   if (qre.code.length === 0) {
     delete (qre as Partial<Questionnaire>).code;
+  }
+  filterPeriod(qre.effectivePeriod);
+  if (editorTools.isEmptyObject(qre.effectivePeriod)) {
+    delete (qre as Partial<Questionnaire>).effectivePeriod;
   }
   for (const item of qre.item) {
     filterItem(item);

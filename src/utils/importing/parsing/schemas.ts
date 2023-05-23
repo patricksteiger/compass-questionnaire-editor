@@ -28,10 +28,15 @@ export const quantitySchema = z.object({
   system: optionalStringSchema,
   unit: optionalStringSchema,
 });
-
 export type ParsedQuantity = z.infer<typeof quantitySchema>;
-
 export const optionalQuantitySchema = quantitySchema.optional();
+
+export const periodSchema = z.object({
+  start: z.string().optional(),
+  end: z.string().optional(),
+});
+export type ParsedPeriod = z.infer<typeof periodSchema>;
+export const optionalPeriodSchema = periodSchema.optional();
 
 const use = z.enum(identifierUse).optional();
 const period = z

@@ -300,7 +300,11 @@ export type Item = {
 export const status = ["draft", "active", "retired", "unknown"] as const;
 export type Status = typeof status[number];
 
-// TODO: effectivePeriod
+export type Period = {
+  start?: string;
+  end?: string;
+};
+
 // TODO: version
 // TODO: contact
 // TODO: useContext
@@ -327,6 +331,7 @@ export type Questionnaire = {
   copyrightLabel?: string;
   approvalDate?: string;
   lastReviewDate?: string;
+  effectivePeriod: Period;
   code: Coding[];
   extension?: Extension[];
   item: Item[];

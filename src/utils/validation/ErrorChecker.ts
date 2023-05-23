@@ -386,6 +386,18 @@ export class ErrorChecker {
 
   private primary(): string[] {
     const errors: string[] = [];
+    const startMsg = dateTools.isDateTimeOrEmpty(
+      this.questionnaire.effectivePeriod.start,
+    );
+    if (startMsg !== true) {
+      errors.push(`effectivePeriod.start: ${startMsg}`);
+    }
+    const endMsg = dateTools.isDateTimeOrEmpty(
+      this.questionnaire.effectivePeriod.end,
+    );
+    if (endMsg !== true) {
+      errors.push(`effectivePeriod.end: ${endMsg}`);
+    }
     return errors;
   }
 

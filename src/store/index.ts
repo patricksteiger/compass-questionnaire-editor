@@ -22,6 +22,7 @@ export const getDefaultQuestionnaire = (lang: Language): Questionnaire => {
     date: "",
     approvalDate: "",
     lastReviewDate: "",
+    effectivePeriod: {},
     experimental: null,
     code: [],
     subjectType: [],

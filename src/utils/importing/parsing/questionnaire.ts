@@ -5,6 +5,7 @@ import {
   codingSchema,
   identifierSchema,
   optionalBooleanSchema,
+  optionalPeriodSchema,
   optionalStringSchema,
 } from "./schemas";
 import { z } from "zod";
@@ -73,6 +74,7 @@ const copyrightLabel = optionalStringSchema;
 const date = optionalStringSchema;
 const approvalDate = optionalStringSchema;
 const lastReviewDate = optionalStringSchema;
+const effectivePeriod = optionalPeriodSchema;
 
 const experimental = optionalBooleanSchema;
 
@@ -103,6 +105,7 @@ export const questionnaireSchema = z
     date,
     approvalDate,
     lastReviewDate,
+    effectivePeriod,
     title,
     experimental,
     code,
