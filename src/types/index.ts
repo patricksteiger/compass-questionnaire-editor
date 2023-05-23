@@ -256,9 +256,7 @@ export type Initial =
 /*
  * Fields with "__"-prefix are used for internal state management
  */
-// TODO: prefix
 // TODO: disabledDisplay
-// TODO: readOnly
 export type Item = {
   __active: boolean;
   /*
@@ -290,6 +288,7 @@ export type Item = {
   answerValueSet?: string;
   extension?: Extension[];
   code: Coding[];
+  prefix?: string;
   required: boolean | undefined;
   repeats: boolean | undefined;
   readOnly: boolean | undefined;

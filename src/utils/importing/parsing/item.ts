@@ -16,6 +16,7 @@ import {
 
 const definition = optionalStringSchema;
 const text = optionalStringSchema;
+const prefix = optionalStringSchema;
 const type = z.enum(allItemTypes);
 
 const enableWhen = enableWhenSchema.array().optional();
@@ -86,6 +87,7 @@ const baseItemSchema = z.object({
   readOnly,
   maxLength,
   extension,
+  prefix,
   answerConstraint,
   answerOption,
   answerValueSet,

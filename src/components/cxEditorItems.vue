@@ -335,12 +335,25 @@
             <div
               class="row items-center justify-between text-bold text-h5 q-mb-md"
             >
+              <!-- prefix -->
+              <q-input
+                :disable="!selectedItem.__active"
+                v-if="selectedItem !== undefined"
+                v-model="selectedItem.prefix"
+                label="Prefix"
+                dense
+                class="col-8"
+              />
+            </div>
+            <div
+              class="row items-center justify-between text-bold text-h5 q-mb-md"
+            >
               <!-- definition -->
               <q-input
                 :disable="!selectedItem.__active"
                 v-if="selectedItem !== undefined"
                 v-model="selectedItem.definition"
-                label="definition"
+                label="Definition"
                 dense
                 class="col-8"
               />
