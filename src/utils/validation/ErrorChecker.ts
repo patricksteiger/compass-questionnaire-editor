@@ -397,7 +397,7 @@ export class ErrorChecker {
 
   private code(codes: Coding[], errors: string[]) {
     for (let pos = 1; pos <= codes.length; pos++) {
-      const code = this.questionnaire.code[pos - 1];
+      const code = codes[pos - 1];
       if (editorTools.isEmptyObject(code)) {
         errors.push(`code at position ${pos} has empty coding`);
       }
