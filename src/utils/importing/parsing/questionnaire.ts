@@ -66,6 +66,8 @@ const versionAlgorithmCoding = z
   ])
   .optional();
 
+const versionAlgorithmString = z.string().optional();
+
 const publisher = optionalStringSchema;
 const description = optionalStringSchema;
 const purpose = optionalStringSchema;
@@ -94,6 +96,7 @@ export const questionnaireSchema = z
     subjectType,
     url,
     version,
+    versionAlgorithmString,
     versionAlgorithmCoding,
     language,
     name,

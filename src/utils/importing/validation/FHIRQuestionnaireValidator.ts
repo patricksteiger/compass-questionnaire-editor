@@ -1,3 +1,4 @@
+import { editorTools } from "@/utils/editor";
 import { ParsedQuestionnaire } from "../parsing/questionnaire";
 import { FHIRItemValidator } from "./FHIRItemValidator";
 import { fhirValidatorUtils } from "./FHIRValidatorUtils";
@@ -18,16 +19,16 @@ export class FHIRQuestionnaireValidator {
   private validateQuestionnaireItems(
     qre: ParsedQuestionnaire,
   ): ValidationResult {
-    if (qre.item === undefined) {
-      return { state: "success", data: qre };
-    }
     const errors: string[] = [];
     const warnings: string[] = [];
-    const itemValidator = new FHIRItemValidator(qre, errors, warnings);
-    for (const item of qre.item) {
-      itemValidator.validate(item, 1);
-    }
+    this.validateVersionAlgorithm(qre, errors);
     this.validateExtension(qre, errors);
+    if (editorTools.nonEmptyArray(qre.item)) {
+      const itemValidator = new FHIRItemValidator(qre, errors, warnings);
+      for (const item of qre.item) {
+        itemValidator.validate(item, 1);
+      }
+    }
     if (errors.length > 0) {
       return { state: "error", errors, warnings };
     } else if (warnings.length > 0) {
@@ -50,6 +51,20 @@ export class FHIRQuestionnaireValidator {
           `Questionnaire "${qre.language}" has extension with multiple values.`,
         );
       }
+    }
+  }
+
+  private validateVersionAlgorithm(
+    qre: ParsedQuestionnaire,
+    errors: string[],
+  ): void {
+    if (
+      qre.versionAlgorithmString &&
+      qre.versionAlgorithmCoding !== undefined
+    ) {
+      errors.push(
+        `Questionnaire "${qre.language}" has versionAlgorithm defined as string and coding. Only 1 is allowed.`,
+      );
     }
   }
 }

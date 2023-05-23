@@ -305,16 +305,18 @@ export type Period = {
   end?: string;
 };
 
-// TODO: version
+// TODO: versionAlgorithm
 // TODO: contact
 // TODO: useContext
 // TODO: derivedFrom
 export type Questionnaire = {
+  __versionAlgorithmUsesCoding: boolean;
   resourceType: "Questionnaire";
   language: Language;
   url?: string;
   identifier?: Identifier[];
   version?: string;
+  versionAlgorithmString?: string;
   versionAlgorithmCoding?: VersionAlgorithmCoding;
   name?: string;
   title?: string;

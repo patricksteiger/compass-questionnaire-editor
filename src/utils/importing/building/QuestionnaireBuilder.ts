@@ -58,6 +58,7 @@ export class QuestionnaireBuilder {
     }
     return {
       ...this.qre,
+      __versionAlgorithmUsesCoding: !this.qre.versionAlgorithmString,
       code,
       subjectType,
       versionAlgorithmCoding: versAlg,

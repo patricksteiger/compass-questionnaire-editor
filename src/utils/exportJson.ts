@@ -158,7 +158,22 @@ function filterPeriod(period: Period): void {
   }
 }
 
+function filterVersionAlgorithm(qre: Questionnaire) {
+  if (qre.__versionAlgorithmUsesCoding) {
+    if (editorTools.isEmptyObject(qre.versionAlgorithmCoding)) {
+      delete qre.versionAlgorithmCoding;
+    }
+    delete qre.versionAlgorithmString;
+  } else {
+    if (!qre.versionAlgorithmString) {
+      delete qre.versionAlgorithmString;
+    }
+    delete qre.versionAlgorithmCoding;
+  }
+}
+
 function getFilteredQuestionnaire(qre: Questionnaire): Questionnaire {
+  filterVersionAlgorithm(qre);
   if (qre.subjectType.length === 0) {
     delete (qre as Partial<Questionnaire>).subjectType;
   }

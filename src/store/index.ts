@@ -11,6 +11,7 @@ export const getDefaultQuestionnaire = (lang: Language): Questionnaire => {
     { locale: locale },
   );
   return {
+    __versionAlgorithmUsesCoding: true,
     language: lang,
     identifier: [],
     url: "https://num-compass.science/de/",

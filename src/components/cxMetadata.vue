@@ -227,14 +227,33 @@
           }
         "
       />
-      <q-select
-        v-if="$route.name !== 'Import'"
-        v-model="versionAlgorithmCoding"
-        :label="$t('components.navigationBar.versionAlgorithm')"
-        :options="versionAlgorithmCodes"
-        clearable
-        @update:model-value="updateVersionAlgorithmCoding"
-      />
+      {{ $t("components.navigationBar.versionAlgorithm") }}
+      <div class="row justify-between" v-if="$route.name !== 'Import'">
+        <q-toggle
+          class="col-2"
+          :label="
+            questionnaire.__versionAlgorithmUsesCoding ? 'Coding' : 'String'
+          "
+          v-model="questionnaire.__versionAlgorithmUsesCoding"
+        />
+        <q-select
+          v-model="versionAlgorithmCoding"
+          class="col-3"
+          label="Coding"
+          :options="versionAlgorithmCodes"
+          :disable="!questionnaire.__versionAlgorithmUsesCoding"
+          @update:model-value="updateVersionAlgorithmCoding"
+          clearable
+        />
+        <q-input
+          class="col-6"
+          :disable="questionnaire.__versionAlgorithmUsesCoding"
+          label="String"
+          v-model="questionnaire.versionAlgorithmString"
+          @update:model-value="updateVersionAlgorithmString"
+          clearable
+        />
+      </div>
       <q-input
         v-if="$route.name !== 'Import'"
         v-model="name"
@@ -423,7 +442,7 @@ export default defineComponent({
     const questionnaire = ref<Questionnaire>(
       computed(() => store.getters.getQuestionnaireImportedJSON).value,
     );
-    let versionAlgorithmCoding = ref<VersionAlgorithmCode | null>(
+    const versionAlgorithmCoding = ref<VersionAlgorithmCode | null>(
       questionnaire.value.versionAlgorithmCoding?.code ?? null,
     );
     return {
@@ -435,6 +454,7 @@ export default defineComponent({
       resourceTypes,
       versionAlgorithmCoding,
       versionAlgorithmCodes,
+      getVersionAlgorithmCoding,
     };
   },
   computed: {
@@ -551,6 +571,15 @@ export default defineComponent({
       } else {
         const coding = getVersionAlgorithmCoding(code);
         this.questionnaire!.versionAlgorithmCoding = coding;
+      }
+    },
+    updateVersionAlgorithmString(str: string | number | null): void {
+      if (str === null) {
+        this.questionnaire!.versionAlgorithmString = undefined;
+      } else if (typeof str === "number") {
+        this.questionnaire!.versionAlgorithmString = str.toString();
+      } else {
+        this.questionnaire!.versionAlgorithmString = str;
       }
     },
     addExtension(extension: Extension): void {
