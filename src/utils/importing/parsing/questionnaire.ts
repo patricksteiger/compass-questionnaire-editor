@@ -3,6 +3,7 @@ import { itemSchema } from "./item";
 import { status as statusOptions } from "@/types";
 import {
   codingSchema,
+  contactDetailSchema,
   identifierSchema,
   optionalBooleanSchema,
   optionalPeriodSchema,
@@ -84,6 +85,8 @@ const code = codingSchema.array().optional();
 
 const subjectType = z.enum(resourceTypes).array().optional();
 
+const contact = contactDetailSchema.array().optional();
+
 const identifier = identifierSchema.array().optional();
 
 const extension = extensionSchema.array().optional();
@@ -94,6 +97,7 @@ export const questionnaireSchema = z
     identifier,
     status,
     subjectType,
+    contact,
     url,
     version,
     versionAlgorithmString,

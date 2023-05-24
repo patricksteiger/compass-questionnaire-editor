@@ -1,6 +1,8 @@
 import { defaultLanguage } from "@/i18n";
 import {
   AnswerOption,
+  ContactDetail,
+  ContactPoint,
   EnableWhen,
   Extension,
   Initial,
@@ -22,6 +24,7 @@ import {
   ParsedInitial,
   ParsedItem,
 } from "../parsing/item";
+import { ParsedContactDetail } from "../parsing/schemas";
 import { ParsedQuestionnaire } from "../parsing/questionnaire";
 import { validatorUtils } from "../TransformerUtils";
 
@@ -35,6 +38,13 @@ export class QuestionnaireBuilder {
     const subjectType = this.qre.subjectType ?? [];
     const code = this.qre.code ?? [];
     const effectivePeriod = this.qre.effectivePeriod ?? {};
+    const contact = this.qre.contact;
+    const newContact: ContactDetail[] = [];
+    if (contact !== undefined) {
+      for (const c of contact) {
+        newContact.push(this.fromContactDetail(c));
+      }
+    }
     this.qre.item ??= [];
     const newItem: Item[] = [];
     let linkIdCount = 0;
@@ -47,8 +57,7 @@ export class QuestionnaireBuilder {
     const extension = this.qre.extension;
     const newExtension: Extension[] = [];
     if (extension !== undefined) {
-      for (let i = 0; i < extension.length; i++) {
-        const e = extension[i];
+      for (const e of extension) {
         newExtension.push(this.fromExtension(e));
       }
     }
@@ -61,6 +70,7 @@ export class QuestionnaireBuilder {
       __versionAlgorithmUsesCoding: !this.qre.versionAlgorithmString,
       code,
       subjectType,
+      contact: newContact,
       versionAlgorithmCoding: versAlg,
       status,
       effectivePeriod,
@@ -68,6 +78,19 @@ export class QuestionnaireBuilder {
       experimental,
       extension: newExtension,
       item: newItem,
+    };
+  }
+
+  private fromContactDetail(contactDetail: ParsedContactDetail): ContactDetail {
+    let telecom: ContactPoint[];
+    if (contactDetail.telecom === undefined) {
+      telecom = [];
+    } else {
+      telecom = contactDetail.telecom.map((t) => ({ period: {}, ...t }));
+    }
+    return {
+      name: contactDetail.name ?? "",
+      telecom,
     };
   }
 

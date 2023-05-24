@@ -7,6 +7,7 @@ import {
   Reference,
   AnswerOption,
   Attachment,
+  ContactPoint,
 } from "@/types";
 import { getOrAddHiddenExtension } from "./extension";
 import { itemTools } from "./item";
@@ -406,6 +407,20 @@ class EditorTools {
     }
     if (attachment.size) {
       result += ` [${attachment.size} Bytes]`;
+    }
+    return result;
+  }
+
+  formatContactPoint(contactPoint: ContactPoint): string {
+    let result = contactPoint.value ?? "";
+    if (contactPoint.system) {
+      result += ` (${contactPoint.system})`;
+    }
+    if (contactPoint.use) {
+      result += ` [${contactPoint.use}]`;
+    }
+    if (contactPoint.rank) {
+      result += ` [${contactPoint.rank}]`;
     }
     return result;
   }

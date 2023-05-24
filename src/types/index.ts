@@ -305,7 +305,39 @@ export type Period = {
   end?: string;
 };
 
-// TODO: versionAlgorithm
+export const contactPointSystems = [
+  "phone",
+  "fax",
+  "email",
+  "pager",
+  "url",
+  "sms",
+  "other",
+] as const;
+export type ContactPointSystem = typeof contactPointSystems[number];
+
+export const contactPointUses = [
+  "home",
+  "work",
+  "temp",
+  "old",
+  "mobile",
+] as const;
+export type ContactPointUse = typeof contactPointUses[number];
+
+export type ContactPoint = {
+  system?: ContactPointSystem;
+  value?: string;
+  use?: ContactPointUse;
+  rank?: number;
+  period: Period;
+};
+
+export type ContactDetail = {
+  name: string;
+  telecom: ContactPoint[];
+};
+
 // TODO: contact
 // TODO: useContext
 // TODO: derivedFrom
@@ -328,6 +360,7 @@ export type Questionnaire = {
   date?: string;
   publisher?: string;
   description?: string;
+  contact: ContactDetail[];
   purpose?: string;
   copyright?: string;
   copyrightLabel?: string;

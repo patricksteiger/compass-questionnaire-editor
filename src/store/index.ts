@@ -17,6 +17,7 @@ export const getDefaultQuestionnaire = (lang: Language): Questionnaire => {
     url: "https://num-compass.science/de/",
     name: name.replace(" ", ""),
     title: name,
+    contact: [],
     version: "1.0",
     status: "draft",
     publisher: "",

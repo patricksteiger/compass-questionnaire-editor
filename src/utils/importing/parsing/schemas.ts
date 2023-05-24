@@ -1,4 +1,9 @@
-import { comparators, identifierUse } from "@/types";
+import {
+  comparators,
+  contactPointSystems,
+  contactPointUses,
+  identifierUse,
+} from "@/types";
 import { z } from "zod";
 
 export const optionalStringSchema = z.string().optional();
@@ -100,3 +105,18 @@ export const attachmentSchema = z.object({
 export type ParsedAttachment = z.infer<typeof attachmentSchema>;
 
 export const optionalAttachmentSchema = attachmentSchema.optional();
+
+export const contactPointSchema = z.object({
+  system: z.enum(contactPointSystems).optional(),
+  value: z.string().optional(),
+  use: z.enum(contactPointUses).optional(),
+  rank: z.number().optional(),
+  period: optionalPeriodSchema,
+});
+export type ParsedContactPoint = z.infer<typeof contactPointSchema>;
+
+export const contactDetailSchema = z.object({
+  name: z.string().optional(),
+  telecom: contactPointSchema.array().optional(),
+});
+export type ParsedContactDetail = z.infer<typeof contactDetailSchema>;

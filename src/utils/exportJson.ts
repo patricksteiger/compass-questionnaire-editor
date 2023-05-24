@@ -1,4 +1,6 @@
 import {
+  ContactDetail,
+  ContactPoint,
   EnableWhen,
   Extension,
   Identifier,
@@ -172,7 +174,56 @@ function filterVersionAlgorithm(qre: Questionnaire) {
   }
 }
 
+function filterContactPoint(contactPoint: ContactPoint) {
+  const { value, system, use, rank, period } = contactPoint;
+  if (!value || !system) {
+    delete contactPoint.value;
+    delete contactPoint.system;
+  }
+  if (!use) {
+    delete contactPoint.use;
+  }
+  if (!rank) {
+    delete contactPoint.rank;
+  }
+  const invalidStart = dateTools.isDateTime(period.start) !== true;
+  const invalidEnd = dateTools.isDateTime(period.end) !== true;
+  if (invalidStart && invalidEnd) {
+    delete (contactPoint as Partial<ContactPoint>).period;
+  } else if (invalidStart) {
+    delete contactPoint.period.start;
+  } else if (invalidEnd) {
+    delete contactPoint.period.end;
+  }
+}
+
+function filterContact(qre: Questionnaire) {
+  for (let i = qre.contact.length - 1; i >= 0; i--) {
+    const contactDetail = qre.contact[i];
+    if (!contactDetail.name) {
+      delete (contactDetail as Partial<ContactDetail>).name;
+    }
+    for (let j = contactDetail.telecom.length - 1; j >= 0; j--) {
+      const contactPoint = contactDetail.telecom[j];
+      filterContactPoint(contactPoint);
+      if (editorTools.isEmptyObject(contactPoint)) {
+        contactDetail.telecom.splice(j, 1);
+      }
+    }
+    if (contactDetail.telecom.length === 0) {
+      delete (contactDetail as Partial<ContactDetail>).telecom;
+    }
+    if (editorTools.isEmptyObject(contactDetail)) {
+      qre.contact.splice(i, 1);
+    }
+  }
+  if (qre.contact.length === 0) {
+    delete (qre as Partial<Questionnaire>).contact;
+  }
+}
+
 function getFilteredQuestionnaire(qre: Questionnaire): Questionnaire {
+  filterContact(qre);
   filterVersionAlgorithm(qre);
   if (qre.subjectType.length === 0) {
     delete (qre as Partial<Questionnaire>).subjectType;
