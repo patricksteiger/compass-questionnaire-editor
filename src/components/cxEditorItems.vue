@@ -303,6 +303,69 @@
               </div>
             </div>
             <div
+              class="row items-center justify-between text-bold text-h5 q-mb-md"
+            >
+              <!-- prefix -->
+              <q-input
+                :disable="!selectedItem.__active"
+                v-if="selectedItem !== undefined"
+                v-model="selectedItem.prefix"
+                label="Prefix"
+                dense
+                class="col-8"
+              />
+            </div>
+            <!-- other language prefix and text -->
+            <div v-if="selectedItem !== undefined">
+              <q-expansion-item
+                header-class="bg-purple text-white"
+                expand-separator
+                icon="languages"
+                label="Other Languages"
+              >
+                <q-separator />
+                <q-card>
+                  <q-list padding bordered separator>
+                    <q-item
+                      v-for="qre in getQuestionnaires.filter(
+                        (q) => q.language !== language,
+                      )"
+                      :key="qre.__internalID"
+                      clickable
+                      @click="
+                        () => {
+                          switchToItemFromValidationHub(
+                            qre.language,
+                            questionnaireTools.getItemByInternalLinkId(
+                              selectedItem.__linkId,
+                              qre,
+                            ).__internalID,
+                          );
+                        }
+                      "
+                    >
+                      <q-item-section>
+                        {{ qre.language.toUpperCase() }}:
+                        {{
+                          questionnaireTools.getItemByInternalLinkId(
+                            selectedItem.__linkId,
+                            qre,
+                          ).prefix
+                        }}
+                        {{
+                          questionnaireTools.getItemByInternalLinkId(
+                            selectedItem.__linkId,
+                            qre,
+                          ).text
+                        }}
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-card>
+              </q-expansion-item>
+              <q-separator />
+            </div>
+            <div
               v-if="
                 selectedItem !== undefined && selectedItem.type !== 'display'
               "
@@ -331,19 +394,6 @@
                 color="purple"
                 keep-color
                 v-model="selectedItem.readOnly"
-              />
-            </div>
-            <div
-              class="row items-center justify-between text-bold text-h5 q-mb-md"
-            >
-              <!-- prefix -->
-              <q-input
-                :disable="!selectedItem.__active"
-                v-if="selectedItem !== undefined"
-                v-model="selectedItem.prefix"
-                label="Prefix"
-                dense
-                class="col-8"
               />
             </div>
             <div

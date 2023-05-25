@@ -92,7 +92,7 @@
       "lowRangeLabel": "Low Range Label",
       "maxValue": "Max Value",
       "highRangeLabel": "High Range Label",
-      "extensions": "Extensions",
+      "extensions": "Extension",
       "initials": "Ausgangswerte",
       "UUID": "UUID",
       "regenerateUUID": "Regeneriere UUID",
