@@ -39,7 +39,14 @@
         />
       </q-item>
     </q-list>
-    <q-btn icon="add" @click="() => codesValue.push({})" />
+    <q-btn
+      label="Code"
+      icon="add"
+      padding="none xl"
+      color="primary"
+      fab
+      @click="() => codesValue.push({})"
+    />
   </q-expansion-item>
 
   <q-dialog v-model="complexLayout" v-if="selectedCoding !== undefined">

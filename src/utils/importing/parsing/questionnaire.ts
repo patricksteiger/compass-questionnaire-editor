@@ -81,6 +81,8 @@ const effectivePeriod = optionalPeriodSchema;
 
 const experimental = optionalBooleanSchema;
 
+const derivedFrom = z.string().array().optional();
+
 const code = codingSchema.array().optional();
 
 const subjectType = z.enum(resourceTypes).array().optional();
@@ -99,6 +101,7 @@ export const questionnaireSchema = z
     subjectType,
     contact,
     url,
+    derivedFrom,
     version,
     versionAlgorithmString,
     versionAlgorithmCoding,

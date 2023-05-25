@@ -37,6 +37,7 @@ export class QuestionnaireBuilder {
     const experimental = this.qre.experimental ?? null;
     const subjectType = this.qre.subjectType ?? [];
     const code = this.qre.code ?? [];
+    const derivedFrom = this.qre.derivedFrom ?? [];
     const effectivePeriod = this.qre.effectivePeriod ?? {};
     const contact = this.qre.contact;
     const newContact: ContactDetail[] = [];
@@ -69,6 +70,7 @@ export class QuestionnaireBuilder {
       ...this.qre,
       __versionAlgorithmUsesCoding: !this.qre.versionAlgorithmString,
       code,
+      derivedFrom,
       subjectType,
       contact: newContact,
       versionAlgorithmCoding: versAlg,

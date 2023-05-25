@@ -47,9 +47,9 @@ export class ErrorChecker {
   }
 
   validate(): Errors {
+    const items = this.items();
     const primary = this.primary();
     const secondary = this.secondary();
-    const items = this.items();
     return { items, primary, secondary };
   }
 
@@ -404,7 +404,17 @@ export class ErrorChecker {
   private secondary(): string[] {
     const errors: string[] = [];
     this.code(this.questionnaire.code, errors);
+    this.derivedFrom(this.questionnaire.derivedFrom, errors);
     return errors;
+  }
+
+  private derivedFrom(derivedFroms: string[], errors: string[]) {
+    for (let pos = 1; pos <= derivedFroms.length; pos++) {
+      const derivedFrom = derivedFroms[pos - 1];
+      if (!derivedFrom) {
+        errors.push(`derivedFrom at position ${pos} has empty value`);
+      }
+    }
   }
 
   private code(codes: Coding[], errors: string[]) {

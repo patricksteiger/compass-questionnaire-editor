@@ -338,9 +338,7 @@ export type ContactDetail = {
   telecom: ContactPoint[];
 };
 
-// TODO: contact
 // TODO: useContext
-// TODO: derivedFrom
 export type Questionnaire = {
   __versionAlgorithmUsesCoding: boolean;
   resourceType: "Questionnaire";
@@ -352,6 +350,7 @@ export type Questionnaire = {
   versionAlgorithmCoding?: VersionAlgorithmCoding;
   name?: string;
   title?: string;
+  derivedFrom: string[];
   status: Status;
   // experimental is optional, so it can be deleted for exporting
   // experimental is null, so it can be used as a v-model

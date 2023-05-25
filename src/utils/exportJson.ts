@@ -222,9 +222,22 @@ function filterContact(qre: Questionnaire) {
   }
 }
 
+function filterDerivedFrom(qre: Questionnaire) {
+  for (let i = qre.derivedFrom.length - 1; i >= 0; i--) {
+    const derivedFrom = qre.derivedFrom[i];
+    if (!derivedFrom) {
+      qre.derivedFrom.splice(i, 1);
+    }
+  }
+  if (qre.derivedFrom.length === 0) {
+    delete (qre as Partial<Questionnaire>).derivedFrom;
+  }
+}
+
 function getFilteredQuestionnaire(qre: Questionnaire): Questionnaire {
   filterContact(qre);
   filterVersionAlgorithm(qre);
+  filterDerivedFrom(qre);
   if (qre.subjectType.length === 0) {
     delete (qre as Partial<Questionnaire>).subjectType;
   }
