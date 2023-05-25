@@ -297,17 +297,6 @@
       />
       <q-input
         v-if="$route.name !== 'Import'"
-        v-model="publisher"
-        :label="$t('components.navigationBar.metadataItems.publisher')"
-        clearable
-        @clear="
-          (_oldPublisher: string | undefined) => {
-            publisher = '';
-          }
-        "
-      />
-      <q-input
-        v-if="$route.name !== 'Import'"
         autogrow
         v-model="purpose"
         type="textarea"
@@ -459,14 +448,6 @@ export default defineComponent({
       },
       set(value: string) {
         this.$store.commit("setStatus", value);
-      },
-    },
-    publisher: {
-      get() {
-        return this.$store.state.questionnaire.publisher;
-      },
-      set(value: string) {
-        this.$store.commit("setPublisher", value);
       },
     },
     description: {

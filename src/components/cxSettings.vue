@@ -3,6 +3,20 @@
     <div class="col-6">
       <div>
         <q-input
+          v-model="publisher"
+          @update:model-value="(v) => store.commit('setPublisher', v)"
+          :label="$t('components.navigationBar.metadataItems.publisher')"
+          clearable
+          @clear="
+            (_oldPublisher: string | undefined) => {
+              publisher = '';
+              store.commit('setPublisher', publisher);
+            }
+          "
+        />
+      </div>
+      <div>
+        <q-input
           label="Copyright"
           v-model="questionnaire.copyright"
           type="textarea"
@@ -172,4 +186,6 @@ const questionnaire = ref<Questionnaire>(
   computed(() => store.getters.getQuestionnaireImportedJSON).value,
 );
 const contact = ref<ContactDetail[]>(questionnaire.value.contact);
+
+const publisher = ref<string | undefined>(store.getters.getPublisher);
 </script>

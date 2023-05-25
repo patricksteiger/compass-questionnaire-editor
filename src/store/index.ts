@@ -201,5 +201,8 @@ export const store = createStore<StoreState>({
         i18n.global.t("store.questionnaire.noTitle")
       );
     },
+    getPublisher(state): string | undefined {
+      return state.questionnaire.publisher;
+    },
   },
 });
