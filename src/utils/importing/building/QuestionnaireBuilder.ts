@@ -424,6 +424,11 @@ export class QuestionnaireBuilder {
         if (linkedItem === undefined && result.__answerOption) {
           result.__type = "string";
         }
+      } else if (enableWhen.answerUri !== undefined) {
+        result.__answer = enableWhen.answerUri;
+        if (linkedItem === undefined && result.__answerOption) {
+          result.__type = "url";
+        }
       } else if (enableWhen.answerCoding !== undefined) {
         result.__answer = editorTools.formatCoding(enableWhen.answerCoding);
         if (result.__answerOption) {

@@ -161,12 +161,12 @@ export class FHIRItemValidator {
       if (enableWhen.answerDecimal === undefined) {
         this.clearOptionsOrString(enableWhen, linkedItem);
       }
-    } else if (
-      linkedItem.type === "string" ||
-      linkedItem.type === "text" ||
-      linkedItem.type === "url"
-    ) {
+    } else if (linkedItem.type === "string" || linkedItem.type === "text") {
       if (enableWhen.answerString === undefined) {
+        this.resetEnableWhenAnswers(enableWhen);
+      }
+    } else if (linkedItem.type === "url") {
+      if (enableWhen.answerUri === undefined) {
         this.resetEnableWhenAnswers(enableWhen);
       }
     } else if (linkedItem.type === "date") {

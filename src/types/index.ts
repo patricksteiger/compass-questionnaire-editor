@@ -74,6 +74,7 @@ export type EnableWhen = {
   answerDate?: string;
   answerBoolean?: boolean;
   answerString?: string;
+  answerUri?: string;
   answerTime?: string;
   answerDateTime?: string;
   answerCoding?: Coding;

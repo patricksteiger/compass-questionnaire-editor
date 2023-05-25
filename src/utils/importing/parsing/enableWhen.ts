@@ -22,6 +22,7 @@ export const enableWhenSchema = z.object({
   answerDateTime: optionalStringSchema,
   answerTime: optionalStringSchema,
   answerString: optionalStringSchema,
+  answerUri: optionalStringSchema,
   answerCoding: optionalCodingSchema,
   answerQuantity: optionalQuantitySchema,
   answerReference: optionalReferenceSchema,

@@ -1249,6 +1249,16 @@
                             @click="handleStringAnswer(enableWhen)"
                             dense
                           />
+                          <!-- enableWhen string -->
+                          <q-input
+                            v-else-if="enableWhen.__type === 'url'"
+                            :disable="!selectedItem.__active"
+                            :label="$t('views.editor.answer') + ' (uri)'"
+                            class="col-4"
+                            v-model="enableWhen.__answer"
+                            type="text"
+                            dense
+                          />
                           <!-- enableWhen quantity -->
                           <q-input
                             v-else-if="enableWhen.__type === 'quantity'"

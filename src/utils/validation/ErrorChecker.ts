@@ -311,6 +311,10 @@ export class ErrorChecker {
         if (!enableWhen.__answer) {
           errors.push(`enableWhen at position ${pos} has empty answer`);
         }
+      } else if (enableWhen.__type === "url") {
+        if (!enableWhen.__answer) {
+          errors.push(`enableWhen at position ${pos} has empty uri`);
+        }
       } else if (enableWhen.__type === "time") {
         if (dateTools.isTime(enableWhen.__answer) !== true) {
           errors.push(

@@ -252,6 +252,7 @@ function filterLastReviewDate(qre: Questionnaire) {
   }
 }
 
+// FIXME: fix identifier filtering properly detecting empty values
 function filterIdentifier(qre: Questionnaire) {
   if (qre.identifier !== undefined) {
     for (let i = qre.identifier.length - 1; i >= 0; i--) {
@@ -640,12 +641,19 @@ function filterItem(item: Item): void {
             }
             break;
           case "text":
-          case "url":
             if (!enableWhen.__answer) {
               item.enableWhen.splice(i, 1);
             } else {
               clearEnableWhenAnswers(enableWhen);
               enableWhen.answerString = enableWhen.__answer;
+            }
+            break;
+          case "url":
+            if (!enableWhen.__answer) {
+              item.enableWhen.splice(i, 1);
+            } else {
+              clearEnableWhenAnswers(enableWhen);
+              enableWhen.answerUri = enableWhen.__answer;
             }
             break;
           case "coding":
