@@ -68,11 +68,20 @@ export class WarningChecker {
   }
 
   primary(): string[] {
+    const { description, status, url } = this.questionnaire;
     const warnings: string[] = [];
-    if (this.questionnaire.status === "unknown") {
+    if (url) {
+      if (url.includes("|")) {
+        warnings.push("url should not include the character '|'");
+      }
+      if (url.includes("#")) {
+        warnings.push("url should not include the character '#'");
+      }
+    }
+    if (status === "unknown") {
       warnings.push("status is 'unknown'");
     }
-    if (!this.questionnaire.description) {
+    if (!description) {
       warnings.push("description is empty");
     }
     return warnings;
