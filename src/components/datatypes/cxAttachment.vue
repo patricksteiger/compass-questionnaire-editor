@@ -140,6 +140,7 @@ import { ref } from "vue";
 import { Attachment } from "@/types";
 import { dateTools } from "@/utils/date";
 import { editorTools } from "@/utils/editor";
+import { useQuasar } from "quasar";
 
 const uploadedFile = ref<File | null | undefined>(null);
 
@@ -151,23 +152,25 @@ const attachmentValue = ref(props.attachment);
 const shortData = ref(getShortenedData(attachmentValue.value.data));
 
 function getShortenedData(data: string | undefined): string | undefined {
-  if (data === undefined || data.length < 20) return undefined;
-  return `${data.slice(0, 15)}...`;
+  if (data === undefined || data.length < 20) {
+    return data;
+  } else {
+    return `${data.slice(0, 15)}...`;
+  }
 }
 
-// FIXME: Properly handle errors for file handling
-// https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URLs
 function handleFileUpload(
   file: File | null | undefined,
   attachment: Attachment,
 ) {
   if (!file) {
-    console.log("No file was uploaded");
+    alertError("File could not be uploaded");
     return;
   }
   const reader = new FileReader();
-  reader.onerror = () => {
-    console.error("Error reading file");
+  reader.onerror = (e) => {
+    const errorMsg = JSON.stringify(e);
+    alertError(`Error while reading the file: ${errorMsg}`);
   };
   reader.onload = async () => {
     const fileBuffer = reader.result as ArrayBuffer;
@@ -195,11 +198,15 @@ function base64From(buffer: ArrayBuffer): string {
   return window.btoa(result);
 }
 
-// FIXME: Properly handle rejection of file upload
 function handleFileUploadRejected(
   err: { failedPropValidation: string; file: File }[],
 ) {
-  console.error(`Rejected: ${err[0].failedPropValidation}`);
+  if (err.length === 0) {
+    alertError("File upload was rejected");
+  } else {
+    const errorMsgs = err.map((e) => e.failedPropValidation).join(",");
+    alertError(`Rejected: ${errorMsgs}`);
+  }
 }
 
 const emit = defineEmits<{
@@ -217,5 +224,17 @@ function onlyDecimal($event: KeyboardEvent): void {
 
 function onlyPositiveInteger($event: KeyboardEvent): void {
   editorTools.onlyPositiveInteger($event);
+}
+
+const $q = useQuasar();
+
+function alertError(message: string): void {
+  $q.notify({
+    message,
+    position: "top",
+    type: "negative",
+    progress: true,
+    actions: [{ label: "Dismiss", color: "white" }],
+  });
 }
 </script>
