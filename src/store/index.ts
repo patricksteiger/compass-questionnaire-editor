@@ -204,5 +204,8 @@ export const store = createStore<StoreState>({
     getPublisher(state): string | undefined {
       return state.questionnaire.publisher;
     },
+    getPurpose(state): string | undefined {
+      return state.questionnaire.purpose;
+    },
   },
 });

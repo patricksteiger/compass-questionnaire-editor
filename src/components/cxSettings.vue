@@ -7,6 +7,7 @@
           @update:model-value="(v) => store.commit('setPublisher', v)"
           :label="$t('components.navigationBar.metadataItems.publisher')"
           clearable
+          autogrow
           @clear="
             (_oldPublisher: string | undefined) => {
               publisher = '';
@@ -17,20 +18,17 @@
       </div>
       <div>
         <q-input
-          label="Copyright"
-          v-model="questionnaire.copyright"
-          type="textarea"
-          autogrow
+          v-model="purpose"
+          @update:model-value="(v) => store.commit('setPurpose', v)"
+          :label="$t('components.navigationBar.metadataItems.purpose')"
           clearable
-        />
-      </div>
-      <div>
-        <q-input
-          label="CopyrightLabel"
-          v-model="questionnaire.copyrightLabel"
-          type="textarea"
           autogrow
-          clearable
+          @clear="
+            (_oldPurpose: string | undefined) => {
+              purpose = '';
+              store.commit('setPurpose', purpose);
+            }
+          "
         />
       </div>
       <div>
@@ -170,6 +168,24 @@
           />
         </q-expansion-item>
       </div>
+      <div>
+        <q-input
+          label="Copyright"
+          v-model="questionnaire.copyright"
+          type="textarea"
+          autogrow
+          clearable
+        />
+      </div>
+      <div>
+        <q-input
+          label="CopyrightLabel"
+          v-model="questionnaire.copyrightLabel"
+          type="textarea"
+          autogrow
+          clearable
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -188,4 +204,5 @@ const questionnaire = ref<Questionnaire>(
 const contact = ref<ContactDetail[]>(questionnaire.value.contact);
 
 const publisher = ref<string | undefined>(store.getters.getPublisher);
+const purpose = ref<string | undefined>(store.getters.getPurpose);
 </script>

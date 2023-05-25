@@ -297,19 +297,6 @@
       />
       <q-input
         v-if="$route.name !== 'Import'"
-        autogrow
-        v-model="purpose"
-        type="textarea"
-        :label="$t('components.navigationBar.metadataItems.purpose')"
-        clearable
-        @clear="
-          (_oldPurpose: string | undefined) => {
-            purpose = '';
-          }
-        "
-      />
-      <q-input
-        v-if="$route.name !== 'Import'"
         type="text"
         class="col-12"
         stack-label
@@ -456,14 +443,6 @@ export default defineComponent({
       },
       set(value: string) {
         this.$store.commit("setDescription", value);
-      },
-    },
-    purpose: {
-      get() {
-        return this.$store.state.questionnaire.purpose;
-      },
-      set(value: string) {
-        this.$store.commit("setPurpose", value);
       },
     },
     date: {

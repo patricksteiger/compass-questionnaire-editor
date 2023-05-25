@@ -6,7 +6,6 @@ import {
   Identifier,
   Item,
   operators,
-  Period,
   Questionnaire,
 } from "@/types";
 import { allowsMaxLength } from "./constants";
@@ -149,17 +148,6 @@ function filterCode(resource: Item | Questionnaire): void {
   }
 }
 
-function filterPeriod(period: Period): void {
-  const start = dateTools.isDateTime(period.start);
-  if (start !== true) {
-    period.start = undefined;
-  }
-  const end = dateTools.isDateTime(period.end);
-  if (end !== true) {
-    period.end = undefined;
-  }
-}
-
 function filterVersionAlgorithm(qre: Questionnaire) {
   if (qre.__versionAlgorithmUsesCoding) {
     if (editorTools.isEmptyObject(qre.versionAlgorithmCoding)) {
@@ -234,12 +222,78 @@ function filterDerivedFrom(qre: Questionnaire) {
   }
 }
 
+function filterEffectivePeriod(qre: Questionnaire) {
+  const { start, end } = qre.effectivePeriod;
+  const invalidStart = dateTools.isDateTime(start) !== true;
+  const invalidEnd = dateTools.isDateTime(end) !== true;
+  if (invalidStart && invalidEnd) {
+    delete (qre as Partial<Questionnaire>).effectivePeriod;
+  } else if (invalidStart) {
+    delete qre.effectivePeriod.start;
+  } else if (invalidEnd) {
+    delete qre.effectivePeriod.end;
+  }
+}
+
+function filterDate(qre: Questionnaire) {
+  if (dateTools.isDateTime(qre.date) !== true) {
+    delete qre.date;
+  }
+}
+
+function filterApprovalDate(qre: Questionnaire) {
+  if (dateTools.isDate(qre.approvalDate) !== true) {
+    delete qre.approvalDate;
+  }
+}
+
+function filterLastReviewDate(qre: Questionnaire) {
+  if (dateTools.isDate(qre.lastReviewDate) !== true) {
+    delete qre.lastReviewDate;
+  }
+}
+
+function filterIdentifier(qre: Questionnaire) {
+  if (qre.identifier !== undefined) {
+    for (let i = qre.identifier.length - 1; i >= 0; i--) {
+      const id = qre.identifier[i];
+      if (editorTools.isEmptyObject(id)) {
+        qre.identifier.splice(i, 1);
+      }
+    }
+    if (qre.identifier.length === 0) {
+      delete qre.identifier;
+    }
+  }
+}
+
 function getFilteredQuestionnaire(qre: Questionnaire): Questionnaire {
-  filterContact(qre);
-  filterVersionAlgorithm(qre);
-  filterDerivedFrom(qre);
+  if (!qre.version) {
+    delete qre.version;
+  }
   if (qre.subjectType.length === 0) {
     delete (qre as Partial<Questionnaire>).subjectType;
+  }
+  if (!qre.title) {
+    delete qre.title;
+  }
+  if (!qre.name) {
+    delete qre.name;
+  }
+  if (!qre.url) {
+    delete qre.url;
+  }
+  if (!qre.publisher) {
+    delete qre.publisher;
+  }
+  if (!qre.purpose) {
+    delete qre.purpose;
+  }
+  if (!qre.description) {
+    delete qre.description;
+  }
+  if (qre.experimental == null) {
+    delete qre.experimental;
   }
   if (!qre.copyright) {
     delete qre.copyright;
@@ -247,13 +301,17 @@ function getFilteredQuestionnaire(qre: Questionnaire): Questionnaire {
   if (!qre.copyrightLabel) {
     delete qre.copyrightLabel;
   }
+  filterContact(qre);
+  filterEffectivePeriod(qre);
+  filterDate(qre);
+  filterApprovalDate(qre);
+  filterLastReviewDate(qre);
+  filterVersionAlgorithm(qre);
+  filterDerivedFrom(qre);
   filterCode(qre);
+  filterIdentifier(qre);
   if (qre.code.length === 0) {
     delete (qre as Partial<Questionnaire>).code;
-  }
-  filterPeriod(qre.effectivePeriod);
-  if (editorTools.isEmptyObject(qre.effectivePeriod)) {
-    delete (qre as Partial<Questionnaire>).effectivePeriod;
   }
   for (const item of qre.item) {
     filterItem(item);
