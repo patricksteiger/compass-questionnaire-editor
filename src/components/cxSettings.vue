@@ -54,6 +54,52 @@
           />
         </q-expansion-item>
       </div>
+      <div>
+        <!-- subjectType -->
+        <q-expansion-item icon="quickreply" label="SubjectType">
+          <q-list
+            v-if="$route.name !== 'Import' && questionnaire !== undefined"
+            bordered
+            separator
+            dense
+            padding
+            class="rounded-borders"
+          >
+            <q-item
+              v-for="(subjectType, index) in questionnaire.subjectType"
+              :key="index"
+            >
+              <q-item-section>
+                <div class="row">
+                  <q-select
+                    :options="resourceTypes"
+                    :model-value="subjectType"
+                    @update:model-value="(v) => (questionnaire!.subjectType[index] = v)"
+                  >
+                    <template v-slot:prepend>
+                      <div>{{ index + 1 }}</div>
+                    </template>
+                  </q-select>
+                </div>
+              </q-item-section>
+              <q-btn
+                flat
+                icon="highlight_off"
+                color="grey-6"
+                @click="() => questionnaire!.subjectType.splice(index, 1)"
+              />
+            </q-item>
+          </q-list>
+          <q-btn
+            icon="add"
+            label="SubjectType"
+            padding="none xl"
+            color="primary"
+            fab
+            @click="() => questionnaire!.subjectType.push('Patient')"
+          />
+        </q-expansion-item>
+      </div>
     </div>
   </div>
 </template>
@@ -61,6 +107,7 @@
 <script lang="ts">
 import { store } from "@/store";
 import { computed, defineComponent, ref } from "vue";
+import { resourceTypes } from "@/utils/resourceType";
 import cxCode from "@/components/cxCode.vue";
 import cxContactDetail from "@/components/datatypes/cxContactDetail.vue";
 import { ContactDetail, Questionnaire } from "@/types";
@@ -78,6 +125,7 @@ export default defineComponent({
     return {
       questionnaire,
       contact,
+      resourceTypes,
     };
   },
 });
