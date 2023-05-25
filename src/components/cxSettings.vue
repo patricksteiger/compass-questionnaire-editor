@@ -2,119 +2,28 @@
   <div class="row justify-center">
     <div class="col-6">
       <div>
-        <q-input
-          v-model="publisher"
-          @update:model-value="(v) => store.commit('setPublisher', v)"
-          :label="$t('components.navigationBar.metadataItems.publisher')"
-          clearable
-          autogrow
-          @clear="
-            (_oldPublisher: string | undefined) => {
-              publisher = '';
-              store.commit('setPublisher', publisher);
-            }
-          "
-        />
+        <q-item tag="label" v-ripple v-if="$route.name !== 'Import'">
+          <q-item-section>
+            <q-item-label>{{
+              $t("components.navigationBar.metadataItems.experimental")
+            }}</q-item-label>
+          </q-item-section>
+          <q-item-section avatar>
+            <q-toggle
+              color="red"
+              v-model="experimental"
+              @update:model-value="
+                (v) => {
+                  experimental = v;
+                  store.commit('setExperimental', v);
+                }
+              "
+            />
+          </q-item-section>
+        </q-item>
       </div>
-      <div>
-        <q-input
-          v-model="purpose"
-          @update:model-value="(v) => store.commit('setPurpose', v)"
-          :label="$t('components.navigationBar.metadataItems.purpose')"
-          clearable
-          autogrow
-          @clear="
-            (_oldPurpose: string | undefined) => {
-              purpose = '';
-              store.commit('setPurpose', purpose);
-            }
-          "
-        />
-      </div>
-      <div>
-        <cxCode :codes="questionnaire.code" />
-      </div>
-      <div>
-        <q-expansion-item icon="contacts" label="Contact">
-          <q-list bordered separator dense padding class="rounded-borders">
-            <q-item
-              v-for="(contactDetail, index) in contact"
-              :key="`set_${index}`"
-            >
-              <q-item-section>
-                <q-input label="Name" v-model="contactDetail.name" clearable />
-                <cxContactDetail
-                  :contactDetail="contactDetail"
-                  v-on:addContactPoint="(p) => contactDetail.telecom.push(p)"
-                  v-on:removeContactPoint="
-                    (i) => contactDetail.telecom.splice(i, 1)
-                  "
-                />
-              </q-item-section>
-              <q-btn
-                flat
-                icon="highlight_off"
-                color="grey-6"
-                @click="() => contact.splice(index, 1)"
-              />
-            </q-item>
-          </q-list>
-          <q-btn
-            icon="add"
-            padding="none xl"
-            color="primary"
-            fab
-            label="ContactDetail"
-            @click="() => contact.push({ name: '', telecom: [] })"
-          />
-        </q-expansion-item>
-      </div>
-      <!-- subjectType -->
-      <div>
-        <q-expansion-item icon="quickreply" label="SubjectType">
-          <q-list
-            v-if="$route.name !== 'Import' && questionnaire !== undefined"
-            bordered
-            separator
-            dense
-            padding
-            class="rounded-borders"
-          >
-            <q-item
-              v-for="(subjectType, index) in questionnaire.subjectType"
-              :key="index"
-            >
-              <q-item-section>
-                <div class="row">
-                  <q-select
-                    :options="resourceTypes"
-                    :model-value="subjectType"
-                    @update:model-value="(v) => (questionnaire!.subjectType[index] = v)"
-                  >
-                    <template v-slot:prepend>
-                      <div>{{ index + 1 }}</div>
-                    </template>
-                  </q-select>
-                </div>
-              </q-item-section>
-              <q-btn
-                flat
-                icon="highlight_off"
-                color="grey-6"
-                @click="() => questionnaire!.subjectType.splice(index, 1)"
-              />
-            </q-item>
-          </q-list>
-          <q-btn
-            icon="add"
-            label="SubjectType"
-            padding="none xl"
-            color="primary"
-            fab
-            @click="() => questionnaire!.subjectType.push('Patient')"
-          />
-        </q-expansion-item>
-      </div>
+
+      <q-separator />
 
       <!-- derivedFrom -->
       <div>
@@ -168,19 +77,158 @@
           />
         </q-expansion-item>
       </div>
+
+      <!-- subjectType -->
+      <div>
+        <q-expansion-item icon="quickreply" label="SubjectType">
+          <q-list
+            v-if="$route.name !== 'Import' && questionnaire !== undefined"
+            bordered
+            separator
+            dense
+            padding
+            class="rounded-borders"
+          >
+            <q-item
+              v-for="(subjectType, index) in questionnaire.subjectType"
+              :key="index"
+            >
+              <q-item-section>
+                <div class="row">
+                  <q-select
+                    :options="resourceTypes"
+                    :model-value="subjectType"
+                    @update:model-value="(v) => (questionnaire!.subjectType[index] = v)"
+                  >
+                    <template v-slot:prepend>
+                      <div>{{ index + 1 }}</div>
+                    </template>
+                  </q-select>
+                </div>
+              </q-item-section>
+              <q-btn
+                flat
+                icon="highlight_off"
+                color="grey-6"
+                @click="() => questionnaire!.subjectType.splice(index, 1)"
+              />
+            </q-item>
+          </q-list>
+          <q-btn
+            icon="add"
+            label="SubjectType"
+            padding="none xl"
+            color="primary"
+            fab
+            @click="() => questionnaire!.subjectType.push('Patient')"
+          />
+        </q-expansion-item>
+      </div>
+
+      <!-- code -->
+      <div>
+        <cxCode :codes="questionnaire.code" />
+      </div>
+
+      <!-- Contact -->
+      <div>
+        <q-expansion-item icon="contacts" label="Contact">
+          <q-list bordered separator dense padding class="rounded-borders">
+            <q-item
+              v-for="(contactDetail, index) in contact"
+              :key="`set_${index}`"
+            >
+              <q-item-section>
+                <q-input label="Name" v-model="contactDetail.name" clearable />
+                <cxContactDetail
+                  :contactDetail="contactDetail"
+                  v-on:addContactPoint="(p) => contactDetail.telecom.push(p)"
+                  v-on:removeContactPoint="
+                    (i) => contactDetail.telecom.splice(i, 1)
+                  "
+                />
+              </q-item-section>
+              <q-btn
+                flat
+                icon="highlight_off"
+                color="grey-6"
+                @click="() => contact.splice(index, 1)"
+              />
+            </q-item>
+          </q-list>
+          <q-btn
+            icon="add"
+            padding="none xl"
+            color="primary"
+            fab
+            label="ContactDetail"
+            @click="() => contact.push({ name: '', telecom: [] })"
+          />
+        </q-expansion-item>
+      </div>
+
       <div>
         <q-input
-          label="Copyright"
-          v-model="questionnaire.copyright"
+          v-model="publisher"
+          @update:model-value="(v) => store.commit('setPublisher', v)"
+          :label="$t('components.navigationBar.metadataItems.publisher')"
+          clearable
+          autogrow
+          @clear="
+            (_oldPublisher: string | undefined) => {
+              publisher = '';
+              store.commit('setPublisher', publisher);
+            }
+          "
+        />
+      </div>
+
+      <div>
+        <q-input
+          v-model="purpose"
+          @update:model-value="(v) => store.commit('setPurpose', v)"
+          :label="$t('components.navigationBar.metadataItems.purpose')"
+          clearable
+          autogrow
+          @clear="
+            (_oldPurpose: string | undefined) => {
+              purpose = '';
+              store.commit('setPurpose', purpose);
+            }
+          "
+        />
+      </div>
+
+      <div>
+        <q-input
+          v-model="description"
+          @update:model-value="(v) => store.commit('setDescription', v)"
+          :label="$t('components.navigationBar.metadataItems.description')"
+          clearable
+          autogrow
+          @clear="
+            (_oldDescription: string | undefined) => {
+              description = '';
+              store.commit('setDescription', description);
+            }
+          "
+        />
+      </div>
+
+      <div>
+        <q-input
+          label="CopyrightLabel"
+          v-model="questionnaire.copyrightLabel"
           type="textarea"
           autogrow
           clearable
         />
       </div>
+
       <div>
         <q-input
-          label="CopyrightLabel"
-          v-model="questionnaire.copyrightLabel"
+          label="Copyright"
+          v-model="questionnaire.copyright"
           type="textarea"
           autogrow
           clearable
@@ -203,6 +251,8 @@ const questionnaire = ref<Questionnaire>(
 );
 const contact = ref<ContactDetail[]>(questionnaire.value.contact);
 
+const experimental = ref<boolean | null>(store.getters.getExperimental);
 const publisher = ref<string | undefined>(store.getters.getPublisher);
 const purpose = ref<string | undefined>(store.getters.getPurpose);
+const description = ref<string | undefined>(store.getters.getDescription);
 </script>

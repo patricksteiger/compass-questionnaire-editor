@@ -352,9 +352,7 @@ export type Questionnaire = {
   title?: string;
   derivedFrom: string[];
   status: Status;
-  // experimental is optional, so it can be deleted for exporting
-  // experimental is null, so it can be used as a v-model
-  experimental?: boolean | null;
+  experimental: boolean;
   subjectType: ResourceType[];
   date?: string;
   publisher?: string;

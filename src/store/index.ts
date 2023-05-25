@@ -26,7 +26,7 @@ export const getDefaultQuestionnaire = (lang: Language): Questionnaire => {
     approvalDate: "",
     lastReviewDate: "",
     effectivePeriod: {},
-    experimental: null,
+    experimental: true,
     code: [],
     subjectType: [],
     item: [],
@@ -98,7 +98,7 @@ const metadataMutations = {
   setLastReviewDate(state: StoreState, payload: string) {
     state.questionnaire.lastReviewDate = payload;
   },
-  setExperimental(state: StoreState, payload: boolean | null) {
+  setExperimental(state: StoreState, payload: boolean) {
     state.questionnaire.experimental = payload;
   },
 };
@@ -201,11 +201,17 @@ export const store = createStore<StoreState>({
         i18n.global.t("store.questionnaire.noTitle")
       );
     },
+    getExperimental(state): boolean {
+      return state.questionnaire.experimental;
+    },
     getPublisher(state): string | undefined {
       return state.questionnaire.publisher;
     },
     getPurpose(state): string | undefined {
       return state.questionnaire.purpose;
+    },
+    getDescription(state): string | undefined {
+      return state.questionnaire.description;
     },
   },
 });

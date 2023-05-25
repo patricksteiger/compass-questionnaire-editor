@@ -3,7 +3,6 @@ import {
   ContactPoint,
   EnableWhen,
   Extension,
-  Identifier,
   Item,
   operators,
   Questionnaire,
@@ -291,9 +290,6 @@ function getFilteredQuestionnaire(qre: Questionnaire): Questionnaire {
   }
   if (!qre.description) {
     delete qre.description;
-  }
-  if (qre.experimental == null) {
-    delete qre.experimental;
   }
   if (!qre.copyright) {
     delete qre.copyright;
@@ -804,10 +800,7 @@ const exportTools = {
   getExportObject(jsonObject: Questionnaire): Questionnaire {
     const cloneObject = editorTools.clone(jsonObject);
     const objWithoutItemsDisabled = getFilteredQuestionnaire(cloneObject);
-    const filteredInternalStateQRE = createQuestionnaireExportCopy(
-      objWithoutItemsDisabled,
-    );
-    const finalObj = this.clearMetadataFields(filteredInternalStateQRE);
+    const finalObj = createQuestionnaireExportCopy(objWithoutItemsDisabled);
     return finalObj;
   },
   getExportBundle(questionnaires: Questionnaire[]): QuestionnaireBundle {
@@ -824,108 +817,6 @@ const exportTools = {
   },
   serializeToJSON(obj: Questionnaire | QuestionnaireBundle): string {
     return JSON.stringify(obj, null, 2);
-  },
-  clearMetadataFields(jsonObject: Questionnaire) {
-    //Version
-    if (!jsonObject.version) {
-      delete jsonObject.version;
-    }
-    //URL
-    if (!jsonObject.url) {
-      delete jsonObject.url;
-    }
-    //Name
-    if (!jsonObject.name) {
-      delete jsonObject.name;
-    }
-    //publisher
-    if (!jsonObject.publisher) {
-      delete jsonObject.publisher;
-    }
-    //purpose
-    if (!jsonObject.purpose) {
-      delete jsonObject.purpose;
-    }
-    //description
-    if (!jsonObject.description) {
-      delete jsonObject.description;
-    }
-    //title
-    if (!jsonObject.title) {
-      delete jsonObject.title;
-    }
-    //approvalDate
-    if (dateTools.isDateTime(jsonObject.date) !== true) {
-      delete jsonObject.date;
-    }
-    //approvalDate
-    if (dateTools.isDate(jsonObject.approvalDate) !== true) {
-      delete jsonObject.approvalDate;
-    }
-    //lastReviewDate
-    if (dateTools.isDate(jsonObject.lastReviewDate) !== true) {
-      delete jsonObject.lastReviewDate;
-    }
-    //experimental
-    if (
-      jsonObject.experimental === null ||
-      jsonObject.experimental === undefined
-    ) {
-      delete jsonObject.experimental;
-    }
-    //Identifier
-    if (jsonObject.identifier && jsonObject.identifier.length > 0) {
-      const clearedId: Identifier[] = [];
-      for (const identifier of jsonObject.identifier) {
-        let removeUserSelected = true;
-        if (identifier) {
-          identifier.use === undefined ? delete identifier.use : "";
-          identifier.system === "" ? delete identifier.system : "";
-          identifier.value === "" ? delete identifier.value : "";
-          identifier.period?.start === "" ? delete identifier.period.start : "";
-          identifier.period?.end === "" ? delete identifier.period.end : "";
-          if (identifier.period) {
-            Object.values(identifier.period).length === 0
-              ? delete identifier.period
-              : "";
-          }
-          identifier.type?.coding?.system === ""
-            ? delete identifier.type.coding.system
-            : (removeUserSelected = false);
-          identifier.type?.coding?.version === ""
-            ? delete identifier.type.coding.version
-            : (removeUserSelected = false);
-          identifier.type?.coding?.code === ""
-            ? delete identifier.type.coding.code
-            : (removeUserSelected = false);
-          identifier.type?.coding?.display === ""
-            ? delete identifier.type.coding.display
-            : (removeUserSelected = false);
-          removeUserSelected === true
-            ? delete identifier.type?.coding?.userSelected
-            : "";
-          identifier.type?.text === "" ? delete identifier.type.text : "";
-          if (identifier.type?.coding) {
-            Object.values(identifier.type.coding).length === 0
-              ? delete identifier.type.coding
-              : "";
-          }
-          if (identifier.type) {
-            Object.values(identifier.type).length === 0
-              ? delete identifier.type
-              : "";
-          }
-          Object.values(identifier).length > 0
-            ? clearedId.push(identifier)
-            : "";
-        }
-      }
-      jsonObject.identifier = clearedId;
-    }
-    if (jsonObject.identifier?.length === 0) {
-      delete jsonObject.identifier;
-    }
-    return jsonObject;
   },
 };
 

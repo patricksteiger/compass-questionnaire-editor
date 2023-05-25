@@ -34,7 +34,7 @@ export class QuestionnaireBuilder {
   build(): Questionnaire {
     const status = this.qre.status ?? "unknown";
     const language = this.qre.language ?? defaultLanguage;
-    const experimental = this.qre.experimental ?? null;
+    const experimental = this.qre.experimental ?? false;
     const subjectType = this.qre.subjectType ?? [];
     const code = this.qre.code ?? [];
     const derivedFrom = this.qre.derivedFrom ?? [];

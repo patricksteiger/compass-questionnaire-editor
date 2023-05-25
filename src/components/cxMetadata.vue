@@ -1,8 +1,130 @@
 <template>
   <div class="row justify-center">
     <div class="col-6">
+      <q-input
+        v-if="$route.name !== 'Import'"
+        v-model="URL"
+        :label="$t('components.navigationBar.metadataItems.URL')"
+        clearable
+        @clear="
+          (_oldUrl: string | undefined) => {
+            URL = '';
+          }
+        "
+      />
+      <q-input
+        v-if="$route.name !== 'Import'"
+        v-model="version"
+        :label="$t('components.navigationBar.version')"
+        clearable
+        @clear="
+          (_oldVersion: string | undefined) => {
+            version = '';
+          }
+        "
+      />
+      {{ $t("components.navigationBar.versionAlgorithm") }}
+      <div class="row justify-between" v-if="$route.name !== 'Import'">
+        <q-toggle
+          class="col-2"
+          :label="
+            questionnaire.__versionAlgorithmUsesCoding ? 'Coding' : 'String'
+          "
+          v-model="questionnaire.__versionAlgorithmUsesCoding"
+        />
+        <q-select
+          v-model="versionAlgorithmCoding"
+          class="col-3"
+          label="Coding"
+          :options="versionAlgorithmCodes"
+          :disable="!questionnaire.__versionAlgorithmUsesCoding"
+          @update:model-value="updateVersionAlgorithmCoding"
+          clearable
+        />
+        <q-input
+          class="col-6"
+          :disable="questionnaire.__versionAlgorithmUsesCoding"
+          label="String"
+          v-model="questionnaire.versionAlgorithmString"
+          @update:model-value="updateVersionAlgorithmString"
+          clearable
+        />
+      </div>
+
+      <q-input
+        v-if="$route.name !== 'Import'"
+        v-model="name"
+        :label="$t('components.navigationBar.metadataItems.name')"
+        clearable
+        @clear="
+          (_oldName: string | undefined) => {
+            name = '';
+          }
+        "
+      />
+      <q-input
+        v-if="$route.name !== 'Import'"
+        v-model="title"
+        :label="$t('components.navigationBar.metadataItems.title')"
+        clearable
+        @clear="
+          (_oldTitle: string | undefined) => {
+            title = '';
+          }
+        "
+      />
+      <q-select
+        v-if="$route.name !== 'Import'"
+        v-model="status"
+        :options="statusOptions"
+        :label="$t('components.navigationBar.metadataItems.status')"
+      />
+      <q-input
+        v-if="$route.name !== 'Import'"
+        type="text"
+        class="col-12"
+        stack-label
+        v-model="date"
+        :label="$t('components.navigationBar.metadataItems.date')"
+        :rules="[dateTools.isDateTimeOrEmpty]"
+      />
+      <q-input
+        v-if="$route.name !== 'Import'"
+        type="text"
+        class="col-12"
+        stack-label
+        v-model="approvalDate"
+        :label="$t('components.navigationBar.metadataItems.approvalDate')"
+        :rules="[dateTools.isDateOrEmpty]"
+      />
+      <q-input
+        v-if="$route.name !== 'Import'"
+        type="text"
+        class="col-12"
+        stack-label
+        v-model="lastReviewDate"
+        :label="$t('components.navigationBar.metadataItems.lastReviewDate')"
+        :rules="[dateTools.isDateOrEmpty]"
+      />
+      <div v-if="$route.name !== 'Import'">
+        EffectivePeriod:
+        <cxPeriod :period="questionnaire.effectivePeriod" />
+      </div>
+
+      <!-- extension -->
+      <cxExtension
+        v-if="questionnaire !== undefined"
+        :extensions="(questionnaire.extension ??= [])"
+        :predefinedExtensions="getQuestionnaireExtensions()"
+        v-on:addExtension="addExtension"
+        v-on:removeExtension="removeExtension"
+      />
+
+      <q-separator />
+      <!-- identifier -->
       <q-list class="rounded-borders">
         <q-expansion-item
+          icon="info"
           :label="$t('components.navigationBar.metadataItems.identifier')"
           v-model="expanded"
         >
@@ -18,10 +140,8 @@
                 @click="addEmptyId"
               >
                 <q-icon left name="add" />
-                <div>
-                  {{ $t("views.tabs.metadata.addNewId") }}
-                </div></q-btn
-              >
+                <div>{{ $t("views.tabs.metadata.addNewId") }}</div>
+              </q-btn>
             </div>
             <!-- identifier -->
             <q-list
@@ -42,10 +162,8 @@
                   @click="removeID(index)"
                 >
                   <q-icon left name="add" />
-                  <div>
-                    {{ $t("views.tabs.metadata.removeId") }}
-                  </div></q-btn
-                >
+                  <div>{{ $t("views.tabs.metadata.removeId") }}</div>
+                </q-btn>
               </div>
               <q-item-section>
                 <q-card-section>
@@ -205,147 +323,6 @@
           </q-card>
         </q-expansion-item>
       </q-list>
-      <q-input
-        v-if="$route.name !== 'Import'"
-        v-model="URL"
-        :label="$t('components.navigationBar.metadataItems.URL')"
-        clearable
-        @clear="
-          (_oldUrl: string | undefined) => {
-            URL = '';
-          }
-        "
-      />
-      <q-input
-        v-if="$route.name !== 'Import'"
-        v-model="version"
-        :label="$t('components.navigationBar.version')"
-        clearable
-        @clear="
-          (_oldVersion: string | undefined) => {
-            version = '';
-          }
-        "
-      />
-      {{ $t("components.navigationBar.versionAlgorithm") }}
-      <div class="row justify-between" v-if="$route.name !== 'Import'">
-        <q-toggle
-          class="col-2"
-          :label="
-            questionnaire.__versionAlgorithmUsesCoding ? 'Coding' : 'String'
-          "
-          v-model="questionnaire.__versionAlgorithmUsesCoding"
-        />
-        <q-select
-          v-model="versionAlgorithmCoding"
-          class="col-3"
-          label="Coding"
-          :options="versionAlgorithmCodes"
-          :disable="!questionnaire.__versionAlgorithmUsesCoding"
-          @update:model-value="updateVersionAlgorithmCoding"
-          clearable
-        />
-        <q-input
-          class="col-6"
-          :disable="questionnaire.__versionAlgorithmUsesCoding"
-          label="String"
-          v-model="questionnaire.versionAlgorithmString"
-          @update:model-value="updateVersionAlgorithmString"
-          clearable
-        />
-      </div>
-      <q-input
-        v-if="$route.name !== 'Import'"
-        v-model="name"
-        :label="$t('components.navigationBar.metadataItems.name')"
-        clearable
-        @clear="
-          (_oldName: string | undefined) => {
-            name = '';
-          }
-        "
-      />
-      <q-input
-        v-if="$route.name !== 'Import'"
-        v-model="title"
-        :label="$t('components.navigationBar.metadataItems.title')"
-        clearable
-        @clear="
-          (_oldTitle: string | undefined) => {
-            title = '';
-          }
-        "
-      />
-      <q-select
-        v-if="$route.name !== 'Import'"
-        v-model="status"
-        :options="statusOptions"
-        :label="$t('components.navigationBar.metadataItems.status')"
-      />
-      <q-input
-        v-if="$route.name !== 'Import'"
-        autogrow
-        v-model="description"
-        type="textarea"
-        :label="$t('components.navigationBar.metadataItems.description')"
-        clearable
-        @clear="
-          (_oldDescription: string | undefined) => {
-            description = '';
-          }
-        "
-      />
-      <q-input
-        v-if="$route.name !== 'Import'"
-        type="text"
-        class="col-12"
-        stack-label
-        v-model="date"
-        :label="$t('components.navigationBar.metadataItems.date')"
-        :rules="[dateTools.isDateTimeOrEmpty]"
-      />
-      <q-input
-        v-if="$route.name !== 'Import'"
-        type="text"
-        class="col-12"
-        stack-label
-        v-model="approvalDate"
-        :label="$t('components.navigationBar.metadataItems.approvalDate')"
-        :rules="[dateTools.isDateOrEmpty]"
-      />
-      <q-input
-        v-if="$route.name !== 'Import'"
-        type="text"
-        class="col-12"
-        stack-label
-        v-model="lastReviewDate"
-        :label="$t('components.navigationBar.metadataItems.lastReviewDate')"
-        :rules="[dateTools.isDateOrEmpty]"
-      />
-      <div v-if="$route.name !== 'Import'">
-        EffectivePeriod:
-        <cxPeriod :period="questionnaire.effectivePeriod" />
-      </div>
-
-      <q-item tag="label" v-ripple v-if="$route.name !== 'Import'">
-        <q-item-section>
-          <q-item-label>{{
-            $t("components.navigationBar.metadataItems.experimental")
-          }}</q-item-label>
-        </q-item-section>
-        <q-item-section avatar>
-          <q-toggle color="red" v-model="experimental" />
-        </q-item-section>
-      </q-item>
-
-      <!-- extension -->
-      <cxExtension
-        v-if="questionnaire !== undefined"
-        :extensions="(questionnaire.extension ??= [])"
-        :predefinedExtensions="getQuestionnaireExtensions()"
-        v-on:addExtension="addExtension"
-        v-on:removeExtension="removeExtension"
-      />
     </div>
   </div>
 </template>
@@ -435,14 +412,6 @@ export default defineComponent({
       },
       set(value: string) {
         this.$store.commit("setStatus", value);
-      },
-    },
-    description: {
-      get() {
-        return this.$store.state.questionnaire.description;
-      },
-      set(value: string) {
-        this.$store.commit("setDescription", value);
       },
     },
     date: {
