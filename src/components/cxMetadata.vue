@@ -79,33 +79,55 @@
         :options="statusOptions"
         :label="$t('components.navigationBar.metadataItems.status')"
       />
-      <q-input
-        v-if="$route.name !== 'Import'"
-        type="text"
-        class="col-12"
-        stack-label
-        v-model="date"
-        :label="$t('components.navigationBar.metadataItems.date')"
-        :rules="[dateTools.isDateTimeOrEmpty]"
-      />
-      <q-input
-        v-if="$route.name !== 'Import'"
-        type="text"
-        class="col-12"
-        stack-label
-        v-model="approvalDate"
-        :label="$t('components.navigationBar.metadataItems.approvalDate')"
-        :rules="[dateTools.isDateOrEmpty]"
-      />
-      <q-input
-        v-if="$route.name !== 'Import'"
-        type="text"
-        class="col-12"
-        stack-label
-        v-model="lastReviewDate"
-        :label="$t('components.navigationBar.metadataItems.lastReviewDate')"
-        :rules="[dateTools.isDateOrEmpty]"
-      />
+      <div class="row">
+        <q-input
+          v-if="$route.name !== 'Import'"
+          type="text"
+          class="col-8"
+          stack-label
+          v-model="date"
+          :label="$t('components.navigationBar.metadataItems.date')"
+          :rules="[dateTools.isDateTimeOrEmpty]"
+        />
+        <q-btn
+          label="Now"
+          dense
+          flat
+          @click="() => (date = dateTools.getCurrentDateTime())"
+        />
+      </div>
+      <div class="row justify-between">
+        <q-input
+          v-if="$route.name !== 'Import'"
+          class="col-4"
+          type="text"
+          stack-label
+          v-model="approvalDate"
+          :label="$t('components.navigationBar.metadataItems.approvalDate')"
+          :rules="[dateTools.isDateOrEmpty]"
+        />
+        <q-btn
+          label="Today"
+          dense
+          flat
+          @click="() => (approvalDate = dateTools.getCurrentDate())"
+        />
+        <q-input
+          v-if="$route.name !== 'Import'"
+          type="text"
+          class="col-4"
+          stack-label
+          v-model="lastReviewDate"
+          :label="$t('components.navigationBar.metadataItems.lastReviewDate')"
+          :rules="[dateTools.isDateOrEmpty]"
+        />
+        <q-btn
+          label="Today"
+          dense
+          flat
+          @click="() => (lastReviewDate = dateTools.getCurrentDate())"
+        />
+      </div>
       <div v-if="$route.name !== 'Import'">
         EffectivePeriod:
         <cxPeriod :period="questionnaire.effectivePeriod" />
