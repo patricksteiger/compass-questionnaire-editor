@@ -109,15 +109,15 @@ export default defineComponent({
     switchFromLanguageHub(language: Language): void {
       this.$emit("switchFromLanguageHub", language);
     },
-    deleteLanguage(language: Language): void {
+    deleteLanguage(lang: Language): void {
       const accepted = confirm(
-        this.$t("views.languages.confirmDeletion", { lang: language }),
+        this.$t("views.languages.confirmDeletion", { language: lang }),
       );
       if (!accepted) {
         return;
       }
-      this.$store.commit("removeLanguage", language);
-      if (this.language === language) {
+      this.$store.commit("removeLanguage", lang);
+      if (this.language === lang) {
         this.language = this.getLanguage;
         this.$emit("deleteLanguage");
       }

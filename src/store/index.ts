@@ -1,6 +1,7 @@
 import { defaultLanguage, i18n, getLocaleFromLanguage } from "@/i18n";
-import { Identifier, Questionnaire, Status } from "@/types";
+import { Identifier, Item, Questionnaire, Status } from "@/types";
 import { languageTools } from "@/utils/language";
+import { questionnaireTools } from "@/utils/questionnaire";
 import { createStore } from "vuex";
 
 export const getDefaultQuestionnaire = (lang: Language): Questionnaire => {
@@ -48,6 +49,7 @@ export type Screen = "init" | "import" | "editor";
 
 export type StoreState = {
   questionnaire: Questionnaire;
+  selectedItem: Item | undefined;
   questionnaireRepo: Map<Language, Questionnaire>;
   currentScreen: Screen;
 };
@@ -127,6 +129,9 @@ const setQuestionnaireMutations = {
     state.questionnaireRepo.clear();
     state.questionnaireRepo.set(language, state.questionnaire);
   },
+  setSelectedItem(state: StoreState, item: Item | undefined): void {
+    state.selectedItem = item;
+  },
 };
 
 const languageMutations = {
@@ -135,6 +140,13 @@ const languageMutations = {
     if (qre === undefined) {
       console.error(`Language ${payload} does not exist!`);
       return;
+    }
+    if (state.selectedItem !== undefined) {
+      const switchSelectedItem = questionnaireTools.getItemByInternalLinkId(
+        state.selectedItem.__linkId,
+        qre,
+      );
+      state.selectedItem = switchSelectedItem;
     }
     state.questionnaire = qre;
   },
@@ -147,6 +159,13 @@ const languageMutations = {
       if (otherQRE === undefined) {
         console.error(`Can't delete the last questionnaire!`);
         return;
+      }
+      if (state.selectedItem !== undefined) {
+        const switchSelectedItem = questionnaireTools.getItemByInternalLinkId(
+          state.selectedItem.__linkId,
+          otherQRE,
+        );
+        state.selectedItem = switchSelectedItem;
       }
       state.questionnaire = otherQRE;
     }
@@ -168,6 +187,7 @@ const languageMutations = {
 export const store = createStore<StoreState>({
   state: {
     questionnaire: defaultQuestionnaire,
+    selectedItem: undefined,
     questionnaireRepo: new Map(),
     currentScreen: "init",
   },
@@ -191,6 +211,9 @@ export const store = createStore<StoreState>({
     },
     getQuestionnaireImportedJSON(state): Questionnaire {
       return state.questionnaire;
+    },
+    getSelectedItem(state): Item | undefined {
+      return state.selectedItem;
     },
     getCurrentScreen(state): Screen {
       return state.currentScreen;

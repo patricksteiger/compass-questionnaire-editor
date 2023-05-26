@@ -1481,44 +1481,6 @@
     </q-dialog>
   </div>
 
-  <!-- LanguageHub -->
-  <div>
-    <q-page-sticky position="bottom-right" :offset="[18, 18]">
-      <q-btn
-        icon="language"
-        color="purple"
-        :label="language"
-        @click="() => (languageLayout = !languageLayout)"
-      >
-        <q-tooltip>{{ $t("views.languages.buttonTooltip") }}</q-tooltip>
-      </q-btn>
-    </q-page-sticky>
-  </div>
-
-  <q-dialog v-model="languageLayout">
-    <cxLanguageHub
-      v-on:switchFromLanguageHub="switchFromLanguageHub"
-      v-on:deleteLanguage="deleteLanguage"
-    />
-  </q-dialog>
-
-  <!-- ValidationHub -->
-  <div>
-    <q-page-sticky position="bottom-right" :offset="[130, 18]">
-      <q-btn icon="warning_amber" color="orange" @click="validateState">
-        <q-tooltip>See warnings</q-tooltip>
-      </q-btn>
-    </q-page-sticky>
-  </div>
-
-  <q-dialog v-model="validationLayout">
-    <cxValidationHub
-      :validationResult="validationResult"
-      v-on:switchLanguageFromValidationHub="switchLanguageFromValidationHub"
-      v-on:switchToItemFromValidationHub="switchToItemFromValidationHub"
-    />
-  </q-dialog>
-
   <!-- Choose answer for specific enableWhen types -->
   <q-dialog
     v-model="chosenEnableWhenAnswerLayout"
@@ -2437,6 +2399,43 @@
       </q-page-container>
     </q-layout>
   </q-dialog>
+
+  <!-- ValidationHub -->
+  <div>
+    <q-page-sticky position="bottom-right" :offset="[130, 18]">
+      <q-btn icon="warning_amber" color="orange" @click="validateState">
+        <q-tooltip>See warnings</q-tooltip>
+      </q-btn>
+    </q-page-sticky>
+  </div>
+  <q-dialog v-model="validationLayout">
+    <cxValidationHub
+      :validationResult="validationResult"
+      v-on:switchLanguageFromValidationHub="switchLanguageFromValidationHub"
+      v-on:switchToItemFromValidationHub="switchToItemFromValidationHub"
+    />
+  </q-dialog>
+
+  <!-- LanguageHub -->
+  <div>
+    <q-page-sticky position="bottom-right" :offset="[18, 18]">
+      <q-btn
+        icon="language"
+        color="purple"
+        :label="language"
+        @click="() => (languageLayout = !languageLayout)"
+      >
+        <q-tooltip>{{ $t("views.languages.buttonTooltip") }}</q-tooltip>
+      </q-btn>
+    </q-page-sticky>
+  </div>
+
+  <q-dialog v-model="languageLayout">
+    <cxLanguageHub
+      v-on:switchFromLanguageHub="switchFromLanguageHub"
+      v-on:deleteLanguage="deleteLanguage"
+    />
+  </q-dialog>
 </template>
 
 <script lang="ts">
@@ -2467,10 +2466,10 @@ import { v4 as uuidv4 } from "uuid";
 import cxEnableWhen from "@/components/cxEnableWhen.vue";
 import cxExtension from "@/components/cxExtension.vue";
 import cxInitial from "@/components/cxInitial.vue";
-import cxLanguageHub from "@/components/cxLanguageHub.vue";
-import cxValidationHub from "@/components/cxValidationHub.vue";
 import cxCode from "@/components/cxCode.vue";
 import cxAttachment from "@/components/datatypes/cxAttachment.vue";
+import cxValidationHub from "@/components/cxValidationHub.vue";
+import cxLanguageHub from "@/components/cxLanguageHub.vue";
 import { i18n, defaultLanguage } from "@/i18n";
 import {
   AnswerOption,
@@ -2574,8 +2573,12 @@ export default defineComponent({
   },
   created() {
     this.language = this.getLanguage;
-    // this.questionaireGUI = this.getQuestionnaireImportedJSON as Questionnaire;
+    // this.currentQuestionnaire = this.getQuestionnaireImportedJSON;
     // this.currentItems = this.currentQuestionnaire.item;
+    const selectedItem: Item | undefined = this.getSelectedItem;
+    if (selectedItem !== undefined) {
+      this.selected = selectedItem.__internalID;
+    }
   },
   data() {
     return {
@@ -2957,9 +2960,6 @@ export default defineComponent({
         this.lastSelectedItem = newItem;
         this.lastSelected = newItem.__internalID;
       }
-    },
-    getUnusedLanguages(): Language[] {
-      return languages.filter((lang) => !this.getUsedLanguages.includes(lang));
     },
     validateState(): void {
       this.validationResult = Validator.check(this.getQuestionnaires);
@@ -3512,6 +3512,7 @@ export default defineComponent({
   computed: {
     ...mapGetters([
       "getQuestionnaireImportedJSON",
+      "getSelectedItem",
       "getOpenChoice",
       "getChoice",
       "getLanguage",
@@ -3564,12 +3565,13 @@ export default defineComponent({
       );
       if (internalId === null) {
         this.selectedItem = undefined;
-        return;
+      } else {
+        this.selectedItem = this.questionnaireTools.getItemByInternalId(
+          this.currentQuestionnaire,
+          internalId,
+        );
       }
-      this.selectedItem = this.questionnaireTools.getItemByInternalId(
-        this.currentQuestionnaire,
-        internalId,
-      );
+      // this.$store.commit("setSelectedItem", this.selectedItem);
     },
     // TODO: How should switching to last selected change splitter?
     lastSelected(val: string | null) {
