@@ -92,12 +92,12 @@ function filterExtension(extensions: Extension[]): void {
         }
         break;
       case "decimal":
-        if (extension.valueDecimal == null) {
+        if (editorTools.invalidNumber(extension.valueDecimal)) {
           extensions.splice(i, 1);
         }
         break;
       case "integer":
-        if (extension.valueInteger == null) {
+        if (editorTools.invalidNumber(extension.valueInteger)) {
           extensions.splice(i, 1);
         }
         break;

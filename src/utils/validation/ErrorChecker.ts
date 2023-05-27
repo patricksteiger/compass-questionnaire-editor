@@ -1,5 +1,5 @@
 import { Language } from "@/store";
-import { Coding, Item, Questionnaire } from "@/types";
+import { Coding, Extension, Item, Period, Questionnaire } from "@/types";
 import { dateTools } from "@/utils/date";
 import { editorTools, UnreachableError } from "@/utils/editor";
 import { itemTools } from "../item";
@@ -68,6 +68,7 @@ export class ErrorChecker {
     this.answerOptionAndInitial(item, errors);
     this.initial(item, errors);
     this.code(item.code, errors);
+    this.extension(item.extension, errors);
     if (errors.length > 0) {
       const error: ItemError = {
         linkId: item.linkId,
@@ -79,6 +80,79 @@ export class ErrorChecker {
     if (item.item !== undefined) {
       for (const element of item.item) {
         this.item(element, itemErrors);
+      }
+    }
+  }
+
+  private extension(extensions: Extension[] | undefined, errors: string[]) {
+    if (editorTools.emptyArray(extensions)) return;
+    this.extensionHelper(extensions, errors);
+  }
+
+  private extensionHelper(
+    extensions: Extension[],
+    errors: string[],
+    parentPos?: string,
+  ) {
+    for (let p = 1; p <= extensions.length; p++) {
+      const pos = !parentPos ? p.toString() : `${parentPos} -> ${p}`;
+      const extension = extensions[p - 1];
+      switch (extension.__type) {
+        case "boolean":
+          break;
+        case "code":
+          if (!extension.valueCode) {
+            errors.push(`extension at position ${pos} has empty code`);
+          }
+          break;
+        case "decimal":
+          if (editorTools.invalidNumber(extension.valueDecimal)) {
+            errors.push(
+              `extension at position ${pos} has empty decimal number`,
+            );
+          }
+          break;
+        case "integer":
+          if (editorTools.invalidNumber(extension.valueInteger)) {
+            errors.push(
+              `extension at position ${pos} has empty integer number`,
+            );
+          }
+          break;
+        case "date":
+          if (dateTools.isDate(extension.valueDate) !== true) {
+            errors.push(`extension at position ${pos} has invalid date`);
+          }
+          break;
+        case "dateTime":
+          if (dateTools.isDateTime(extension.valueDateTime) !== true) {
+            errors.push(`extension at position ${pos} has invalid dateTime`);
+          }
+          break;
+        case "time":
+          if (dateTools.isTime(extension.valueTime) !== true) {
+            errors.push(`extension at position ${pos} has invalid time`);
+          }
+          break;
+        case "string":
+          if (!extension.valueString) {
+            errors.push(`extension at position ${pos} has empty string`);
+          }
+          break;
+        case "markdown":
+          if (!extension.valueMarkdown) {
+            errors.push(`extension at position ${pos} has empty markdown`);
+          }
+          break;
+        case "complex":
+          if (extension.extension.length === 0) {
+            errors.push(`complex extension at position ${pos} has no children`);
+          } else {
+            this.extensionHelper(extension.extension, errors, pos);
+          }
+          break;
+        default:
+          throw new UnreachableError(extension);
       }
     }
   }
@@ -390,19 +464,20 @@ export class ErrorChecker {
 
   private primary(): string[] {
     const errors: string[] = [];
-    const startMsg = dateTools.isDateTimeOrEmpty(
-      this.questionnaire.effectivePeriod.start,
-    );
+    this.extension(this.questionnaire.extension, errors);
+    this.effectivePeriod(this.questionnaire.effectivePeriod, errors);
+    return errors;
+  }
+
+  private effectivePeriod(period: Period, errors: string[]) {
+    const startMsg = dateTools.isDateTimeOrEmpty(period.start);
     if (startMsg !== true) {
       errors.push(`effectivePeriod.start: ${startMsg}`);
     }
-    const endMsg = dateTools.isDateTimeOrEmpty(
-      this.questionnaire.effectivePeriod.end,
-    );
+    const endMsg = dateTools.isDateTimeOrEmpty(period.end);
     if (endMsg !== true) {
       errors.push(`effectivePeriod.end: ${endMsg}`);
     }
-    return errors;
   }
 
   private secondary(): string[] {

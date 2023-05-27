@@ -12,6 +12,8 @@ import {
 import { getOrAddHiddenExtension } from "./extension";
 import { itemTools } from "./item";
 
+type EmptyArray = undefined | [];
+
 // Used for exhaustive switch-statements
 export class UnreachableError extends Error {
   constructor(unreachable: never) {
@@ -70,6 +72,10 @@ class EditorTools {
 
   nonEmptyArray<T>(val: T[] | undefined): val is T[] {
     return val !== undefined && val.length > 0;
+  }
+
+  emptyArray<T>(val: T[] | undefined): val is EmptyArray {
+    return !this.nonEmptyArray(val);
   }
 
   private assingNewInternalLinkIDsToChildren(item: Item): void {
@@ -294,6 +300,12 @@ class EditorTools {
       answerOption.__formattedValueCoding =
         answerOption.__oldFormattedValueCoding;
     }
+  }
+
+  invalidNumber(
+    n: undefined | null | string | number,
+  ): n is undefined | null | string {
+    return n === undefined || n === null || typeof n === "string";
   }
 
   changedQuantity(answerOption: AnswerOption): boolean {

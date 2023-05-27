@@ -381,6 +381,9 @@ export class FHIRItemValidator {
     item: ParsedItem,
   ): void {
     for (const extension of extensions) {
+      if (!extension.url) {
+        this.errors.push(`LinkId "${item.linkId}" has extension empty url.`);
+      }
       const count = fhirValidatorUtils.countValueInvariants(extension);
       if (editorTools.nonEmptyArray(extension.extension)) {
         if (count > 0) {
