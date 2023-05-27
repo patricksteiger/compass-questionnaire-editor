@@ -70,16 +70,33 @@ class DateTools {
     return `${yyyy}-${mm}-${dd}`;
   }
 
-  getCurrentDateTime(): string {
-    return new Date().toISOString();
-  }
-
   getCurrentTime(): string {
     const now = new Date();
     const hh = this.padClock(now.getHours());
     const mm = this.padClock(now.getMinutes());
     const ss = this.padClock(now.getSeconds());
     return `${hh}:${mm}:${ss}`;
+  }
+
+  getCurrentDateTime(): string {
+    const now = new Date();
+    const year = this.padClock(now.getFullYear());
+    const month = this.padClock(now.getMonth() + 1);
+    const day = this.padClock(now.getDate());
+    const hour = this.padClock(now.getHours());
+    const minute = this.padClock(now.getMinutes());
+    const second = this.padClock(now.getSeconds());
+    const offset = this.getTimezoneOffset(now.getTimezoneOffset());
+    return `${year}-${month}-${day}T${hour}:${minute}:${second}${offset}`;
+  }
+
+  private getTimezoneOffset(offset: number): string {
+    const sign = offset > 0 ? "-" : "+";
+    const minutes = 60;
+    const absOffset = Math.abs(offset);
+    const hour = this.padClock(Math.floor(absOffset / minutes));
+    const minute = this.padClock(absOffset % minutes);
+    return `${sign}${hour}:${minute}`;
   }
 
   private padClock(time: number): string {

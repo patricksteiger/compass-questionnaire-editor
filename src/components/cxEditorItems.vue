@@ -3394,13 +3394,13 @@ export default defineComponent({
           answerOption.valueInteger = 0;
           break;
         case "date":
-          answerOption.valueDate = "2000-01-01";
+          answerOption.valueDate = dateTools.getCurrentDate();
           break;
         case "dateTime":
-          answerOption.valueDateTime = "2000-01-01T00:00:00+01:00";
+          answerOption.valueDateTime = dateTools.getCurrentDateTime();
           break;
         case "time":
-          answerOption.valueTime = "00:00:00";
+          answerOption.valueTime = dateTools.getCurrentTime();
           break;
         case "string":
           answerOption.valueString = "";
