@@ -17,7 +17,10 @@
 
   <q-tab-panels v-model="tab" animated>
     <q-tab-panel name="editor">
-      <cx-editor-items />
+      <cx-editor-items
+        v-on:switchToPrimary="switchToPrimary"
+        v-on:switchToSecondary="switchToSecondary"
+      />
     </q-tab-panel>
 
     <q-tab-panel name="primary">
@@ -43,6 +46,8 @@
         :validationResult="validationResult"
         v-on:switchLanguageFromValidationHub="switchLanguageFromValidationHub"
         v-on:switchToItemFromValidationHub="switchToItemFromValidationHub"
+        v-on:switchToPrimary="switchToPrimary"
+        v-on:switchToSecondary="switchToSecondary"
       />
     </q-dialog>
 
@@ -128,11 +133,21 @@ export default defineComponent({
       this.validationLayout = true;
     },
     switchLanguageFromValidationHub(language: Language) {
-      this.$store.commit("switchQuestionnaireByLang", language);
+      this.switchQuestionnaireAndLanguage(language);
+      this.validationLayout = false;
+    },
+    switchToPrimary(language: Language) {
+      this.switchQuestionnaireAndLanguage(language);
+      this.tab = "primary";
+      this.validationLayout = false;
+    },
+    switchToSecondary(language: Language) {
+      this.switchQuestionnaireAndLanguage(language);
+      this.tab = "secondary";
       this.validationLayout = false;
     },
     switchToItemFromValidationHub(language: Language, internalId: string) {
-      this.$store.commit("switchQuestionnaireByLang", language);
+      this.switchQuestionnaireAndLanguage(language);
       const questionnaire: Questionnaire = this.getQuestionnaireImportedJSON;
       const selectedItem = questionnaireTools.getItemByInternalId(
         questionnaire,
@@ -146,9 +161,12 @@ export default defineComponent({
       this.language = this.getLanguage;
     },
     switchFromLanguageHub(language: Language) {
+      this.switchQuestionnaireAndLanguage(language);
+      this.languageLayout = false;
+    },
+    switchQuestionnaireAndLanguage(language: Language) {
       this.$store.commit("switchQuestionnaireByLang", language);
       this.language = this.getLanguage;
-      this.languageLayout = false;
     },
   },
 });

@@ -49,7 +49,7 @@
                   v-for="error in result.errors.primary"
                   :key="error"
                   clickable
-                  @click="switchLanguageFromValidationHub(result.language)"
+                  @click="switchToPrimaryWithLanguage(result.language)"
                 >
                   <q-item-section>
                     <q-item-label>{{ error }}</q-item-label>
@@ -64,7 +64,7 @@
                   v-for="error in result.errors.secondary"
                   :key="error"
                   clickable
-                  @click="switchLanguageFromValidationHub(result.language)"
+                  @click="switchToSecondaryWithLanguage(result.language)"
                 >
                   <q-item-section>
                     <q-item-label>{{ error }}</q-item-label>
@@ -125,7 +125,7 @@
                   v-for="warning in result.warnings.primary"
                   :key="warning"
                   clickable
-                  @click="switchLanguageFromValidationHub(result.language)"
+                  @click="switchToPrimaryWithLanguage(result.language)"
                 >
                   <q-item-section>
                     <q-item-label>{{ warning }}</q-item-label>
@@ -140,7 +140,7 @@
                   v-for="warning in result.warnings.secondary"
                   :key="warning"
                   clickable
-                  @click="switchLanguageFromValidationHub(result.language)"
+                  @click="switchToSecondaryWithLanguage(result.language)"
                 >
                   <q-item-section>
                     <q-item-label>{{ warning }}</q-item-label>
@@ -179,10 +179,20 @@ const emit = defineEmits<{
     // eslint-disable-next-line no-unused-vars
     internalId: string,
   ): void;
+  // eslint-disable-next-line no-unused-vars
+  (e: "switchToPrimary", lang: Language): void;
+  // eslint-disable-next-line no-unused-vars
+  (e: "switchToSecondary", lang: Language): void;
 }>();
 
 function switchLanguageFromValidationHub(language: Language): void {
   emit("switchLanguageFromValidationHub", language);
+}
+function switchToPrimaryWithLanguage(language: Language): void {
+  emit("switchToPrimary", language);
+}
+function switchToSecondaryWithLanguage(language: Language): void {
+  emit("switchToSecondary", language);
 }
 function switchToItemFromValidationHub(
   language: Language,

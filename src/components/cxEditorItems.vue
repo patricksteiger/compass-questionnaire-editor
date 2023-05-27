@@ -2413,6 +2413,8 @@
       :validationResult="validationResult"
       v-on:switchLanguageFromValidationHub="switchLanguageFromValidationHub"
       v-on:switchToItemFromValidationHub="switchToItemFromValidationHub"
+      v-on:switchToPrimary="switchToPrimary"
+      v-on:switchToSecondary="switchToSecondary"
     />
   </q-dialog>
 
@@ -2500,6 +2502,14 @@ export default defineComponent({
     cxAttachment,
     cxLanguageHub,
     cxValidationHub,
+  },
+  emits: {
+    switchToPrimary(language: Language): boolean {
+      return !!language;
+    },
+    switchToSecondary(language: Language): boolean {
+      return !!language;
+    },
   },
   setup() {
     const store = useStore();
@@ -2923,6 +2933,16 @@ export default defineComponent({
     },
     switchLanguageFromValidationHub(language: Language): void {
       this.switchLanguage(language);
+      this.validationLayout = false;
+    },
+    switchToPrimary(language: Language): void {
+      this.switchLanguage(language);
+      this.$emit("switchToPrimary", language);
+      this.validationLayout = false;
+    },
+    switchToSecondary(language: Language): void {
+      this.switchLanguage(language);
+      this.$emit("switchToSecondary", language);
       this.validationLayout = false;
     },
     switchToItemFromValidationHub(

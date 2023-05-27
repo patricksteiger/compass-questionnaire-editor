@@ -103,6 +103,12 @@ const metadataMutations = {
   setExperimental(state: StoreState, payload: boolean) {
     state.questionnaire.experimental = payload;
   },
+  setCopyrightLabel(state: StoreState, payload: string | undefined) {
+    state.questionnaire.copyrightLabel = payload;
+  },
+  setCopyright(state: StoreState, payload: string | undefined) {
+    state.questionnaire.copyright = payload;
+  },
 };
 
 const setQuestionnaireMutations = {

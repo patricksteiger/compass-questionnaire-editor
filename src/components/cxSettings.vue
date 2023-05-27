@@ -9,16 +9,7 @@
             }}</q-item-label>
           </q-item-section>
           <q-item-section avatar>
-            <q-toggle
-              color="red"
-              v-model="experimental"
-              @update:model-value="
-                (v) => {
-                  experimental = v;
-                  store.commit('setExperimental', v);
-                }
-              "
-            />
+            <q-toggle color="red" v-model="experimental" />
           </q-item-section>
         </q-item>
       </div>
@@ -170,89 +161,131 @@
       <div>
         <q-input
           v-model="publisher"
-          @update:model-value="(v) => store.commit('setPublisher', v)"
           :label="$t('components.navigationBar.metadataItems.publisher')"
-          clearable
           autogrow
-          @clear="
-            (_oldPublisher: string | undefined) => {
-              publisher = '';
-              store.commit('setPublisher', publisher);
-            }
-          "
+          clearable
+          @clear="() => (publisher = '')"
         />
       </div>
 
       <div>
         <q-input
           v-model="purpose"
-          @update:model-value="(v) => store.commit('setPurpose', v)"
           :label="$t('components.navigationBar.metadataItems.purpose')"
-          clearable
           autogrow
-          @clear="
-            (_oldPurpose: string | undefined) => {
-              purpose = '';
-              store.commit('setPurpose', purpose);
-            }
-          "
+          clearable
+          @clear="() => (purpose = '')"
         />
       </div>
 
       <div>
         <q-input
           v-model="description"
-          @update:model-value="(v) => store.commit('setDescription', v)"
           :label="$t('components.navigationBar.metadataItems.description')"
-          clearable
           autogrow
-          @clear="
-            (_oldDescription: string | undefined) => {
-              description = '';
-              store.commit('setDescription', description);
-            }
-          "
+          clearable
+          @clear="() => (description = '')"
         />
       </div>
 
       <div>
         <q-input
           label="CopyrightLabel"
-          v-model="questionnaire.copyrightLabel"
+          v-model="copyrightLabel"
           type="textarea"
           autogrow
           clearable
+          @clear="() => (copyrightLabel = '')"
         />
       </div>
 
       <div>
         <q-input
           label="Copyright"
-          v-model="questionnaire.copyright"
+          v-model="copyright"
           type="textarea"
           autogrow
           clearable
+          @clear="() => (copyright = '')"
         />
       </div>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
 import { store } from "@/store";
-import { computed, ref } from "vue";
+import { computed, defineComponent, ref } from "vue";
 import { resourceTypes } from "@/utils/resourceType";
 import cxCode from "@/components/cxCode.vue";
 import cxContactDetail from "@/components/datatypes/cxContactDetail.vue";
 import { ContactDetail, Questionnaire } from "@/types";
 
-const questionnaire = ref<Questionnaire>(
-  computed(() => store.getters.getQuestionnaireImportedJSON).value,
-);
-const contact = ref<ContactDetail[]>(questionnaire.value.contact);
-
-const experimental = ref<boolean | null>(store.getters.getExperimental);
-const publisher = ref<string | undefined>(store.getters.getPublisher);
-const purpose = ref<string | undefined>(store.getters.getPurpose);
-const description = ref<string | undefined>(store.getters.getDescription);
+export default defineComponent({
+  components: {
+    cxCode,
+    cxContactDetail,
+  },
+  setup() {
+    const questionnaire = ref<Questionnaire>(
+      computed(() => store.getters.getQuestionnaireImportedJSON).value,
+    );
+    const contact = ref<ContactDetail[]>(questionnaire.value.contact);
+    return {
+      questionnaire,
+      contact,
+      resourceTypes,
+    };
+  },
+  computed: {
+    experimental: {
+      get(): boolean {
+        return this.$store.state.questionnaire.experimental;
+      },
+      set(value: string) {
+        this.$store.commit("setExperimental", value);
+      },
+    },
+    publisher: {
+      get(): string | undefined {
+        return this.$store.state.questionnaire.publisher;
+      },
+      set(value: string) {
+        this.$store.commit("setPublisher", value);
+      },
+    },
+    purpose: {
+      get(): string | undefined {
+        return this.$store.state.questionnaire.purpose;
+      },
+      set(value: string) {
+        this.$store.commit("setPurpose", value);
+      },
+    },
+    description: {
+      get(): string | undefined {
+        return this.$store.state.questionnaire.description;
+      },
+      set(value: string) {
+        this.$store.commit("setDescription", value);
+      },
+    },
+    copyrightLabel: {
+      get(): string | undefined {
+        return this.$store.state.questionnaire.copyrightLabel;
+      },
+      set(value: string) {
+        this.$store.commit("setCopyrightLabel", value);
+      },
+    },
+    copyright: {
+      get(): string | undefined {
+        return this.$store.state.questionnaire.copyright;
+      },
+      set(value: string) {
+        this.$store.commit("setCopyright", value);
+      },
+    },
+  },
+});
 </script>
