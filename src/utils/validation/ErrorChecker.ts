@@ -1,5 +1,13 @@
 import { Language } from "@/store";
-import { Coding, Extension, Item, Period, Questionnaire } from "@/types";
+import {
+  Coding,
+  ContactDetail,
+  ContactPoint,
+  Extension,
+  Item,
+  Period,
+  Questionnaire,
+} from "@/types";
 import { dateTools } from "@/utils/date";
 import { editorTools, UnreachableError } from "@/utils/editor";
 import { itemTools } from "../item";
@@ -483,8 +491,57 @@ export class ErrorChecker {
   private secondary(): string[] {
     const errors: string[] = [];
     this.code(this.questionnaire.code, errors);
+    this.contact(this.questionnaire.contact, errors);
     this.derivedFrom(this.questionnaire.derivedFrom, errors);
     return errors;
+  }
+
+  private contact(contact: ContactDetail[], errors: string[]) {
+    for (let contactPos = 1; contactPos <= contact.length; contactPos++) {
+      const { name, telecom } = contact[contactPos - 1];
+      if (!name && telecom.length === 0) {
+        errors.push(`ContactDetail at position ${contactPos} is empty.`);
+      } else if (telecom.length > 0) {
+        const prefix = `ContactDetail ${contactPos}`;
+        for (let pointPos = 1; pointPos <= telecom.length; pointPos++) {
+          this.contactPoint(telecom[pointPos - 1], errors, prefix, pointPos);
+        }
+      }
+    }
+  }
+
+  private contactPoint(
+    contactPoint: ContactPoint,
+    errors: string[],
+    prefix: string,
+    pos: number,
+  ) {
+    if (editorTools.isEmptyObject(contactPoint)) {
+      errors.push(`${prefix}: ContactPoint at position ${pos} is empty.`);
+    } else {
+      const { value, system, period } = contactPoint;
+      if (!value && system) {
+        errors.push(
+          `${prefix}: ContactPoint at position ${pos} has undefined value and defined system.`,
+        );
+      } else if (value && !system) {
+        errors.push(
+          `${prefix}: ContactPoint at position ${pos} has defined value and undefined system.`,
+        );
+      }
+      const invalidStart = dateTools.isDateTimeOrEmpty(period.start) !== true;
+      if (invalidStart) {
+        errors.push(
+          `${prefix}: ContactPoint at position ${pos} has invalid start-value.`,
+        );
+      }
+      const invalidEnd = dateTools.isDateTimeOrEmpty(period.end) !== true;
+      if (invalidEnd) {
+        errors.push(
+          `${prefix}: ContactPoint at position ${pos} has invalid end-value.`,
+        );
+      }
+    }
   }
 
   private derivedFrom(derivedFroms: string[], errors: string[]) {

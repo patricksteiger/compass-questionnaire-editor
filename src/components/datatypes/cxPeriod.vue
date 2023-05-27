@@ -1,20 +1,30 @@
 <template>
-  <div class="row">
+  <div class="row justify-between">
     <q-input
       label="Start"
-      class="col-6"
+      class="col-5"
       dense
       clearable
       v-model="periodValue.start"
       :rules="[dateTools.isDateTimeOrEmpty]"
     />
+    <q-btn
+      label="Now"
+      dense
+      @click="() => (periodValue.start = dateTools.getCurrentDateTime())"
+    />
     <q-input
       label="End"
-      class="col-6"
+      class="col-5"
       dense
       clearable
       v-model="periodValue.end"
       :rules="[dateTools.isDateTimeOrEmpty]"
+    />
+    <q-btn
+      label="Now"
+      dense
+      @click="() => (periodValue.end = dateTools.getCurrentDateTime())"
     />
   </div>
 </template>

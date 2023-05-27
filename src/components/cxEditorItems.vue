@@ -322,13 +322,14 @@
                 expand-separator
                 icon="languages"
                 label="Other Languages"
+                :disable="getQuestionnaires.length <= 1"
               >
                 <q-separator />
                 <q-card>
                   <q-list padding bordered separator>
                     <q-item
                       v-for="qre in getQuestionnaires.filter(
-                        (q) => q.language !== language,
+                        (q: Questionnaire) => q.language !== language,
                       )"
                       :key="qre.__internalID"
                       clickable
@@ -337,7 +338,7 @@
                           switchToItemFromValidationHub(
                             qre.language,
                             questionnaireTools.getItemByInternalLinkId(
-                              selectedItem.__linkId,
+                              selectedItem!.__linkId,
                               qre,
                             ).__internalID,
                           );

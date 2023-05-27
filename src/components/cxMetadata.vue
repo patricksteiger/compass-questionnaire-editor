@@ -92,7 +92,6 @@
         <q-btn
           label="Now"
           dense
-          flat
           @click="() => (date = dateTools.getCurrentDateTime())"
         />
       </div>
@@ -109,7 +108,6 @@
         <q-btn
           label="Today"
           dense
-          flat
           @click="() => (approvalDate = dateTools.getCurrentDate())"
         />
         <q-input
@@ -124,7 +122,6 @@
         <q-btn
           label="Today"
           dense
-          flat
           @click="() => (lastReviewDate = dateTools.getCurrentDate())"
         />
       </div>
