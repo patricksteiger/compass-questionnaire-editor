@@ -8,6 +8,7 @@ import {
   Initial,
   Item,
   Questionnaire,
+  UsageContext,
 } from "@/types";
 import { getOrAddHiddenExtension } from "@/utils/extension";
 import {
@@ -24,7 +25,7 @@ import {
   ParsedInitial,
   ParsedItem,
 } from "../parsing/item";
-import { ParsedContactDetail } from "../parsing/schemas";
+import { ParsedContactDetail, ParsedUsageContext } from "../parsing/schemas";
 import { ParsedQuestionnaire } from "../parsing/questionnaire";
 import { validatorUtils } from "../TransformerUtils";
 
@@ -44,6 +45,12 @@ export class QuestionnaireBuilder {
     if (contact !== undefined) {
       for (const c of contact) {
         newContact.push(this.fromContactDetail(c));
+      }
+    }
+    const newUseContext: UsageContext[] = [];
+    if (this.qre.useContext !== undefined) {
+      for (const u of this.qre.useContext) {
+        newUseContext.push(this.fromUseContext(u));
       }
     }
     this.qre.item ??= [];
@@ -73,6 +80,7 @@ export class QuestionnaireBuilder {
       derivedFrom,
       subjectType,
       contact: newContact,
+      useContext: newUseContext,
       versionAlgorithmCoding: versAlg,
       status,
       effectivePeriod,
@@ -81,6 +89,37 @@ export class QuestionnaireBuilder {
       extension: newExtension,
       item: newItem,
     };
+  }
+
+  private fromUseContext(useContext: ParsedUsageContext): UsageContext {
+    const { code } = useContext;
+    if (useContext.valueCodeableConcept !== undefined) {
+      const { text, coding } = useContext.valueCodeableConcept;
+      return {
+        __type: "codeableConcept",
+        code,
+        valueCodeableConcept: { text, coding: coding ?? [] },
+      };
+    } else if (useContext.valueQuantity !== undefined) {
+      return {
+        __type: "quantity",
+        code,
+        valueQuantity: useContext.valueQuantity,
+      };
+    } else if (useContext.valueRange !== undefined) {
+      return {
+        __type: "range",
+        code,
+        valueRange: useContext.valueRange,
+      };
+    } else if (useContext.valueReference !== undefined) {
+      return {
+        __type: "reference",
+        code,
+        valueReference: useContext.valueReference,
+      };
+    }
+    throw new Error("Missing implementation!");
   }
 
   private fromContactDetail(contactDetail: ParsedContactDetail): ContactDetail {

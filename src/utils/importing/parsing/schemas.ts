@@ -19,13 +19,16 @@ export const codingSchema = z.object({
   display: optionalStringSchema,
   userSelected: optionalBooleanSchema,
 });
-
 export type ParsedCoding = z.infer<typeof codingSchema>;
-
 export const optionalCodingSchema = codingSchema.optional();
 
-export const optionalComparatorSchema = z.enum(comparators).optional();
+export const codeableConceptSchema = z.object({
+  text: z.string().optional(),
+  coding: codingSchema.array().optional(),
+});
+export type ParsedCodeableConcept = z.infer<typeof codeableConceptSchema>;
 
+export const optionalComparatorSchema = z.enum(comparators).optional();
 export const quantitySchema = z.object({
   value: optionalNumberSchema,
   comparator: optionalComparatorSchema,
@@ -35,6 +38,21 @@ export const quantitySchema = z.object({
 });
 export type ParsedQuantity = z.infer<typeof quantitySchema>;
 export const optionalQuantitySchema = quantitySchema.optional();
+
+export const simpleQuantitySchema = z.object({
+  value: optionalNumberSchema,
+  code: optionalStringSchema,
+  system: optionalStringSchema,
+  unit: optionalStringSchema,
+});
+export type ParsedSimpleQuantity = z.infer<typeof simpleQuantitySchema>;
+export const optionalSimpleQuantitySchema = simpleQuantitySchema.optional();
+
+export const rangeSchema = z.object({
+  low: optionalSimpleQuantitySchema,
+  high: optionalSimpleQuantitySchema,
+});
+export type ParsedRange = z.infer<typeof rangeSchema>;
 
 export const periodSchema = z.object({
   start: z.string().optional(),
@@ -72,7 +90,6 @@ export const identifierSchema = z
   .passthrough();
 
 export const optionalIdentifierSchema = identifierSchema.optional();
-
 export type ParsedIdentifier = z.infer<typeof identifierSchema>;
 
 export const referenceSchema = z.object({
@@ -81,9 +98,7 @@ export const referenceSchema = z.object({
   display: optionalStringSchema,
   identifier: optionalIdentifierSchema,
 });
-
 export type ParsedReference = z.infer<typeof referenceSchema>;
-
 export const optionalReferenceSchema = referenceSchema.optional();
 
 export const attachmentSchema = z.object({
@@ -101,9 +116,7 @@ export const attachmentSchema = z.object({
   duration: optionalNumberSchema,
   pages: optionalNumberSchema,
 });
-
 export type ParsedAttachment = z.infer<typeof attachmentSchema>;
-
 export const optionalAttachmentSchema = attachmentSchema.optional();
 
 export const contactPointSchema = z.object({
@@ -120,3 +133,12 @@ export const contactDetailSchema = z.object({
   telecom: contactPointSchema.array().optional(),
 });
 export type ParsedContactDetail = z.infer<typeof contactDetailSchema>;
+
+export const usageContextSchema = z.object({
+  code: codingSchema,
+  valueCodeableConcept: codeableConceptSchema.optional(),
+  valueQuantity: quantitySchema.optional(),
+  valueRange: rangeSchema.optional(),
+  valueReference: referenceSchema.optional(),
+});
+export type ParsedUsageContext = z.infer<typeof usageContextSchema>;

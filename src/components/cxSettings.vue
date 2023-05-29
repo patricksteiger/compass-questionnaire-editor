@@ -121,6 +121,302 @@
         <cxCode :codes="questionnaire.code" />
       </div>
 
+      <!-- UseContext -->
+      <div>
+        <q-expansion-item icon="unfold_more" label="UseContext">
+          <q-list bordered separator dense padding class="rounded-borders">
+            <q-item
+              v-for="(usageContext, index) in questionnaire.useContext"
+              :key="index"
+            >
+              <q-item-section>
+                <div clickable @click="showUseContextDialog(usageContext)">
+                  <q-field
+                    label="CODE"
+                    stack-label
+                    :error="editorTools.isEmptyObject(usageContext.code)"
+                    error-message="Coding must be non-empty"
+                    dense
+                  >
+                    <template v-slot:control>
+                      <div>
+                        {{ editorTools.formatCoding(usageContext.code) }}
+                      </div>
+                    </template>
+                    <template v-slot:prepend>
+                      <div>
+                        {{ index + 1 }}
+                      </div>
+                    </template>
+                  </q-field>
+                </div>
+                <div v-if="usageContext.__type === 'codeableConcept'">
+                  <div clickable @click="showUseContextDialog(usageContext)">
+                    <q-field
+                      label="Text"
+                      autogrow
+                      type="textarea"
+                      v-model="usageContext.valueCodeableConcept.text"
+                    />
+                  </div>
+                  <q-expansion-item icon="code" label="Coding">
+                    <q-list
+                      bordered
+                      separator
+                      dense
+                      padding
+                      class="rounded-borders"
+                    >
+                      <q-item
+                        v-for="(coding, cIndex) in usageContext
+                          .valueCodeableConcept.coding"
+                        :key="cIndex"
+                      >
+                        <q-item-section
+                          clickable
+                          @click="showUseContextDialog(usageContext)"
+                        >
+                          <q-field
+                            label="CODING"
+                            stack-label
+                            :error="editorTools.isEmptyObject(coding)"
+                            error-message="Coding must be non-empty"
+                            dense
+                          >
+                            <template v-slot:control>
+                              <div>
+                                {{ editorTools.formatCoding(coding) }}
+                              </div>
+                            </template>
+                          </q-field>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-expansion-item>
+                </div>
+                <div
+                  v-else-if="usageContext.__type === 'quantity'"
+                  clickable
+                  @click="showUseContextDialog(usageContext)"
+                >
+                  <q-field
+                    :label="usageContext.__type.toUpperCase()"
+                    stack-label
+                    :error="
+                      editorTools.isEmptyObject(usageContext.valueQuantity)
+                    "
+                    error-message="Quantity must be non-empty"
+                    dense
+                  >
+                    <template v-slot:control>
+                      <div>
+                        {{
+                          editorTools.formatQuantity(usageContext.valueQuantity)
+                        }}
+                      </div>
+                    </template>
+                  </q-field>
+                </div>
+                <div
+                  v-else-if="usageContext.__type === 'range'"
+                  clickable
+                  @click="showUseContextDialog(usageContext)"
+                >
+                  <q-field
+                    label="LOW"
+                    stack-label
+                    :error="
+                      editorTools.isEmptyObject(usageContext.valueRange.low)
+                    "
+                    error-message="SimpleQuantity must be non-empty"
+                    dense
+                  >
+                    <template v-slot:control>
+                      <div>
+                        {{
+                          editorTools.formatSimpleQuantity(
+                            usageContext.valueRange.low ?? {},
+                          )
+                        }}
+                      </div>
+                    </template>
+                  </q-field>
+                  <q-field
+                    label="HIGH"
+                    stack-label
+                    :error="
+                      editorTools.isEmptyObject(usageContext.valueRange.high)
+                    "
+                    error-message="SimpleQuantity must be non-empty"
+                    dense
+                  >
+                    <template v-slot:control>
+                      <div>
+                        {{
+                          editorTools.formatSimpleQuantity(
+                            usageContext.valueRange.high ?? {},
+                          )
+                        }}
+                      </div>
+                    </template>
+                  </q-field>
+                </div>
+                <div
+                  v-else-if="usageContext.__type === 'reference'"
+                  clickable
+                  @click="showUseContextDialog(usageContext)"
+                >
+                  <q-field
+                    :label="usageContext.__type.toUpperCase()"
+                    stack-label
+                    :error="
+                      editorTools.isEmptyObject(usageContext.valueReference)
+                    "
+                    error-message="Reference must be non-empty"
+                    dense
+                  >
+                    <template v-slot:control>
+                      <div>
+                        {{
+                          editorTools.formatReference(
+                            usageContext.valueReference,
+                          )
+                        }}
+                      </div>
+                    </template>
+                  </q-field>
+                </div>
+              </q-item-section>
+              <q-btn
+                flat
+                icon="highlight_off"
+                color="grey-6"
+                @click="() => questionnaire.useContext.splice(index, 1)"
+              />
+            </q-item>
+          </q-list>
+          <q-fab
+            v-model="fabUseContext"
+            vertical-actions-align="center"
+            color="primary"
+            push
+            icon="keyboard_arrow_right"
+            direction="right"
+            padding="none xl"
+            label="Add UseContext"
+          >
+            <q-fab-action
+              v-for="useContextType in useContextTypes"
+              :key="useContextType"
+              label-position="right"
+              color="primary"
+              @click="addNewToUseContext(useContextType)"
+              :label="useContextType.toUpperCase()"
+            />
+          </q-fab>
+        </q-expansion-item>
+      </div>
+
+      <q-dialog
+        v-model="useContextLayout"
+        v-if="currentUsageContext !== undefined"
+      >
+        <q-layout view="Lhh lpR fff" container class="bg-white">
+          <q-page-container>
+            <q-page padding>
+              <q-toolbar class="bg-primary text-white shadow-2">
+                <q-toolbar-title> UsageContext: CODE </q-toolbar-title>
+              </q-toolbar>
+              <div>
+                <cxCoding
+                  :coding="currentUsageContext.code"
+                  v-on:addCoding="(_coding) => (useContextLayout = false)"
+                />
+              </div>
+              <q-toolbar class="bg-primary text-white shadow-2">
+                <q-toolbar-title>
+                  UsageContext: {{ currentUsageContext.__type.toUpperCase() }}
+                </q-toolbar-title>
+              </q-toolbar>
+              <div v-if="currentUsageContext.__type === 'codeableConcept'">
+                <q-input
+                  label="Text"
+                  autogrow
+                  type="textarea"
+                  v-model="currentUsageContext.valueCodeableConcept.text"
+                />
+                <q-separator />
+                Coding:
+                <q-list
+                  bordered
+                  separator
+                  dense
+                  padding
+                  class="rounded-borders"
+                >
+                  <q-item
+                    v-for="(coding, cIndex) in currentUsageContext
+                      .valueCodeableConcept.coding"
+                    :key="cIndex"
+                  >
+                    <q-item-section>
+                      {{ cIndex + 1 }}
+                      <cxCoding :coding="coding" />
+                    </q-item-section>
+                    <q-btn
+                      flat
+                      icon="highlight_off"
+                      color="grey-6"
+                      @click="removeCodingFrom(currentUsageContext, cIndex)"
+                    />
+                  </q-item>
+                  <q-btn
+                    icon="add"
+                    padding="none xl"
+                    color="primary"
+                    fab
+                    label="Coding"
+                    @click="addCodingTo(currentUsageContext)"
+                  />
+                </q-list>
+                <q-btn icon="add" @click="() => (useContextLayout = false)" />
+              </div>
+              <div v-else-if="currentUsageContext.__type === 'quantity'">
+                <cxQuantity
+                  :quantity="currentUsageContext.valueQuantity"
+                  v-on:addQuantity="(_quantity) => (useContextLayout = false)"
+                />
+              </div>
+              <div v-else-if="currentUsageContext.__type === 'range'">
+                Low:
+                <cxSimpleQuantity
+                  :simpleQuantity="(currentUsageContext.valueRange.low ??= {})"
+                  v-on:addSimpleQuantity="
+                    (_quantity) => (useContextLayout = false)
+                  "
+                />
+                High:
+                <cxSimpleQuantity
+                  :simpleQuantity="(currentUsageContext.valueRange.high ??= {})"
+                  v-on:addSimpleQuantity="
+                    (_quantity) => (useContextLayout = false)
+                  "
+                />
+              </div>
+              <div v-else-if="currentUsageContext.__type === 'reference'">
+                <cxReference
+                  :reference="currentUsageContext.valueReference"
+                  v-on:addReference="(_reference) => (useContextLayout = false)"
+                />
+              </div>
+              <div v-else>
+                {{ unreachableCode(currentUsageContext) }}
+              </div>
+            </q-page>
+          </q-page-container>
+        </q-layout>
+      </q-dialog>
+
       <!-- Contact -->
       <div>
         <q-expansion-item icon="contacts" label="Contact">
@@ -216,26 +512,92 @@
 <script lang="ts">
 import { store } from "@/store";
 import { computed, defineComponent, ref } from "vue";
+import { editorTools, UnreachableError } from "@/utils/editor";
+import { dateTools } from "@/utils/date";
 import { resourceTypes } from "@/utils/resourceType";
 import cxCode from "@/components/cxCode.vue";
 import cxContactDetail from "@/components/datatypes/cxContactDetail.vue";
-import { ContactDetail, Questionnaire } from "@/types";
+import cxCoding from "@/components/datatypes/cxCoding.vue";
+import cxQuantity from "@/components/datatypes/cxQuantity.vue";
+import cxSimpleQuantity from "@/components/datatypes/cxSimpleQuantity.vue";
+import cxReference from "@/components/datatypes/cxReference.vue";
+import {
+  ContactDetail,
+  Questionnaire,
+  UsageContext,
+  UseContextType,
+  useContextTypes,
+} from "@/types";
 
 export default defineComponent({
   components: {
     cxCode,
     cxContactDetail,
+    cxCoding,
+    cxQuantity,
+    cxSimpleQuantity,
+    cxReference,
   },
   setup() {
     const questionnaire = ref<Questionnaire>(
       computed(() => store.getters.getQuestionnaireImportedJSON).value,
     );
     const contact = ref<ContactDetail[]>(questionnaire.value.contact);
+    const currentUsageContext = ref<UsageContext | undefined>(undefined);
     return {
+      dateTools,
+      editorTools,
       questionnaire,
       contact,
       resourceTypes,
+      currentUsageContext,
+      useContextLayout: ref(false),
+      fabUseContext: ref(true),
+      useContextTypes,
     };
+  },
+  methods: {
+    showUseContextDialog(usageContext: UsageContext) {
+      this.currentUsageContext = usageContext;
+      this.useContextLayout = true;
+    },
+    removeCodingFrom(usageContext: UsageContext, index: number) {
+      if (usageContext.__type === "codeableConcept") {
+        usageContext.valueCodeableConcept.coding.splice(index, 1);
+      }
+    },
+    addCodingTo(usageContext: UsageContext) {
+      if (usageContext.__type === "codeableConcept") {
+        usageContext.valueCodeableConcept.coding.push({});
+      }
+    },
+    addNewToUseContext(type: UseContextType) {
+      let usageContext: UsageContext;
+      switch (type) {
+        case "codeableConcept":
+          usageContext = {
+            __type: type,
+            code: {},
+            valueCodeableConcept: { coding: [] },
+          };
+          break;
+        case "quantity":
+          usageContext = { __type: type, code: {}, valueQuantity: {} };
+          break;
+        case "range":
+          usageContext = { __type: type, code: {}, valueRange: {} };
+          break;
+        case "reference":
+          usageContext = { __type: type, code: {}, valueReference: {} };
+          break;
+        default:
+          throw new UnreachableError(type);
+      }
+      this.questionnaire.useContext.push(usageContext);
+    },
+    unreachableCode(n: never) {
+      throw new UnreachableError(n);
+    },
   },
   computed: {
     experimental: {

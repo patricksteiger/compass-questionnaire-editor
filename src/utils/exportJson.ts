@@ -1,11 +1,19 @@
 import {
+  CodeableConcept,
+  Coding,
   ContactDetail,
   ContactPoint,
   EnableWhen,
   Extension,
+  Identifier,
   Item,
   operators,
+  Period,
+  Quantity,
   Questionnaire,
+  Range,
+  Reference,
+  SimpleQuantity,
 } from "@/types";
 import { allowsMaxLength } from "./constants";
 import { dateTools } from "./date";
@@ -184,6 +192,150 @@ function filterContactPoint(contactPoint: ContactPoint) {
   }
 }
 
+function filterQuantity(quantity: Quantity) {
+  if (!quantity.code) {
+    delete quantity.code;
+  }
+  if (!quantity.system) {
+    delete quantity.system;
+  }
+  if (!quantity.value) {
+    delete quantity.value;
+  }
+  if (!quantity.unit) {
+    delete quantity.unit;
+  }
+  if (!quantity.comparator) {
+    delete quantity.comparator;
+  }
+}
+
+function filterSimpleQuantity(simpleQuantity: SimpleQuantity) {
+  if (!simpleQuantity.code) {
+    delete simpleQuantity.code;
+  }
+  if (!simpleQuantity.system) {
+    delete simpleQuantity.system;
+  }
+  if (!simpleQuantity.value) {
+    delete simpleQuantity.value;
+  }
+  if (!simpleQuantity.unit) {
+    delete simpleQuantity.unit;
+  }
+}
+
+function filterRange(range: Range) {
+  if (range.low !== undefined) {
+    filterSimpleQuantity(range.low);
+    if (editorTools.isEmptyObject(range.low)) {
+      delete range.low;
+    }
+  }
+  if (range.high !== undefined) {
+    filterSimpleQuantity(range.high);
+    if (editorTools.isEmptyObject(range.high)) {
+      delete range.high;
+    }
+  }
+}
+
+function filterCoding(coding: Coding) {
+  if (!coding.code) {
+    delete coding.code;
+  }
+  if (!coding.system) {
+    delete coding.system;
+  }
+  if (!coding.display) {
+    delete coding.display;
+  }
+  if (!coding.version) {
+    delete coding.version;
+  }
+  if (!coding.userSelected && coding.userSelected !== false) {
+    delete coding.userSelected;
+  }
+}
+
+function filterCodeableConcept(codeableConcept: CodeableConcept) {
+  const { text, coding } = codeableConcept;
+  if (!text) {
+    delete codeableConcept.text;
+  }
+  for (let j = coding.length - 1; j >= 0; j--) {
+    const code = coding[j];
+    filterCoding(code);
+    if (editorTools.isEmptyObject(code)) {
+      codeableConcept.coding.splice(j, 1);
+    }
+  }
+  if (editorTools.emptyArray(coding)) {
+    delete (codeableConcept as Partial<CodeableConcept>).coding;
+  }
+}
+
+function filterReference(reference: Reference) {
+  if (!reference.display) {
+    delete reference.display;
+  }
+  if (!reference.reference) {
+    delete reference.reference;
+  }
+  if (!reference.type) {
+    delete reference.type;
+  }
+  if (reference.identifier !== undefined) {
+    filterIdentifier(reference.identifier);
+    if (editorTools.isEmptyObject(reference.identifier)) {
+      delete reference.identifier;
+    }
+  }
+}
+
+function filterUseContext(qre: Questionnaire) {
+  const { useContext: useContexts } = qre;
+  for (let i = useContexts.length - 1; i >= 0; i--) {
+    const useContext = useContexts[i];
+    filterCoding(useContext.code);
+    if (editorTools.isEmptyObject(useContext.code)) {
+      useContexts.splice(i, 1);
+      continue;
+    }
+    switch (useContext.__type) {
+      case "codeableConcept":
+        filterCodeableConcept(useContext.valueCodeableConcept);
+        if (editorTools.isEmptyObject(useContext.valueCodeableConcept)) {
+          useContexts.splice(i, 1);
+        }
+        break;
+      case "quantity":
+        filterQuantity(useContext.valueQuantity);
+        if (editorTools.isEmptyObject(useContext.valueQuantity)) {
+          useContexts.splice(i, 1);
+        }
+        break;
+      case "range":
+        filterRange(useContext.valueRange);
+        if (editorTools.isEmptyObject(useContext.valueRange)) {
+          useContexts.splice(i, 1);
+        }
+        break;
+      case "reference":
+        filterReference(useContext.valueReference);
+        if (editorTools.isEmptyObject(useContext.valueReference)) {
+          useContexts.splice(i, 1);
+        }
+        break;
+      default:
+        throw new UnreachableError(useContext);
+    }
+  }
+  if (editorTools.emptyArray(useContexts)) {
+    delete (qre as Partial<Questionnaire>).useContext;
+  }
+}
+
 function filterContact(qre: Questionnaire) {
   for (let i = qre.contact.length - 1; i >= 0; i--) {
     const contactDetail = qre.contact[i];
@@ -252,18 +404,61 @@ function filterLastReviewDate(qre: Questionnaire) {
   }
 }
 
-// FIXME: fix identifier filtering properly detecting empty values
-function filterIdentifier(qre: Questionnaire) {
-  if (qre.identifier !== undefined) {
-    for (let i = qre.identifier.length - 1; i >= 0; i--) {
-      const id = qre.identifier[i];
-      if (editorTools.isEmptyObject(id)) {
-        qre.identifier.splice(i, 1);
+function filterPeriod(period: Period) {
+  const invalidStart = dateTools.isDateTime(period.start) !== true;
+  if (invalidStart) {
+    delete period.start;
+  }
+  const invalidEnd = dateTools.isDateTime(period.end) !== true;
+  if (invalidEnd) {
+    delete period.end;
+  }
+}
+
+function filterIdentifier(identifier: Identifier) {
+  if (!identifier.system) {
+    delete identifier.system;
+  }
+  if (!identifier.value) {
+    delete identifier.value;
+  }
+  if (!identifier.use) {
+    delete identifier.use;
+  }
+  const { type } = identifier;
+  if (type !== undefined) {
+    if (!type.text) {
+      delete type.text;
+    }
+    if (type.coding !== undefined) {
+      filterCoding(type.coding);
+      if (editorTools.isEmptyObject(type.coding)) {
+        delete type.coding;
       }
     }
-    if (qre.identifier.length === 0) {
-      delete qre.identifier;
+    if (editorTools.isEmptyObject(identifier.type)) {
+      delete identifier.type;
     }
+  }
+  if (identifier.period !== undefined) {
+    filterPeriod(identifier.period);
+    if (editorTools.isEmptyObject(identifier.period)) {
+      delete identifier.period;
+    }
+  }
+}
+
+function filterIdentifiers(qre: Questionnaire) {
+  if (qre.identifier === undefined) return;
+  for (let i = qre.identifier.length - 1; i >= 0; i--) {
+    const id = qre.identifier[i];
+    filterIdentifier(id);
+    if (editorTools.isEmptyObject(id)) {
+      qre.identifier.splice(i, 1);
+    }
+  }
+  if (qre.identifier.length === 0) {
+    delete qre.identifier;
   }
 }
 
@@ -299,6 +494,7 @@ function getFilteredQuestionnaire(qre: Questionnaire): Questionnaire {
     delete qre.copyrightLabel;
   }
   filterContact(qre);
+  filterUseContext(qre);
   filterEffectivePeriod(qre);
   filterDate(qre);
   filterApprovalDate(qre);
@@ -306,7 +502,7 @@ function getFilteredQuestionnaire(qre: Questionnaire): Questionnaire {
   filterVersionAlgorithm(qre);
   filterDerivedFrom(qre);
   filterCode(qre);
-  filterIdentifier(qre);
+  filterIdentifiers(qre);
   if (qre.code.length === 0) {
     delete (qre as Partial<Questionnaire>).code;
   }

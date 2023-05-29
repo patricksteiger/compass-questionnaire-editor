@@ -20,6 +20,7 @@ export const getDefaultQuestionnaire = (lang: Language): Questionnaire => {
     title: name,
     derivedFrom: [],
     contact: [],
+    useContext: [],
     version: "1.0",
     status: "draft",
     publisher: "",

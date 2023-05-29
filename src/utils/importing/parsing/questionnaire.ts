@@ -8,6 +8,7 @@ import {
   optionalBooleanSchema,
   optionalPeriodSchema,
   optionalStringSchema,
+  usageContextSchema,
 } from "./schemas";
 import { z } from "zod";
 import { extensionSchema } from "./extension";
@@ -19,7 +20,7 @@ import { resourceTypes } from "@/utils/resourceType";
 
 const item = itemSchema.array().optional();
 
-// undefined status will be set to "unknown"
+// undefined status will be set to "unknown" in import-builder
 const status = z.enum(statusOptions).optional();
 
 const language = z.enum(languages).optional();
@@ -93,6 +94,10 @@ const identifier = identifierSchema.array().optional();
 
 const extension = extensionSchema.array().optional();
 
+const useContext = usageContextSchema.array().optional();
+
+export type ParsedUseContext = z.infer<typeof useContext>;
+
 export const questionnaireSchema = z
   .object({
     resourceType: z.literal("Questionnaire"),
@@ -110,6 +115,7 @@ export const questionnaireSchema = z
     publisher,
     description,
     purpose,
+    useContext,
     copyright,
     copyrightLabel,
     date,

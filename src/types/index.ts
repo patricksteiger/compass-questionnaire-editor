@@ -55,6 +55,13 @@ export type Quantity = {
   code?: string;
 };
 
+export type SimpleQuantity = Omit<Quantity, "comparator">;
+
+export type Range = {
+  low?: SimpleQuantity;
+  high?: SimpleQuantity;
+};
+
 export type Reference = {
   reference?: string;
   type?: string;
@@ -89,6 +96,11 @@ export type Coding = {
   display?: string;
   version?: string;
   userSelected?: boolean | null;
+};
+
+export type CodeableConcept = {
+  coding: Coding[];
+  text?: string;
 };
 
 export type AnswerOption = {
@@ -339,7 +351,23 @@ export type ContactDetail = {
   telecom: ContactPoint[];
 };
 
-// TODO: useContext
+export const useContextTypes = [
+  "codeableConcept",
+  "quantity",
+  "range",
+  "reference",
+] as const;
+export type UseContextType = typeof useContextTypes[number];
+
+export type UsageContext = {
+  code: Coding;
+} & (
+  | { __type: "codeableConcept"; valueCodeableConcept: CodeableConcept }
+  | { __type: "quantity"; valueQuantity: Quantity }
+  | { __type: "range"; valueRange: Range }
+  | { __type: "reference"; valueReference: Reference }
+);
+
 export type Questionnaire = {
   __versionAlgorithmUsesCoding: boolean;
   resourceType: "Questionnaire";
@@ -360,6 +388,7 @@ export type Questionnaire = {
   description?: string;
   contact: ContactDetail[];
   purpose?: string;
+  useContext: UsageContext[];
   copyright?: string;
   copyrightLabel?: string;
   approvalDate?: string;

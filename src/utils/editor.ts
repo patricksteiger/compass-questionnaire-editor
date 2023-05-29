@@ -8,6 +8,7 @@ import {
   AnswerOption,
   Attachment,
   ContactPoint,
+  SimpleQuantity,
 } from "@/types";
 import { getOrAddHiddenExtension } from "./extension";
 import { itemTools } from "./item";
@@ -350,6 +351,23 @@ class EditorTools {
       current.display !== old.display ||
       current.reference !== old.reference
     );
+  }
+
+  formatSimpleQuantity(quantity: SimpleQuantity): string {
+    let result = "";
+    if (quantity.value) {
+      const prefix = result.length > 0 ? " " : "";
+      result += prefix + quantity.value;
+    }
+    if (quantity.unit) {
+      const prefix = result.length > 0 ? " " : "";
+      result += prefix + quantity.unit;
+    }
+    if (quantity.code) {
+      const prefix = result.length > 0 ? " " : "";
+      result += prefix + `(${quantity.code})`;
+    }
+    return result;
   }
 
   formatQuantity(quantity: Quantity): string {

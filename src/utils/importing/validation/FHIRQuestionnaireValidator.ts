@@ -23,6 +23,7 @@ export class FHIRQuestionnaireValidator {
     const warnings: string[] = [];
     this.validateVersionAlgorithm(qre, errors);
     this.validateExtension(qre, errors);
+    this.validateUseContext(qre, errors);
     if (editorTools.nonEmptyArray(qre.item)) {
       const itemValidator = new FHIRItemValidator(qre, errors, warnings);
       for (const item of qre.item) {
@@ -38,17 +39,35 @@ export class FHIRQuestionnaireValidator {
     }
   }
 
-  private validateExtension(qre: ParsedQuestionnaire, errors: string[]): void {
-    if (qre.extension === undefined) return;
-    for (const extension of qre.extension) {
-      const count = fhirValidatorUtils.countValueInvariants(extension);
+  private validateUseContext(qre: ParsedQuestionnaire, errors: string[]): void {
+    if (editorTools.emptyArray(qre.useContext)) return;
+    for (let pos = 1; pos <= qre.useContext.length; pos++) {
+      const useContext = qre.useContext[pos - 1];
+      const count = fhirValidatorUtils.countValueInvariants(useContext);
       if (count === 0) {
         errors.push(
-          `Questionnaire "${qre.language}" has extension with no value.`,
+          `Questionnaire "${qre.language}" has useContext at position ${pos} with no value.`,
         );
       } else if (count > 1) {
         errors.push(
-          `Questionnaire "${qre.language}" has extension with multiple values.`,
+          `Questionnaire "${qre.language}" has useContext at position ${pos} with multiple value invariants.`,
+        );
+      }
+    }
+  }
+
+  private validateExtension(qre: ParsedQuestionnaire, errors: string[]): void {
+    if (editorTools.emptyArray(qre.extension)) return;
+    for (let pos = 1; pos <= qre.extension.length; pos++) {
+      const extension = qre.extension[pos - 1];
+      const count = fhirValidatorUtils.countValueInvariants(extension);
+      if (count === 0) {
+        errors.push(
+          `Questionnaire "${qre.language}" has extension at position ${pos} with no value.`,
+        );
+      } else if (count > 1) {
+        errors.push(
+          `Questionnaire "${qre.language}" has extension at position ${pos} with multiple value invariants.`,
         );
       }
     }
