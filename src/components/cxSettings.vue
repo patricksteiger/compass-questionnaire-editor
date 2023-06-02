@@ -33,7 +33,23 @@
             >
               <q-item-section>
                 <div class="row">
+                  <q-select
+                    class="col-4"
+                    :options="derivedFromExtensionValues"
+                    v-model="questionnaire._derivedFrom[index].__value"
+                    clearable
+                    @clear="
+                      () => {
+                        questionnaire._derivedFrom[index].__value = null;
+                      }
+                    "
+                  >
+                    <template v-slot:prepend>
+                      <div>{{ index + 1 }}</div>
+                    </template>
+                  </q-select>
                   <q-input
+                    class="col-8"
                     :model-value="derivedFrom"
                     @update:model-value="(v) => {
                       if (v === null) {
@@ -43,18 +59,17 @@
                       }
                     }"
                     clearable
-                  >
-                    <template v-slot:prepend>
-                      <div>{{ index + 1 }}</div>
-                    </template>
-                  </q-input>
+                  />
                 </div>
               </q-item-section>
               <q-btn
                 flat
                 icon="highlight_off"
                 color="grey-6"
-                @click="() => questionnaire!.derivedFrom.splice(index, 1)"
+                @click="() => {
+                  questionnaire!.derivedFrom.splice(index, 1);
+                  questionnaire!._derivedFrom.splice(index, 1);
+                }"
               />
             </q-item>
           </q-list>
@@ -64,7 +79,10 @@
             padding="none xl"
             color="primary"
             fab
-            @click="() => questionnaire!.derivedFrom.push('')"
+            @click="() => {
+              questionnaire!.derivedFrom.push('');
+              questionnaire!._derivedFrom.push(getDerivedFromExtension(null));
+            }"
           />
         </q-expansion-item>
       </div>
@@ -523,6 +541,10 @@ import cxSimpleQuantity from "@/components/datatypes/cxSimpleQuantity.vue";
 import cxReference from "@/components/datatypes/cxReference.vue";
 import {
   ContactDetail,
+  DerivedFromExtension,
+  derivedFromExtensionUrl,
+  DerivedFromExtensionValue,
+  derivedFromExtensionValues,
   Questionnaire,
   UsageContext,
   UseContextType,
@@ -544,6 +566,7 @@ export default defineComponent({
     );
     const contact = ref<ContactDetail[]>(questionnaire.value.contact);
     const currentUsageContext = ref<UsageContext | undefined>(undefined);
+    const url: typeof derivedFromExtensionUrl = derivedFromExtensionUrl;
     return {
       dateTools,
       editorTools,
@@ -554,9 +577,69 @@ export default defineComponent({
       useContextLayout: ref(false),
       fabUseContext: ref(true),
       useContextTypes,
+      url,
+      derivedFromExtensionValues,
     };
   },
   methods: {
+    getDerivedFromExtension(
+      type: DerivedFromExtensionValue | null,
+    ): DerivedFromExtension {
+      switch (type) {
+        case null:
+          return {
+            url: derivedFromExtensionUrl,
+            __value: null,
+          };
+        case "extends":
+          return {
+            url: derivedFromExtensionUrl,
+            __value: "extends",
+            valueCodeableConcept: {
+              coding: [
+                {
+                  code: "extends",
+                  display: "extends",
+                  system: "http://hl7.org/fhir/questionnaire-derivationType",
+                  version: "1.0.0",
+                },
+              ],
+            },
+          };
+        case "compliesWith":
+          return {
+            url: derivedFromExtensionUrl,
+            __value: "compliesWith",
+            valueCodeableConcept: {
+              coding: [
+                {
+                  code: "compliesWith",
+                  display: "complies with",
+                  system: "http://hl7.org/fhir/questionnaire-derivationType",
+                  version: "1.0.0",
+                },
+              ],
+            },
+          };
+        case "inspiredBy":
+          return {
+            url: derivedFromExtensionUrl,
+            __value: "inspiredBy",
+            valueCodeableConcept: {
+              coding: [
+                {
+                  code: "inspiredBy",
+                  display: "inspired by",
+                  system: "http://hl7.org/fhir/questionnaire-derivationType",
+                  version: "1.0.0",
+                },
+              ],
+            },
+          };
+        default:
+          throw new UnreachableError(type);
+      }
+    },
     showUseContextDialog(usageContext: UsageContext) {
       this.currentUsageContext = usageContext;
       this.useContextLayout = true;

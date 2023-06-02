@@ -3,6 +3,8 @@ import {
   AnswerOption,
   ContactDetail,
   ContactPoint,
+  DerivedFromExtension,
+  derivedFromExtensionUrl,
   EnableWhen,
   Extension,
   Initial,
@@ -17,7 +19,7 @@ import {
   getItemTypeIcon,
   VersionAlgorithmCoding,
 } from "../../constants";
-import { editorTools } from "../../editor";
+import { editorTools, UnreachableError } from "../../editor";
 import { itemTools } from "../../item";
 import {
   ParsedAnswerOption,
@@ -39,6 +41,7 @@ export class QuestionnaireBuilder {
     const subjectType = this.qre.subjectType ?? [];
     const code = this.qre.code ?? [];
     const derivedFrom = this.qre.derivedFrom ?? [];
+    const _derivedFrom = this.fromDerivedFromExtension(this.qre);
     const effectivePeriod = this.qre.effectivePeriod ?? {};
     const contact = this.qre.contact;
     const newContact: ContactDetail[] = [];
@@ -78,6 +81,7 @@ export class QuestionnaireBuilder {
       __versionAlgorithmUsesCoding: !this.qre.versionAlgorithmString,
       code,
       derivedFrom,
+      _derivedFrom,
       subjectType,
       contact: newContact,
       useContext: newUseContext,
@@ -89,6 +93,50 @@ export class QuestionnaireBuilder {
       extension: newExtension,
       item: newItem,
     };
+  }
+
+  private fromDerivedFromExtension(
+    qre: ParsedQuestionnaire,
+  ): DerivedFromExtension[] {
+    if (editorTools.emptyArray(qre.derivedFrom)) {
+      return [];
+    }
+    const _derivedFrom: DerivedFromExtension[] = [];
+    for (const ext of qre._derivedFrom ?? []) {
+      if (ext === null) {
+        _derivedFrom.push({ url: derivedFromExtensionUrl, __value: null });
+      } else {
+        // Length should always be 1. Validated in import-validator.
+        const code = ext.valueCodeableConcept.coding[0].code;
+        switch (code) {
+          case "extends":
+            _derivedFrom.push({
+              url: derivedFromExtensionUrl,
+              __value: code,
+            });
+            break;
+          case "compliesWith":
+            _derivedFrom.push({
+              url: derivedFromExtensionUrl,
+              __value: code,
+            });
+            break;
+          case "inspiredBy":
+            _derivedFrom.push({
+              url: derivedFromExtensionUrl,
+              __value: code,
+            });
+            break;
+          default:
+            throw new UnreachableError(code);
+        }
+      }
+    }
+    const padding = qre.derivedFrom.length - _derivedFrom.length;
+    for (let count = 1; count <= padding; count++) {
+      _derivedFrom.push({ url: derivedFromExtensionUrl, __value: null });
+    }
+    return _derivedFrom;
   }
 
   private fromUseContext(useContext: ParsedUsageContext): UsageContext {

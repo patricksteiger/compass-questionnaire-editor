@@ -368,6 +368,72 @@ export type UsageContext = {
   | { __type: "reference"; valueReference: Reference }
 );
 
+export const derivedFromExtensionValues = [
+  "extends",
+  "compliesWith",
+  "inspiredBy",
+] as const;
+export type DerivedFromExtensionValue =
+  typeof derivedFromExtensionValues[number];
+
+export const derivedFromExtensionUrl =
+  "http://hl7.org/fhir/StructureDefinition/questionnaire-derivationType";
+export const derivedFromExtensionCodeUrl =
+  "http://hl7.org/fhir/questionnaire-derivationType";
+
+export type DerivedFromExtension = {
+  url: typeof derivedFromExtensionUrl;
+} & (
+  | {
+      __value: "extends";
+      valueCodeableConcept?: {
+        text?: string;
+        coding: [
+          {
+            code: "extends";
+            display: "extends";
+            system: typeof derivedFromExtensionCodeUrl;
+            version: "1.0.0";
+            userSelected?: boolean;
+          },
+        ];
+      };
+    }
+  | {
+      __value: "compliesWith";
+      valueCodeableConcept?: {
+        text?: string;
+        coding: [
+          {
+            code: "compliesWith";
+            display: "complies with";
+            system: typeof derivedFromExtensionCodeUrl;
+            version: "1.0.0";
+            userSelected?: boolean;
+          },
+        ];
+      };
+    }
+  | {
+      __value: "inspiredBy";
+      valueCodeableConcept?: {
+        text?: string;
+        coding: [
+          {
+            code: "inspiredBy";
+            display: "inspired by";
+            system: typeof derivedFromExtensionCodeUrl;
+            version: "1.0.0";
+            userSelected?: boolean;
+          },
+        ];
+      };
+    }
+  | {
+      __value: null;
+    }
+);
+
 export type Questionnaire = {
   __versionAlgorithmUsesCoding: boolean;
   resourceType: "Questionnaire";
@@ -380,6 +446,7 @@ export type Questionnaire = {
   name?: string;
   title?: string;
   derivedFrom: string[];
+  _derivedFrom: DerivedFromExtension[];
   status: Status;
   experimental: boolean;
   subjectType: ResourceType[];

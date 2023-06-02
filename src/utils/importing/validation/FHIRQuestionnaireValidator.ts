@@ -24,6 +24,7 @@ export class FHIRQuestionnaireValidator {
     this.validateVersionAlgorithm(qre, errors);
     this.validateExtension(qre, errors);
     this.validateUseContext(qre, errors);
+    this.validateDerivedFrom(qre, errors);
     if (editorTools.nonEmptyArray(qre.item)) {
       const itemValidator = new FHIRItemValidator(qre, errors, warnings);
       for (const item of qre.item) {
@@ -36,6 +37,40 @@ export class FHIRQuestionnaireValidator {
       return { state: "warning", data: qre, warnings };
     } else {
       return { state: "success", data: qre };
+    }
+  }
+
+  private validateDerivedFrom(
+    qre: ParsedQuestionnaire,
+    errors: string[],
+  ): void {
+    if (editorTools.emptyArray(qre._derivedFrom)) {
+      return;
+    }
+    if (editorTools.emptyArray(qre.derivedFrom)) {
+      errors.push(
+        `Questionnaire "${qre.language}" has derivedFrom-extensions without derivedFrom-values.`,
+      );
+      return;
+    } else if (qre._derivedFrom.length > qre.derivedFrom.length) {
+      errors.push(
+        `Questionnaire "${qre.language}" has more derivedFrom-extensions than derivedFrom-values.`,
+      );
+      return;
+    }
+    for (let pos = 1; pos <= qre._derivedFrom.length; pos++) {
+      const ext = qre._derivedFrom[pos - 1];
+      if (ext !== null) {
+        if (ext.valueCodeableConcept.coding.length === 0) {
+          errors.push(
+            `Questionnaire "${qre.language}" has derivedFrom-extension at position ${pos} with no coding.`,
+          );
+        } else if (ext.valueCodeableConcept.coding.length > 1) {
+          errors.push(
+            `Questionnaire "${qre.language}" has derivedFrom-extension at position ${pos} with more than 1 coding.`,
+          );
+        }
+      }
     }
   }
 

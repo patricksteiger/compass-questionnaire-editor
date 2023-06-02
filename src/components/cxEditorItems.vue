@@ -376,7 +376,7 @@
               <q-toggle
                 left-label
                 label="required"
-                color="purple"
+                color="primary"
                 keep-color
                 v-model="requiredItem"
               />
@@ -384,7 +384,7 @@
               <q-toggle
                 left-label
                 label="repeats"
-                color="purple"
+                color="primary"
                 keep-color
                 v-model="repeatedItem"
               />
@@ -392,7 +392,7 @@
               <q-toggle
                 left-label
                 label="readOnly"
-                color="purple"
+                color="primary"
                 keep-color
                 v-model="selectedItem.readOnly"
               />

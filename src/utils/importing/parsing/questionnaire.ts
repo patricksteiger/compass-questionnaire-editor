@@ -1,6 +1,11 @@
 import { languages } from "@/store";
 import { itemSchema } from "./item";
-import { status as statusOptions } from "@/types";
+import {
+  derivedFromExtensionCodeUrl,
+  derivedFromExtensionUrl,
+  derivedFromExtensionValues,
+  status as statusOptions,
+} from "@/types";
 import {
   codingSchema,
   contactDetailSchema,
@@ -84,6 +89,22 @@ const experimental = optionalBooleanSchema;
 
 const derivedFrom = z.string().array().optional();
 
+const derivedFromExtension = z
+  .object({
+    url: z.literal(derivedFromExtensionUrl),
+    valueCodeableConcept: z.object({
+      coding: z
+        .object({
+          code: z.enum(derivedFromExtensionValues),
+          system: z.literal(derivedFromExtensionCodeUrl),
+        })
+        .array(),
+    }),
+  })
+  .nullable();
+const _derivedFrom = derivedFromExtension.array().optional();
+export type ParsedDerivedFromExtension = z.infer<typeof derivedFromExtension>;
+
 const code = codingSchema.array().optional();
 
 const subjectType = z.enum(resourceTypes).array().optional();
@@ -107,6 +128,7 @@ export const questionnaireSchema = z
     contact,
     url,
     derivedFrom,
+    _derivedFrom,
     version,
     versionAlgorithmString,
     versionAlgorithmCoding,

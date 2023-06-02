@@ -3,6 +3,9 @@ import {
   Coding,
   ContactDetail,
   ContactPoint,
+  DerivedFromExtension,
+  derivedFromExtensionUrl,
+  DerivedFromExtensionValue,
   EnableWhen,
   Extension,
   Identifier,
@@ -361,15 +364,81 @@ function filterContact(qre: Questionnaire) {
   }
 }
 
+function getDerivedFromExtensionCode(
+  type: DerivedFromExtensionValue | null,
+): DerivedFromExtension {
+  switch (type) {
+    case null:
+      return null as unknown as DerivedFromExtension;
+    case "extends":
+      return {
+        url: derivedFromExtensionUrl,
+        __value: "extends",
+        valueCodeableConcept: {
+          coding: [
+            {
+              code: "extends",
+              display: "extends",
+              system: "http://hl7.org/fhir/questionnaire-derivationType",
+              version: "1.0.0",
+            },
+          ],
+        },
+      };
+    case "compliesWith":
+      return {
+        url: derivedFromExtensionUrl,
+        __value: "compliesWith",
+        valueCodeableConcept: {
+          coding: [
+            {
+              code: "compliesWith",
+              display: "complies with",
+              system: "http://hl7.org/fhir/questionnaire-derivationType",
+              version: "1.0.0",
+            },
+          ],
+        },
+      };
+    case "inspiredBy":
+      return {
+        url: derivedFromExtensionUrl,
+        __value: "inspiredBy",
+        valueCodeableConcept: {
+          coding: [
+            {
+              code: "inspiredBy",
+              display: "inspired by",
+              system: "http://hl7.org/fhir/questionnaire-derivationType",
+              version: "1.0.0",
+            },
+          ],
+        },
+      };
+    default:
+      throw new UnreachableError(type);
+  }
+}
+
 function filterDerivedFrom(qre: Questionnaire) {
   for (let i = qre.derivedFrom.length - 1; i >= 0; i--) {
     const derivedFrom = qre.derivedFrom[i];
     if (!derivedFrom) {
       qre.derivedFrom.splice(i, 1);
+      qre._derivedFrom.splice(i, 1);
+    } else {
+      const ext = qre._derivedFrom[i];
+      qre._derivedFrom[i] = getDerivedFromExtensionCode(ext.__value);
     }
   }
   if (qre.derivedFrom.length === 0) {
     delete (qre as Partial<Questionnaire>).derivedFrom;
+    delete (qre as Partial<Questionnaire>)._derivedFrom;
+  } else {
+    const indx = qre._derivedFrom.findIndex((d) => d !== null);
+    if (indx < 0) {
+      delete (qre as Partial<Questionnaire>)._derivedFrom;
+    }
   }
 }
 
