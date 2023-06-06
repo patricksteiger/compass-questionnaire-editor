@@ -32,8 +32,9 @@
               :key="index"
             >
               <q-item-section>
-                <div class="row">
+                <div class="row justify-between">
                   <q-select
+                    label="DerivationType"
                     class="col-4"
                     :options="derivedFromExtensionValues"
                     v-model="questionnaire._derivedFrom[index].__value"
@@ -49,6 +50,7 @@
                     </template>
                   </q-select>
                   <q-input
+                    label="URL of Questionnaire"
                     class="col-8"
                     :model-value="derivedFrom"
                     @update:model-value="(v) => {
@@ -170,9 +172,10 @@
                 </div>
                 <div v-if="usageContext.__type === 'codeableConcept'">
                   <div clickable @click="showUseContextDialog(usageContext)">
-                    <q-field
+                    <q-input
                       label="Text"
                       autogrow
+                      readonly
                       type="textarea"
                       v-model="usageContext.valueCodeableConcept.text"
                     />
@@ -240,15 +243,7 @@
                   clickable
                   @click="showUseContextDialog(usageContext)"
                 >
-                  <q-field
-                    label="LOW"
-                    stack-label
-                    :error="
-                      editorTools.isEmptyObject(usageContext.valueRange.low)
-                    "
-                    error-message="SimpleQuantity must be non-empty"
-                    dense
-                  >
+                  <q-field label="LOW" stack-label dense>
                     <template v-slot:control>
                       <div>
                         {{
@@ -259,15 +254,7 @@
                       </div>
                     </template>
                   </q-field>
-                  <q-field
-                    label="HIGH"
-                    stack-label
-                    :error="
-                      editorTools.isEmptyObject(usageContext.valueRange.high)
-                    "
-                    error-message="SimpleQuantity must be non-empty"
-                    dense
-                  >
+                  <q-field label="HIGH" stack-label dense>
                     <template v-slot:control>
                       <div>
                         {{
@@ -379,7 +366,43 @@
                   >
                     <q-item-section>
                       {{ cIndex + 1 }}
-                      <cxCoding :coding="coding" />
+                      <div class="q-pa-md">
+                        <q-input
+                          label="Code"
+                          class="col-4"
+                          v-model="coding.code"
+                          type="text"
+                          dense
+                        />
+                        <q-input
+                          label="Display"
+                          class="col-4"
+                          v-model="coding.display"
+                          type="text"
+                          dense
+                        />
+                        <q-input
+                          label="System"
+                          class="col-4"
+                          v-model="coding.system"
+                          type="text"
+                          dense
+                        />
+                        <q-input
+                          label="Version"
+                          class="col-4"
+                          v-model="coding.version"
+                          type="text"
+                          dense
+                        />
+                        <q-toggle
+                          label="UserSelected"
+                          class="col-4"
+                          v-model.boolean="coding.userSelected"
+                          toggle-indeterminate
+                          dense
+                        />
+                      </div>
                     </q-item-section>
                     <q-btn
                       flat
@@ -550,6 +573,7 @@ import {
   UseContextType,
   useContextTypes,
 } from "@/types";
+import { questionnaireTools } from "@/utils/questionnaire";
 
 export default defineComponent({
   components: {
@@ -585,60 +609,7 @@ export default defineComponent({
     getDerivedFromExtension(
       type: DerivedFromExtensionValue | null,
     ): DerivedFromExtension {
-      switch (type) {
-        case null:
-          return {
-            url: derivedFromExtensionUrl,
-            __value: null,
-          };
-        case "extends":
-          return {
-            url: derivedFromExtensionUrl,
-            __value: "extends",
-            valueCodeableConcept: {
-              coding: [
-                {
-                  code: "extends",
-                  display: "extends",
-                  system: "http://hl7.org/fhir/questionnaire-derivationType",
-                  version: "1.0.0",
-                },
-              ],
-            },
-          };
-        case "compliesWith":
-          return {
-            url: derivedFromExtensionUrl,
-            __value: "compliesWith",
-            valueCodeableConcept: {
-              coding: [
-                {
-                  code: "compliesWith",
-                  display: "complies with",
-                  system: "http://hl7.org/fhir/questionnaire-derivationType",
-                  version: "1.0.0",
-                },
-              ],
-            },
-          };
-        case "inspiredBy":
-          return {
-            url: derivedFromExtensionUrl,
-            __value: "inspiredBy",
-            valueCodeableConcept: {
-              coding: [
-                {
-                  code: "inspiredBy",
-                  display: "inspired by",
-                  system: "http://hl7.org/fhir/questionnaire-derivationType",
-                  version: "1.0.0",
-                },
-              ],
-            },
-          };
-        default:
-          throw new UnreachableError(type);
-      }
+      return questionnaireTools.getDerivedFromExtension(type);
     },
     showUseContextDialog(usageContext: UsageContext) {
       this.currentUsageContext = usageContext;
@@ -655,27 +626,7 @@ export default defineComponent({
       }
     },
     addNewToUseContext(type: UseContextType) {
-      let usageContext: UsageContext;
-      switch (type) {
-        case "codeableConcept":
-          usageContext = {
-            __type: type,
-            code: {},
-            valueCodeableConcept: { coding: [] },
-          };
-          break;
-        case "quantity":
-          usageContext = { __type: type, code: {}, valueQuantity: {} };
-          break;
-        case "range":
-          usageContext = { __type: type, code: {}, valueRange: {} };
-          break;
-        case "reference":
-          usageContext = { __type: type, code: {}, valueReference: {} };
-          break;
-        default:
-          throw new UnreachableError(type);
-      }
+      const usageContext = questionnaireTools.getUsageContextFrom(type);
       this.questionnaire.useContext.push(usageContext);
     },
     unreachableCode(n: never) {

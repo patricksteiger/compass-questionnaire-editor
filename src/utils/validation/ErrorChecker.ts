@@ -7,6 +7,7 @@ import {
   Item,
   Period,
   Questionnaire,
+  UsageContext,
 } from "@/types";
 import { dateTools } from "@/utils/date";
 import { editorTools, UnreachableError } from "@/utils/editor";
@@ -31,6 +32,13 @@ export class ErrorChecker {
     return new ErrorChecker(questionnaire).validate();
   }
 
+  validate(): Errors {
+    const items = this.items();
+    const primary = this.primary();
+    const secondary = this.secondary();
+    return { items, primary, secondary };
+  }
+
   static nonEmpty(errors: Errors): boolean {
     return (
       errors.items.length > 0 ||
@@ -52,13 +60,6 @@ export class ErrorChecker {
       }
     }
     return languages;
-  }
-
-  validate(): Errors {
-    const items = this.items();
-    const primary = this.primary();
-    const secondary = this.secondary();
-    return { items, primary, secondary };
   }
 
   private items(): ItemError[] {
@@ -490,10 +491,60 @@ export class ErrorChecker {
 
   private secondary(): string[] {
     const errors: string[] = [];
-    this.code(this.questionnaire.code, errors);
-    this.contact(this.questionnaire.contact, errors);
     this.derivedFrom(this.questionnaire.derivedFrom, errors);
+    this.code(this.questionnaire.code, errors);
+    this.useContext(this.questionnaire.useContext, errors);
+    this.contact(this.questionnaire.contact, errors);
     return errors;
+  }
+
+  private useContext(useContext: UsageContext[], errors: string[]) {
+    for (let pos = 1; pos <= useContext.length; pos++) {
+      const usageContext = useContext[pos - 1];
+      if (editorTools.isEmptyObject(usageContext.code)) {
+        errors.push(`UseContext at position ${pos} has empty code.`);
+      }
+      switch (usageContext.__type) {
+        case "codeableConcept":
+          if (editorTools.isEmptyObject(usageContext.valueCodeableConcept)) {
+            errors.push(
+              `UseContext at position ${pos} has empty CodeableConcept.`,
+            );
+          } else {
+            for (
+              let codingPos = 1;
+              codingPos <= usageContext.valueCodeableConcept.coding.length;
+              codingPos++
+            ) {
+              const coding =
+                usageContext.valueCodeableConcept.coding[codingPos - 1];
+              if (editorTools.isEmptyObject(coding)) {
+                errors.push(
+                  `UseContext at position ${pos} has empty Coding at position ${codingPos}.`,
+                );
+              }
+            }
+          }
+          break;
+        case "quantity":
+          if (editorTools.isEmptyObject(usageContext.valueQuantity)) {
+            errors.push(`UseContext at position ${pos} has empty Quantity.`);
+          }
+          break;
+        case "range":
+          if (editorTools.isEmptyObject(usageContext.valueRange)) {
+            errors.push(`UseContext at position ${pos} has empty Range.`);
+          }
+          break;
+        case "reference":
+          if (editorTools.isEmptyObject(usageContext.valueReference)) {
+            errors.push(`UseContext at position ${pos} has empty Reference.`);
+          }
+          break;
+        default:
+          throw new UnreachableError(usageContext);
+      }
+    }
   }
 
   private contact(contact: ContactDetail[], errors: string[]) {

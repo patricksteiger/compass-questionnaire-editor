@@ -10,6 +10,7 @@
     />
     <q-btn
       label="Now"
+      flat
       dense
       @click="() => (periodValue.start = dateTools.getCurrentDateTime())"
     />
@@ -23,6 +24,7 @@
     />
     <q-btn
       label="Now"
+      flat
       dense
       @click="() => (periodValue.end = dateTools.getCurrentDateTime())"
     />

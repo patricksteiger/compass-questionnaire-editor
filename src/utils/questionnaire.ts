@@ -1,4 +1,14 @@
-import { EnableWhen, Item, Questionnaire } from "@/types";
+import {
+  DerivedFromExtension,
+  derivedFromExtensionUrl,
+  DerivedFromExtensionValue,
+  EnableWhen,
+  Item,
+  Questionnaire,
+  UsageContext,
+  UseContextType,
+} from "@/types";
+import { UnreachableError } from "./editor";
 import { itemTools } from "./item";
 
 class QuestionnaireTools {
@@ -167,6 +177,84 @@ class QuestionnaireTools {
       if (item.item !== undefined) {
         this.getEnableWhenWithLinkIdHelper(item.item, linkId, enableWhen);
       }
+    }
+  }
+
+  getUsageContextFrom(type: UseContextType): UsageContext {
+    switch (type) {
+      case "codeableConcept":
+        return {
+          __type: type,
+          code: {},
+          valueCodeableConcept: { coding: [] },
+        };
+      case "quantity":
+        return { __type: type, code: {}, valueQuantity: {} };
+      case "range":
+        return { __type: type, code: {}, valueRange: {} };
+      case "reference":
+        return { __type: type, code: {}, valueReference: {} };
+      default:
+        throw new UnreachableError(type);
+    }
+  }
+
+  getDerivedFromExtension(
+    type: DerivedFromExtensionValue | null,
+  ): DerivedFromExtension {
+    switch (type) {
+      case null:
+        return {
+          url: derivedFromExtensionUrl,
+          __value: null,
+        };
+      case "extends":
+        return {
+          url: derivedFromExtensionUrl,
+          __value: "extends",
+          valueCodeableConcept: {
+            coding: [
+              {
+                code: "extends",
+                display: "extends",
+                system: "http://hl7.org/fhir/questionnaire-derivationType",
+                version: "1.0.0",
+              },
+            ],
+          },
+        };
+      case "compliesWith":
+        return {
+          url: derivedFromExtensionUrl,
+          __value: "compliesWith",
+          valueCodeableConcept: {
+            coding: [
+              {
+                code: "compliesWith",
+                display: "complies with",
+                system: "http://hl7.org/fhir/questionnaire-derivationType",
+                version: "1.0.0",
+              },
+            ],
+          },
+        };
+      case "inspiredBy":
+        return {
+          url: derivedFromExtensionUrl,
+          __value: "inspiredBy",
+          valueCodeableConcept: {
+            coding: [
+              {
+                code: "inspiredBy",
+                display: "inspired by",
+                system: "http://hl7.org/fhir/questionnaire-derivationType",
+                version: "1.0.0",
+              },
+            ],
+          },
+        };
+      default:
+        throw new UnreachableError(type);
     }
   }
 }
