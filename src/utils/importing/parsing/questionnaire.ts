@@ -85,6 +85,8 @@ const approvalDate = optionalStringSchema;
 const lastReviewDate = optionalStringSchema;
 const effectivePeriod = optionalPeriodSchema;
 
+const id = optionalStringSchema;
+const implicitRules = optionalStringSchema;
 const experimental = optionalBooleanSchema;
 
 const derivedFrom = z.string().array().optional();
@@ -122,6 +124,8 @@ export type ParsedUseContext = z.infer<typeof useContext>;
 export const questionnaireSchema = z
   .object({
     resourceType: z.literal("Questionnaire"),
+    id,
+    implicitRules,
     identifier,
     status,
     subjectType,

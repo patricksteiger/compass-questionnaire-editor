@@ -102,6 +102,12 @@ const metadataMutations = {
   setLastReviewDate(state: StoreState, payload: string) {
     state.questionnaire.lastReviewDate = payload;
   },
+  setId(state: StoreState, payload: string) {
+    state.questionnaire.id = payload;
+  },
+  setImplicitRules(state: StoreState, payload: string) {
+    state.questionnaire.implicitRules = payload;
+  },
   setExperimental(state: StoreState, payload: boolean) {
     state.questionnaire.experimental = payload;
   },
@@ -231,6 +237,9 @@ export const store = createStore<StoreState>({
         state.questionnaire.title ||
         i18n.global.t("store.questionnaire.noTitle")
       );
+    },
+    getId(state): string | undefined {
+      return state.questionnaire.id;
     },
     getExperimental(state): boolean {
       return state.questionnaire.experimental;

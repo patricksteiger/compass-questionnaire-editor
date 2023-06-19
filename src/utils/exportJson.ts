@@ -22,6 +22,7 @@ import { allowsMaxLength } from "./constants";
 import { dateTools } from "./date";
 import { editorTools, UnreachableError } from "./editor";
 import { itemTools } from "./item";
+import { questionnaireTools } from "./questionnaire";
 
 export type QuestionnaireBundleEntry = {
   resource: Questionnaire;
@@ -534,6 +535,15 @@ function filterIdentifiers(qre: Questionnaire) {
 function getFilteredQuestionnaire(qre: Questionnaire): Questionnaire {
   if (!qre.version) {
     delete qre.version;
+  }
+  if (!qre.id || questionnaireTools.validId(qre.id) !== true) {
+    delete qre.id;
+  }
+  if (
+    !qre.implicitRules ||
+    questionnaireTools.validUri(qre.implicitRules) !== true
+  ) {
+    delete qre.implicitRules;
   }
   if (qre.subjectType.length === 0) {
     delete (qre as Partial<Questionnaire>).subjectType;

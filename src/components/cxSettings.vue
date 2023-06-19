@@ -2,6 +2,26 @@
   <div class="row justify-center">
     <div class="col-6">
       <div>
+        <q-input
+          label="ID"
+          v-model="id"
+          :rules="[questionnaireTools.validId]"
+          clearable
+          @clear="() => (id = '')"
+        />
+      </div>
+
+      <div>
+        <q-input
+          label="Implicit rules"
+          v-model="implicitRules"
+          :rules="[questionnaireTools.validUri]"
+          clearable
+          @clear="() => (implicitRules = '')"
+        />
+      </div>
+
+      <div>
         <q-item tag="label" v-ripple v-if="$route.name !== 'Import'">
           <q-item-section>
             <q-item-label>{{
@@ -594,6 +614,7 @@ export default defineComponent({
     return {
       dateTools,
       editorTools,
+      questionnaireTools,
       questionnaire,
       contact,
       resourceTypes,
@@ -634,6 +655,22 @@ export default defineComponent({
     },
   },
   computed: {
+    id: {
+      get(): string | undefined {
+        return this.$store.state.questionnaire.id;
+      },
+      set(value: string) {
+        this.$store.commit("setId", value);
+      },
+    },
+    implicitRules: {
+      get(): string | undefined {
+        return this.$store.state.questionnaire.implicitRules;
+      },
+      set(value: string) {
+        this.$store.commit("setImplicitRules", value);
+      },
+    },
     experimental: {
       get(): boolean {
         return this.$store.state.questionnaire.experimental;

@@ -11,6 +11,11 @@ import {
 import { UnreachableError } from "./editor";
 import { itemTools } from "./item";
 
+// Source: https://www.hl7.org/fhir/datatypes.html#id
+const ID_REGEXP = /[A-Za-z0-9\-.]{1,64}/g;
+// Source: https://www.hl7.org/fhir/datatypes.html#uri
+const URI_REGEXP = /\S*/g;
+
 class QuestionnaireTools {
   private enableWhenDependsOnHelper(
     items: Item[],
@@ -256,6 +261,24 @@ class QuestionnaireTools {
       default:
         throw new UnreachableError(type);
     }
+  }
+
+  validId(id: string | null | undefined): true | string {
+    if (!id) return true;
+    const match = id.match(ID_REGEXP);
+    return (
+      (match !== null && match.length > 0 && id.length === match[0].length) ||
+      "ID can only contain a-z, A-Z, 0-9, . and - with a max length of 64"
+    );
+  }
+
+  validUri(uri: string | null | undefined): true | string {
+    if (!uri) return true;
+    const match = uri.match(URI_REGEXP);
+    return (
+      (match !== null && match.length > 0 && uri.length === match[0].length) ||
+      "URI cannot contain whitespace"
+    );
   }
 }
 

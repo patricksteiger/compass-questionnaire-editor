@@ -437,6 +437,8 @@ export type DerivedFromExtension = {
 export type Questionnaire = {
   __versionAlgorithmUsesCoding: boolean;
   resourceType: "Questionnaire";
+  id?: string;
+  implicitRules?: string;
   language: Language;
   url?: string;
   identifier?: Identifier[];
