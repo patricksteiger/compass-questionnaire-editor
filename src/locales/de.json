@@ -1,5 +1,6 @@
 {
   "lang": "de",
+  "documentation": "Dokumentation",
   "store": {
     "questionnaire": {
       "name": "Neuer Fragebogen",

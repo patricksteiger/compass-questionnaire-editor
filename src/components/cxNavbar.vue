@@ -1,6 +1,13 @@
 <template>
   <q-toolbar>
     <q-img src="@/assets/logo.png" width="120px" class="toolbar_logo" />
+    <a
+      target="_blank"
+      href="https://www.hl7.org/fhir/R5/questionnaire.html#resource"
+    >
+      <q-icon name="link" />
+      {{ $t("documentation") }}
+    </a>
     <q-toolbar-title v-if="inEditorScreen()" class="text-center">
       {{ getNameOfQuestionnaire }}
     </q-toolbar-title>

@@ -1,5 +1,6 @@
 {
   "lang": "en",
+  "documentation": "Documentation",
   "store": {
     "questionnaire": {
       "name": "New Questionnaire",
