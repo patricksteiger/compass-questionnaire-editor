@@ -9,6 +9,7 @@ import {
   Extension,
   Initial,
   Item,
+  Meta,
   Questionnaire,
   UsageContext,
 } from "@/types";
@@ -28,7 +29,7 @@ import {
   ParsedItem,
 } from "../parsing/item";
 import { ParsedContactDetail, ParsedUsageContext } from "../parsing/schemas";
-import { ParsedQuestionnaire } from "../parsing/questionnaire";
+import { ParsedMeta, ParsedQuestionnaire } from "../parsing/questionnaire";
 import { validatorUtils } from "../TransformerUtils";
 
 export class QuestionnaireBuilder {
@@ -76,10 +77,12 @@ export class QuestionnaireBuilder {
     if (this.qre.versionAlgorithmCoding !== undefined) {
       versAlg = this.qre.versionAlgorithmCoding as VersionAlgorithmCoding;
     }
+    const meta = this.fromMeta(this.qre.meta);
     return {
       ...this.qre,
       __versionAlgorithmUsesCoding: !this.qre.versionAlgorithmString,
       code,
+      meta,
       derivedFrom,
       _derivedFrom,
       subjectType,
@@ -309,6 +312,15 @@ export class QuestionnaireBuilder {
     throw new Error(
       `fromInitial has missing implementation: ${JSON.stringify(initial)}`,
     );
+  }
+
+  private fromMeta(meta: ParsedMeta): Meta {
+    return {
+      ...meta,
+      profile: meta?.profile ?? [],
+      security: meta?.security ?? [],
+      tag: meta?.tag ?? [],
+    };
   }
 
   private fromExtension(extension: ParsedExtension): Extension {

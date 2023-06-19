@@ -5,17 +5,253 @@
         <q-input
           label="ID"
           v-model="id"
-          :rules="[questionnaireTools.validId]"
+          :rules="[questionnaireTools.isIdOrEmpty]"
           clearable
           @clear="() => (id = '')"
         />
       </div>
 
       <div>
+        <q-expansion-item icon="information" label="Meta">
+          <q-list bordered separator dense padding class="rounded-borders">
+            <div>
+              <q-input
+                label="VersionId"
+                v-model="versionId"
+                :rules="[questionnaireTools.isIdOrEmpty]"
+                clearable
+                @clear="() => (versionId = '')"
+              />
+            </div>
+            <div class="row justify-between">
+              <q-input
+                class="col-10"
+                label="Last updated"
+                v-model="lastUpdated"
+                :rules="[dateTools.isInstantOrEmpty]"
+                clearable
+                @clear="() => (lastUpdated = '')"
+              />
+              <q-btn
+                flat
+                dense
+                label="Now"
+                @click="() => (lastUpdated = dateTools.getInstant())"
+              />
+            </div>
+            <div>
+              <q-input
+                label="Source"
+                v-model="source"
+                :rules="[questionnaireTools.isUriOrEmpty]"
+                clearable
+                @clear="() => (source = '')"
+              />
+            </div>
+
+            <div>
+              <q-expansion-item icon="information" label="Profiles">
+                <q-list
+                  bordered
+                  separator
+                  dense
+                  padding
+                  class="rounded-borders"
+                >
+                  <q-item
+                    v-for="(_, index) in questionnaire.meta.profile"
+                    :key="index"
+                  >
+                    <q-item-section>
+                      <q-input
+                        label="CANONICAL"
+                        v-model="questionnaire.meta.profile[index]"
+                        :rules="[questionnaireTools.isCanonicalOrEmpty]"
+                        clearable
+                        @clear="() => (questionnaire.meta.profile[index] = '')"
+                      >
+                        <template v-slot:prepend>
+                          <div>{{ index + 1 }}</div>
+                        </template>
+                      </q-input>
+                    </q-item-section>
+                    <q-btn
+                      flat
+                      icon="highlight_off"
+                      color="grey-6"
+                      @click="
+                        () => {
+                          questionnaire.meta.profile.splice(index, 1);
+                        }
+                      "
+                    />
+                  </q-item>
+                </q-list>
+                <q-btn
+                  icon="add"
+                  label="Profile"
+                  padding="none xl"
+                  color="primary"
+                  fab
+                  @click="() => questionnaire.meta.profile.push('')"
+                />
+              </q-expansion-item>
+            </div>
+            <div>
+              <q-expansion-item
+                label="Security"
+                expand-separator
+                icon="security"
+              >
+                <q-list
+                  dense
+                  bordered
+                  separator
+                  padding
+                  class="rounded-borders"
+                  key="Security"
+                >
+                  <q-item
+                    v-for="(code, index) in questionnaire.meta.security"
+                    :key="index"
+                  >
+                    <q-item-section>
+                      <div clickable @click="showSecurityDialog(code)">
+                        <q-field
+                          label="CODING"
+                          stack-label
+                          :error="editorTools.isEmptyObject(code)"
+                          error-message="Coding must be non-empty"
+                          dense
+                        >
+                          <template v-slot:control>
+                            <div>
+                              {{ editorTools.formatCoding(code) }}
+                            </div>
+                          </template>
+                          <template v-slot:prepend>
+                            <div>
+                              {{ index + 1 }}
+                            </div>
+                          </template>
+                        </q-field>
+                      </div>
+                    </q-item-section>
+                    <q-btn
+                      icon="highlight_off"
+                      flat
+                      color="grey-6"
+                      @click="
+                        () => questionnaire.meta.security.splice(index, 1)
+                      "
+                    />
+                  </q-item>
+                </q-list>
+                <q-btn
+                  label="Security"
+                  icon="add"
+                  padding="none xl"
+                  color="primary"
+                  fab
+                  @click="() => questionnaire.meta.security.push({})"
+                />
+              </q-expansion-item>
+            </div>
+            <div>
+              <q-expansion-item label="Tag" expand-separator icon="webhook">
+                <q-list
+                  dense
+                  bordered
+                  separator
+                  padding
+                  class="rounded-borders"
+                  key="Tags"
+                >
+                  <q-item
+                    v-for="(code, index) in questionnaire.meta.tag"
+                    :key="index"
+                  >
+                    <q-item-section>
+                      <div clickable @click="showTagDialog(code)">
+                        <q-field
+                          label="CODING"
+                          stack-label
+                          :error="editorTools.isEmptyObject(code)"
+                          error-message="Coding must be non-empty"
+                          dense
+                        >
+                          <template v-slot:control>
+                            <div>
+                              {{ editorTools.formatCoding(code) }}
+                            </div>
+                          </template>
+                          <template v-slot:prepend>
+                            <div>
+                              {{ index + 1 }}
+                            </div>
+                          </template>
+                        </q-field>
+                      </div>
+                    </q-item-section>
+                    <q-btn
+                      icon="highlight_off"
+                      flat
+                      color="grey-6"
+                      @click="() => questionnaire.meta.tag.splice(index, 1)"
+                    />
+                  </q-item>
+                </q-list>
+                <q-btn
+                  label="Tag"
+                  icon="add"
+                  padding="none xl"
+                  color="primary"
+                  fab
+                  @click="() => questionnaire.meta.tag.push({})"
+                />
+              </q-expansion-item>
+            </div>
+          </q-list>
+        </q-expansion-item>
+      </div>
+
+      <q-dialog v-model="securityLayout" v-if="selectedCoding !== undefined">
+        <q-layout view="Lhh lpR fff" container class="bg-white">
+          <q-page-container>
+            <q-page padding>
+              <q-toolbar class="bg-primary text-white shadow-2">
+                <q-toolbar-title> Security Coding </q-toolbar-title>
+              </q-toolbar>
+              <cxCoding
+                :coding="selectedCoding"
+                v-on:addCoding="(_coding) => (securityLayout = false)"
+              />
+            </q-page>
+          </q-page-container>
+        </q-layout>
+      </q-dialog>
+
+      <q-dialog v-model="tagLayout" v-if="selectedCoding !== undefined">
+        <q-layout view="Lhh lpR fff" container class="bg-white">
+          <q-page-container>
+            <q-page padding>
+              <q-toolbar class="bg-primary text-white shadow-2">
+                <q-toolbar-title> Tag Coding </q-toolbar-title>
+              </q-toolbar>
+              <cxCoding
+                :coding="selectedCoding"
+                v-on:addCoding="(_coding) => (tagLayout = false)"
+              />
+            </q-page>
+          </q-page-container>
+        </q-layout>
+      </q-dialog>
+
+      <div>
         <q-input
           label="Implicit rules"
           v-model="implicitRules"
-          :rules="[questionnaireTools.validUri]"
+          :rules="[questionnaireTools.isUriOrEmpty]"
           clearable
           @clear="() => (implicitRules = '')"
         />
@@ -583,6 +819,7 @@ import cxQuantity from "@/components/datatypes/cxQuantity.vue";
 import cxSimpleQuantity from "@/components/datatypes/cxSimpleQuantity.vue";
 import cxReference from "@/components/datatypes/cxReference.vue";
 import {
+  Coding,
   ContactDetail,
   DerivedFromExtension,
   derivedFromExtensionUrl,
@@ -611,6 +848,7 @@ export default defineComponent({
     const contact = ref<ContactDetail[]>(questionnaire.value.contact);
     const currentUsageContext = ref<UsageContext | undefined>(undefined);
     const url: typeof derivedFromExtensionUrl = derivedFromExtensionUrl;
+    const selectedCoding = ref<Coding | undefined>(undefined);
     return {
       dateTools,
       editorTools,
@@ -619,6 +857,9 @@ export default defineComponent({
       contact,
       resourceTypes,
       currentUsageContext,
+      selectedCoding,
+      securityLayout: ref(false),
+      tagLayout: ref(false),
       useContextLayout: ref(false),
       fabUseContext: ref(true),
       useContextTypes,
@@ -627,6 +868,14 @@ export default defineComponent({
     };
   },
   methods: {
+    showSecurityDialog(coding: Coding) {
+      this.selectedCoding = coding;
+      this.securityLayout = true;
+    },
+    showTagDialog(coding: Coding) {
+      this.selectedCoding = coding;
+      this.tagLayout = true;
+    },
     getDerivedFromExtension(
       type: DerivedFromExtensionValue | null,
     ): DerivedFromExtension {
@@ -661,6 +910,30 @@ export default defineComponent({
       },
       set(value: string) {
         this.$store.commit("setId", value);
+      },
+    },
+    versionId: {
+      get(): string | undefined {
+        return this.$store.state.questionnaire.meta.versionId;
+      },
+      set(value: string) {
+        this.$store.commit("setVersionId", value);
+      },
+    },
+    lastUpdated: {
+      get(): string | undefined {
+        return this.$store.state.questionnaire.meta.lastUpdated;
+      },
+      set(value: string) {
+        this.$store.commit("setLastUpdated", value);
+      },
+    },
+    source: {
+      get(): string | undefined {
+        return this.$store.state.questionnaire.meta.source;
+      },
+      set(value: string) {
+        this.$store.commit("setSource", value);
       },
     },
     implicitRules: {

@@ -121,11 +121,24 @@ const useContext = usageContextSchema.array().optional();
 
 export type ParsedUseContext = z.infer<typeof useContext>;
 
+const metaSchema = z.object({
+  versionId: optionalStringSchema,
+  lastUpdated: optionalStringSchema,
+  source: optionalStringSchema,
+  profile: z.string().array().optional(),
+  security: codingSchema.array().optional(),
+  tag: codingSchema.array().optional(),
+});
+
+const meta = metaSchema.optional();
+export type ParsedMeta = z.infer<typeof meta>;
+
 export const questionnaireSchema = z
   .object({
     resourceType: z.literal("Questionnaire"),
     id,
     implicitRules,
+    meta,
     identifier,
     status,
     subjectType,

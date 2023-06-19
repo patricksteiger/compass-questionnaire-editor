@@ -10,6 +10,7 @@ import {
   Extension,
   Identifier,
   Item,
+  Meta,
   operators,
   Period,
   Quantity,
@@ -532,16 +533,57 @@ function filterIdentifiers(qre: Questionnaire) {
   }
 }
 
+function filterCodingArray(arr: Coding[]) {
+  for (let i = arr.length - 1; i >= 0; i--) {
+    const coding = arr[i];
+    filterCoding(coding);
+    if (editorTools.isEmptyObject(coding)) {
+      arr.splice(i, 1);
+    }
+  }
+}
+
+function filterMeta(qre: Questionnaire) {
+  const { meta } = qre;
+  if (questionnaireTools.isId(meta.versionId) !== true) {
+    delete meta.versionId;
+  }
+  if (dateTools.isInstant(meta.lastUpdated) !== true) {
+    delete meta.lastUpdated;
+  }
+  if (questionnaireTools.isUri(meta.source) !== true) {
+    delete meta.source;
+  }
+  meta.profile = meta.profile.filter(
+    (p) => questionnaireTools.isCanonical(p) === true,
+  );
+  if (meta.profile.length === 0) {
+    delete (qre.meta as Partial<Meta>).profile;
+  }
+  filterCodingArray(meta.security);
+  if (meta.security.length === 0) {
+    delete (qre.meta as Partial<Meta>).security;
+  }
+  filterCodingArray(meta.tag);
+  if (meta.tag.length === 0) {
+    delete (qre.meta as Partial<Meta>).tag;
+  }
+  if (editorTools.isEmptyObject(qre.meta)) {
+    delete (qre as Partial<Questionnaire>).meta;
+  }
+}
+
 function getFilteredQuestionnaire(qre: Questionnaire): Questionnaire {
   if (!qre.version) {
     delete qre.version;
   }
-  if (!qre.id || questionnaireTools.validId(qre.id) !== true) {
+  if (!qre.id || questionnaireTools.isIdOrEmpty(qre.id) !== true) {
     delete qre.id;
   }
+  filterMeta(qre);
   if (
     !qre.implicitRules ||
-    questionnaireTools.validUri(qre.implicitRules) !== true
+    questionnaireTools.isUriOrEmpty(qre.implicitRules) !== true
   ) {
     delete qre.implicitRules;
   }

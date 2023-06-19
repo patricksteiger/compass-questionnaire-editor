@@ -1,19 +1,21 @@
 import { defaultLanguage, i18n, getLocaleFromLanguage } from "@/i18n";
-import { Identifier, Item, Questionnaire, Status } from "@/types";
+import { Identifier, Item, Meta, Questionnaire, Status } from "@/types";
 import { languageTools } from "@/utils/language";
 import { questionnaireTools } from "@/utils/questionnaire";
 import { createStore } from "vuex";
 
 export const getDefaultQuestionnaire = (lang: Language): Questionnaire => {
   const locale = getLocaleFromLanguage(lang);
-  const name = i18n.global.t(
-    "store.questionnaire.name",
-    {},
-    { locale: locale },
-  );
+  const name = i18n.global.t("store.questionnaire.name", {}, { locale });
+  const meta: Meta = {
+    profile: [],
+    security: [],
+    tag: [],
+  };
   return {
     __versionAlgorithmUsesCoding: true,
     language: lang,
+    meta,
     identifier: [],
     url: "https://num-compass.science/de/",
     name: name.replace(" ", ""),
@@ -104,6 +106,15 @@ const metadataMutations = {
   },
   setId(state: StoreState, payload: string) {
     state.questionnaire.id = payload;
+  },
+  setVersionId(state: StoreState, payload: string) {
+    state.questionnaire.meta.versionId = payload;
+  },
+  setLastUpdated(state: StoreState, payload: string) {
+    state.questionnaire.meta.lastUpdated = payload;
+  },
+  setSource(state: StoreState, payload: string) {
+    state.questionnaire.meta.source = payload;
   },
   setImplicitRules(state: StoreState, payload: string) {
     state.questionnaire.implicitRules = payload;

@@ -434,11 +434,21 @@ export type DerivedFromExtension = {
     }
 );
 
+export type Meta = {
+  versionId?: string;
+  lastUpdated?: string;
+  source?: string;
+  profile: string[];
+  security: Coding[];
+  tag: Coding[];
+};
+
 export type Questionnaire = {
   __versionAlgorithmUsesCoding: boolean;
   resourceType: "Questionnaire";
   id?: string;
   implicitRules?: string;
+  meta: Meta;
   language: Language;
   url?: string;
   identifier?: Identifier[];

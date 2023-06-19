@@ -6,6 +6,9 @@ const DATE_TIME_REGEXP =
   /([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?/g;
 // Source: https://www.hl7.org/fhir/datatypes.html#time
 const TIME_REGEXP = /([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?/g;
+// Source: https://www.hl7.org/fhir/datatypes.html#instant
+const INSTANT_REGEXP =
+  /([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]{1,9})?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))/g;
 
 class DateTools {
   isDate(s: string | undefined | null): true | string {
@@ -62,6 +65,24 @@ class DateTools {
     );
   }
 
+  isInstant(s: string | undefined | null): true | string {
+    if (!s) return "instant has to be non-empty";
+    const match = s.match(INSTANT_REGEXP);
+    return (
+      (match !== null && match.length > 0 && s.length === match[0].length) ||
+      "value doesn't match YYYY-MM-DDThh:mm:ss.sss+zz:zz"
+    );
+  }
+
+  isInstantOrEmpty(s: string | undefined | null): true | string {
+    if (!s) return true;
+    const match = s.match(INSTANT_REGEXP);
+    return (
+      (match !== null && match.length > 0 && s.length === match[0].length) ||
+      "value doesn't match YYYY-MM-DDThh:mm:ss.sss+zz:zz"
+    );
+  }
+
   getCurrentDate(): string {
     const now = new Date();
     const yyyy = this.padClock(now.getFullYear());
@@ -79,6 +100,18 @@ class DateTools {
   }
 
   getCurrentDateTime(): string {
+    const now = new Date();
+    const year = this.padClock(now.getFullYear());
+    const month = this.padClock(now.getMonth() + 1);
+    const day = this.padClock(now.getDate());
+    const hour = this.padClock(now.getHours());
+    const minute = this.padClock(now.getMinutes());
+    const second = this.padClock(now.getSeconds());
+    const offset = this.getTimezoneOffset(now.getTimezoneOffset());
+    return `${year}-${month}-${day}T${hour}:${minute}:${second}${offset}`;
+  }
+
+  getInstant(): string {
     const now = new Date();
     const year = this.padClock(now.getFullYear());
     const month = this.padClock(now.getMonth() + 1);

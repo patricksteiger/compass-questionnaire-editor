@@ -5,6 +5,7 @@ import {
   ContactPoint,
   Extension,
   Item,
+  Meta,
   Period,
   Questionnaire,
   UsageContext,
@@ -12,6 +13,7 @@ import {
 import { dateTools } from "@/utils/date";
 import { editorTools, UnreachableError } from "@/utils/editor";
 import { itemTools } from "../item";
+import { questionnaireTools } from "../questionnaire";
 
 export type Errors = {
   items: ItemError[];
@@ -491,11 +493,64 @@ export class ErrorChecker {
 
   private secondary(): string[] {
     const errors: string[] = [];
+    this.id(this.questionnaire.id, errors);
+    this.meta(this.questionnaire.meta, errors);
+    this.implicitRules(this.questionnaire.implicitRules, errors);
     this.derivedFrom(this.questionnaire.derivedFrom, errors);
     this.code(this.questionnaire.code, errors);
     this.useContext(this.questionnaire.useContext, errors);
     this.contact(this.questionnaire.contact, errors);
     return errors;
+  }
+
+  private id(id: string | undefined, errors: string[]) {
+    const msg = questionnaireTools.isIdOrEmpty(id);
+    if (msg !== true) {
+      errors.push(msg);
+    }
+  }
+
+  private meta(meta: Meta, errors: string[]) {
+    let msg = questionnaireTools.isIdOrEmpty(meta.versionId);
+    if (msg !== true) {
+      errors.push(`Meta: VersionId - ${msg}`);
+    }
+    msg = dateTools.isInstantOrEmpty(meta.lastUpdated);
+    if (msg !== true) {
+      errors.push(`Meta: Last updated - ${msg}`);
+    }
+    msg = questionnaireTools.isUriOrEmpty(meta.source);
+    if (msg !== true) {
+      errors.push(`Meta: Source - ${msg}`);
+    }
+    for (let pos = 1; pos <= meta.profile.length; pos++) {
+      const profile = meta.profile[pos - 1];
+      msg = questionnaireTools.isCanonical(profile);
+      if (msg !== true) {
+        errors.push(`Meta: Profile at position ${pos} - ${msg}`);
+      }
+    }
+    for (let pos = 1; pos <= meta.security.length; pos++) {
+      const security = meta.security[pos - 1];
+      if (editorTools.isEmptyObject(security)) {
+        errors.push(
+          `Meta: Security at position ${pos} - Coding must be non-empty`,
+        );
+      }
+    }
+    for (let pos = 1; pos <= meta.tag.length; pos++) {
+      const tag = meta.tag[pos - 1];
+      if (editorTools.isEmptyObject(tag)) {
+        errors.push(`Meta: Tag at position ${pos} - Coding must be non-empty`);
+      }
+    }
+  }
+
+  private implicitRules(rules: string | undefined, errors: string[]) {
+    const msg = questionnaireTools.isUriOrEmpty(rules);
+    if (msg !== true) {
+      errors.push(`Implicit rules: ${msg}`);
+    }
   }
 
   private useContext(useContext: UsageContext[], errors: string[]) {

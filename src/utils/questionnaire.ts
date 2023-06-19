@@ -263,7 +263,16 @@ class QuestionnaireTools {
     }
   }
 
-  validId(id: string | null | undefined): true | string {
+  isId(id: string | null | undefined): true | string {
+    if (!id) return "id has to be non-empty";
+    const match = id.match(ID_REGEXP);
+    return (
+      (match !== null && match.length > 0 && id.length === match[0].length) ||
+      "ID can only contain a-z, A-Z, 0-9, . and - with a max length of 64"
+    );
+  }
+
+  isIdOrEmpty(id: string | null | undefined): true | string {
     if (!id) return true;
     const match = id.match(ID_REGEXP);
     return (
@@ -272,12 +281,39 @@ class QuestionnaireTools {
     );
   }
 
-  validUri(uri: string | null | undefined): true | string {
+  isUri(uri: string | null | undefined): true | string {
+    if (!uri) return "id has to be non-empty";
+    const match = uri.match(URI_REGEXP);
+    return (
+      (match !== null && match.length > 0 && uri.length === match[0].length) ||
+      "URI cannot contain whitespace"
+    );
+  }
+
+  isUriOrEmpty(uri: string | null | undefined): true | string {
     if (!uri) return true;
     const match = uri.match(URI_REGEXP);
     return (
       (match !== null && match.length > 0 && uri.length === match[0].length) ||
       "URI cannot contain whitespace"
+    );
+  }
+
+  isCanonical(uri: string | null | undefined): true | string {
+    if (!uri) return "Cannonical-URI has to be non-empty";
+    const match = uri.match(URI_REGEXP);
+    return (
+      (match !== null && match.length > 0 && uri.length === match[0].length) ||
+      "Cannonical-URI cannot contain whitespace"
+    );
+  }
+
+  isCanonicalOrEmpty(uri: string | null | undefined): true | string {
+    if (!uri) return true;
+    const match = uri.match(URI_REGEXP);
+    return (
+      (match !== null && match.length > 0 && uri.length === match[0].length) ||
+      "Cannonical-URI cannot contain whitespace"
     );
   }
 }
