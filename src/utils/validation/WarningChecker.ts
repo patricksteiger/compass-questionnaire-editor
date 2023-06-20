@@ -1,5 +1,6 @@
 import { Item, Questionnaire } from "@/types";
 import { COPYRIGHT_LABEL_LENGTH_LIMIT } from "../constants";
+import { editorTools } from "../editor";
 
 export type Warnings = {
   items: ItemWarning[];
@@ -10,6 +11,7 @@ export type Warnings = {
 export type ItemWarning = {
   linkId: string;
   internalId: string;
+  position: string;
   warnings: string[];
 };
 
@@ -50,6 +52,7 @@ export class WarningChecker {
       const warning: ItemWarning = {
         linkId: item.linkId,
         internalId: item.__internalID,
+        position: editorTools.formatInternalPosition(item.__linkId),
         warnings,
       };
       itemWarnings.push(warning);

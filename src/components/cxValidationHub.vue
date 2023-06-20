@@ -1,24 +1,28 @@
 <template>
   <q-layout view="Lhh lpR fff" container class="bg-white">
     <div>
-      <q-toolbar class="bg-primary text-white shadow-2">
+      <q-toolbar class="bg-red text-white shadow-2">
         <q-toolbar-title>Errors</q-toolbar-title>
       </q-toolbar>
-      <div class="q-pa-md" v-if="validationHasErrors()">
+      <div class="text-red q-pa-md" v-if="validationHasErrors()">
         Elements with errors will be deleted/altered during export!
       </div>
       <q-list separator>
         <q-item v-for="result in validationResult" :key="result.language">
           <div class="q-pa-md" v-if="nonEmptyErrors(result)">
             <q-toolbar
-              class="bg-secondary text-white shadow-2"
+              class="bg-purple text-white shadow-2"
               clickable
               @click="switchLanguageFromValidationHub(result.language)"
             >
-              <q-toolbar-title>{{ result.language }}</q-toolbar-title>
+              <q-toolbar-title>
+                {{ result.language.toUpperCase() }}
+              </q-toolbar-title>
             </q-toolbar>
             <div class="q-pa-md" v-if="result.errors.items.length > 0">
-              Tab: {{ $t("views.tabsTitles.editorQRE") }}
+              <div class="text-primary">
+                Tab: {{ $t("views.tabsTitles.editorQRE") }}
+              </div>
               <q-list bordered separator>
                 <q-item
                   v-for="item in result.errors.items"
@@ -31,19 +35,26 @@
                     )
                   "
                 >
-                  {{ item.linkId }}
-                  <q-list separator>
-                    <q-item v-for="error in item.errors" :key="error">
-                      <q-item-section>
-                        <q-item-label>{{ error }}</q-item-label>
-                      </q-item-section>
-                    </q-item>
-                  </q-list>
+                  <div class="row">
+                    <div class="text-weight-bold">
+                      LinkId: "{{ item.linkId }}" - Position:
+                      {{ item.position }}:
+                    </div>
+                    <q-list separator>
+                      <q-item v-for="error in item.errors" :key="error">
+                        <q-item-section>
+                          <q-item-label>{{ error }}</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </div>
                 </q-item>
               </q-list>
             </div>
             <div class="q-pa-md" v-if="result.errors.primary.length > 0">
-              Tab: {{ $t("views.tabsTitles.primary") }}
+              <div class="text-primary">
+                Tab: {{ $t("views.tabsTitles.primary") }}
+              </div>
               <q-list bordered separator>
                 <q-item
                   v-for="error in result.errors.primary"
@@ -58,7 +69,9 @@
               </q-list>
             </div>
             <div class="q-pa-md" v-if="result.errors.secondary.length > 0">
-              Tab: {{ $t("views.tabsTitles.secondary") }}
+              <div class="text-primary">
+                Tab: {{ $t("views.tabsTitles.secondary") }}
+              </div>
               <q-list bordered separator>
                 <q-item
                   v-for="error in result.errors.secondary"
@@ -80,21 +93,25 @@
       </div>
     </div>
     <div>
-      <q-toolbar class="bg-primary text-white shadow-2">
+      <q-toolbar class="bg-orange text-white shadow-2">
         <q-toolbar-title>Warnings</q-toolbar-title>
       </q-toolbar>
       <q-list separator>
         <q-item v-for="result in validationResult" :key="result.language">
           <div class="q-pa-md" v-if="nonEmptyWarnings(result)">
             <q-toolbar
-              class="bg-secondary text-white shadow-2"
+              class="bg-purple text-white shadow-2"
               clickable
               @click="switchLanguageFromValidationHub(result.language)"
             >
-              <q-toolbar-title>{{ result.language }}</q-toolbar-title>
+              <q-toolbar-title>
+                {{ result.language.toUpperCase() }}
+              </q-toolbar-title>
             </q-toolbar>
             <div class="q-pa-md" v-if="result.warnings.items.length > 0">
-              Tab: {{ $t("views.tabsTitles.editorQRE") }}
+              <div class="text-primary">
+                Tab: {{ $t("views.tabsTitles.editorQRE") }}
+              </div>
               <q-list bordered separator>
                 <q-item
                   v-for="item in result.warnings.items"
@@ -107,19 +124,26 @@
                     )
                   "
                 >
-                  {{ item.linkId }}
-                  <q-list separator>
-                    <q-item v-for="warning in item.warnings" :key="warning">
-                      <q-item-section>
-                        <q-item-label>{{ warning }}</q-item-label>
-                      </q-item-section>
-                    </q-item>
-                  </q-list>
+                  <div class="row">
+                    <div class="text-weight-bold">
+                      LinkId: "{{ item.linkId }}" - Position:
+                      {{ item.position }}:
+                    </div>
+                    <q-list separator>
+                      <q-item v-for="warning in item.warnings" :key="warning">
+                        <q-item-section>
+                          <q-item-label>{{ warning }}</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </div>
                 </q-item>
               </q-list>
             </div>
             <div class="q-pa-md" v-if="result.warnings.primary.length > 0">
-              Tab: {{ $t("views.tabsTitles.primary") }}
+              <div class="text-primary">
+                Tab: {{ $t("views.tabsTitles.primary") }}
+              </div>
               <q-list bordered separator>
                 <q-item
                   v-for="warning in result.warnings.primary"
@@ -134,7 +158,9 @@
               </q-list>
             </div>
             <div class="q-pa-md" v-if="result.warnings.secondary.length > 0">
-              Tab: {{ $t("views.tabsTitles.secondary") }}
+              <div class="text-primary">
+                Tab: {{ $t("views.tabsTitles.secondary") }}
+              </div>
               <q-list bordered separator>
                 <q-item
                   v-for="warning in result.warnings.secondary"

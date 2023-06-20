@@ -25,6 +25,7 @@ export type Errors = {
 export type ItemError = {
   linkId: string;
   internalId: string;
+  position: string;
   errors: string[];
 };
 
@@ -85,6 +86,7 @@ export class ErrorChecker {
       const error: ItemError = {
         linkId: item.linkId,
         internalId: item.__internalID,
+        position: editorTools.formatInternalPosition(item.__linkId),
         errors,
       };
       itemErrors.push(error);

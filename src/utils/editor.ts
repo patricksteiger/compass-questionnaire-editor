@@ -454,6 +454,13 @@ class EditorTools {
     }
     return result;
   }
+
+  formatInternalPosition(path: string): string {
+    return path
+      .split(".")
+      .map((p) => Number(p) + 1)
+      .join(" -> ");
+  }
 }
 
 export const editorTools = new EditorTools();
