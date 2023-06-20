@@ -443,6 +443,19 @@ export type Meta = {
   tag: Coding[];
 };
 
+export const narrativeStatuses = [
+  "generated",
+  "extensions",
+  "additional",
+  "empty",
+] as const;
+export type NarrativeStatus = typeof narrativeStatuses[number];
+
+export type Narrative = {
+  status: NarrativeStatus;
+  div: string;
+};
+
 export type Questionnaire = {
   __versionAlgorithmUsesCoding: boolean;
   resourceType: "Questionnaire";
@@ -450,6 +463,7 @@ export type Questionnaire = {
   implicitRules?: string;
   meta: Meta;
   language: Language;
+  text: Narrative;
   url?: string;
   identifier?: Identifier[];
   version?: string;

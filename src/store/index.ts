@@ -1,5 +1,13 @@
 import { defaultLanguage, i18n, getLocaleFromLanguage } from "@/i18n";
-import { Identifier, Item, Meta, Questionnaire, Status } from "@/types";
+import {
+  Identifier,
+  Item,
+  Meta,
+  Narrative,
+  NarrativeStatus,
+  Questionnaire,
+  Status,
+} from "@/types";
 import { languageTools } from "@/utils/language";
 import { questionnaireTools } from "@/utils/questionnaire";
 import { createStore } from "vuex";
@@ -12,10 +20,15 @@ export const getDefaultQuestionnaire = (lang: Language): Questionnaire => {
     security: [],
     tag: [],
   };
+  const text: Narrative = {
+    status: "generated",
+    div: "",
+  };
   return {
     __versionAlgorithmUsesCoding: true,
     language: lang,
     meta,
+    text,
     identifier: [],
     url: "https://num-compass.science/de/",
     name: name.replace(" ", ""),
@@ -68,6 +81,12 @@ const screenMutations = {
 };
 
 const metadataMutations = {
+  setTextStatus(state: StoreState, payload: NarrativeStatus) {
+    state.questionnaire.text.status = payload;
+  },
+  setTextDiv(state: StoreState, payload: string) {
+    state.questionnaire.text.div = payload;
+  },
   setVersion(state: StoreState, payload: string) {
     state.questionnaire.version = payload;
   },

@@ -84,10 +84,12 @@
           v-if="$route.name !== 'Import'"
           type="text"
           class="col-8"
-          stack-label
+          dense
           v-model="date"
           :label="$t('components.navigationBar.metadataItems.date')"
           :rules="[dateTools.isDateTimeOrEmpty]"
+          clearable
+          :clear="() => (date = '')"
         />
         <q-btn
           label="Now"
@@ -101,10 +103,12 @@
           v-if="$route.name !== 'Import'"
           class="col-4"
           type="text"
-          stack-label
+          dense
           v-model="approvalDate"
           :label="$t('components.navigationBar.metadataItems.approvalDate')"
           :rules="[dateTools.isDateOrEmpty]"
+          clearable
+          :clear="() => (approvalDate = '')"
         />
         <q-btn
           label="Today"
@@ -115,11 +119,13 @@
         <q-input
           v-if="$route.name !== 'Import'"
           type="text"
+          dense
           class="col-4"
-          stack-label
           v-model="lastReviewDate"
           :label="$t('components.navigationBar.metadataItems.lastReviewDate')"
           :rules="[dateTools.isDateOrEmpty]"
+          clearable
+          :clear="() => (lastReviewDate = '')"
         />
         <q-btn
           label="Today"
@@ -131,6 +137,26 @@
       <div v-if="$route.name !== 'Import'">
         EffectivePeriod:
         <cxPeriod :period="questionnaire.effectivePeriod" />
+      </div>
+
+      <div v-if="$route.name !== 'Import'">
+        <q-expansion-item icon="description" label="Text">
+          <q-list bordered separator dense padding class="rounded-borders">
+            <q-select
+              label="Status"
+              v-model="textStatus"
+              :options="narrativeStatuses"
+            />
+            <q-input
+              label="Div"
+              v-model="textDiv"
+              :rules="[questionnaireTools.containsNonWhitespace]"
+              autogrow
+              clearable
+              :clear="() => (textDiv = '')"
+            />
+          </q-list>
+        </q-expansion-item>
       </div>
 
       <!-- extension -->
@@ -351,7 +377,14 @@
 <script lang="ts">
 import { mapGetters } from "vuex";
 import { computed, defineComponent, ref } from "vue";
-import { Extension, Identifier, Questionnaire, status } from "@/types";
+import {
+  Extension,
+  Identifier,
+  NarrativeStatus,
+  narrativeStatuses,
+  Questionnaire,
+  status,
+} from "@/types";
 import { getQuestionnaireExtensions } from "@/utils/extension";
 import cxExtension from "@/components/cxExtension.vue";
 import cxPeriod from "@/components/datatypes/cxPeriod.vue";
@@ -362,6 +395,7 @@ import {
   versionAlgorithmCodes,
 } from "@/utils/constants";
 import { store } from "@/store";
+import { questionnaireTools } from "@/utils/questionnaire";
 
 export default defineComponent({
   components: {
@@ -377,17 +411,35 @@ export default defineComponent({
     );
     return {
       dateTools,
-      expanded: ref(true),
+      questionnaireTools,
+      expanded: ref(false),
       statusOptions: status,
       getQuestionnaireExtensions,
       questionnaire,
       versionAlgorithmCoding,
       versionAlgorithmCodes,
       getVersionAlgorithmCoding,
+      narrativeStatuses,
     };
   },
   computed: {
     ...mapGetters(["getNameOfQuestionnaire"]),
+    textStatus: {
+      get() {
+        return this.$store.state.questionnaire.text.status;
+      },
+      set(value: NarrativeStatus) {
+        this.$store.commit("setTextStatus", value);
+      },
+    },
+    textDiv: {
+      get() {
+        return this.$store.state.questionnaire.text.div;
+      },
+      set(value: string) {
+        this.$store.commit("setTextDiv", value);
+      },
+    },
     version: {
       get() {
         return this.$store.state.questionnaire.version;

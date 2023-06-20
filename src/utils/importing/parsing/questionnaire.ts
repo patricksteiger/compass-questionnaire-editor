@@ -4,6 +4,7 @@ import {
   derivedFromExtensionCodeUrl,
   derivedFromExtensionUrl,
   derivedFromExtensionValues,
+  narrativeStatuses,
   status as statusOptions,
 } from "@/types";
 import {
@@ -89,6 +90,14 @@ const id = optionalStringSchema;
 const implicitRules = optionalStringSchema;
 const experimental = optionalBooleanSchema;
 
+const narrativeSchema = z.object({
+  status: z.enum(narrativeStatuses),
+  div: z.string().optional(),
+});
+
+const text = narrativeSchema.optional();
+export type ParsedText = z.infer<typeof text>;
+
 const derivedFrom = z.string().array().optional();
 
 const derivedFromExtension = z
@@ -139,6 +148,7 @@ export const questionnaireSchema = z
     id,
     implicitRules,
     meta,
+    text,
     identifier,
     status,
     subjectType,

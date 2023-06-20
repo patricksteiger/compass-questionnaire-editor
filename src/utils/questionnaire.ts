@@ -263,6 +263,13 @@ class QuestionnaireTools {
     }
   }
 
+  containsNonWhitespace(s: string | undefined | null): true | string {
+    return (
+      (!!s && /\S/g.test(s)) ||
+      "string has to contain non-whitespace characters"
+    );
+  }
+
   isId(id: string | null | undefined): true | string {
     if (!id) return "id has to be non-empty";
     const match = id.match(ID_REGEXP);

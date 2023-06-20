@@ -6,6 +6,7 @@ import {
   Extension,
   Item,
   Meta,
+  Narrative,
   Period,
   Questionnaire,
   UsageContext,
@@ -475,9 +476,41 @@ export class ErrorChecker {
 
   private primary(): string[] {
     const errors: string[] = [];
+    this.date(this.questionnaire.date, errors);
+    this.approvalDate(this.questionnaire.approvalDate, errors);
+    this.lastReviewDate(this.questionnaire.lastReviewDate, errors);
+    this.text(this.questionnaire.text, errors);
     this.extension(this.questionnaire.extension, errors);
     this.effectivePeriod(this.questionnaire.effectivePeriod, errors);
     return errors;
+  }
+
+  private date(dateTime: string | undefined, errors: string[]) {
+    const msg = dateTools.isDateTimeOrEmpty(dateTime);
+    if (msg !== true) {
+      errors.push(`Date: ${msg}`);
+    }
+  }
+
+  private approvalDate(date: string | undefined, errors: string[]) {
+    const msg = dateTools.isDateOrEmpty(date);
+    if (msg !== true) {
+      errors.push(`approvalDate: ${msg}`);
+    }
+  }
+
+  private lastReviewDate(date: string | undefined, errors: string[]) {
+    const msg = dateTools.isDateOrEmpty(date);
+    if (msg !== true) {
+      errors.push(`lastReviewDate: ${msg}`);
+    }
+  }
+
+  private text(text: Narrative, errors: string[]) {
+    const msg = questionnaireTools.containsNonWhitespace(text.div);
+    if (msg !== true) {
+      errors.push(`Text.Div: ${msg}. Text won't be exported!`);
+    }
   }
 
   private effectivePeriod(period: Period, errors: string[]) {

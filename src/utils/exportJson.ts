@@ -573,18 +573,22 @@ function filterMeta(qre: Questionnaire) {
   }
 }
 
+function filterText(qre: Questionnaire) {
+  if (questionnaireTools.containsNonWhitespace(qre.text.div) !== true) {
+    delete (qre as Partial<Questionnaire>).text;
+  }
+}
+
 function getFilteredQuestionnaire(qre: Questionnaire): Questionnaire {
   if (!qre.version) {
     delete qre.version;
   }
-  if (!qre.id || questionnaireTools.isIdOrEmpty(qre.id) !== true) {
+  if (questionnaireTools.isId(qre.id) !== true) {
     delete qre.id;
   }
   filterMeta(qre);
-  if (
-    !qre.implicitRules ||
-    questionnaireTools.isUriOrEmpty(qre.implicitRules) !== true
-  ) {
+  filterText(qre);
+  if (questionnaireTools.isUri(qre.implicitRules) !== true) {
     delete qre.implicitRules;
   }
   if (qre.subjectType.length === 0) {

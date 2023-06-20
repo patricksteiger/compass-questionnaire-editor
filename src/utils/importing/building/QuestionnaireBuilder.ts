@@ -10,6 +10,7 @@ import {
   Initial,
   Item,
   Meta,
+  Narrative,
   Questionnaire,
   UsageContext,
 } from "@/types";
@@ -29,7 +30,11 @@ import {
   ParsedItem,
 } from "../parsing/item";
 import { ParsedContactDetail, ParsedUsageContext } from "../parsing/schemas";
-import { ParsedMeta, ParsedQuestionnaire } from "../parsing/questionnaire";
+import {
+  ParsedMeta,
+  ParsedQuestionnaire,
+  ParsedText,
+} from "../parsing/questionnaire";
 import { validatorUtils } from "../TransformerUtils";
 
 export class QuestionnaireBuilder {
@@ -78,11 +83,13 @@ export class QuestionnaireBuilder {
       versAlg = this.qre.versionAlgorithmCoding as VersionAlgorithmCoding;
     }
     const meta = this.fromMeta(this.qre.meta);
+    const text = this.fromText(this.qre.text);
     return {
       ...this.qre,
       __versionAlgorithmUsesCoding: !this.qre.versionAlgorithmString,
       code,
       meta,
+      text,
       derivedFrom,
       _derivedFrom,
       subjectType,
@@ -312,6 +319,13 @@ export class QuestionnaireBuilder {
     throw new Error(
       `fromInitial has missing implementation: ${JSON.stringify(initial)}`,
     );
+  }
+
+  private fromText(text: ParsedText): Narrative {
+    return {
+      status: text?.status ?? "generated",
+      div: text?.div ?? "",
+    };
   }
 
   private fromMeta(meta: ParsedMeta): Meta {
