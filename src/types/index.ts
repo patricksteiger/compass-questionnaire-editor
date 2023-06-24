@@ -44,12 +44,12 @@ export type AnswerType =
 export const operators = ["exists", "=", "!=", ">", "<", ">=", "<="] as const;
 export type Operator = typeof operators[number] | "";
 
-export const comparators = [">", ">=", "<", "<="] as const;
-export type Comparator = typeof comparators[number] | "";
+export const comparators = [">", ">=", "<", "<=", "ad"] as const;
+export type Comparator = typeof comparators[number];
 
 export type Quantity = {
   value?: number;
-  comparator?: Comparator;
+  comparator?: Comparator | "";
   unit?: string;
   system?: string;
   code?: string;
