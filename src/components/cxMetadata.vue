@@ -161,11 +161,22 @@
 
       <!-- extension -->
       <cxExtension
+        :title="$t('views.editor.extensions')"
         v-if="questionnaire !== undefined"
         :extensions="(questionnaire.extension ??= [])"
         :predefinedExtensions="getQuestionnaireExtensions()"
         v-on:addExtension="addExtension"
         v-on:removeExtension="removeExtension"
+      />
+
+      <!-- modifierExtension -->
+      <cxExtension
+        title="ModifierExtension"
+        v-if="questionnaire !== undefined"
+        :extensions="questionnaire.modifierExtension"
+        :predefinedExtensions="[]"
+        v-on:addExtension="addModifierExtension"
+        v-on:removeExtension="removeModifierExtension"
       />
 
       <q-separator />
@@ -544,6 +555,12 @@ export default defineComponent({
     },
     removeExtension(index: number): void {
       this.questionnaire!.extension!.splice(index, 1);
+    },
+    addModifierExtension(extension: Extension): void {
+      this.questionnaire!.modifierExtension.push(extension);
+    },
+    removeModifierExtension(index: number): void {
+      this.questionnaire!.modifierExtension.splice(index, 1);
     },
     addEmptyId() {
       const newID: Identifier = {

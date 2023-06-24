@@ -631,17 +631,21 @@ function getFilteredQuestionnaire(qre: Questionnaire): Questionnaire {
   if (qre.code.length === 0) {
     delete (qre as Partial<Questionnaire>).code;
   }
-  for (const item of qre.item) {
-    filterItem(item);
-  }
-  if (qre.item.length === 0) {
-    delete (qre as Partial<Questionnaire>).item;
-  }
   if (qre.extension !== undefined) {
     filterExtension(qre.extension);
     if (qre.extension.length === 0) {
       delete qre.extension;
     }
+  }
+  filterExtension(qre.modifierExtension);
+  if (qre.modifierExtension.length === 0) {
+    delete (qre as Partial<Questionnaire>).modifierExtension;
+  }
+  for (const item of qre.item) {
+    filterItem(item);
+  }
+  if (qre.item.length === 0) {
+    delete (qre as Partial<Questionnaire>).item;
   }
   return qre;
 }

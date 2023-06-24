@@ -1,4 +1,5 @@
 import { editorTools } from "@/utils/editor";
+import { ParsedExtension } from "../parsing/item";
 import { ParsedQuestionnaire } from "../parsing/questionnaire";
 import { FHIRItemValidator } from "./FHIRItemValidator";
 import { fhirValidatorUtils } from "./FHIRValidatorUtils";
@@ -23,6 +24,7 @@ export class FHIRQuestionnaireValidator {
     const warnings: string[] = [];
     this.validateVersionAlgorithm(qre, errors);
     this.validateExtension(qre, errors);
+    this.validateModifierExtension(qre, errors);
     this.validateUseContext(qre, errors);
     this.validateDerivedFrom(qre, errors);
     if (editorTools.nonEmptyArray(qre.item)) {
@@ -93,16 +95,62 @@ export class FHIRQuestionnaireValidator {
 
   private validateExtension(qre: ParsedQuestionnaire, errors: string[]): void {
     if (editorTools.emptyArray(qre.extension)) return;
-    for (let pos = 1; pos <= qre.extension.length; pos++) {
-      const extension = qre.extension[pos - 1];
+    this.validateExtensionHelper(
+      qre.extension,
+      qre,
+      "extension",
+      undefined,
+      errors,
+    );
+  }
+
+  private validateModifierExtension(
+    qre: ParsedQuestionnaire,
+    errors: string[],
+  ): void {
+    if (editorTools.emptyArray(qre.modifierExtension)) return;
+    this.validateExtensionHelper(
+      qre.modifierExtension,
+      qre,
+      "modifierExtension",
+      undefined,
+      errors,
+    );
+  }
+
+  private validateExtensionHelper(
+    extensions: ParsedExtension[],
+    qre: ParsedQuestionnaire,
+    name: string,
+    prefix: string | undefined,
+    errors: string[],
+  ): void {
+    for (let pos = 1; pos <= extensions.length; pos++) {
+      const extension = extensions[pos - 1];
       const count = fhirValidatorUtils.countValueInvariants(extension);
+      const path: string =
+        prefix !== undefined ? `${prefix} -> ${pos}` : pos.toString();
       if (count === 0) {
-        errors.push(
-          `Questionnaire "${qre.language}" has extension at position ${pos} with no value.`,
-        );
+        if (extension.extension === undefined) {
+          errors.push(
+            `Questionnaire "${qre.language}" has ${name} at position ${path} with value and extension both undefined.`,
+          );
+        } else {
+          this.validateExtensionHelper(
+            extension.extension,
+            qre,
+            name,
+            path,
+            errors,
+          );
+        }
       } else if (count > 1) {
         errors.push(
-          `Questionnaire "${qre.language}" has extension at position ${pos} with multiple value invariants.`,
+          `Questionnaire "${qre.language}" has ${name} at position ${path} with multiple (${count}) value invariants defined.`,
+        );
+      } else if (extension.extension !== undefined) {
+        errors.push(
+          `Questionnaire "${qre.language}" has ${name} at position ${path} with value and extension both defined.`,
         );
       }
     }

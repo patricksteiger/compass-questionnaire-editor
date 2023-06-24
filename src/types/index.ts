@@ -489,5 +489,6 @@ export type Questionnaire = {
   effectivePeriod: Period;
   code: Coding[];
   extension?: Extension[];
+  modifierExtension: Extension[];
   item: Item[];
 };

@@ -1,9 +1,5 @@
 <template>
-  <q-expansion-item
-    expand-separator
-    icon="account_tree"
-    :label="$t('views.editor.extensions')"
-  >
+  <q-expansion-item expand-separator icon="account_tree" :label="title">
     <q-separator />
     <q-card>
       <q-list
@@ -364,6 +360,7 @@ import { itemTools } from "@/utils/item";
 
 // eslint-disable-next-line no-unused-vars
 const props = defineProps<{
+  title: string;
   extensions: Extension[];
   predefinedExtensions: PredefinedExtension[];
 }>();

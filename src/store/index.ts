@@ -47,6 +47,7 @@ export const getDefaultQuestionnaire = (lang: Language): Questionnaire => {
     experimental: true,
     code: [],
     subjectType: [],
+    modifierExtension: [],
     item: [],
     resourceType: "Questionnaire",
   };

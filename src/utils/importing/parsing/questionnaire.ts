@@ -125,6 +125,7 @@ const contact = contactDetailSchema.array().optional();
 const identifier = identifierSchema.array().optional();
 
 const extension = extensionSchema.array().optional();
+const modifierExtension = extensionSchema.array().optional();
 
 const useContext = usageContextSchema.array().optional();
 
@@ -175,6 +176,7 @@ export const questionnaireSchema = z
     experimental,
     code,
     extension,
+    modifierExtension,
     item,
   })
   .passthrough();

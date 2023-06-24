@@ -78,6 +78,13 @@ export class QuestionnaireBuilder {
         newExtension.push(this.fromExtension(e));
       }
     }
+    const modifierExtension = this.qre.modifierExtension;
+    const newModifierExtension: Extension[] = [];
+    if (modifierExtension !== undefined) {
+      for (const e of modifierExtension) {
+        newModifierExtension.push(this.fromExtension(e));
+      }
+    }
     let versAlg = undefined;
     if (this.qre.versionAlgorithmCoding !== undefined) {
       versAlg = this.qre.versionAlgorithmCoding as VersionAlgorithmCoding;
@@ -101,6 +108,7 @@ export class QuestionnaireBuilder {
       language,
       experimental,
       extension: newExtension,
+      modifierExtension: newModifierExtension,
       item: newItem,
     };
   }

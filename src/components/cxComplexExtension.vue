@@ -1,6 +1,7 @@
 <template>
   <q-list bordered class="bg-grey">
     <cxExtension
+      :title="$t('views.editor.extensions')"
       :extensions="extensions"
       :predefinedExtensions="[]"
       v-on:addExtension="(ext) => extensions.push(ext)"
