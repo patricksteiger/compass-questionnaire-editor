@@ -81,7 +81,7 @@ export class ErrorChecker {
     this.answerOptionAndInitial(item, errors);
     this.initial(item, errors);
     this.code(item.code, errors);
-    this.extension(item.extension, errors);
+    this.extension(item.extension, errors, "extension");
     if (errors.length > 0) {
       const error: ItemError = {
         linkId: item.linkId,
@@ -98,14 +98,19 @@ export class ErrorChecker {
     }
   }
 
-  private extension(extensions: Extension[] | undefined, errors: string[]) {
+  private extension(
+    extensions: Extension[] | undefined,
+    errors: string[],
+    name: string,
+  ) {
     if (editorTools.emptyArray(extensions)) return;
-    this.extensionHelper(extensions, errors);
+    this.extensionHelper(extensions, errors, name);
   }
 
   private extensionHelper(
     extensions: Extension[],
     errors: string[],
+    name: string,
     parentPos?: string,
   ) {
     for (let p = 1; p <= extensions.length; p++) {
@@ -116,53 +121,49 @@ export class ErrorChecker {
           break;
         case "code":
           if (!extension.valueCode) {
-            errors.push(`extension at position ${pos} has empty code`);
+            errors.push(`${name} at position ${pos} has empty code`);
           }
           break;
         case "decimal":
           if (editorTools.invalidNumber(extension.valueDecimal)) {
-            errors.push(
-              `extension at position ${pos} has empty decimal number`,
-            );
+            errors.push(`${name} at position ${pos} has empty decimal number`);
           }
           break;
         case "integer":
           if (editorTools.invalidNumber(extension.valueInteger)) {
-            errors.push(
-              `extension at position ${pos} has empty integer number`,
-            );
+            errors.push(`${name} at position ${pos} has empty integer number`);
           }
           break;
         case "date":
           if (dateTools.isDate(extension.valueDate) !== true) {
-            errors.push(`extension at position ${pos} has invalid date`);
+            errors.push(`${name} at position ${pos} has invalid date`);
           }
           break;
         case "dateTime":
           if (dateTools.isDateTime(extension.valueDateTime) !== true) {
-            errors.push(`extension at position ${pos} has invalid dateTime`);
+            errors.push(`${name} at position ${pos} has invalid dateTime`);
           }
           break;
         case "time":
           if (dateTools.isTime(extension.valueTime) !== true) {
-            errors.push(`extension at position ${pos} has invalid time`);
+            errors.push(`${name} at position ${pos} has invalid time`);
           }
           break;
         case "string":
           if (!extension.valueString) {
-            errors.push(`extension at position ${pos} has empty string`);
+            errors.push(`${name} at position ${pos} has empty string`);
           }
           break;
         case "markdown":
           if (!extension.valueMarkdown) {
-            errors.push(`extension at position ${pos} has empty markdown`);
+            errors.push(`${name} at position ${pos} has empty markdown`);
           }
           break;
         case "complex":
           if (extension.extension.length === 0) {
-            errors.push(`complex extension at position ${pos} has no children`);
+            errors.push(`complex ${name} at position ${pos} has no children`);
           } else {
-            this.extensionHelper(extension.extension, errors, pos);
+            this.extensionHelper(extension.extension, errors, name, pos);
           }
           break;
         default:
@@ -482,7 +483,12 @@ export class ErrorChecker {
     this.approvalDate(this.questionnaire.approvalDate, errors);
     this.lastReviewDate(this.questionnaire.lastReviewDate, errors);
     this.text(this.questionnaire.text, errors);
-    this.extension(this.questionnaire.extension, errors);
+    this.extension(this.questionnaire.extension, errors, "extension");
+    this.extension(
+      this.questionnaire.modifierExtension,
+      errors,
+      "modifierExtension",
+    );
     this.effectivePeriod(this.questionnaire.effectivePeriod, errors);
     return errors;
   }

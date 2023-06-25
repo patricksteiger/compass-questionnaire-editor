@@ -1389,6 +1389,7 @@
             <!-- extension component -->
             <q-list v-if="selectedItem !== undefined" padding bordered>
               <cxExtension
+                :title="$t('views.editor.extensions')"
                 :extensions="(selectedItem.extension ??= [])"
                 :predefinedExtensions="getItemExtensions(selectedItem)"
                 v-on:addExtension="addExtension"
