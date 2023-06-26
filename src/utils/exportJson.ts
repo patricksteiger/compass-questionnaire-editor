@@ -743,7 +743,7 @@ function filterItem(item: Item): void {
 
   if (item.__answerValueSetCheck) {
     delete item.answerOption;
-    if (item.answerValueSet === "") {
+    if (!item.answerValueSet) {
       delete item.answerValueSet;
     }
   } else {
@@ -856,6 +856,10 @@ function filterItem(item: Item): void {
     }
   }
 
+  if (itemTools.undefinedAnswerChoices(item)) {
+    delete item.answerConstraint;
+  }
+
   if (editorTools.emptyArray(item.answerOption)) {
     filterInitial(item);
     if (item.initial.length === 0) {
@@ -863,10 +867,6 @@ function filterItem(item: Item): void {
     }
   } else {
     delete (item as Partial<Item>).initial;
-  }
-
-  if (itemTools.undefinedAnswerChoices(item)) {
-    delete item.answerConstraint;
   }
 
   if (item.enableWhen) {

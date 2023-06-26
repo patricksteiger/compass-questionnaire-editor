@@ -15,6 +15,7 @@ import { dateTools } from "@/utils/date";
 import { editorTools, UnreachableError } from "@/utils/editor";
 import { itemTools } from "../item";
 import { questionnaireTools } from "../questionnaire";
+import { allowsAnswerChoice, allowsAnswerValueSet } from "../constants";
 
 export type Errors = {
   items: ItemError[];
@@ -176,21 +177,34 @@ export class ErrorChecker {
     item: Item,
     errors: string[],
   ): void {
-    if (itemTools.undefinedAnswerChoices(item) && item.answerConstraint) {
-      errors.push(
-        "answerConstraint should not be defined, if answerValueSet and answerOption are undefined",
-      );
-    } else if (itemTools.definedAnswerChoices(item) && !item.answerConstraint) {
-      errors.push(
-        "answerConstraint should be defined, if answerValueSet or answerOption is defined",
-      );
+    if (item.__answerValueSetCheck && allowsAnswerValueSet(item.type)) {
+      if (!item.answerValueSet) {
+        if (item.answerConstraint) {
+          errors.push(
+            "answerConstraint should not be defined, if answerValueSet is empty",
+          );
+        }
+      } else if (!item.answerConstraint) {
+        errors.push(
+          "answerConstraint should be defined, if answerValueSet is defined",
+        );
+      }
+    } else if (!item.__answerValueSetCheck && allowsAnswerChoice(item.type)) {
+      if (editorTools.emptyArray(item.answerOption)) {
+        if (item.answerConstraint) {
+          errors.push(
+            "answerConstraint should not be defined, if answerOption is undefined",
+          );
+        }
+      } else {
+        this.answerOption(item, errors);
+        if (!item.answerConstraint) {
+          errors.push(
+            "answerConstraint should be defined, if answerOption is defined",
+          );
+        }
+      }
     }
-    if (editorTools.nonEmptyArray(item.answerOption) && item.answerValueSet) {
-      errors.push(
-        "answerValueSet and answerOption should not be defined at the same time",
-      );
-    }
-    this.answerOption(item, errors);
   }
 
   private answerOption(item: Item, errors: string[]): void {

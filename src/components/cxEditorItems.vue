@@ -431,7 +431,7 @@
               <q-select
                 v-if="
                   selectedItem !== undefined &&
-                  allowsAnswerChoice(selectedItem.type)
+                  allowsAnswerOption(selectedItem.type)
                 "
                 v-model="selectedItem.answerConstraint"
                 label="answerConstraint"
@@ -450,7 +450,13 @@
                 "
               />
             </div>
-            <div v-if="selectedItem !== undefined">
+            <div
+              v-if="
+                selectedItem !== undefined &&
+                allowsAnswerValueSet(selectedItem.type) &&
+                allowsAnswerOption(selectedItem.type)
+              "
+            >
               <q-toggle
                 :label="
                   'Switch to ' +
@@ -477,12 +483,7 @@
                   dense
                   v-model="selectedItem.answerValueSet"
                   :disable="!selectedItem.__active"
-                  :error="selectedItem.__active && !selectedItem.answerValueSet"
-                >
-                  <template v-slot:error>
-                    {{ $t("components.fieldEmpty") }}
-                  </template>
-                </q-input>
+                />
               </div>
             </div>
             <!-- Answers/Conditions -->
@@ -492,7 +493,7 @@
                 v-if="
                   selectedItem !== undefined &&
                   !selectedItem.__answerValueSetCheck &&
-                  allowsAnswerChoice(selectedItem.type)
+                  allowsAnswerOption(selectedItem.type)
                 "
                 :disable="!selectedItem.__active"
                 expand-separator
@@ -2552,7 +2553,7 @@ export default defineComponent({
       validationLayout: ref(false),
       validationResult,
       answerConstraints,
-      allowsAnswerChoice,
+      allowsAnswerOption: allowsAnswerChoice,
       allowsAnswerValueSet,
       currentQuestionnaire,
       currentItems,
