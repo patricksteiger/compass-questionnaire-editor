@@ -286,7 +286,7 @@ export type Item = {
   __oldText?: string;
   __dependenceCondition?: Condition;
   __OldAnswerValueSet?: string;
-  __answerValueSetCheck?: boolean;
+  __answerValueSetCheck: boolean;
   // internal linkId, tracking position in item-tree (e.g. 0.2.1)
   __linkId: string;
   linkId: string;

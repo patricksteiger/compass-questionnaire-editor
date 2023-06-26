@@ -450,30 +450,30 @@
                 "
               />
             </div>
+            <div v-if="selectedItem !== undefined">
+              <q-toggle
+                :label="
+                  'Switch to ' +
+                  (selectedItem.__answerValueSetCheck
+                    ? 'AnswerOption'
+                    : $t('views.editor.AnswerValueSet'))
+                "
+                v-model="selectedItem.__answerValueSetCheck"
+                :disable="!selectedItem.__active"
+              />
+            </div>
             <!-- answerValueSet -->
             <div
-              class="row"
               v-if="
                 selectedItem !== undefined &&
-                itemTools.undefinedAnswerOption(selectedItem) &&
-                allowsAnswerChoice(selectedItem.type)
+                selectedItem.__answerValueSetCheck &&
+                allowsAnswerValueSet(selectedItem.type)
               "
             >
               <div>
-                <q-checkbox
-                  :label="
-                    selectedItem.__answerValueSetCheck
-                      ? ''
-                      : $t('views.editor.AnswerValueSet')
-                  "
-                  v-model="selectedItem.__answerValueSetCheck"
-                  :disable="!selectedItem.__active"
-                  @click="answerValueSet()"
-                />
                 <q-input
                   v-if="selectedItem.__answerValueSetCheck"
                   :label="$t('views.editor.AnswerValueSet')"
-                  class="col-5"
                   dense
                   v-model="selectedItem.answerValueSet"
                   :disable="!selectedItem.__active"
@@ -491,7 +491,7 @@
               <q-expansion-item
                 v-if="
                   selectedItem !== undefined &&
-                  itemTools.undefinedAnswerValueSet(selectedItem) &&
+                  !selectedItem.__answerValueSetCheck &&
                   allowsAnswerChoice(selectedItem.type)
                 "
                 :disable="!selectedItem.__active"
@@ -2455,6 +2455,7 @@ import {
   choiceItemTypeIcons,
   MAX_LENGTH_LINKID,
   allowsAnswerChoice,
+  allowsAnswerValueSet,
   AnswerOptionType,
   allowsInitial,
   // eslint-disable-next-line no-unused-vars
@@ -2552,6 +2553,7 @@ export default defineComponent({
       validationResult,
       answerConstraints,
       allowsAnswerChoice,
+      allowsAnswerValueSet,
       currentQuestionnaire,
       currentItems,
       selected,
@@ -3144,15 +3146,16 @@ export default defineComponent({
       this.enableWhenItem = enableWhen;
       this.enableWhenLayout = true;
     },
-    answerValueSet(): void {
-      if (this.selectedItem !== undefined) {
-        if (this.selectedItem.__answerValueSetCheck) {
-          this.selectedItem.answerOption = [];
-        } else {
-          this.selectedItem.answerValueSet = "";
-        }
-      }
-    },
+    // TODO: Is deleting necessary?
+    // answerValueSet(): void {
+    //   if (this.selectedItem !== undefined) {
+    //     if (this.selectedItem.__answerValueSetCheck) {
+    //       this.selectedItem.answerOption = [];
+    //     } else {
+    //       this.selectedItem.answerValueSet = "";
+    //     }
+    //   }
+    // },
     onDragStart(e: DragEvent, node: Item): void {
       if (e.dataTransfer !== null) {
         e.dataTransfer.setData(DRAG_KEY_INTERNAL_ID, node.__internalID);

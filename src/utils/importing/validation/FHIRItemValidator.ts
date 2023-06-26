@@ -5,6 +5,8 @@ import {
 } from "../parsing/item";
 import { ParsedQuestionnaire } from "../parsing/questionnaire";
 import {
+  allowsAnswerChoice,
+  allowsAnswerValueSet,
   allowsInitial,
   allowsMaxLength,
   MAX_ALLOWED_LEVELS,
@@ -85,22 +87,32 @@ export class FHIRItemValidator {
   }
 
   private validateAnswerValueSetAndOption(item: ParsedItem): void {
-    if (item.answerValueSet === "") {
+    if (!item.answerValueSet) {
       item.answerValueSet = undefined;
+    } else if (!allowsAnswerValueSet(item.type)) {
+      this.errors.push(
+        `LinkId ${item.linkId}: answerValueSet can only be defined for item with type 'coding' or 'string'. Not ${item.type}.`,
+      );
+      return;
     }
-    if (!editorTools.nonEmptyArray(item.answerOption)) {
+    if (editorTools.emptyArray(item.answerOption)) {
       item.answerOption = undefined;
+    } else {
+      if (!allowsAnswerChoice(item.type)) {
+        this.errors.push(
+          `LinkId ${item.linkId}: answerOption cannot be defined for item with type ${item.type}.`,
+        );
+        return;
+      }
+      for (const answerOption of item.answerOption) {
+        this.validateAnswerOption(answerOption, item);
+      }
     }
     if (item.answerValueSet && item.answerOption) {
       this.errors.push(
         `LinkId ${item.linkId} has answerValueSet and answerOption defined. Only 1 is allowed.`,
       );
       return;
-    }
-    if (item.answerOption) {
-      for (const answerOption of item.answerOption) {
-        this.validateAnswerOption(answerOption, item);
-      }
     }
     if (itemTools.definedAnswerChoices(item) && !item.answerConstraint) {
       item.answerConstraint = "optionsOnly";

@@ -741,122 +741,127 @@ function filterItem(item: Item): void {
     delete (item as Partial<Item>).disabledDisplay;
   }
 
-  // TODO: Maybe rework how answerValueSet, answerOption and initial are exported?
-  // First delete values then delete others based on that? ...
-  //remove empty answerValueSet
-  if (item.answerValueSet === "") {
-    delete item.answerValueSet;
-  }
-
-  // answerOption and answerValueSet
-  if (item.answerValueSet) {
+  if (item.__answerValueSetCheck) {
     delete item.answerOption;
-  } else if (item.answerOption !== undefined) {
-    for (let i = item.answerOption.length - 1; i >= 0; i--) {
-      const answer = item.answerOption[i];
-      if (answer.__type === "coding") {
-        if (answer.valueCoding !== undefined) {
-          if (!answer.valueCoding.code) {
-            delete answer.valueCoding.code;
+    if (item.answerValueSet === "") {
+      delete item.answerValueSet;
+    }
+  } else {
+    delete item.answerValueSet;
+    if (item.answerOption !== undefined) {
+      for (let i = item.answerOption.length - 1; i >= 0; i--) {
+        const answer = item.answerOption[i];
+        if (answer.__type === "coding") {
+          if (answer.valueCoding !== undefined) {
+            if (!answer.valueCoding.code) {
+              delete answer.valueCoding.code;
+            }
+            if (!answer.valueCoding.system) {
+              delete answer.valueCoding.system;
+            }
+            if (!answer.valueCoding.display) {
+              delete answer.valueCoding.display;
+            }
+            if (!answer.valueCoding.version) {
+              delete answer.valueCoding.version;
+            }
+            if (answer.valueCoding.userSelected === null) {
+              delete answer.valueCoding.userSelected;
+            }
           }
-          if (!answer.valueCoding.system) {
-            delete answer.valueCoding.system;
+          if (editorTools.isEmptyObject(answer.valueCoding)) {
+            item.answerOption.splice(i, 1);
           }
-          if (!answer.valueCoding.display) {
-            delete answer.valueCoding.display;
+        } else if (answer.__type === "decimal") {
+          if (editorTools.onlyStringFalsy(answer.valueDecimal)) {
+            item.answerOption.splice(i, 1);
+          } else if (typeof answer.valueDecimal === "string") {
+            answer.valueDecimal = Number(answer.valueDecimal);
           }
-          if (!answer.valueCoding.version) {
-            delete answer.valueCoding.version;
+        } else if (answer.__type === "integer") {
+          if (editorTools.onlyStringFalsy(answer.valueInteger)) {
+            item.answerOption.splice(i, 1);
+          } else if (typeof answer.valueInteger === "string") {
+            answer.valueInteger = parseInt(answer.valueInteger);
           }
-          if (answer.valueCoding.userSelected === null) {
-            delete answer.valueCoding.userSelected;
+        } else if (answer.__type === "date") {
+          if (editorTools.onlyStringFalsy(answer.valueDate)) {
+            item.answerOption.splice(i, 1);
           }
-        }
-        if (editorTools.isEmptyObject(answer.valueCoding)) {
-          item.answerOption.splice(i, 1);
-        }
-      } else if (answer.__type === "decimal") {
-        if (editorTools.onlyStringFalsy(answer.valueDecimal)) {
-          item.answerOption.splice(i, 1);
-        } else if (typeof answer.valueDecimal === "string") {
-          answer.valueDecimal = Number(answer.valueDecimal);
-        }
-      } else if (answer.__type === "integer") {
-        if (editorTools.onlyStringFalsy(answer.valueInteger)) {
-          item.answerOption.splice(i, 1);
-        } else if (typeof answer.valueInteger === "string") {
-          answer.valueInteger = parseInt(answer.valueInteger);
-        }
-      } else if (answer.__type === "date") {
-        if (editorTools.onlyStringFalsy(answer.valueDate)) {
-          item.answerOption.splice(i, 1);
-        }
-      } else if (answer.__type === "dateTime") {
-        if (editorTools.onlyStringFalsy(answer.valueDateTime)) {
-          item.answerOption.splice(i, 1);
-        }
-      } else if (answer.__type === "time") {
-        if (editorTools.onlyStringFalsy(answer.valueTime)) {
-          item.answerOption.splice(i, 1);
-        }
-      } else if (answer.__type === "quantity") {
-        if (answer.valueQuantity !== undefined) {
-          if (!answer.valueQuantity.value) {
-            delete answer.valueQuantity.value;
+        } else if (answer.__type === "dateTime") {
+          if (editorTools.onlyStringFalsy(answer.valueDateTime)) {
+            item.answerOption.splice(i, 1);
           }
-          if (!answer.valueQuantity.code) {
-            delete answer.valueQuantity.code;
+        } else if (answer.__type === "time") {
+          if (editorTools.onlyStringFalsy(answer.valueTime)) {
+            item.answerOption.splice(i, 1);
           }
-          if (!answer.valueQuantity.unit) {
-            delete answer.valueQuantity.unit;
+        } else if (answer.__type === "quantity") {
+          if (answer.valueQuantity !== undefined) {
+            if (!answer.valueQuantity.value) {
+              delete answer.valueQuantity.value;
+            }
+            if (!answer.valueQuantity.code) {
+              delete answer.valueQuantity.code;
+            }
+            if (!answer.valueQuantity.unit) {
+              delete answer.valueQuantity.unit;
+            }
+            if (!answer.valueQuantity.system) {
+              delete answer.valueQuantity.system;
+            }
+            if (!answer.valueQuantity.comparator) {
+              delete answer.valueQuantity.comparator;
+            }
           }
-          if (!answer.valueQuantity.system) {
-            delete answer.valueQuantity.system;
+          if (editorTools.isEmptyObject(answer.valueQuantity)) {
+            item.answerOption.splice(i, 1);
           }
-          if (!answer.valueQuantity.comparator) {
-            delete answer.valueQuantity.comparator;
+        } else if (answer.__type === "reference") {
+          if (answer.valueReference !== undefined) {
+            if (!answer.valueReference.reference) {
+              delete answer.valueReference.reference;
+            }
+            if (!answer.valueReference.type) {
+              delete answer.valueReference.type;
+            }
+            if (!answer.valueReference.display) {
+              delete answer.valueReference.display;
+            }
+            if (editorTools.isEmptyObject(answer.valueReference.identifier)) {
+              delete answer.valueReference.identifier;
+            }
           }
-        }
-        if (editorTools.isEmptyObject(answer.valueQuantity)) {
-          item.answerOption.splice(i, 1);
-        }
-      } else if (answer.__type === "reference") {
-        if (answer.valueReference !== undefined) {
-          if (!answer.valueReference.reference) {
-            delete answer.valueReference.reference;
+          if (editorTools.isEmptyObject(answer.valueReference)) {
+            item.answerOption.splice(i, 1);
           }
-          if (!answer.valueReference.type) {
-            delete answer.valueReference.type;
+        } else if (answer.__type === "string") {
+          if (!answer.valueString) {
+            item.answerOption.splice(i, 1);
           }
-          if (!answer.valueReference.display) {
-            delete answer.valueReference.display;
-          }
-          if (editorTools.isEmptyObject(answer.valueReference.identifier)) {
-            delete answer.valueReference.identifier;
-          }
-        }
-        if (editorTools.isEmptyObject(answer.valueReference)) {
-          item.answerOption.splice(i, 1);
         }
       }
-    }
-    if (item.answerOption.length === 0) {
-      delete item.answerOption;
-    } else {
-      item.initial = [];
-      if (!item.repeats) {
-        const firstSelected = item.answerOption.findIndex(
-          (a) => a.initialSelected,
-        );
-        for (let i = firstSelected + 1; i < item.answerOption.length; i++) {
-          item.answerOption[i].initialSelected = false;
+      if (item.answerOption.length === 0) {
+        delete item.answerOption;
+      } else {
+        if (!item.repeats) {
+          const firstSelected = item.answerOption.findIndex(
+            (a) => a.initialSelected,
+          );
+          for (let i = firstSelected + 1; i < item.answerOption.length; i++) {
+            item.answerOption[i].initialSelected = false;
+          }
         }
       }
     }
   }
 
-  filterInitial(item);
-  if (item.initial.length === 0) {
+  if (editorTools.emptyArray(item.answerOption)) {
+    filterInitial(item);
+    if (item.initial.length === 0) {
+      delete (item as Partial<Item>).initial;
+    }
+  } else {
     delete (item as Partial<Item>).initial;
   }
 

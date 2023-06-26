@@ -102,6 +102,12 @@ export function allowsAnswerChoice(type: ItemType): type is AnswerOptionType {
   return choiceItemTypeIcons.some((i) => i.name === type);
 }
 
+export function allowsAnswerValueSet(
+  type: ItemType,
+): type is "coding" | "string" {
+  return type === "coding" || type === "string";
+}
+
 export function getItemTypeIcon(type: ItemType): ItemTypeIcon {
   const icon = itemTypeIcons.find((i) => i.name === type);
   if (icon === undefined) {
