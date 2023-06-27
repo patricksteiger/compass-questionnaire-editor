@@ -502,6 +502,8 @@ export class ErrorChecker {
 
   private primary(): string[] {
     const errors: string[] = [];
+    this.url(this.questionnaire.url, errors);
+    this.name(this.questionnaire.name, errors);
     this.date(this.questionnaire.date, errors);
     this.approvalDate(this.questionnaire.approvalDate, errors);
     this.lastReviewDate(this.questionnaire.lastReviewDate, errors);
@@ -514,6 +516,20 @@ export class ErrorChecker {
     );
     this.effectivePeriod(this.questionnaire.effectivePeriod, errors);
     return errors;
+  }
+
+  private url(url: string | undefined, errors: string[]) {
+    const msg = questionnaireTools.isUriOrEmpty(url);
+    if (msg !== true) {
+      errors.push(`URL: ${msg}`);
+    }
+  }
+
+  private name(name: string | undefined, errors: string[]) {
+    const msg = questionnaireTools.isNameOrEmpty(name);
+    if (msg !== true) {
+      errors.push(msg);
+    }
   }
 
   private date(dateTime: string | undefined, errors: string[]) {

@@ -597,10 +597,10 @@ function getFilteredQuestionnaire(qre: Questionnaire): Questionnaire {
   if (!qre.title) {
     delete qre.title;
   }
-  if (!qre.name) {
+  if (questionnaireTools.isName(qre.name) !== true) {
     delete qre.name;
   }
-  if (!qre.url) {
+  if (questionnaireTools.isUri(qre.url) !== true) {
     delete qre.url;
   }
   if (!qre.publisher) {

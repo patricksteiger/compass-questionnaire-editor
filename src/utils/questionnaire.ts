@@ -11,10 +11,12 @@ import {
 import { UnreachableError } from "./editor";
 import { itemTools } from "./item";
 
-// Source: https://www.hl7.org/fhir/datatypes.html#id
+// Source: https://www.hl7.org/fhir/R5/datatypes.html#id
 const ID_REGEXP = /[A-Za-z0-9\-.]{1,64}/g;
-// Source: https://www.hl7.org/fhir/datatypes.html#uri
+// Source: https://www.hl7.org/fhir/R5/datatypes.html#uri
 const URI_REGEXP = /\S*/g;
+// Source: https://www.hl7.org/fhir/R5/questionnaire-definitions.html#Questionnaire.name
+const NAME_REGEXP = /^[A-Z]([A-Za-z0-9_]){1,254}$/g;
 
 class QuestionnaireTools {
   private enableWhenDependsOnHelper(
@@ -321,6 +323,24 @@ class QuestionnaireTools {
     return (
       (match !== null && match.length > 0 && uri.length === match[0].length) ||
       "Cannonical-URI cannot contain whitespace"
+    );
+  }
+
+  isName(name: string | null | undefined): true | string {
+    if (!name) return "name has to be non-empty";
+    const match = name.match(NAME_REGEXP);
+    return (
+      (match !== null && match.length > 0 && name.length === match[0].length) ||
+      "Name has to start with A-Z, continue with at least 1 alphanumerical or underscore character, with max length of 255"
+    );
+  }
+
+  isNameOrEmpty(name: string | null | undefined): true | string {
+    if (!name) return true;
+    const match = name.match(NAME_REGEXP);
+    return (
+      (match !== null && match.length > 0 && name.length === match[0].length) ||
+      "Name has to start with A-Z, continue with at least 1 alphanumerical or underscore character, with max length of 255"
     );
   }
 }

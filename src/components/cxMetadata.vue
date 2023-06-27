@@ -5,6 +5,7 @@
         v-if="$route.name !== 'Import'"
         v-model="URL"
         :label="$t('components.navigationBar.metadataItems.URL')"
+        :rules="[questionnaireTools.isUriOrEmpty]"
         clearable
         @clear="
           (_oldUrl: string | undefined) => {
@@ -55,6 +56,7 @@
         v-if="$route.name !== 'Import'"
         v-model="name"
         :label="$t('components.navigationBar.metadataItems.name')"
+        :rules="[questionnaireTools.isNameOrEmpty]"
         clearable
         @clear="
           (_oldName: string | undefined) => {
