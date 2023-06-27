@@ -743,7 +743,7 @@ function filterItem(item: Item): void {
 
   if (item.__answerValueSetCheck) {
     delete item.answerOption;
-    if (!item.answerValueSet) {
+    if (questionnaireTools.isCanonical(item.answerValueSet) !== true) {
       delete item.answerValueSet;
     }
   } else {

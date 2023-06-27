@@ -5,7 +5,7 @@ import {
 } from "../parsing/item";
 import { ParsedQuestionnaire } from "../parsing/questionnaire";
 import {
-  allowsAnswerChoice,
+  allowsAnswerOption,
   allowsAnswerValueSet,
   allowsInitial,
   allowsMaxLength,
@@ -98,7 +98,7 @@ export class FHIRItemValidator {
     if (editorTools.emptyArray(item.answerOption)) {
       item.answerOption = undefined;
     } else {
-      if (!allowsAnswerChoice(item.type)) {
+      if (!allowsAnswerOption(item.type)) {
         this.errors.push(
           `LinkId ${item.linkId}: answerOption cannot be defined for item with type ${item.type}.`,
         );

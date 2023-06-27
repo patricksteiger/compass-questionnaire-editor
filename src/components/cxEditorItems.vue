@@ -483,6 +483,7 @@
                   dense
                   v-model="selectedItem.answerValueSet"
                   :disable="!selectedItem.__active"
+                  :rules="[questionnaireTools.isCanonicalOrEmpty]"
                 />
               </div>
             </div>
@@ -2455,7 +2456,7 @@ import {
   noChoiceItemTypeIcons,
   choiceItemTypeIcons,
   MAX_LENGTH_LINKID,
-  allowsAnswerChoice,
+  allowsAnswerOption,
   allowsAnswerValueSet,
   AnswerOptionType,
   allowsInitial,
@@ -2553,7 +2554,7 @@ export default defineComponent({
       validationLayout: ref(false),
       validationResult,
       answerConstraints,
-      allowsAnswerOption: allowsAnswerChoice,
+      allowsAnswerOption,
       allowsAnswerValueSet,
       currentQuestionnaire,
       currentItems,

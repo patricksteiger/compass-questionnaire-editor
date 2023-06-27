@@ -2,7 +2,7 @@ import { i18n } from "@/i18n";
 import { Extension, ExtensionType, Initial, Item } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import {
-  allowsAnswerChoice,
+  allowsAnswerOption,
   getItemTypeIcon,
   InitialItem,
   ItemType,
@@ -124,7 +124,7 @@ class ItemTools {
 
   createItemWithType(linkId: string, questionType: ItemType): Item {
     const item = this.createNewItem(linkId, questionType);
-    if (allowsAnswerChoice(item.type)) {
+    if (allowsAnswerOption(item.type)) {
       item.answerOption = [];
       item.__OldAnswerValueSet = item.answerValueSet = "";
       item.__answerValueSetCheck = false;

@@ -78,7 +78,7 @@
 
               <div
                 v-if="
-                  allowsAnswerChoice(selectedItem.type) &&
+                  allowsAnswerOption(selectedItem.type) &&
                   itemTools.definedAnswerOption(selectedItem)
                 "
               >
@@ -232,7 +232,7 @@ import {
   SelectedItem,
 } from "@/types";
 import { defaultLanguage } from "@/i18n";
-import { allowsAnswerChoice, isSelectableItem } from "@/utils/constants";
+import { allowsAnswerOption, isSelectableItem } from "@/utils/constants";
 import { questionnaireTools } from "@/utils/questionnaire";
 import { itemTools } from "@/utils/item";
 
@@ -266,7 +266,7 @@ export default defineComponent({
       selected.value = selectedItem.value.__internalID;
     }
     return {
-      allowsAnswerChoice,
+      allowsAnswerOption,
       splitterModel: ref(50), // start at 50%
       editorTools,
       itemTools,

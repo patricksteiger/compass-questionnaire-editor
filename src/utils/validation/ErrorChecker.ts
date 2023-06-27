@@ -13,9 +13,8 @@ import {
 } from "@/types";
 import { dateTools } from "@/utils/date";
 import { editorTools, UnreachableError } from "@/utils/editor";
-import { itemTools } from "../item";
 import { questionnaireTools } from "../questionnaire";
-import { allowsAnswerChoice, allowsAnswerValueSet } from "../constants";
+import { allowsAnswerOption, allowsAnswerValueSet } from "../constants";
 
 export type Errors = {
   items: ItemError[];
@@ -78,7 +77,8 @@ export class ErrorChecker {
   private item(item: Item, itemErrors: ItemError[]): void {
     const errors: string[] = [];
     this.enableWhen(item, errors);
-    this.answerOptionAndValueSetAndConstraint(item, errors);
+    this.answerValueSet(item, errors);
+    this.answerOption(item, errors);
     this.answerOptionAndInitial(item, errors);
     this.initial(item, errors);
     this.code(item.code, errors);
@@ -173,41 +173,50 @@ export class ErrorChecker {
     }
   }
 
-  private answerOptionAndValueSetAndConstraint(
-    item: Item,
-    errors: string[],
-  ): void {
-    if (item.__answerValueSetCheck && allowsAnswerValueSet(item.type)) {
-      if (!item.answerValueSet) {
-        if (item.answerConstraint) {
-          errors.push(
-            "answerConstraint should not be defined, if answerValueSet is empty",
-          );
-        }
-      } else if (!item.answerConstraint) {
+  private answerOption(item: Item, errors: string[]) {
+    if (item.__answerValueSetCheck || !allowsAnswerOption(item.type)) {
+      return;
+    }
+    if (editorTools.emptyArray(item.answerOption)) {
+      if (item.answerConstraint) {
         errors.push(
-          "answerConstraint should be defined, if answerValueSet is defined",
+          "answerConstraint should not be defined, if answerOption is undefined",
         );
       }
-    } else if (!item.__answerValueSetCheck && allowsAnswerChoice(item.type)) {
-      if (editorTools.emptyArray(item.answerOption)) {
-        if (item.answerConstraint) {
-          errors.push(
-            "answerConstraint should not be defined, if answerOption is undefined",
-          );
-        }
-      } else {
-        this.answerOption(item, errors);
-        if (!item.answerConstraint) {
-          errors.push(
-            "answerConstraint should be defined, if answerOption is defined",
-          );
-        }
+    } else {
+      this.answerOptionHelper(item, errors);
+      if (!item.answerConstraint) {
+        errors.push(
+          "answerConstraint should be defined, if answerOption is defined",
+        );
       }
     }
   }
 
-  private answerOption(item: Item, errors: string[]): void {
+  private answerValueSet(item: Item, errors: string[]) {
+    if (!item.__answerValueSetCheck || !allowsAnswerValueSet(item.type)) {
+      return;
+    }
+    if (!item.answerValueSet) {
+      if (item.answerConstraint) {
+        errors.push(
+          "answerConstraint should not be defined, if answerValueSet is empty",
+        );
+      }
+    } else {
+      const msg = questionnaireTools.isCanonicalOrEmpty(item.answerValueSet);
+      if (msg !== true) {
+        errors.push(`answerValueSet: ${msg}`);
+      }
+      if (!item.answerConstraint) {
+        errors.push(
+          "answerConstraint should be defined, if answerValueSet is defined",
+        );
+      }
+    }
+  }
+
+  private answerOptionHelper(item: Item, errors: string[]): void {
     if (item.answerOption === undefined) return;
     let initialSelectedCount = 0;
     for (let pos = 1; pos <= item.answerOption.length; pos++) {

@@ -98,7 +98,7 @@ export function getAnswerOptionIcon(type: AnswerOptionType): AnswerOptionIcon {
   return answerOptionButton.icon;
 }
 
-export function allowsAnswerChoice(type: ItemType): type is AnswerOptionType {
+export function allowsAnswerOption(type: ItemType): type is AnswerOptionType {
   return choiceItemTypeIcons.some((i) => i.name === type);
 }
 

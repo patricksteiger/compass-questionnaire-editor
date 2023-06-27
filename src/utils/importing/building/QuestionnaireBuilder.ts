@@ -16,7 +16,7 @@ import {
 } from "@/types";
 import { getOrAddHiddenExtension } from "@/utils/extension";
 import {
-  allowsAnswerChoice,
+  allowsAnswerOption,
   getAnswerOptionIcon,
   getItemTypeIcon,
   VersionAlgorithmCoding,
@@ -509,7 +509,7 @@ export class QuestionnaireBuilder {
             : undefined;
         // FIXME: is __answerOption still needed?
         result.__answerOption =
-          allowsAnswerChoice(linkedItem.type) &&
+          allowsAnswerOption(linkedItem.type) &&
           itemTools.definedAnswerChoices(fhirItem);
       }
       if (enableWhen.answerBoolean !== undefined) {
