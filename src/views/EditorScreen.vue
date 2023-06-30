@@ -17,18 +17,18 @@
 
   <q-tab-panels v-model="tab" animated>
     <q-tab-panel name="editor">
-      <cx-editor-items
+      <cxEditorItems
         v-on:switchToPrimary="switchToPrimary"
         v-on:switchToSecondary="switchToSecondary"
       />
     </q-tab-panel>
 
     <q-tab-panel name="primary">
-      <cx-metadata />
+      <cxPrimary />
     </q-tab-panel>
 
     <q-tab-panel name="secondary">
-      <cx-settings />
+      <cxSecondary />
     </q-tab-panel>
   </q-tab-panels>
 
@@ -75,8 +75,8 @@
 
 <script lang="ts">
 import cxEditorItems from "@/components/cxEditorItems.vue";
-import cxMetadata from "@/components/cxMetadata.vue";
-import cxSettings from "@/components/cxSettings.vue";
+import cxPrimary from "@/components/cxPrimary.vue";
+import cxSecondary from "@/components/cxSecondary.vue";
 import cxValidationHub from "@/components/cxValidationHub.vue";
 import cxLanguageHub from "@/components/cxLanguageHub.vue";
 import { Language } from "@/store";
@@ -92,8 +92,8 @@ type Tab = "editor" | "primary" | "secondary";
 export default defineComponent({
   components: {
     cxEditorItems,
-    cxMetadata,
-    cxSettings,
+    cxPrimary,
+    cxSecondary,
     cxValidationHub,
     cxLanguageHub,
   },
