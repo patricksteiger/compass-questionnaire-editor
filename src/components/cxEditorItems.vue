@@ -436,17 +436,17 @@
                 v-model="selectedItem.answerConstraint"
                 label="answerConstraint"
                 :options="answerConstraints"
-                :clearable="itemTools.undefinedAnswerChoices(selectedItem)"
+                clearable
                 :error="
-                  (!selectedItem.answerConstraint &&
-                    itemTools.definedAnswerChoices(selectedItem)) ||
-                  (!!selectedItem.answerConstraint &&
-                    itemTools.undefinedAnswerChoices(selectedItem))
+                  !!selectedItem.answerConstraint &&
+                  (selectedItem.__answerValueSetCheck
+                    ? !selectedItem.answerValueSet
+                    : itemTools.undefinedAnswerOption(selectedItem))
                 "
                 :error-message="
-                  !selectedItem.answerConstraint
-                    ? 'If answerOptions or answerValueSet are defined, answerConstraint must be defined'
-                    : 'If answerConstraint is defined, answerOptions or answerValueSet must be defined'
+                  selectedItem.__answerValueSetCheck
+                    ? 'If answerConstraint is defined, answerValueSet must be non-empty'
+                    : 'If answerConstraint is defined, answerOption must be non-empty'
                 "
               />
             </div>

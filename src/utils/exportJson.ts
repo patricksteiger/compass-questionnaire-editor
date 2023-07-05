@@ -856,7 +856,11 @@ function filterItem(item: Item): void {
     }
   }
 
-  if (itemTools.undefinedAnswerChoices(item)) {
+  if (
+    !item.answerConstraint || item.__answerValueSetCheck
+      ? !item.answerValueSet
+      : itemTools.undefinedAnswerOption(item)
+  ) {
     delete item.answerConstraint;
   }
 
