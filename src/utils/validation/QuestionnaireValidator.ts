@@ -12,7 +12,6 @@ export type QuestionnaireReport = {
 export class QuestionnaireValidator {
   constructor(private readonly questionnaire: Questionnaire) {}
 
-  // TODO: Add extension to validation
   check(): QuestionnaireReport {
     const errors = ErrorChecker.check(this.questionnaire);
     const warnings = WarningChecker.check(this.questionnaire);
