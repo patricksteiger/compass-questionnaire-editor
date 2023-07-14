@@ -185,11 +185,6 @@ export class ErrorChecker {
       }
     } else {
       this.answerOptionHelper(item, errors);
-      if (!item.answerConstraint) {
-        errors.push(
-          "answerConstraint should be defined, if answerOption is defined",
-        );
-      }
     }
   }
 
@@ -207,11 +202,6 @@ export class ErrorChecker {
       const msg = questionnaireTools.isCanonicalOrEmpty(item.answerValueSet);
       if (msg !== true) {
         errors.push(`answerValueSet: ${msg}`);
-      }
-      if (!item.answerConstraint) {
-        errors.push(
-          "answerConstraint should be defined, if answerValueSet is defined",
-        );
       }
     }
   }
