@@ -67,6 +67,20 @@ class ItemTools {
     return linkIDs;
   }
 
+  getAllLinkIDsStrict(item: Item): Set<string> {
+    const linkIDs = new Set<string>();
+    this.getAllLinkIDsStrictHelper(item, linkIDs);
+    return linkIDs;
+  }
+
+  private getAllLinkIDsStrictHelper(item: Item, linkIDs: Set<string>): void {
+    linkIDs.add(item.linkId);
+    if (item.item === undefined) return;
+    for (const element of item.item) {
+      this.getAllLinkIDsStrictHelper(element, linkIDs);
+    }
+  }
+
   getItemByInternalId(
     internalId: string,
     rootItem: Item[] | undefined,

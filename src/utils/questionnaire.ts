@@ -37,8 +37,10 @@ class QuestionnaireTools {
     return false;
   }
 
-  enableWhenDependsOn(questionnaire: Questionnaire, item: Item): boolean {
-    const linkIDs = itemTools.getAllLinkIDs(item);
+  enableWhenDependsOn(
+    questionnaire: Questionnaire,
+    linkIDs: Set<string>,
+  ): boolean {
     return this.enableWhenDependsOnHelper(questionnaire.item, linkIDs);
   }
 

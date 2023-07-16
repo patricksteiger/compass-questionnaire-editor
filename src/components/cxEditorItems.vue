@@ -3304,10 +3304,11 @@ export default defineComponent({
     },
     toggleItem(currentNode: Item) {
       if (!currentNode.__active) {
+        const linkIDs = this.itemTools.getAllLinkIDsStrict(currentNode);
         if (
           this.questionnaireTools.enableWhenDependsOn(
             this.currentQuestionnaire,
-            currentNode,
+            linkIDs,
           )
         ) {
           const answer = confirm(
@@ -3321,7 +3322,6 @@ export default defineComponent({
             currentNode.__disabled = false;
             return;
           }
-          const linkIDs = this.itemTools.getAllLinkIDs(currentNode);
           this.deleteEnableWhenWithQuestionID(this.currentItems, linkIDs);
         }
       }

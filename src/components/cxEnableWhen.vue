@@ -22,6 +22,11 @@
                 node-key="__internalID"
                 selected-color="primary"
                 v-model:selected="selected"
+                @update:selected="
+                  (target) => {
+                    selected = target !== internalID ? target : null;
+                  }
+                "
                 children-key="item"
               >
                 <template v-slot:default-header="prop">
@@ -272,6 +277,7 @@ export default defineComponent({
       itemTools,
       questionnaireTools,
       filter,
+      linkedItem,
       selectedItem,
       selected,
       item,
