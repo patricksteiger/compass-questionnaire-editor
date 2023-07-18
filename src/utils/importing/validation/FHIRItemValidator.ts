@@ -91,7 +91,7 @@ export class FHIRItemValidator {
       item.answerValueSet = undefined;
     } else if (!allowsAnswerValueSet(item.type)) {
       this.errors.push(
-        `LinkId ${item.linkId}: answerValueSet can only be defined for item with type 'coding' or 'string'. Not ${item.type}.`,
+        `LinkId ${item.linkId}: answerValueSet can not be defined for item with type ${item.type}.`,
       );
       return;
     }
@@ -114,12 +114,6 @@ export class FHIRItemValidator {
       );
       return;
     }
-    if (itemTools.definedAnswerChoices(item) && !item.answerConstraint) {
-      item.answerConstraint = "optionsOnly";
-      this.warnings.push(
-        `LinkId "${item.linkId}" has answerOption or answerValueSet defined, but answerConstraint is undefined. answerConstraint has been initialized to "optionsOnly".`,
-      );
-    }
   }
 
   private validateAnswerOption(
@@ -141,6 +135,7 @@ export class FHIRItemValidator {
         this.qre,
         enableWhen.question,
       );
+      // FIXME: How to handle invalid linkIds in ErrorChecker and export?
       if (linkedItem === undefined) {
         this.warnings.push(
           `LinkId "${item.linkId}" has enableWhen linking to invalid linkId "${enableWhen.question}".`,
@@ -149,8 +144,11 @@ export class FHIRItemValidator {
       }
       this.validateEnableWhenAnswerType(linkedItem, enableWhen, item);
     }
-    if (item.enableWhen.length > 1) {
-      item.enableBehavior ??= "any";
+    if (item.enableWhen.length > 1 && !item.enableBehavior) {
+      this.warnings.push(
+        `LinkId "${item.linkId}" has more than 1 enableWhen defined while enableBehavior is undefined. enableBehavior has been initialized to "any".`,
+      );
+      item.enableBehavior = "any";
     }
   }
 

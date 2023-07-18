@@ -73,7 +73,14 @@
                     {{ selectedItem.linkId }}
                   </span>
                 </div>
-                <div class="text-subtitle1" v-if="selectedItem.answerValueSet">
+                <div
+                  class="text-subtitle1"
+                  v-if="
+                    allowsAnswerValueSet(selectedItem.type) &&
+                    selectedItem.__answerValueSetCheck &&
+                    selectedItem.answerValueSet
+                  "
+                >
                   {{ $t("views.editor.AnswerValueSet") }}:
                   <span class="text-italic q-mb-md">
                     {{ selectedItem.answerValueSet }}
@@ -84,6 +91,7 @@
               <div
                 v-if="
                   allowsAnswerOption(selectedItem.type) &&
+                  !selectedItem.__answerValueSetCheck &&
                   itemTools.definedAnswerOption(selectedItem)
                 "
               >
@@ -95,7 +103,7 @@
                 <div class="q-pl-sm text-caption text-grey-8 text-italic">
                   {{ $t("views.editor.toSelectOneAnswer") }}
                 </div>
-                <q-list bordered separator v-if="selectedItem.answerOption">
+                <q-list bordered separator>
                   <q-item
                     v-for="answerOption in selectedItem.answerOption"
                     :key="answerOption.__id"
@@ -108,6 +116,7 @@
                     "
                   >
                     <!-- Coding Answer type -->
+                    <!-- TODO: Rework display of coding -->
                     <q-item-section
                       v-if="
                         answerOption.__type === 'coding' &&
@@ -237,7 +246,11 @@ import {
   SelectedItem,
 } from "@/types";
 import { defaultLanguage } from "@/i18n";
-import { allowsAnswerOption, isSelectableItem } from "@/utils/constants";
+import {
+  allowsAnswerOption,
+  allowsAnswerValueSet,
+  isSelectableItem,
+} from "@/utils/constants";
 import { questionnaireTools } from "@/utils/questionnaire";
 import { itemTools } from "@/utils/item";
 
@@ -272,6 +285,7 @@ export default defineComponent({
     }
     return {
       allowsAnswerOption,
+      allowsAnswerValueSet,
       splitterModel: ref(50), // start at 50%
       editorTools,
       itemTools,
