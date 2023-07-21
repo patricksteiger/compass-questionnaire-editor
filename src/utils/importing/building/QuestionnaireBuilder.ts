@@ -234,8 +234,15 @@ export class QuestionnaireBuilder {
   }
 
   private fromItem(fhirItem: ParsedItem, internalLinkId: string): Item {
-    const { item, answerOption, extension, initial, text, answerValueSet } =
-      fhirItem;
+    const {
+      item,
+      answerOption,
+      extension,
+      modifierExtension,
+      initial,
+      text,
+      answerValueSet,
+    } = fhirItem;
     const enableWhen = this.fromEnableWhen(fhirItem);
     const disabledDisplay = fhirItem.disabledDisplay ?? null;
     const code = fhirItem.code ?? [];
@@ -264,6 +271,13 @@ export class QuestionnaireBuilder {
         newExtension.push(this.fromExtension(e));
       }
     }
+    const newModifierExtension: Extension[] = [];
+    if (modifierExtension !== undefined) {
+      for (let i = 0; i < modifierExtension.length; i++) {
+        const e = modifierExtension[i];
+        newModifierExtension.push(this.fromExtension(e));
+      }
+    }
     const newInitial: Initial[] = [];
     if (initial !== undefined) {
       for (let i = 0; i < initial.length; i++) {
@@ -271,6 +285,7 @@ export class QuestionnaireBuilder {
         newInitial.push(this.fromInitial(e));
       }
     }
+    // TODO: When is hidden set?
     return {
       __active: true,
       __disabled: false,
@@ -288,6 +303,7 @@ export class QuestionnaireBuilder {
       enableWhen,
       disabledDisplay,
       extension: newExtension,
+      modifierExtension: newModifierExtension,
       text: text ?? "",
       required: fhirItem.required,
       repeats: fhirItem.repeats,

@@ -1389,6 +1389,7 @@
               </q-expansion-item>
             </q-list>
             <!-- extension component -->
+            <!-- FIXME: Add modifierExtension -->
             <q-list v-if="selectedItem !== undefined" padding bordered>
               <cxExtension
                 :title="$t('views.editor.extensions')"
@@ -1396,6 +1397,16 @@
                 :predefinedExtensions="getItemExtensions(selectedItem)"
                 v-on:addExtension="addExtension"
                 v-on:removeExtension="removeExtension"
+              />
+            </q-list>
+            <!-- modifierExtension -->
+            <q-list v-if="selectedItem !== undefined" padding bordered>
+              <cxExtension
+                title="ModifierExtension"
+                :extensions="selectedItem.modifierExtension"
+                :predefinedExtensions="[]"
+                v-on:addExtension="addModifierExtension"
+                v-on:removeExtension="removeModifierExtension"
               />
             </q-list>
             <!-- initial component -->
@@ -3036,6 +3047,12 @@ export default defineComponent({
     },
     removeExtension(index: number): void {
       this.selectedItem!.extension!.splice(index, 1);
+    },
+    addModifierExtension(e: Extension): void {
+      this.selectedItem!.modifierExtension.push(e);
+    },
+    removeModifierExtension(index: number): void {
+      this.selectedItem!.modifierExtension.splice(index, 1);
     },
     addInitial(e: Initial): void {
       this.selectedItem!.initial.push(e);

@@ -128,6 +128,7 @@ class ItemTools {
       disabledDisplay: null,
       text: itemTools.getDefaultText(),
       extension: [getHiddenExtension()],
+      modifierExtension: [],
       required: itemTools.getDefaultRequired(type),
       repeats: itemTools.getDefaultRepeats(type),
       readOnly: itemTools.getDefaultReadOnly(type),

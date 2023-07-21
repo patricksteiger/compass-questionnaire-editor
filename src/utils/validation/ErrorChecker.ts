@@ -83,6 +83,7 @@ export class ErrorChecker {
     this.initial(item, errors);
     this.code(item.code, errors);
     this.extension(item.extension, errors, "extension");
+    this.extension(item.modifierExtension, errors, "modifierExtension");
     if (errors.length > 0) {
       const error: ItemError = {
         linkId: item.linkId,

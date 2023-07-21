@@ -47,6 +47,7 @@ export class FHIRItemValidator {
     this.validateEnableWhenAndBehavior(item);
     this.validateAnswerValueSetAndOption(item);
     this.validateExtension(item);
+    this.validateModifierExtension(item);
     this.validateInitial(item);
     this.validateInitialAndAnswerOption(item);
     this.validateCode(item);
@@ -386,38 +387,56 @@ export class FHIRItemValidator {
     }
   }
 
-  private validateExtensionHelper(
-    extensions: ParsedExtension[],
-    item: ParsedItem,
-  ): void {
-    for (const extension of extensions) {
-      if (!extension.url) {
-        this.errors.push(`LinkId "${item.linkId}" has extension empty url.`);
-      }
-      const count = fhirValidatorUtils.countValueInvariants(extension);
-      if (editorTools.nonEmptyArray(extension.extension)) {
-        if (count > 0) {
-          this.errors.push(
-            `LinkId "${item.linkId}" has extension with defined values and extension.`,
-          );
-        } else {
-          this.validateExtensionHelper(extension.extension, item);
-        }
-      } else if (count === 0) {
-        this.errors.push(
-          `LinkId "${item.linkId}" has extension with no value or extension.`,
-        );
-      } else if (count > 1) {
-        this.errors.push(
-          `LinkId "${item.linkId}" has extension with multiple values.`,
-        );
-      }
+  private validateExtension(item: ParsedItem): void {
+    if (item.extension !== undefined) {
+      this.validateExtensionHelper(
+        item.extension,
+        item,
+        "extension",
+        undefined,
+      );
     }
   }
 
-  private validateExtension(item: ParsedItem): void {
-    if (item.extension !== undefined) {
-      this.validateExtensionHelper(item.extension, item);
+  private validateModifierExtension(item: ParsedItem): void {
+    if (item.modifierExtension !== undefined) {
+      this.validateExtensionHelper(
+        item.modifierExtension,
+        item,
+        "modifierExtension",
+        undefined,
+      );
+    }
+  }
+
+  private validateExtensionHelper(
+    extensions: ParsedExtension[],
+    item: ParsedItem,
+    name: string,
+    prefix: string | undefined,
+  ): void {
+    for (let pos = 1; pos <= extensions.length; pos++) {
+      const extension = extensions[pos - 1];
+      const count = fhirValidatorUtils.countValueInvariants(extension);
+      const path: string =
+        prefix !== undefined ? `${prefix} -> ${pos}` : pos.toString();
+      if (count === 0) {
+        if (extension.extension === undefined) {
+          this.errors.push(
+            `LinkId "${item.linkId}" has ${name} at position ${path} with value and extension both undefined.`,
+          );
+        } else {
+          this.validateExtensionHelper(extension.extension, item, name, path);
+        }
+      } else if (count > 1) {
+        this.errors.push(
+          `LinkId "${item.linkId}" has ${name} at position ${path} with multiple (${count}) value invariants defined.`,
+        );
+      } else if (extension.extension !== undefined) {
+        this.errors.push(
+          `LinkId "${item.linkId}" has ${name} at position ${path} with value and extension both defined.`,
+        );
+      }
     }
   }
 

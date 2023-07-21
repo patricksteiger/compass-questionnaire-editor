@@ -52,6 +52,7 @@ const answerValueSet = optionalStringSchema;
 const linkId = z.string();
 
 const extension = extensionSchema.array().optional();
+const modifierExtension = extensionSchema.array().optional();
 
 export type ParsedExtension = z.infer<typeof extensionSchema>;
 
@@ -89,6 +90,7 @@ const baseItemSchema = z.object({
   readOnly,
   maxLength,
   extension,
+  modifierExtension,
   prefix,
   answerConstraint,
   answerOption,

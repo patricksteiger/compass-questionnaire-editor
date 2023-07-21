@@ -727,7 +727,10 @@ function filterItem(item: Item): void {
       delete item.extension;
     }
   }
-
+  filterExtension(item.modifierExtension);
+  if (item.modifierExtension.length === 0) {
+    delete (item as Partial<Item>).modifierExtension;
+  }
   filterCode(item);
   if (item.code.length === 0) {
     delete (item as Partial<Item>).code;

@@ -302,6 +302,7 @@ export type Item = {
   answerOption?: AnswerOption[];
   answerValueSet?: string;
   extension?: Extension[];
+  modifierExtension: Extension[];
   code: Coding[];
   prefix?: string;
   required: boolean | undefined;
