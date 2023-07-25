@@ -3614,7 +3614,7 @@ export default defineComponent({
           internalId,
         );
       }
-      // this.$store.commit("setSelectedItem", this.selectedItem);
+      this.$store.commit("setSelectedItem", this.selectedItem);
     },
     // TODO: How should switching to last selected change splitter?
     lastSelected(val: string | null) {
