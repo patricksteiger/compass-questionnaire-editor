@@ -1389,7 +1389,6 @@
               </q-expansion-item>
             </q-list>
             <!-- extension component -->
-            <!-- FIXME: Add modifierExtension -->
             <q-list v-if="selectedItem !== undefined" padding bordered>
               <cxExtension
                 :title="$t('views.editor.extensions')"
