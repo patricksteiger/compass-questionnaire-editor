@@ -11,6 +11,7 @@ import {
 import { languageTools } from "@/utils/language";
 import { questionnaireTools } from "@/utils/questionnaire";
 import { createStore } from "vuex";
+import VuexPersistence from "vuex-persist";
 
 export const getDefaultQuestionnaire = (lang: Language): Questionnaire => {
   const locale = getLocaleFromLanguage(lang);
@@ -68,7 +69,7 @@ export type Screen = "init" | "import" | "editor";
 export type StoreState = {
   questionnaire: Questionnaire;
   selectedItem: Item | undefined;
-  questionnaireRepo: Map<Language, Questionnaire>;
+  questionnaireRepo: Questionnaire[];
   currentScreen: Screen;
 };
 
@@ -154,8 +155,7 @@ const setQuestionnaireMutations = {
   setNewEmptyQuestionnaire(state: StoreState): void {
     const qre = getDefaultQuestionnaire(defaultLanguage);
     state.questionnaire = qre;
-    state.questionnaireRepo.clear();
-    state.questionnaireRepo.set(qre.language, qre);
+    state.questionnaireRepo = [qre];
   },
   setQuestionnaireBundle(state: StoreState, payload: Questionnaire[]): void {
     if (payload.length === 0) {
@@ -163,16 +163,12 @@ const setQuestionnaireMutations = {
       return;
     }
     state.questionnaire = payload[0];
-    state.questionnaireRepo.clear();
-    for (const qre of payload) {
-      state.questionnaireRepo.set(qre.language, qre);
-    }
+    state.questionnaireRepo = payload;
   },
   resetQuestionnaire(state: StoreState): void {
     const language = state.questionnaire.language || defaultLanguage;
     state.questionnaire = getDefaultQuestionnaire(language);
-    state.questionnaireRepo.clear();
-    state.questionnaireRepo.set(language, state.questionnaire);
+    state.questionnaireRepo = [state.questionnaire];
   },
   setSelectedItem(state: StoreState, item: Item | undefined): void {
     state.selectedItem = item;
@@ -181,7 +177,7 @@ const setQuestionnaireMutations = {
 
 const languageMutations = {
   switchQuestionnaireByLang(state: StoreState, payload: Language): void {
-    const qre = state.questionnaireRepo.get(payload);
+    const qre = state.questionnaireRepo.find((qre) => qre.language === payload);
     if (qre === undefined) {
       console.error(`Language ${payload} does not exist!`);
       return;
@@ -197,10 +193,9 @@ const languageMutations = {
   },
   removeLanguage(state: StoreState, payload: Language): void {
     if (state.questionnaire.language === payload) {
-      const questionnaires: Questionnaire[] = [
-        ...state.questionnaireRepo.values(),
-      ];
-      const otherQRE = questionnaires.find((qre) => qre.language !== payload);
+      const otherQRE = state.questionnaireRepo.find(
+        (qre) => qre.language !== payload,
+      );
       if (otherQRE === undefined) {
         console.error(`Can't delete the last questionnaire!`);
         return;
@@ -214,10 +209,15 @@ const languageMutations = {
       }
       state.questionnaire = otherQRE;
     }
-    state.questionnaireRepo.delete(payload);
+    state.questionnaireRepo = state.questionnaireRepo.filter(
+      (qre) => qre.language !== payload,
+    );
   },
   addLanguage(state: StoreState, payload: Language): void {
-    if (state.questionnaireRepo.has(payload)) {
+    if (
+      state.questionnaireRepo.find((qre) => qre.language === payload) !==
+      undefined
+    ) {
       console.error(`Language ${payload} already exists!`);
       return;
     }
@@ -225,15 +225,20 @@ const languageMutations = {
       state.questionnaire,
       payload,
     );
-    state.questionnaireRepo.set(payload, newQRE);
+    state.questionnaireRepo.push(newQRE);
   },
 };
 
+const vuexLocal = new VuexPersistence({
+  storage: window.localStorage,
+});
+
 export const store = createStore<StoreState>({
+  plugins: [vuexLocal.plugin],
   state: {
     questionnaire: defaultQuestionnaire,
     selectedItem: undefined,
-    questionnaireRepo: new Map(),
+    questionnaireRepo: [],
     currentScreen: "init",
   },
   mutations: {
@@ -241,15 +246,31 @@ export const store = createStore<StoreState>({
     ...languageMutations,
     ...metadataMutations,
     ...screenMutations,
+    refreshState(state): void {
+      const currentQre = state.questionnaireRepo.find(
+        (qre) => qre.language === state.questionnaire.language,
+      );
+      if (currentQre === undefined) {
+        console.error("State refresh failed!");
+        return;
+      }
+      state.questionnaire = currentQre;
+      if (state.selectedItem !== undefined) {
+        state.selectedItem = questionnaireTools.getItemByInternalLinkId(
+          state.selectedItem.__linkId,
+          currentQre,
+        );
+      }
+    },
   },
   actions: {},
   modules: {},
   getters: {
     getQuestionnaires(state): Questionnaire[] {
-      return [...state.questionnaireRepo.values()];
+      return state.questionnaireRepo;
     },
     getUsedLanguages(state): Language[] {
-      return [...state.questionnaireRepo.keys()];
+      return state.questionnaireRepo.map((qre) => qre.language);
     },
     getLanguage(state): Language {
       return state.questionnaire.language;

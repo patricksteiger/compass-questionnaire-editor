@@ -98,9 +98,10 @@ export default defineComponent({
     cxLanguageHub,
   },
   setup() {
+    const store = useStore();
     const tab = ref<Tab>("editor");
     const validationResult = ref<QuestionnaireReport[]>([]);
-    const language = ref<Language>(useStore().state.questionnaire.language);
+    const language = ref<Language>(store.state.questionnaire.language);
     return {
       tab,
       validationLayout: ref(false),
@@ -110,6 +111,7 @@ export default defineComponent({
     };
   },
   created() {
+    this.refreshState();
     this.language = this.getLanguage;
     this.switchToEditorScreen();
   },
@@ -127,7 +129,7 @@ export default defineComponent({
     },
   },
   methods: {
-    ...mapMutations(["switchToEditorScreen"]),
+    ...mapMutations(["refreshState", "switchToEditorScreen"]),
     validateState() {
       this.validationResult = Validator.check(this.getQuestionnaires);
       this.validationLayout = true;
