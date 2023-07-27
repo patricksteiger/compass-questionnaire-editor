@@ -236,7 +236,7 @@ const vuexLocal = new VuexPersistence({
     try {
       const value = store!.getItem(key);
       if (!value) return undefined;
-      return JSON.parse(value);
+      return typeof value === "string" ? JSON.parse(value) : value;
     } catch (e) {
       return undefined;
     }
@@ -261,14 +261,25 @@ export const store = createStore<StoreState>({
         (qre) => qre.language === state.questionnaire.language,
       );
       if (currentQre === undefined) {
-        console.error("State refresh failed!");
-        return;
+        if (state.questionnaireRepo.length > 0) {
+          state.questionnaire = state.questionnaireRepo[0];
+          console.warn("State refresh had incorrect values!");
+        } else {
+          console.error("State refresh failed!");
+          state.questionnaire = getDefaultQuestionnaire(defaultLanguage);
+          state.questionnaireRepo = [state.questionnaire];
+          state.selectedItem = undefined;
+          // refreshState is only called in EditorScreen
+          state.currentScreen = "editor";
+          return;
+        }
+      } else {
+        state.questionnaire = currentQre;
       }
-      state.questionnaire = currentQre;
       if (state.selectedItem !== undefined) {
         state.selectedItem = questionnaireTools.getItemByInternalLinkId(
           state.selectedItem.__linkId,
-          currentQre,
+          state.questionnaire,
         );
       }
     },

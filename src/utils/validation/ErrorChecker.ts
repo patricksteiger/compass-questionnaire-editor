@@ -396,11 +396,13 @@ export class ErrorChecker {
     }
   }
 
-  // TODO: Use exhaustive switch-statement
   private enableWhen(item: Item, errors: string[]): void {
     if (item.enableWhen === undefined) return;
     for (let pos = 1; pos <= item.enableWhen.length; pos++) {
       const enableWhen = item.enableWhen[pos - 1];
+      if (!enableWhen.question) {
+        errors.push(`enableWhen at position ${pos} has no linked question`);
+      }
       if (enableWhen.operator === "exists") {
         if (enableWhen.__answer !== "true" && enableWhen.__answer !== "false") {
           errors.push(
@@ -409,83 +411,116 @@ export class ErrorChecker {
         }
         return;
       }
-      if (enableWhen.__type === "string" || enableWhen.__type === "text") {
-        if (!enableWhen.__answer) {
-          errors.push(`enableWhen at position ${pos} has empty answer`);
-        }
-      } else if (enableWhen.__type === "url") {
-        if (!enableWhen.__answer) {
-          errors.push(`enableWhen at position ${pos} has empty uri`);
-        }
-      } else if (enableWhen.__type === "time") {
-        if (dateTools.isTime(enableWhen.__answer) !== true) {
-          errors.push(
-            `enableWhen at position ${pos} has invalid time answer "${enableWhen.__answer}"`,
-          );
-        }
-      } else if (enableWhen.__type === "date") {
-        if (dateTools.isDate(enableWhen.__answer) !== true) {
-          errors.push(
-            `enableWhen at position ${pos} has invalid date answer "${enableWhen.__answer}"`,
-          );
-        }
-      } else if (enableWhen.__type === "dateTime") {
-        if (dateTools.isDateTime(enableWhen.__answer) !== true) {
-          errors.push(
-            `enableWhen at position ${pos} has invalid dateTime answer "${enableWhen.__answer}"`,
-          );
-        }
-      } else if (enableWhen.__type === "quantity") {
-        if (
-          enableWhen.answerQuantity === undefined ||
-          editorTools.formatQuantity(enableWhen.answerQuantity) !==
-            enableWhen.__answer
-        ) {
-          errors.push(
-            `enableWhen at position ${pos} has invalid quantity-answer`,
-          );
-        } else {
-          if (!enableWhen.answerQuantity!.value) {
+      switch (enableWhen.__type) {
+        case "boolean":
+          if (
+            enableWhen.__answer !== "true" &&
+            enableWhen.__answer !== "false"
+          ) {
             errors.push(
-              `enableWhen at position ${pos} has empty quantity-value`,
+              `enableWhen at position ${pos} has invalid boolean answer`,
             );
           }
-          if (!enableWhen.answerQuantity!.code) {
+          break;
+        case "decimal":
+        case "integer":
+          if (!enableWhen.__answer) {
+            errors.push(`enableWhen at position ${pos} has empty answer`);
+          }
+          break;
+        case "string":
+        case "text":
+          if (!enableWhen.__answer) {
+            errors.push(`enableWhen at position ${pos} has empty answer`);
+          }
+          break;
+        case "url":
+          if (!enableWhen.__answer) {
+            errors.push(`enableWhen at position ${pos} has empty answer`);
+          }
+          break;
+        case "time":
+          if (dateTools.isTime(enableWhen.__answer) !== true) {
             errors.push(
-              `enableWhen at position ${pos} has empty quantity-code`,
+              `enableWhen at position ${pos} has invalid time answer "${enableWhen.__answer}"`,
             );
           }
-        }
-      } else if (enableWhen.__type === "coding") {
-        if (
-          enableWhen.answerCoding === undefined ||
-          editorTools.formatCoding(enableWhen.answerCoding) !==
-            enableWhen.__answer
-        ) {
-          errors.push(
-            `enableWhen at position ${pos} has invalid coding-answer`,
-          );
-        } else {
-          if (!enableWhen.answerCoding!.code) {
-            errors.push(`enableWhen at position ${pos} has empty coding-code`);
+          break;
+        case "date":
+          if (dateTools.isDate(enableWhen.__answer) !== true) {
+            errors.push(
+              `enableWhen at position ${pos} has invalid date answer "${enableWhen.__answer}"`,
+            );
           }
-        }
-      } else if (enableWhen.__type === "reference") {
-        if (
-          enableWhen.answerReference === undefined ||
-          editorTools.formatReference(enableWhen.answerReference) !==
-            enableWhen.__answer
-        ) {
-          errors.push(
-            `enableWhen at position ${pos} has invalid reference-answer`,
-          );
-        } else if (editorTools.isEmptyObject(enableWhen.answerReference)) {
-          errors.push(`enableWhen at position ${pos} has empty reference`);
-        }
-      } else if (enableWhen.__type === "attachment") {
-        if (editorTools.isEmptyObject(enableWhen.answerAttachment)) {
-          errors.push(`enableWhen at position ${pos} has empty attachment`);
-        }
+          break;
+        case "dateTime":
+          if (dateTools.isDateTime(enableWhen.__answer) !== true) {
+            errors.push(
+              `enableWhen at position ${pos} has invalid dateTime answer "${enableWhen.__answer}"`,
+            );
+          }
+          break;
+        case "quantity":
+          if (
+            enableWhen.answerQuantity === undefined ||
+            editorTools.formatQuantity(enableWhen.answerQuantity) !==
+              enableWhen.__answer
+          ) {
+            errors.push(
+              `enableWhen at position ${pos} has invalid quantity-answer`,
+            );
+          } else {
+            if (!enableWhen.answerQuantity!.value) {
+              errors.push(
+                `enableWhen at position ${pos} has empty quantity-value`,
+              );
+            }
+            if (!enableWhen.answerQuantity!.code) {
+              errors.push(
+                `enableWhen at position ${pos} has empty quantity-code`,
+              );
+            }
+          }
+          break;
+        case "coding":
+          if (
+            enableWhen.answerCoding === undefined ||
+            editorTools.formatCoding(enableWhen.answerCoding) !==
+              enableWhen.__answer
+          ) {
+            errors.push(
+              `enableWhen at position ${pos} has invalid coding-answer`,
+            );
+          } else {
+            if (!enableWhen.answerCoding!.code) {
+              errors.push(
+                `enableWhen at position ${pos} has empty coding-code`,
+              );
+            }
+          }
+          break;
+        case "reference":
+          if (
+            enableWhen.answerReference === undefined ||
+            editorTools.formatReference(enableWhen.answerReference) !==
+              enableWhen.__answer
+          ) {
+            errors.push(
+              `enableWhen at position ${pos} has invalid reference-answer`,
+            );
+          } else if (editorTools.isEmptyObject(enableWhen.answerReference)) {
+            errors.push(`enableWhen at position ${pos} has empty reference`);
+          }
+          break;
+        case "attachment":
+          if (editorTools.isEmptyObject(enableWhen.answerAttachment)) {
+            errors.push(`enableWhen at position ${pos} has empty attachment`);
+          }
+          break;
+        case undefined:
+          break;
+        default:
+          throw new UnreachableError(enableWhen.__type);
       }
     }
   }
