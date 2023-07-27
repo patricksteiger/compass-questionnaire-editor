@@ -397,7 +397,6 @@ export class ErrorChecker {
   }
 
   // TODO: Use exhaustive switch-statement
-  // FIXME: What about integer, decimal type?
   private enableWhen(item: Item, errors: string[]): void {
     if (item.enableWhen === undefined) return;
     for (let pos = 1; pos <= item.enableWhen.length; pos++) {

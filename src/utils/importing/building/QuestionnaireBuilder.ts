@@ -285,7 +285,6 @@ export class QuestionnaireBuilder {
         newInitial.push(this.fromInitial(e));
       }
     }
-    // TODO: When is hidden set?
     return {
       __active: true,
       __disabled: false,

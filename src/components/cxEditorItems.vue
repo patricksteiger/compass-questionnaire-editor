@@ -2582,7 +2582,6 @@ export default defineComponent({
       noChoiceItemTypeIcons,
       choiceItemTypeIcons,
       alert: ref(false),
-      itemsAnwers: ref(""),
       dateTools,
       editorTools,
       itemTools,
@@ -3164,16 +3163,6 @@ export default defineComponent({
       this.enableWhenItem = enableWhen;
       this.enableWhenLayout = true;
     },
-    // TODO: Is deleting necessary?
-    // answerValueSet(): void {
-    //   if (this.selectedItem !== undefined) {
-    //     if (this.selectedItem.__answerValueSetCheck) {
-    //       this.selectedItem.answerOption = [];
-    //     } else {
-    //       this.selectedItem.answerValueSet = "";
-    //     }
-    //   }
-    // },
     onDragStart(e: DragEvent, node: Item): void {
       if (e.dataTransfer !== null) {
         e.dataTransfer.setData(DRAG_KEY_INTERNAL_ID, node.__internalID);

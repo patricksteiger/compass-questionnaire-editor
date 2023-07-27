@@ -229,8 +229,18 @@ const languageMutations = {
   },
 };
 
+// TODO: Add Zod-schema for better validation?
 const vuexLocal = new VuexPersistence({
   storage: window.localStorage,
+  restoreState: (key, store) => {
+    try {
+      const value = store!.getItem(key);
+      if (!value) return undefined;
+      return JSON.parse(value);
+    } catch (e) {
+      return undefined;
+    }
+  },
 });
 
 export const store = createStore<StoreState>({
