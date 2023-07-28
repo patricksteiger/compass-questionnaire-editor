@@ -38,6 +38,7 @@ const answerOptionSchema = z.object({
   valueDateTime: optionalStringSchema,
   valueTime: optionalStringSchema,
   valueString: optionalStringSchema,
+  valueUri: optionalStringSchema,
   valueQuantity: optionalQuantitySchema,
   valueReference: optionalReferenceSchema,
   initialSelected: optionalBooleanSchema,

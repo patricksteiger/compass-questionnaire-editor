@@ -242,30 +242,36 @@ export class ErrorChecker {
           }
           break;
         case "date":
-          if (!dateTools.isDate(answerOption.valueDate)) {
+          if (dateTools.isDate(answerOption.valueDate) !== true) {
             errors.push(
               `answerOption at position ${pos} has invalid date-answer`,
             );
           }
           break;
         case "dateTime":
-          if (!dateTools.isDateTime(answerOption.valueDateTime)) {
+          if (dateTools.isDateTime(answerOption.valueDateTime) !== true) {
             errors.push(
               `answerOption at position ${pos} has invalid dateTime-answer`,
             );
           }
           break;
         case "time":
-          if (!dateTools.isTime(answerOption.valueTime)) {
+          if (dateTools.isTime(answerOption.valueTime) !== true) {
             errors.push(
               `answerOption at position ${pos} has invalid time-answer`,
             );
           }
           break;
+        case "text":
         case "string":
           if (!answerOption.valueString) {
+            errors.push(`answerOption at position ${pos} has empty answer`);
+          }
+          break;
+        case "url":
+          if (questionnaireTools.isUri(answerOption.valueUri) !== true) {
             errors.push(
-              `answerOption at position ${pos} has empty string-answer`,
+              `answerOption at position ${pos} has invalid url-answer`,
             );
           }
           break;

@@ -126,6 +126,82 @@ export class FHIRItemValidator {
       this.errors.push(
         `LinkId "${item.linkId}" has answerOption with more than 1 answer.`,
       );
+    } else if (count === 1 && allowsAnswerOption(item.type)) {
+      switch (item.type) {
+        case "coding":
+          if (answerOption.valueCoding === undefined) {
+            this.errors.push(
+              `LinkId "${item.linkId}" has answerOption with invalid value[x]. Item-type "${item.type}" only allows valueCoding.`,
+            );
+          }
+          break;
+        case "decimal":
+          if (answerOption.valueDecimal === undefined) {
+            this.errors.push(
+              `LinkId "${item.linkId}" has answerOption with invalid value[x]. Item-type "${item.type}" only allows valueDecimal.`,
+            );
+          }
+          break;
+        case "integer":
+          if (answerOption.valueInteger === undefined) {
+            this.errors.push(
+              `LinkId "${item.linkId}" has answerOption with invalid value[x]. Item-type "${item.type}" only allows valueInteger.`,
+            );
+          }
+          break;
+        case "date":
+          if (answerOption.valueDate === undefined) {
+            this.errors.push(
+              `LinkId "${item.linkId}" has answerOption with invalid value[x]. Item-type "${item.type}" only allows valueDate.`,
+            );
+          }
+          break;
+        case "dateTime":
+          if (answerOption.valueDateTime === undefined) {
+            this.errors.push(
+              `LinkId "${item.linkId}" has answerOption with invalid value[x]. Item-type "${item.type}" only allows valueDateTime.`,
+            );
+          }
+          break;
+        case "time":
+          if (answerOption.valueTime === undefined) {
+            this.errors.push(
+              `LinkId "${item.linkId}" has answerOption with invalid value[x]. Item-type "${item.type}" only allows valueTime.`,
+            );
+          }
+          break;
+        case "text":
+        case "string":
+          if (answerOption.valueString === undefined) {
+            this.errors.push(
+              `LinkId "${item.linkId}" has answerOption with invalid value[x]. Item-type "${item.type}" only allows valueString.`,
+            );
+          }
+          break;
+        case "url":
+          if (answerOption.valueUri === undefined) {
+            this.errors.push(
+              `LinkId "${item.linkId}" has answerOption with invalid value[x]. Item-type "${item.type}" only allows valueUri.`,
+            );
+          }
+          break;
+        case "quantity":
+          if (answerOption.valueQuantity === undefined) {
+            this.errors.push(
+              `LinkId "${item.linkId}" has answerOption with invalid value[x]. Item-type "${item.type}" only allows valueQuantity.`,
+            );
+          }
+          break;
+        case "reference":
+          if (answerOption.valueReference === undefined) {
+            this.errors.push(
+              `LinkId "${item.linkId}" has answerOption with invalid value[x]. Item-type "${item.type}" only allows valueReference.`,
+            );
+          }
+          break;
+        default:
+          throw new UnreachableError(item.type);
+      }
     }
   }
 

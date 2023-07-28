@@ -261,7 +261,7 @@ export class QuestionnaireBuilder {
       newAnswerOption = [];
       for (let i = 0; i < answerOption.length; i++) {
         const a = answerOption[i];
-        newAnswerOption.push(this.fromAnswerOption(a));
+        newAnswerOption.push(this.fromAnswerOption(a, fhirItem));
       }
     }
     const newExtension: Extension[] = [];
@@ -430,6 +430,7 @@ export class QuestionnaireBuilder {
 
   private fromAnswerOption(
     parsedAnswerOption: ParsedAnswerOption,
+    parsedItem: ParsedItem,
   ): AnswerOption {
     const initialSelected = parsedAnswerOption.initialSelected ?? false;
     const answerOption: AnswerOption = {
@@ -473,9 +474,13 @@ export class QuestionnaireBuilder {
       answerOption.__icon = getAnswerOptionIcon(answerOption.__type);
       answerOption.__oldValueTime = answerOption.valueTime;
     } else if (answerOption.valueString !== undefined) {
-      answerOption.__type = "string";
+      answerOption.__type = parsedItem.type === "text" ? "text" : "string";
       answerOption.__icon = getAnswerOptionIcon(answerOption.__type);
       answerOption.__oldValueString = answerOption.valueString;
+    } else if (answerOption.valueUri !== undefined) {
+      answerOption.__type = "url";
+      answerOption.__icon = getAnswerOptionIcon(answerOption.__type);
+      answerOption.__oldValueUri = answerOption.valueUri;
     } else if (answerOption.valueQuantity !== undefined) {
       answerOption.__type = "quantity";
       answerOption.__icon = getAnswerOptionIcon(answerOption.__type);

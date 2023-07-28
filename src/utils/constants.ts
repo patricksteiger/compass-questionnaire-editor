@@ -68,12 +68,12 @@ export type ItemTypeIcon = ItemTypeLabel["icon"];
 export const noChoiceItemTypeIcons = [
   { name: "group", icon: "group_work", label: "Group" },
   { name: "display", icon: "description", label: "Display" },
-  { name: "text", icon: "input", label: "Text" },
-  { name: "url", icon: "link", label: "URL" },
   { name: "boolean", icon: "toggle_off", label: "Boolean" },
   { name: "attachment", icon: "library_add", label: "Attachment" },
 ] as const;
 export const choiceItemTypeIcons = [
+  { name: "text", icon: "input", label: "Text" },
+  { name: "url", icon: "link", label: "URL" },
   { name: "coding", icon: "code", label: "Coding" },
   { name: "decimal", icon: "pin", label: "Decimal" },
   { name: "integer", icon: "pin", label: "Integer" },
@@ -104,8 +104,8 @@ export function allowsAnswerOption(type: ItemType): type is AnswerOptionType {
 
 export function allowsAnswerValueSet(
   type: ItemType,
-): type is "coding" | "string" {
-  return type === "coding" || type === "string";
+): type is "coding" | "string" | "url" {
+  return type === "coding" || type === "string" || type === "url";
 }
 
 export function getItemTypeIcon(type: ItemType): ItemTypeIcon {

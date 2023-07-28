@@ -754,94 +754,112 @@ function filterItem(item: Item): void {
     if (item.answerOption !== undefined) {
       for (let i = item.answerOption.length - 1; i >= 0; i--) {
         const answer = item.answerOption[i];
-        if (answer.__type === "coding") {
-          if (answer.valueCoding !== undefined) {
-            if (!answer.valueCoding.code) {
-              delete answer.valueCoding.code;
+        switch (answer.__type) {
+          case "coding":
+            if (answer.valueCoding !== undefined) {
+              if (!answer.valueCoding.code) {
+                delete answer.valueCoding.code;
+              }
+              if (!answer.valueCoding.system) {
+                delete answer.valueCoding.system;
+              }
+              if (!answer.valueCoding.display) {
+                delete answer.valueCoding.display;
+              }
+              if (!answer.valueCoding.version) {
+                delete answer.valueCoding.version;
+              }
+              if (answer.valueCoding.userSelected === null) {
+                delete answer.valueCoding.userSelected;
+              }
             }
-            if (!answer.valueCoding.system) {
-              delete answer.valueCoding.system;
+            if (editorTools.isEmptyObject(answer.valueCoding)) {
+              item.answerOption.splice(i, 1);
             }
-            if (!answer.valueCoding.display) {
-              delete answer.valueCoding.display;
+            break;
+          case "decimal":
+            if (editorTools.onlyStringFalsy(answer.valueDecimal)) {
+              item.answerOption.splice(i, 1);
+            } else if (typeof answer.valueDecimal === "string") {
+              answer.valueDecimal = Number(answer.valueDecimal);
             }
-            if (!answer.valueCoding.version) {
-              delete answer.valueCoding.version;
+            break;
+          case "integer":
+            if (editorTools.onlyStringFalsy(answer.valueInteger)) {
+              item.answerOption.splice(i, 1);
+            } else if (typeof answer.valueInteger === "string") {
+              answer.valueInteger = parseInt(answer.valueInteger);
             }
-            if (answer.valueCoding.userSelected === null) {
-              delete answer.valueCoding.userSelected;
+            break;
+          case "date":
+            if (dateTools.isDate(answer.valueDate) !== true) {
+              item.answerOption.splice(i, 1);
             }
-          }
-          if (editorTools.isEmptyObject(answer.valueCoding)) {
-            item.answerOption.splice(i, 1);
-          }
-        } else if (answer.__type === "decimal") {
-          if (editorTools.onlyStringFalsy(answer.valueDecimal)) {
-            item.answerOption.splice(i, 1);
-          } else if (typeof answer.valueDecimal === "string") {
-            answer.valueDecimal = Number(answer.valueDecimal);
-          }
-        } else if (answer.__type === "integer") {
-          if (editorTools.onlyStringFalsy(answer.valueInteger)) {
-            item.answerOption.splice(i, 1);
-          } else if (typeof answer.valueInteger === "string") {
-            answer.valueInteger = parseInt(answer.valueInteger);
-          }
-        } else if (answer.__type === "date") {
-          if (editorTools.onlyStringFalsy(answer.valueDate)) {
-            item.answerOption.splice(i, 1);
-          }
-        } else if (answer.__type === "dateTime") {
-          if (editorTools.onlyStringFalsy(answer.valueDateTime)) {
-            item.answerOption.splice(i, 1);
-          }
-        } else if (answer.__type === "time") {
-          if (editorTools.onlyStringFalsy(answer.valueTime)) {
-            item.answerOption.splice(i, 1);
-          }
-        } else if (answer.__type === "quantity") {
-          if (answer.valueQuantity !== undefined) {
-            if (!answer.valueQuantity.value) {
-              delete answer.valueQuantity.value;
+            break;
+          case "dateTime":
+            if (dateTools.isDateTime(answer.valueDateTime) !== true) {
+              item.answerOption.splice(i, 1);
             }
-            if (!answer.valueQuantity.code) {
-              delete answer.valueQuantity.code;
+            break;
+          case "time":
+            if (dateTools.isTime(answer.valueTime) !== true) {
+              item.answerOption.splice(i, 1);
             }
-            if (!answer.valueQuantity.unit) {
-              delete answer.valueQuantity.unit;
+            break;
+          case "text":
+          case "string":
+            if (!answer.valueString) {
+              item.answerOption.splice(i, 1);
             }
-            if (!answer.valueQuantity.system) {
-              delete answer.valueQuantity.system;
+            break;
+          case "url":
+            if (questionnaireTools.isUri(answer.valueUri) !== true) {
+              item.answerOption.splice(i, 1);
             }
-            if (!answer.valueQuantity.comparator) {
-              delete answer.valueQuantity.comparator;
+            break;
+          case "quantity":
+            if (answer.valueQuantity !== undefined) {
+              if (!answer.valueQuantity.value) {
+                delete answer.valueQuantity.value;
+              }
+              if (!answer.valueQuantity.code) {
+                delete answer.valueQuantity.code;
+              }
+              if (!answer.valueQuantity.unit) {
+                delete answer.valueQuantity.unit;
+              }
+              if (!answer.valueQuantity.system) {
+                delete answer.valueQuantity.system;
+              }
+              if (!answer.valueQuantity.comparator) {
+                delete answer.valueQuantity.comparator;
+              }
             }
-          }
-          if (editorTools.isEmptyObject(answer.valueQuantity)) {
-            item.answerOption.splice(i, 1);
-          }
-        } else if (answer.__type === "reference") {
-          if (answer.valueReference !== undefined) {
-            if (!answer.valueReference.reference) {
-              delete answer.valueReference.reference;
+            if (editorTools.isEmptyObject(answer.valueQuantity)) {
+              item.answerOption.splice(i, 1);
             }
-            if (!answer.valueReference.type) {
-              delete answer.valueReference.type;
+            break;
+          case "reference":
+            if (answer.valueReference !== undefined) {
+              if (!answer.valueReference.reference) {
+                delete answer.valueReference.reference;
+              }
+              if (!answer.valueReference.type) {
+                delete answer.valueReference.type;
+              }
+              if (!answer.valueReference.display) {
+                delete answer.valueReference.display;
+              }
+              if (editorTools.isEmptyObject(answer.valueReference.identifier)) {
+                delete answer.valueReference.identifier;
+              }
             }
-            if (!answer.valueReference.display) {
-              delete answer.valueReference.display;
+            if (editorTools.isEmptyObject(answer.valueReference)) {
+              item.answerOption.splice(i, 1);
             }
-            if (editorTools.isEmptyObject(answer.valueReference.identifier)) {
-              delete answer.valueReference.identifier;
-            }
-          }
-          if (editorTools.isEmptyObject(answer.valueReference)) {
-            item.answerOption.splice(i, 1);
-          }
-        } else if (answer.__type === "string") {
-          if (!answer.valueString) {
-            item.answerOption.splice(i, 1);
-          }
+            break;
+          default:
+            throw new UnreachableError(answer.__type);
         }
       }
       if (item.answerOption.length === 0) {

@@ -293,7 +293,7 @@ class QuestionnaireTools {
   }
 
   isUri(uri: string | null | undefined): true | string {
-    if (!uri) return "id has to be non-empty";
+    if (!uri) return "URI has to be non-empty";
     const match = uri.match(URI_REGEXP);
     return (
       (match !== null && match.length > 0 && uri.length === match[0].length) ||

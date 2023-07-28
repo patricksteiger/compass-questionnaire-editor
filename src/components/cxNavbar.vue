@@ -77,7 +77,7 @@
           :label="$t('components.navigationBar.warningLeaveDialog.continue')"
           color="primary"
           v-close-popup
-          @click="continueLeavingEditionScreen"
+          @click="continueLeavingEditorScreen"
         />
       </q-card-actions>
     </q-card>
@@ -242,7 +242,7 @@ export default defineComponent({
     editMetadata() {
       this.alertMetadata = true;
     },
-    continueLeavingEditionScreen() {
+    continueLeavingEditorScreen() {
       this.resetQuestionnaire();
       this.$router.push("Import");
     },

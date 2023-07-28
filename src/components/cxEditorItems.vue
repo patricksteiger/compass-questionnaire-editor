@@ -854,10 +854,13 @@
                                 </q-btn>
                               </q-input>
                             </div>
-                            <!-- answerOption string -->
+                            <!-- answerOption string and text -->
                             <div
                               class="row"
-                              v-else-if="answerOption.__type === 'string'"
+                              v-else-if="
+                                answerOption.__type === 'string' ||
+                                answerOption.__type === 'text'
+                              "
                             >
                               <q-input
                                 class="col-12"
@@ -898,6 +901,58 @@
                                   @click="
                                     answerOption.valueString =
                                       answerOption.__oldValueString
+                                  "
+                                  ><q-tooltip>
+                                    {{ $t("components.reverseAnswer") }}
+                                  </q-tooltip></q-btn
+                                >
+                              </q-input>
+                            </div>
+                            <!-- answerOption url -->
+                            <div
+                              class="row"
+                              v-else-if="answerOption.__type === 'url'"
+                            >
+                              <q-input
+                                class="col-12"
+                                autogrow
+                                v-model="answerOption.valueUri"
+                                :disable="!selectedItem.__active"
+                                :rules="[questionnaireTools.isUri]"
+                                :label="
+                                  answerOption.valueUri !==
+                                    answerOption.__oldValueUri &&
+                                  !answerOption.__newAnswer
+                                    ? `${$t('views.editor.originalText')}: ${
+                                        answerOption.__oldValueUri
+                                      }`
+                                    : answerOption.__type
+                                "
+                              >
+                                <template v-slot:prepend>
+                                  <div>
+                                    <q-checkbox
+                                      v-model="answerOption.initialSelected"
+                                      size="sm"
+                                    />
+                                    <q-tooltip>initialSelected</q-tooltip>
+                                  </div>
+                                </template>
+                                <!-- reverse original text answer -->
+                                <q-btn
+                                  flat
+                                  round
+                                  icon="history"
+                                  :disable="!selectedItem.__active"
+                                  class="q-mr-sm text-grey-8"
+                                  v-if="
+                                    answerOption.valueUri !==
+                                      answerOption.__oldValueUri &&
+                                    !answerOption.__newAnswer
+                                  "
+                                  @click="
+                                    answerOption.valueUri =
+                                      answerOption.__oldValueUri
                                   "
                                   ><q-tooltip>
                                     {{ $t("components.reverseAnswer") }}
@@ -3098,8 +3153,12 @@ export default defineComponent({
         case "time":
           this.enableWhenItem.__answer = e.valueTime;
           break;
+        case "text":
         case "string":
           this.enableWhenItem.__answer = e.valueString;
+          break;
+        case "url":
+          this.enableWhenItem.__answer = e.valueUri;
           break;
         case "quantity":
           this.enableWhenItem.__answer = e.__formattedValueQuantity;
@@ -3434,8 +3493,12 @@ export default defineComponent({
         case "time":
           answerOption.valueTime = dateTools.getCurrentTime();
           break;
+        case "text":
         case "string":
           answerOption.valueString = "";
+          break;
+        case "url":
+          answerOption.valueUri = "";
           break;
         case "quantity":
           answerOption.valueQuantity = {};

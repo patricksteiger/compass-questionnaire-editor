@@ -156,19 +156,22 @@ const setQuestionnaireMutations = {
     const qre = getDefaultQuestionnaire(defaultLanguage);
     state.questionnaire = qre;
     state.questionnaireRepo = [qre];
+    state.selectedItem = undefined;
   },
   setQuestionnaireBundle(state: StoreState, payload: Questionnaire[]): void {
     if (payload.length === 0) {
-      console.error("Can't set empty questionnaires");
+      console.error("Can't set empty questionnaire-bundle");
       return;
     }
     state.questionnaire = payload[0];
     state.questionnaireRepo = payload;
+    state.selectedItem = undefined;
   },
   resetQuestionnaire(state: StoreState): void {
     const language = state.questionnaire.language || defaultLanguage;
     state.questionnaire = getDefaultQuestionnaire(language);
     state.questionnaireRepo = [state.questionnaire];
+    state.selectedItem = undefined;
   },
   setSelectedItem(state: StoreState, item: Item | undefined): void {
     state.selectedItem = item;

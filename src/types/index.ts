@@ -115,6 +115,7 @@ export type AnswerOption = {
   __oldValueDateTime?: string;
   __oldValueTime?: string;
   __oldValueString?: string;
+  __oldValueUri?: string;
   __oldValueQuantity?: Quantity;
   __oldValueReference?: Reference;
   __formattedValueCoding?: string;
@@ -131,6 +132,7 @@ export type AnswerOption = {
   valueDateTime?: string;
   valueTime?: string;
   valueString?: string;
+  valueUri?: string;
   valueQuantity?: Quantity;
   valueReference?: Reference;
   initialSelected: boolean;
