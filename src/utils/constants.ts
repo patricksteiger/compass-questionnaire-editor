@@ -185,6 +185,11 @@ export function getVersionAlgorithmCoding(
   return versionAlgorithms.find((v) => v.code === code)!;
 }
 
+export function matches(regex: RegExp, s: string): boolean {
+  const match = s.match(regex);
+  return match !== null && match.length > 0 && s.length === match[0].length;
+}
+
 export const COLORS = {
   itemDragOver: "rgb(2,123,227,0.5)",
 } as const;

@@ -1,3 +1,5 @@
+import { matches } from "./constants";
+
 // Source: https://www.hl7.org/fhir/datatypes.html#date
 const DATE_REGEXP =
   /([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?)?/g;
@@ -13,72 +15,57 @@ const INSTANT_REGEXP =
 class DateTools {
   isDate(s: string | undefined | null): true | string {
     if (!s) return "date has to be non-empty";
-    const match = s.match(DATE_REGEXP);
     return (
-      (match !== null && match.length > 0 && s.length === match[0].length) ||
+      matches(DATE_REGEXP, s) ||
       "value doesn't match YYYY, YYYY-MM or YYYY-MM-DD"
     );
   }
 
   isDateOrEmpty(s: string | undefined | null): true | string {
-    if (!s) return true;
-    const match = s.match(DATE_REGEXP);
     return (
-      (match !== null && match.length > 0 && s.length === match[0].length) ||
+      !s ||
+      matches(DATE_REGEXP, s) ||
       "value doesn't match YYYY, YYYY-MM or YYYY-MM-DD"
     );
   }
 
   isDateTime(s: string | undefined | null): true | string {
     if (!s) return "dateTime has to be non-empty";
-    const match = s.match(DATE_TIME_REGEXP);
     return (
-      (match !== null && match.length > 0 && s.length === match[0].length) ||
+      matches(DATE_TIME_REGEXP, s) ||
       "value doesn't match YYYY, YYYY-MM, YYYY-MM-DD or YYYY-MM-DDThh:mm:ss+zz:zz"
     );
   }
 
   isDateTimeOrEmpty(s: string | undefined | null): true | string {
-    if (!s) return true;
-    const match = s.match(DATE_TIME_REGEXP);
     return (
-      (match !== null && match.length > 0 && s.length === match[0].length) ||
+      !s ||
+      matches(DATE_TIME_REGEXP, s) ||
       "value doesn't match YYYY, YYYY-MM, YYYY-MM-DD or YYYY-MM-DDThh:mm:ss+zz:zz"
     );
   }
 
   isTime(s: string | undefined | null): true | string {
     if (!s) return "time has to be non-empty";
-    const match = s.match(TIME_REGEXP);
-    return (
-      (match !== null && match.length > 0 && s.length === match[0].length) ||
-      "value doesn't match HH:MM:SS"
-    );
+    return matches(TIME_REGEXP, s) || "value doesn't match HH:MM:SS";
   }
 
   isTimeOrEmpty(s: string | undefined | null): true | string {
-    if (!s) return true;
-    const match = s.match(TIME_REGEXP);
-    return (
-      (match !== null && match.length > 0 && s.length === match[0].length) ||
-      "value doesn't match HH:MM:SS"
-    );
+    return !s || matches(TIME_REGEXP, s) || "value doesn't match HH:MM:SS";
   }
 
   isInstant(s: string | undefined | null): true | string {
     if (!s) return "instant has to be non-empty";
-    const match = s.match(INSTANT_REGEXP);
     return (
-      (match !== null && match.length > 0 && s.length === match[0].length) ||
+      matches(INSTANT_REGEXP, s) ||
       "value doesn't match YYYY-MM-DDThh:mm:ss.sss+zz:zz"
     );
   }
 
   isInstantOrEmpty(s: string | undefined | null): true | string {
-    if (!s) return true;
-    const match = s.match(INSTANT_REGEXP);
     return (
-      (match !== null && match.length > 0 && s.length === match[0].length) ||
+      !s ||
+      matches(INSTANT_REGEXP, s) ||
       "value doesn't match YYYY-MM-DDThh:mm:ss.sss+zz:zz"
     );
   }

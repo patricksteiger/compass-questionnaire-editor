@@ -8,6 +8,7 @@ import {
   UsageContext,
   UseContextType,
 } from "@/types";
+import { matches } from "./constants";
 import { UnreachableError } from "./editor";
 import { itemTools } from "./item";
 
@@ -276,72 +277,56 @@ class QuestionnaireTools {
 
   isId(id: string | null | undefined): true | string {
     if (!id) return "id has to be non-empty";
-    const match = id.match(ID_REGEXP);
     return (
-      (match !== null && match.length > 0 && id.length === match[0].length) ||
+      matches(ID_REGEXP, id) ||
       "ID can only contain a-z, A-Z, 0-9, . and - with a max length of 64"
     );
   }
 
   isIdOrEmpty(id: string | null | undefined): true | string {
-    if (!id) return true;
-    const match = id.match(ID_REGEXP);
     return (
-      (match !== null && match.length > 0 && id.length === match[0].length) ||
+      !id ||
+      matches(ID_REGEXP, id) ||
       "ID can only contain a-z, A-Z, 0-9, . and - with a max length of 64"
     );
   }
 
   isUri(uri: string | null | undefined): true | string {
     if (!uri) return "URI has to be non-empty";
-    const match = uri.match(URI_REGEXP);
-    return (
-      (match !== null && match.length > 0 && uri.length === match[0].length) ||
-      "URI cannot contain whitespace"
-    );
+    return matches(URI_REGEXP, uri) || "URI cannot contain whitespace";
   }
 
   isUriOrEmpty(uri: string | null | undefined): true | string {
-    if (!uri) return true;
-    const match = uri.match(URI_REGEXP);
-    return (
-      (match !== null && match.length > 0 && uri.length === match[0].length) ||
-      "URI cannot contain whitespace"
-    );
+    return !uri || matches(URI_REGEXP, uri) || "URI cannot contain whitespace";
   }
 
   isCanonical(uri: string | null | undefined): true | string {
     if (!uri) return "Cannonical-URI has to be non-empty";
-    const match = uri.match(URI_REGEXP);
     return (
-      (match !== null && match.length > 0 && uri.length === match[0].length) ||
-      "Cannonical-URI cannot contain whitespace"
+      matches(URI_REGEXP, uri) || "Cannonical-URI cannot contain whitespace"
     );
   }
 
   isCanonicalOrEmpty(uri: string | null | undefined): true | string {
-    if (!uri) return true;
-    const match = uri.match(URI_REGEXP);
     return (
-      (match !== null && match.length > 0 && uri.length === match[0].length) ||
+      !uri ||
+      matches(URI_REGEXP, uri) ||
       "Cannonical-URI cannot contain whitespace"
     );
   }
 
   isName(name: string | null | undefined): true | string {
     if (!name) return "name has to be non-empty";
-    const match = name.match(NAME_REGEXP);
     return (
-      (match !== null && match.length > 0 && name.length === match[0].length) ||
+      matches(NAME_REGEXP, name) ||
       "Name has to start with A-Z, continue with at least 1 alphanumerical or underscore character, with max length of 255"
     );
   }
 
   isNameOrEmpty(name: string | null | undefined): true | string {
-    if (!name) return true;
-    const match = name.match(NAME_REGEXP);
     return (
-      (match !== null && match.length > 0 && name.length === match[0].length) ||
+      !name ||
+      matches(NAME_REGEXP, name) ||
       "Name has to start with A-Z, continue with at least 1 alphanumerical or underscore character, with max length of 255"
     );
   }
