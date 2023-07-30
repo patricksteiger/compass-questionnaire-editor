@@ -1,6 +1,7 @@
 import { defaultLanguage } from "@/i18n";
 import {
   AnswerOption,
+  AnswerType,
   ContactDetail,
   ContactPoint,
   DerivedFromExtension,
@@ -16,7 +17,6 @@ import {
 } from "@/types";
 import { getOrAddHiddenExtension } from "@/utils/extension";
 import {
-  allowsAnswerOption,
   getAnswerOptionIcon,
   getItemTypeIcon,
   VersionAlgorithmCoding,
@@ -513,80 +513,42 @@ export class QuestionnaireBuilder {
     return answerOption;
   }
 
-  private fromEnableWhen(fhirItem: ParsedItem): EnableWhen[] | undefined {
-    if (fhirItem.enableWhen === undefined) return undefined;
+  private fromEnableWhen(fhirItem: ParsedItem): EnableWhen[] {
+    if (editorTools.emptyArray(fhirItem.enableWhen)) return [];
     const resultEnableWhen: EnableWhen[] = [];
     for (const enableWhen of fhirItem.enableWhen) {
       const result: EnableWhen = editorTools.clone(enableWhen);
+      // linkedItem is always defined and its type is never "group" or "display", guaranteed by FHIRItemValidator
       const linkedItem = validatorUtils.getItemByLinkId(
         this.qre,
         enableWhen.question,
-      );
-      if (linkedItem !== undefined) {
-        result.__type =
-          linkedItem.type !== "display" && linkedItem.type !== "group"
-            ? linkedItem.type
-            : undefined;
-        // FIXME: is __answerOption still needed?
-        result.__answerOption =
-          allowsAnswerOption(linkedItem.type) &&
-          itemTools.definedAnswerChoices(fhirItem);
-      }
+      )!;
+      result.__type = linkedItem.type as AnswerType;
       if (enableWhen.answerBoolean !== undefined) {
         result.__answer = String(enableWhen.answerBoolean);
       } else if (enableWhen.answerInteger !== undefined) {
         result.__answer = String(enableWhen.answerInteger);
-        if (result.__answerOption) {
-          result.__type = "integer";
-        }
       } else if (enableWhen.answerDecimal !== undefined) {
         result.__answer = String(enableWhen.answerDecimal);
-        if (result.__answerOption) {
-          result.__type = "decimal";
-        }
       } else if (enableWhen.answerDate !== undefined) {
         result.__answer = enableWhen.answerDate;
-        if (result.__answerOption) {
-          result.__type = "date";
-        }
       } else if (enableWhen.answerTime !== undefined) {
         result.__answer = enableWhen.answerTime;
-        if (result.__answerOption) {
-          result.__type = "time";
-        }
       } else if (enableWhen.answerDateTime !== undefined) {
         result.__answer = enableWhen.answerDateTime;
-        if (result.__answerOption) {
-          result.__type = "dateTime";
-        }
       } else if (enableWhen.answerString !== undefined) {
         result.__answer = enableWhen.answerString;
-        result.__orString = linkedItem?.type !== "string";
-        if (linkedItem === undefined && result.__answerOption) {
-          result.__type = "string";
-        }
+        result.__orString = linkedItem.type !== "string";
       } else if (enableWhen.answerUri !== undefined) {
         result.__answer = enableWhen.answerUri;
-        if (linkedItem === undefined && result.__answerOption) {
-          result.__type = "url";
-        }
       } else if (enableWhen.answerCoding !== undefined) {
         result.__answer = editorTools.formatCoding(enableWhen.answerCoding);
-        if (result.__answerOption) {
-          result.__type = "coding";
-        }
       } else if (enableWhen.answerQuantity !== undefined) {
         result.__answer = editorTools.formatQuantity(enableWhen.answerQuantity);
-        if (result.__answerOption) {
-          result.__type = "quantity";
-        }
       } else if (enableWhen.answerReference !== undefined) {
         result.__answer = editorTools.formatReference(
           enableWhen.answerReference,
         );
-        if (result.__answerOption) {
-          result.__type = "reference";
-        }
       } else if (enableWhen.answerAttachment !== undefined) {
         result.__answer = editorTools.formatAttachment(
           enableWhen.answerAttachment,

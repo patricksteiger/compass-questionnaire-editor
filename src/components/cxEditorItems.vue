@@ -1137,13 +1137,9 @@
                     v-model="selectedItem.enableBehavior"
                     label="EnableBehavior"
                     :options="enableBehaviors"
-                    :clearable="
-                      !selectedItem.enableWhen ||
-                      selectedItem.enableWhen.length <= 1
-                    "
+                    :clearable="selectedItem.enableWhen.length <= 1"
                     :error="
                       !selectedItem.enableBehavior &&
-                      !!selectedItem.enableWhen &&
                       selectedItem.enableWhen.length > 1
                     "
                   />
@@ -1491,6 +1487,7 @@
         </q-tab-panels>
       </template>
     </q-splitter>
+
     <!-- Alert condition -->
     <q-dialog v-model="alert">
       <q-card>
@@ -1538,6 +1535,7 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
     <!-- enableWhen dialog -->
     <q-dialog v-model="enableWhenLayout" v-if="selected !== null">
       <cx-enable-When
@@ -3121,7 +3119,6 @@ export default defineComponent({
       }
       this.enableWhenItem.question = e.__linkId ?? "";
       this.enableWhenItem.__type = e.__type;
-      this.enableWhenItem.__answerOption = true;
       if (!this.enableWhenItem.operator) {
         this.enableWhenItem.operator = "=";
       }
@@ -3184,7 +3181,6 @@ export default defineComponent({
       if (e.linkId !== undefined) {
         this.enableWhenItem.operator ||= "=";
       }
-      this.enableWhenItem.__answerOption = false;
       this.enableWhenLayout = false;
     },
     onChangeConditionBehavior(behavior: EnableBehavior | undefined): void {
@@ -3199,7 +3195,6 @@ export default defineComponent({
         console.error("Can't add condition with selecting an item.");
         return;
       }
-      this.selectedItem.enableWhen ??= [];
       this.selectedItem.enableWhen.push({
         question: "",
         operator: "",
@@ -3210,10 +3205,7 @@ export default defineComponent({
       }
     },
     onRemoveCondition(index: number): void {
-      if (
-        this.selectedItem === undefined ||
-        this.selectedItem.enableWhen === undefined
-      ) {
+      if (this.selectedItem === undefined) {
         throw new Error("Remove can't be used with no conditions!");
       }
       this.selectedItem.enableWhen.splice(index, 1);
@@ -3585,7 +3577,6 @@ export default defineComponent({
         if (item.item !== undefined) {
           this.deleteEnableWhenWithQuestionID(item.item, linkIDs);
         }
-        if (item.enableWhen === undefined) continue;
         for (let i = item.enableWhen.length - 1; i >= 0; i--) {
           const enableWhen = item.enableWhen[i];
           if (linkIDs.has(enableWhen.question)) {

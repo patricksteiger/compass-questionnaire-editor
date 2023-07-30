@@ -70,7 +70,6 @@ export type Reference = {
 };
 
 export type EnableWhen = {
-  __answerOption?: boolean;
   __orString?: boolean;
   __answer?: string;
   __type?: AnswerType;
@@ -295,7 +294,7 @@ export type Item = {
   item?: Item[];
   maxLength?: number;
   type: ItemType;
-  enableWhen?: EnableWhen[];
+  enableWhen: EnableWhen[];
   enableBehavior?: EnableBehavior | null;
   disabledDisplay: DisabledDisplay | null;
   text: string;

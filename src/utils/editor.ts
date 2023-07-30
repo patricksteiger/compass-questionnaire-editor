@@ -200,7 +200,6 @@ class EditorTools {
       if (element.item) {
         this.setConditionDependence(element.item, rootItem);
       }
-      if (element.enableWhen === undefined) continue;
       for (const enableWhen of element.enableWhen) {
         const itemToAppendCondition = itemTools.getItemByLinkId(
           enableWhen.question,

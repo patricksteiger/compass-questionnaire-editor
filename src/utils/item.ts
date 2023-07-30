@@ -126,6 +126,7 @@ class ItemTools {
       item: undefined,
       linkId: linkId,
       disabledDisplay: null,
+      enableWhen: [],
       text: itemTools.getDefaultText(),
       extension: [getHiddenExtension()],
       modifierExtension: [],

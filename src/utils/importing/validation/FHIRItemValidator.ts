@@ -207,19 +207,20 @@ export class FHIRItemValidator {
 
   private validateEnableWhenAndBehavior(item: ParsedItem): void {
     if (validatorUtils.emptyList(item.enableWhen)) return;
-    for (const enableWhen of item.enableWhen) {
+    for (let i = item.enableWhen.length - 1; i >= 0; i--) {
+      const enableWhen = item.enableWhen[i];
       const linkedItem = validatorUtils.getItemByLinkId(
         this.qre,
         enableWhen.question,
       );
-      // FIXME: How to handle invalid linkIds in ErrorChecker and export?
       if (linkedItem === undefined) {
         this.warnings.push(
-          `LinkId "${item.linkId}" has enableWhen linking to invalid linkId "${enableWhen.question}".`,
+          `LinkId "${item.linkId}" has enableWhen linking to nonexistent linkId "${enableWhen.question}". This enableWhen has been removed.`,
         );
-        continue;
+        item.enableWhen.splice(i, 1);
+      } else {
+        this.validateEnableWhenAnswerType(linkedItem, enableWhen, item);
       }
-      this.validateEnableWhenAnswerType(linkedItem, enableWhen, item);
     }
     if (item.enableWhen.length > 1 && !item.enableBehavior) {
       this.warnings.push(
@@ -235,60 +236,81 @@ export class FHIRItemValidator {
     currentItem: ParsedItem,
   ): void {
     this.validateEnableWhenAnswers(enableWhen, currentItem);
-    // FIXME: What to do when invalid type for answerOption question?
-    if (linkedItem.type === "boolean" || enableWhen.operator === "exists") {
+    if (enableWhen.operator === "exists") {
       if (enableWhen.answerBoolean === undefined) {
         this.resetEnableWhenAnswers(enableWhen);
       }
-    } else if (linkedItem.type === "integer") {
-      if (enableWhen.answerInteger === undefined) {
-        this.clearOptionsOrString(enableWhen, linkedItem);
-      }
-    } else if (linkedItem.type === "decimal") {
-      if (enableWhen.answerDecimal === undefined) {
-        this.clearOptionsOrString(enableWhen, linkedItem);
-      }
-    } else if (linkedItem.type === "string" || linkedItem.type === "text") {
-      if (enableWhen.answerString === undefined) {
-        this.resetEnableWhenAnswers(enableWhen);
-      }
-    } else if (linkedItem.type === "url") {
-      if (enableWhen.answerUri === undefined) {
-        this.resetEnableWhenAnswers(enableWhen);
-      }
-    } else if (linkedItem.type === "date") {
-      if (enableWhen.answerDate === undefined) {
-        this.clearOptionsOrString(enableWhen, linkedItem);
-      }
-    } else if (linkedItem.type === "time") {
-      if (enableWhen.answerTime === undefined) {
-        this.clearOptionsOrString(enableWhen, linkedItem);
-      }
-    } else if (linkedItem.type === "dateTime") {
-      if (enableWhen.answerDateTime === undefined) {
-        this.clearOptionsOrString(enableWhen, linkedItem);
-      }
-    } else if (linkedItem.type === "group" || linkedItem.type === "display") {
-      enableWhen.operator = "exists";
-      this.resetEnableWhenAnswers(enableWhen);
-      this.warnings.push(
-        `LinkId "${currentItem.linkId}" has enableWhen linking to type "${linkedItem.type}" "${linkedItem.linkId}" without operator "exists". Operator and answer have been reset.`,
-      );
-    } else if (linkedItem.type === "quantity") {
-      if (enableWhen.answerQuantity === undefined) {
-        this.clearOptionsOrString(enableWhen, linkedItem);
-      }
-    } else if (linkedItem.type === "reference") {
-      if (enableWhen.answerReference === undefined) {
-        this.clearOptionsOrString(enableWhen, linkedItem);
-      }
-    } else if (linkedItem.type === "coding") {
-      if (enableWhen.answerCoding === undefined) {
-        this.clearOptionsOrString(enableWhen, linkedItem);
-      }
-    } else if (linkedItem.type === "attachment") {
-      if (enableWhen.answerAttachment === undefined) {
-        this.clearOptionsOrString(enableWhen, linkedItem);
+    } else {
+      switch (linkedItem.type) {
+        case "boolean":
+          if (enableWhen.answerBoolean === undefined) {
+            this.resetEnableWhenAnswers(enableWhen);
+          }
+          break;
+        case "integer":
+          if (enableWhen.answerInteger === undefined) {
+            this.clearOptionsOrString(enableWhen, linkedItem);
+          }
+          break;
+        case "decimal":
+          if (enableWhen.answerDecimal === undefined) {
+            this.clearOptionsOrString(enableWhen, linkedItem);
+          }
+          break;
+        case "date":
+          if (enableWhen.answerUri === undefined) {
+            this.clearOptionsOrString(enableWhen, linkedItem);
+          }
+          break;
+        case "dateTime":
+          if (enableWhen.answerDateTime === undefined) {
+            this.clearOptionsOrString(enableWhen, linkedItem);
+          }
+          break;
+        case "time":
+          if (enableWhen.answerTime === undefined) {
+            this.clearOptionsOrString(enableWhen, linkedItem);
+          }
+          break;
+        case "text":
+        case "string":
+          if (enableWhen.answerString === undefined) {
+            this.resetEnableWhenAnswers(enableWhen);
+          }
+          break;
+        case "url":
+          if (enableWhen.answerUri === undefined) {
+            this.clearOptionsOrString(enableWhen, linkedItem);
+          }
+          break;
+        case "quantity":
+          if (enableWhen.answerQuantity === undefined) {
+            this.clearOptionsOrString(enableWhen, linkedItem);
+          }
+          break;
+        case "reference":
+          if (enableWhen.answerReference === undefined) {
+            this.clearOptionsOrString(enableWhen, linkedItem);
+          }
+          break;
+        case "coding":
+          if (enableWhen.answerCoding === undefined) {
+            this.clearOptionsOrString(enableWhen, linkedItem);
+          }
+          break;
+        case "attachment":
+          if (enableWhen.answerAttachment === undefined) {
+            this.clearOptionsOrString(enableWhen, linkedItem);
+          }
+          break;
+        case "group":
+        case "display":
+          this.errors.push(
+            `LinkId "${currentItem.linkId}" has enableWhen linking to type "${linkedItem.type}" which is not a question.`,
+          );
+          break;
+        default:
+          throw new UnreachableError(linkedItem.type);
       }
     }
   }
@@ -297,11 +319,10 @@ export class FHIRItemValidator {
     enableWhen: ParsedEnableWhen,
     linkedItem: ParsedItem,
   ) {
-    if (linkedItem.answerConstraint === "optionsOrString") {
-      if (!enableWhen.answerString) {
-        this.resetEnableWhenAnswers(enableWhen);
-      }
-    } else {
+    if (
+      linkedItem.answerConstraint !== "optionsOrString" ||
+      !enableWhen.answerString
+    ) {
       this.resetEnableWhenAnswers(enableWhen);
     }
   }

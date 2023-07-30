@@ -25,7 +25,7 @@ class QuestionnaireTools {
     linkIDs: Set<string>,
   ): boolean {
     for (const item of items) {
-      for (const enableWhen of item.enableWhen ?? []) {
+      for (const enableWhen of item.enableWhen) {
         if (linkIDs.has(enableWhen.question)) {
           return true;
         }
@@ -47,14 +47,11 @@ class QuestionnaireTools {
 
   private isEnableWhenConditionHelper(item: Item[], linkId: string): boolean {
     for (const element of item) {
-      if (element.enableWhen !== undefined) {
-        for (const condition of element.enableWhen) {
-          if (condition.question === linkId) {
-            return true;
-          }
+      for (const condition of element.enableWhen) {
+        if (condition.question === linkId) {
+          return true;
         }
       }
-
       if (element.item) {
         const found = this.isEnableWhenConditionHelper(element.item, linkId);
         if (found) {
@@ -179,10 +176,8 @@ class QuestionnaireTools {
     enableWhen: EnableWhen[],
   ): void {
     for (const item of items) {
-      if (item.enableWhen !== undefined) {
-        for (const e of item.enableWhen) {
-          if (e.question === linkId) enableWhen.push(e);
-        }
+      for (const e of item.enableWhen) {
+        if (e.question === linkId) enableWhen.push(e);
       }
       if (item.item !== undefined) {
         this.getEnableWhenWithLinkIdHelper(item.item, linkId, enableWhen);
