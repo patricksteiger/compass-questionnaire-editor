@@ -9,6 +9,8 @@ import {
   Attachment,
   ContactPoint,
   SimpleQuantity,
+  Identifier,
+  IdentifierType,
 } from "@/types";
 import { getOrAddHiddenExtension } from "./extension";
 import { itemTools } from "./item";
@@ -344,12 +346,64 @@ class EditorTools {
     if (old === undefined) return false;
     const current = answerOption.valueReference;
     if (current === undefined) return true;
-    // FIXME: Implement identifier equality
+    return !this.equalsReference(current, old);
+  }
+
+  private equalsReference(ref1: Reference, ref2: Reference): boolean {
     return (
-      current.type !== old.type ||
-      current.display !== old.display ||
-      current.reference !== old.reference
+      ref1.type === ref2.type &&
+      ref1.display === ref2.display &&
+      ref1.reference === ref2.reference &&
+      this.equalsIdentifier(ref1.identifier, ref2.identifier)
     );
+  }
+
+  private equalsIdentifier(
+    id1: Identifier | undefined,
+    id2: Identifier | undefined,
+  ): boolean {
+    if (id1 === undefined && id2 === undefined) return true;
+    if (id1 === undefined || id2 === undefined) return false;
+    return (
+      id1.use === id2.use &&
+      this.equalsString(id1.value, id2.value) &&
+      this.equalsString(id1.system, id2.system) &&
+      this.equalsIdentifierType(id1.type, id2.type)
+    );
+  }
+
+  private equalsIdentifierType(
+    s1: IdentifierType | undefined,
+    s2: IdentifierType | undefined,
+  ): boolean {
+    if (s1 === undefined && s2 === undefined) return true;
+    if (s1 === undefined || s2 === undefined) return false;
+    return (
+      this.equalsString(s1.text, s2.text) &&
+      this.equalsCoding(s1.coding, s2.coding)
+    );
+  }
+
+  private equalsCoding(
+    c1: Coding | undefined,
+    c2: Coding | undefined,
+  ): boolean {
+    if (c1 === undefined && c2 === undefined) return true;
+    if (c1 === undefined || c2 === undefined) return false;
+    return (
+      this.equalsString(c1.system, c2.system) &&
+      this.equalsString(c1.code, c2.code) &&
+      this.equalsString(c1.display, c2.display) &&
+      this.equalsString(c1.version, c2.version) &&
+      ((c1 == null && c2 == null) || c1.userSelected === c2.userSelected)
+    );
+  }
+
+  private equalsString(
+    s1: string | undefined,
+    s2: string | undefined,
+  ): boolean {
+    return (!s1 && !s2) || s1 === s2;
   }
 
   formatSimpleQuantity(quantity: SimpleQuantity): string {
