@@ -155,12 +155,14 @@
       </q-card-actions>
     </q-card>
   </q-dialog>
+
   <q-dialog v-model="confirmQuestionnaireLayout" persistent>
     <cxConfirmDialog
       :message="confirmMessage"
       v-on:confirmation="exportQuestionnaire"
     />
   </q-dialog>
+
   <q-dialog v-model="confirmBundleLayout" persistent>
     <cxConfirmDialog
       :message="confirmMessage"
@@ -246,50 +248,52 @@ export default defineComponent({
       this.resetQuestionnaire();
       this.$router.push("Import");
     },
-    validateExportBundle() {
+    async validateExportBundle() {
       const questionnaires: Questionnaire[] = this.getQuestionnaires;
       const languagesWithErrors = ErrorChecker.haveErrors(questionnaires);
       if (languagesWithErrors.length > 0) {
         this.confirmMessage = `Questionnaires [${languagesWithErrors}] have errors. This means elements with errors are deleted/altered before being exported. Do you want to continue?`;
         this.confirmBundleLayout = true;
       } else {
-        this.exportQuestionnaireBundle();
+        await this.exportQuestionnaireBundle();
       }
     },
-    exportQuestionnaireBundle() {
+    async exportQuestionnaireBundle() {
       this.showLoading();
       const questionnaires: Questionnaire[] = this.getQuestionnaires;
       const exportBundle = this.exportTools.getExportBundle(questionnaires);
-      const exportBundleJson = this.exportTools.serializeToJSON(exportBundle);
-      const blob = new Blob([exportBundleJson], {
-        type: "application/json;charset=utf-8",
-      });
-      this.FileSaver.saveAs(blob, `${this.getNameOfQuestionnaire}-Bundle.json`);
+      const serializedBundle = this.exportTools.serializeToJSON(exportBundle);
+      const name = `${this.getNameOfQuestionnaire}-Bundle`;
+      await this.saveAsBlob(serializedBundle, name);
       this.hideLoading();
     },
-    validateExportQuestionnaire() {
+    async validateExportQuestionnaire() {
       const questionnaire: Questionnaire = this.getQuestionnaireImportedJSON;
       if (ErrorChecker.hasErrors(questionnaire)) {
         this.confirmMessage = `Questionnaire "${questionnaire.language}" has errors. This means elements with errors are deleted/altered before being exported. Do you want to continue?`;
         this.confirmQuestionnaireLayout = true;
       } else {
-        this.exportQuestionnaire();
+        await this.exportQuestionnaire();
       }
     },
     async exportQuestionnaire() {
-      let blob: Blob | undefined = undefined;
+      this.showLoading();
+      const questionnaire: Questionnaire = this.getQuestionnaireImportedJSON;
+      const exportQuestionnaire =
+        this.exportTools.getExportObject(questionnaire);
+      const serializedQuestionnaire =
+        this.exportTools.serializeToJSON(exportQuestionnaire);
+      const name = this.getNameOfQuestionnaire;
+      await this.saveAsBlob(serializedQuestionnaire, name);
+      this.hideLoading();
+    },
+    async saveAsBlob(value: string, suggestedName: string): Promise<void> {
+      const blob = new Blob([value], {
+        type: "application/json;charset=utf-8",
+      });
       try {
-        this.showLoading();
-        const objToExport: Questionnaire = this.getQuestionnaireImportedJSON;
-        const exportQuestionnaire =
-          this.exportTools.getExportObject(objToExport);
-        const objFinalToExport =
-          this.exportTools.serializeToJSON(exportQuestionnaire);
-        blob = new Blob([objFinalToExport], {
-          type: "application/json;charset=utf-8",
-        });
         const opts = {
-          suggestedName: this.getNameOfQuestionnaire,
+          suggestedName,
           types: [
             {
               description: "JSON",
@@ -297,24 +301,19 @@ export default defineComponent({
             },
           ],
         };
-
+        // Only Chrome, Edge and Opera currently support showSaveFilePicker, throws TypeError otherwise
+        // Also throws DOMException if file-dialog gets closed without saving
         const newHandle = await window.showSaveFilePicker(opts);
-
         const writableStream = await newHandle.createWritable();
-        // write our file
         await writableStream.write(blob);
-
-        // close the file and write the contents to disk.
         await writableStream.close();
-        this.hideLoading();
-        this.alert = true;
       } catch (e: any) {
-        if (e.message !== "The user aborted a request." && blob !== undefined) {
-          this.messageError = this.$t("messagesErrors.fileNoExported");
-          this.alertError = true;
-          this.FileSaver.saveAs(blob, `${this.getNameOfQuestionnaire}.json`);
+        // True if message doesn't come from DOMException thrown by showSaveFilePicker
+        if (e.message !== "The user aborted a request.") {
+          // this.messageError = this.$t("messagesErrors.fileNoExported");
+          // this.alertError = true;
+          this.FileSaver.saveAs(blob, `${suggestedName}.json`);
         }
-        this.hideLoading();
       }
     },
     createNewEmptyQRE() {
