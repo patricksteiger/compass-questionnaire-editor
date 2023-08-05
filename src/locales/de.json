@@ -72,7 +72,7 @@
       "addChoiceItem": "Antwortoption-Element",
       "changeLanguage": "Sprache: {language}",
       "deleteItem": "Lösche Element",
-      "deleteItemDialogue": "Soll das Element inklusive aller Kindelemente gelöscht werden?",
+      "deleteItemDialogue": "Soll das Element inklusive aller Kindelemente und relevante EnableWhen gelöscht werden?",
       "question": "Frage",
       "questions": "Fragen",
       "operator": "Operator",

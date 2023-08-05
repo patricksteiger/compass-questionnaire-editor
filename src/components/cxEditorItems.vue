@@ -32,6 +32,7 @@
                   :id="prop.node.__internalID"
                 />
                 <div
+                  :disabled="prop.node.__disabled ? true : null"
                   class="row items-center justify-between"
                   style="width: 100%; flex-wrap: nowrap"
                   @dragover="onDragOver"
@@ -231,6 +232,7 @@
                   round
                   color="primary"
                   icon="update"
+                  :disable="!selectedItem.__active"
                   @click="changeLinkId(selectedItem!)"
                 />
                 <q-tooltip>Change LinkId</q-tooltip>
@@ -244,6 +246,7 @@
                   color="primary"
                   icon="swap_vert"
                   :disable="
+                    !selectedItem.__active ||
                     questionnaireTools.hasNotMultipleItems(currentQuestionnaire)
                   "
                   @click="swapLinkId(selectedItem!)"
@@ -269,7 +272,6 @@
                 v-model="selectedItem.text"
                 class="col-10"
                 input-class="text-h5 text-bold"
-                :disable="!selectedItem.__active"
                 :error="!selectedItem.text"
                 :label="
                   selectedItem.text !== selectedItem.__oldText &&
@@ -279,10 +281,11 @@
                       }`
                     : ''
                 "
-                ><template v-slot:error>
-                  {{ $t("components.fieldEmpty") }}
-                </template></q-input
               >
+                <template v-slot:error>
+                  {{ $t("components.fieldEmpty") }}
+                </template>
+              </q-input>
               <!-- Show Dependence Condition -->
               <div>
                 <q-btn
@@ -307,7 +310,6 @@
             >
               <!-- prefix -->
               <q-input
-                :disable="!selectedItem.__active"
                 v-if="selectedItem !== undefined"
                 v-model="selectedItem.prefix"
                 label="Prefix"
@@ -1123,7 +1125,6 @@
               <!-- enableWhen -->
               <q-expansion-item
                 v-if="selectedItem !== undefined"
-                :disable="!selectedItem.__active"
                 expand-separator
                 icon="account_tree"
                 :label="$t('views.editor.enableWhen')"
@@ -1177,8 +1178,8 @@
                             <!-- Go to question Item -->
                             <div>
                               <q-btn
-                                :disable="!selectedItem.__active"
                                 v-if="enableWhen.question !== ''"
+                                dense
                                 flat
                                 color="primary"
                                 icon="subdirectory_arrow_left"
@@ -1410,7 +1411,6 @@
                           />
                           <!-- remove enableWhen -->
                           <q-btn
-                            :disable="!selectedItem.__active"
                             flat
                             color="grey-6"
                             icon="highlight_off"
@@ -1428,7 +1428,7 @@
                   <div class="q-pa-sm">
                     <q-btn
                       padding="none xl"
-                      v-if="selectedItem.__active"
+                      :disable="!selectedItem.__active"
                       fab
                       icon="add"
                       color="primary"
