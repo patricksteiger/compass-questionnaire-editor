@@ -30,8 +30,7 @@
                       icon="delete"
                       :disable="getUsedLanguages.length <= 1"
                       @click="deleteLanguage(lang)"
-                    >
-                    </q-btn>
+                    />
                   </q-item-section>
                   <q-item-section>
                     <q-item-label>{{ lang }}</q-item-label>
@@ -49,7 +48,7 @@
             <div class="q-pa-md">
               <q-list bordered separator>
                 <q-item
-                  v-for="lang in getUnusedLanguages()"
+                  v-for="lang in getUnusedLanguages"
                   :key="lang"
                   v-ripple
                   clickable
@@ -122,9 +121,6 @@ export default defineComponent({
         this.$emit("deleteLanguage");
       }
     },
-    getUnusedLanguages(): Language[] {
-      return languages.filter((lang) => !this.getUsedLanguages.includes(lang));
-    },
     addLanguage(language: Language): void {
       this.$store.commit("addLanguage", language);
     },
@@ -134,7 +130,7 @@ export default defineComponent({
     },
   },
   computed: {
-    ...mapGetters(["getUsedLanguages", "getLanguage"]),
+    ...mapGetters(["getUsedLanguages", "getUnusedLanguages", "getLanguage"]),
   },
 });
 </script>

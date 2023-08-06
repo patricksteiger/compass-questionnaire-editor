@@ -296,6 +296,11 @@ export const store = createStore<StoreState>({
     getUsedLanguages(state): Language[] {
       return state.questionnaireRepo.map((qre) => qre.language);
     },
+    getUnusedLanguages(state): Language[] {
+      return languages.filter(
+        (lang) => !state.questionnaireRepo.find((qre) => qre.language === lang),
+      );
+    },
     getLanguage(state): Language {
       return state.questionnaire.language;
     },

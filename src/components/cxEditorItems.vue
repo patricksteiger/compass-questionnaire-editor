@@ -207,7 +207,7 @@
               class="row items-center justify-between text-caption text-grey-8 non-selectable"
               style="width: 100%"
             >
-              <span>{{ selectedItem?.type || "empty type" }}</span>
+              <span>Type: {{ selectedItem?.type || '""' }}</span>
             </div>
             <!-- LinkId field -->
             <div
@@ -428,6 +428,26 @@
                 v-model.number="selectedItem.maxLength"
               />
             </div>
+            <!-- answerValueSet/Option toggle -->
+            <div
+              v-if="
+                selectedItem !== undefined &&
+                allowsAnswerValueSet(selectedItem.type) &&
+                allowsAnswerOption(selectedItem.type)
+              "
+              class="row items-center text-bold q-mb-md"
+            >
+              <q-toggle
+                :label="
+                  'Switch to ' +
+                  (selectedItem.__answerValueSetCheck
+                    ? 'AnswerOption'
+                    : $t('views.editor.AnswerValueSet'))
+                "
+                v-model="selectedItem.__answerValueSetCheck"
+                :disable="!selectedItem.__active"
+              />
+            </div>
             <!-- answerConstraint -->
             <div>
               <q-select
@@ -450,24 +470,6 @@
                     ? 'If answerConstraint is defined, answerValueSet must be non-empty'
                     : 'If answerConstraint is defined, answerOption must be non-empty'
                 "
-              />
-            </div>
-            <div
-              v-if="
-                selectedItem !== undefined &&
-                allowsAnswerValueSet(selectedItem.type) &&
-                allowsAnswerOption(selectedItem.type)
-              "
-            >
-              <q-toggle
-                :label="
-                  'Switch to ' +
-                  (selectedItem.__answerValueSetCheck
-                    ? 'AnswerOption'
-                    : $t('views.editor.AnswerValueSet'))
-                "
-                v-model="selectedItem.__answerValueSetCheck"
-                :disable="!selectedItem.__active"
               />
             </div>
             <!-- answerValueSet -->
@@ -1122,6 +1124,8 @@
                   </div>
                 </q-card>
               </q-expansion-item>
+            </q-list>
+            <q-list padding bordered>
               <!-- enableWhen -->
               <q-expansion-item
                 v-if="selectedItem !== undefined"
@@ -1343,7 +1347,10 @@
                           />
                           <!-- enableWhen string -->
                           <q-input
-                            v-else-if="enableWhen.__type === 'string'"
+                            v-else-if="
+                              enableWhen.__type === 'string' ||
+                              enableWhen.__type === 'text'
+                            "
                             :disable="!selectedItem.__active"
                             :label="$t('views.editor.answer') + ' (string)'"
                             class="col-4"
@@ -1354,7 +1361,7 @@
                             @click="handleStringAnswer(enableWhen)"
                             dense
                           />
-                          <!-- enableWhen string -->
+                          <!-- enableWhen url/uri -->
                           <q-input
                             v-else-if="enableWhen.__type === 'url'"
                             :disable="!selectedItem.__active"
@@ -1362,6 +1369,9 @@
                             class="col-4"
                             v-model="enableWhen.__answer"
                             type="text"
+                            readonly
+                            clickable
+                            @click="handleUrlAnswer(enableWhen)"
                             dense
                           />
                           <!-- enableWhen quantity -->
@@ -1999,7 +2009,8 @@
           <div
             class="q-pa-md"
             v-else-if="
-              chosenEnableWhen.__type === 'string' &&
+              (chosenEnableWhen.__type === 'string' ||
+                chosenEnableWhen.__type === 'text') &&
               chosenEnableWhen.answerString !== undefined
             "
           >
@@ -2040,6 +2051,69 @@
               />
               <div>
                 <q-btn icon="add" @click="setStringAnswer(chosenEnableWhen)" />
+              </div>
+            </div>
+            <div v-if="linkedItem.answerConstraint === 'optionsOrString'">
+              <div><h6>Custom string</h6></div>
+              <q-input
+                label="String"
+                class="col-4"
+                v-model="chosenEnableWhen.answerString"
+                type="text"
+                dense
+              />
+              <div>
+                <q-btn
+                  icon="add"
+                  @click="setOrStringAnswer(chosenEnableWhen)"
+                />
+              </div>
+            </div>
+          </div>
+          <div
+            class="q-pa-md"
+            v-else-if="
+              chosenEnableWhen.__type === 'url' ||
+              chosenEnableWhen.answerUri !== undefined
+            "
+          >
+            <div v-if="itemTools.definedAnswerOption(linkedItem)">
+              <div><h6>AnswerOptions</h6></div>
+              <q-list bordered separator>
+                <q-item
+                  v-for="answerOption in linkedItem.answerOption"
+                  :key="answerOption.__id"
+                  clickable
+                  @dblclick="
+                  () => {
+                    chosenEnableWhen!.answerUri = answerOption.valueUri;
+                    setUrlAnswer(chosenEnableWhen);
+                  }
+                  "
+                >
+                  <q-item-section>
+                    {{ answerOption.valueUri }}
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </div>
+            <div
+              v-if="
+                itemTools.undefinedAnswerOption(linkedItem) ||
+                linkedItem.answerConstraint === 'optionsOrType'
+              "
+            >
+              <div><h6>Custom URI</h6></div>
+              <q-input
+                label="URI"
+                class="col-4"
+                v-model="chosenEnableWhen.answerUri"
+                type="text"
+                :error="!chosenEnableWhen?.answerUri"
+                dense
+              />
+              <div>
+                <q-btn icon="add" @click="setUrlAnswer(chosenEnableWhen)" />
               </div>
             </div>
             <div v-if="linkedItem.answerConstraint === 'optionsOrString'">
@@ -2938,6 +3012,22 @@ export default defineComponent({
       }
       this.chosenEnableWhenAnswerLayout = false;
     },
+    handleUrlAnswer(enableWhen: EnableWhen): void {
+      enableWhen.answerUri ??= "";
+      this.chosenEnableWhen = enableWhen;
+      this.linkedItem = questionnaireTools.getItemByLinkId(
+        this.currentQuestionnaire,
+        this.chosenEnableWhen.question,
+      );
+      this.chosenEnableWhenAnswerLayout = true;
+    },
+    setUrlAnswer(enableWhen: EnableWhen | undefined): void {
+      if (enableWhen?.answerUri !== undefined) {
+        enableWhen.__orString = false;
+        enableWhen.__answer = enableWhen.answerUri;
+      }
+      this.chosenEnableWhenAnswerLayout = false;
+    },
     handleAnswerOptionCoding(answerOption: AnswerOption): void {
       answerOption.valueCoding ??= {};
       answerOption.__formattedValueCoding ??= "";
@@ -3659,7 +3749,6 @@ export default defineComponent({
       }
       this.$store.commit("setSelectedItem", this.selectedItem);
     },
-    // TODO: How should switching to last selected change splitter?
     lastSelected(val: string | null) {
       if (val) {
         this.limitsSpliter = [0, 100];

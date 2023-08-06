@@ -88,6 +88,7 @@
                 </div>
               </div>
 
+              <!-- AnswerOption values -->
               <div
                 v-if="
                   allowsAnswerOption(selectedItem.type) &&
@@ -115,31 +116,12 @@
                       })
                     "
                   >
-                    <!-- Coding Answer type -->
-                    <!-- TODO: Rework display of coding -->
-                    <q-item-section
-                      v-if="
-                        answerOption.__type === 'coding' &&
-                        answerOption.valueCoding
-                      "
-                    >
+                    <q-item-section v-if="answerOption.__type === 'coding'">
                       <q-item-label>
-                        {{ answerOption.valueCoding.display }}
+                        {{ answerOption.__formattedValueCoding }}
                       </q-item-label>
                       <q-item-label caption lines="2">
-                        {{ answerOption.valueCoding.system }}
-                      </q-item-label>
-                    </q-item-section>
-                    <q-item-section
-                      side
-                      top
-                      v-if="
-                        answerOption.valueCoding &&
-                        answerOption.__type === 'coding'
-                      "
-                    >
-                      <q-item-label caption>
-                        {{ answerOption.valueCoding.code }}
+                        valueCoding
                       </q-item-label>
                     </q-item-section>
                     <q-item-section
@@ -181,7 +163,10 @@
                       <q-item-label caption lines="2"> valueTime </q-item-label>
                     </q-item-section>
                     <q-item-section
-                      v-else-if="answerOption.__type === 'string'"
+                      v-else-if="
+                        answerOption.__type === 'string' ||
+                        answerOption.__type === 'text'
+                      "
                     >
                       <q-item-label>
                         {{ answerOption.valueString }}
@@ -189,6 +174,12 @@
                       <q-item-label caption lines="2">
                         valueString
                       </q-item-label>
+                    </q-item-section>
+                    <q-item-section v-else-if="answerOption.__type === 'url'">
+                      <q-item-label>
+                        {{ answerOption.valueUri }}
+                      </q-item-label>
+                      <q-item-label caption lines="2"> valueUri </q-item-label>
                     </q-item-section>
                     <q-item-section
                       v-else-if="answerOption.__type === 'quantity'"
@@ -200,6 +191,17 @@
                         valueQuantity
                       </q-item-label>
                     </q-item-section>
+                    <q-item-section
+                      v-else-if="answerOption.__type === 'reference'"
+                    >
+                      <q-item-label>
+                        {{ answerOption.__formattedValueReference }}
+                      </q-item-label>
+                      <q-item-label caption lines="2">
+                        valueReference
+                      </q-item-label>
+                    </q-item-section>
+                    <div v-else>{{ unreachableCode(answerOption.__type) }}</div>
                   </q-item>
                 </q-list>
               </div>
@@ -235,7 +237,7 @@
 </template>
 <script lang="ts">
 import { defineComponent, PropType, ref } from "vue";
-import { editorTools } from "../utils/editor";
+import { editorTools, UnreachableError } from "../utils/editor";
 import {
   AnswerOption,
   EnableWhen,
@@ -328,6 +330,9 @@ export default defineComponent({
     },
     onSelectAnswer(answerOption: AnswerOption): void {
       this.$emit("choiceQuestion", answerOption);
+    },
+    unreachableCode(n: never) {
+      throw new UnreachableError(n);
     },
   },
 });

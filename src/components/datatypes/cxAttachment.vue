@@ -31,7 +31,7 @@
       dense
     />
     <q-input
-      label="URL"
+      label="URI"
       class="col-4"
       v-model="attachmentValue.url"
       type="text"

@@ -14,7 +14,7 @@
           <q-item-section>
             <q-card-section>
               <q-input
-                label="URL"
+                label="URI"
                 dense
                 type="text"
                 readonly
@@ -192,7 +192,7 @@
                 </q-toolbar>
                 <div class="q-pa-md">
                   <q-card>
-                    <q-input v-model="url" label="URL" />
+                    <q-input v-model="url" label="URI" />
                     <q-select
                       v-model="type"
                       label="Type"
@@ -238,7 +238,7 @@
                       <q-item-section>
                         <q-card-section>
                           <q-input
-                            label="URL"
+                            label="URI"
                             dense
                             type="text"
                             readonly
