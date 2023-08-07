@@ -15,7 +15,7 @@
     "linkId": "LinkId",
     "navigationBar": {
       "version": "Version",
-      "versionAlgorithm": "Version algorithm",
+      "versionAlgorithm": "VersionAlgorithm",
       "metaInformation": "Metadata",
       "metadataItems": {
         "identifier": "Identifier",

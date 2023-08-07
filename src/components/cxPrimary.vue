@@ -1,8 +1,7 @@
 <template>
   <div class="row justify-center">
-    <div class="col-6">
+    <div class="col-7">
       <q-input
-        v-if="$route.name !== 'Import'"
         v-model="URL"
         :label="$t('components.navigationBar.metadataItems.URL')"
         :rules="[questionnaireTools.isUriOrEmpty]"
@@ -13,47 +12,47 @@
           }
         "
       />
-      <q-input
-        v-if="$route.name !== 'Import'"
-        v-model="version"
-        :label="$t('components.navigationBar.version')"
-        clearable
-        @clear="
-          (_oldVersion: string | undefined) => {
-            version = '';
-          }
-        "
-      />
-      {{ $t("components.navigationBar.versionAlgorithm") }}
-      <div class="row justify-between" v-if="$route.name !== 'Import'">
-        <q-toggle
-          class="col-2"
-          :label="
-            questionnaire.__versionAlgorithmUsesCoding ? 'Coding' : 'String'
-          "
-          v-model="questionnaire.__versionAlgorithmUsesCoding"
-        />
-        <q-select
-          v-model="versionAlgorithmCoding"
-          class="col-3"
-          label="Coding"
-          :options="versionAlgorithmCodes"
-          :disable="!questionnaire.__versionAlgorithmUsesCoding"
-          @update:model-value="updateVersionAlgorithmCoding"
-          clearable
-        />
+      <q-list padding bordered>
         <q-input
-          class="col-6"
-          :disable="questionnaire.__versionAlgorithmUsesCoding"
-          label="String"
-          v-model="questionnaire.versionAlgorithmString"
-          @update:model-value="updateVersionAlgorithmString"
+          v-model="version"
+          :label="$t('components.navigationBar.version')"
           clearable
+          @clear="
+            (_oldVersion: string | undefined) => {
+              version = '';
+            }
+          "
         />
-      </div>
+        {{ $t("components.navigationBar.versionAlgorithm") }}
+        <div class="row justify-between">
+          <q-toggle
+            class="col-2"
+            :label="
+              questionnaire.__versionAlgorithmUsesCoding ? 'Coding' : 'String'
+            "
+            v-model="questionnaire.__versionAlgorithmUsesCoding"
+          />
+          <q-select
+            v-model="versionAlgorithmCoding"
+            class="col-3"
+            label="Coding"
+            :options="versionAlgorithmCodes"
+            :disable="!questionnaire.__versionAlgorithmUsesCoding"
+            @update:model-value="updateVersionAlgorithmCoding"
+            clearable
+          />
+          <q-input
+            class="col-6"
+            :disable="questionnaire.__versionAlgorithmUsesCoding"
+            label="String"
+            v-model="questionnaire.versionAlgorithmString"
+            @update:model-value="updateVersionAlgorithmString"
+            clearable
+          />
+        </div>
+      </q-list>
 
       <q-input
-        v-if="$route.name !== 'Import'"
         v-model="name"
         :label="$t('components.navigationBar.metadataItems.name')"
         :rules="[questionnaireTools.isNameOrEmpty]"
@@ -65,7 +64,6 @@
         "
       />
       <q-input
-        v-if="$route.name !== 'Import'"
         v-model="title"
         :label="$t('components.navigationBar.metadataItems.title')"
         clearable
@@ -75,73 +73,77 @@
           }
         "
       />
-      <q-select
-        v-if="$route.name !== 'Import'"
-        v-model="status"
-        :options="statusOptions"
-        :label="$t('components.navigationBar.metadataItems.status')"
-      />
+
       <div class="row">
-        <q-input
-          v-if="$route.name !== 'Import'"
-          type="text"
-          class="col-8"
-          dense
-          v-model="date"
-          :label="$t('components.navigationBar.metadataItems.date')"
-          :rules="[dateTools.isDateTimeOrEmpty]"
-          clearable
-          :clear="() => (date = '')"
+        <q-select
+          class="col-3"
+          v-model="status"
+          :options="statusOptions"
+          :label="$t('components.navigationBar.metadataItems.status')"
         />
-        <q-btn
-          label="Now"
-          flat
-          dense
-          @click="() => (date = dateTools.getCurrentDateTime())"
-        />
-      </div>
-      <div class="row justify-between">
-        <q-input
-          v-if="$route.name !== 'Import'"
-          class="col-4"
-          type="text"
-          dense
-          v-model="approvalDate"
-          :label="$t('components.navigationBar.metadataItems.approvalDate')"
-          :rules="[dateTools.isDateOrEmpty]"
-          clearable
-          :clear="() => (approvalDate = '')"
-        />
-        <q-btn
-          label="Today"
-          flat
-          dense
-          @click="() => (approvalDate = dateTools.getCurrentDate())"
-        />
-        <q-input
-          v-if="$route.name !== 'Import'"
-          type="text"
-          dense
-          class="col-4"
-          v-model="lastReviewDate"
-          :label="$t('components.navigationBar.metadataItems.lastReviewDate')"
-          :rules="[dateTools.isDateOrEmpty]"
-          clearable
-          :clear="() => (lastReviewDate = '')"
-        />
-        <q-btn
-          label="Today"
-          flat
-          dense
-          @click="() => (lastReviewDate = dateTools.getCurrentDate())"
-        />
-      </div>
-      <div v-if="$route.name !== 'Import'">
-        EffectivePeriod:
-        <cxPeriod :period="questionnaire.effectivePeriod" />
       </div>
 
-      <div v-if="$route.name !== 'Import'">
+      <q-list class="q-mt-md" padding bordered>
+        <div class="row">
+          <q-input
+            type="text"
+            class="col-8"
+            dense
+            v-model="date"
+            :label="$t('components.navigationBar.metadataItems.date')"
+            :rules="[dateTools.isDateTimeOrEmpty]"
+            clearable
+            :clear="() => (date = '')"
+          />
+          <q-btn
+            label="Now"
+            flat
+            dense
+            @click="() => (date = dateTools.getCurrentDateTime())"
+          />
+        </div>
+        <div class="row justify-between">
+          <q-input
+            class="col-4"
+            type="text"
+            dense
+            v-model="approvalDate"
+            :label="$t('components.navigationBar.metadataItems.approvalDate')"
+            :rules="[dateTools.isDateOrEmpty]"
+            clearable
+            :clear="() => (approvalDate = '')"
+          />
+          <q-btn
+            label="Today"
+            flat
+            dense
+            @click="() => (approvalDate = dateTools.getCurrentDate())"
+          />
+          <q-input
+            type="text"
+            dense
+            class="col-4"
+            v-model="lastReviewDate"
+            :label="$t('components.navigationBar.metadataItems.lastReviewDate')"
+            :rules="[dateTools.isDateOrEmpty]"
+            clearable
+            :clear="() => (lastReviewDate = '')"
+          />
+          <q-btn
+            label="Today"
+            flat
+            dense
+            @click="() => (lastReviewDate = dateTools.getCurrentDate())"
+          />
+        </div>
+        <q-separator />
+        <div class="text-bold">
+          EffectivePeriod:
+          <cxPeriod :period="questionnaire.effectivePeriod" />
+        </div>
+      </q-list>
+
+      <q-list class="q-mt-md" padding bordered>
         <q-expansion-item icon="description" label="Text">
           <q-list bordered separator dense padding class="rounded-borders">
             <q-select
@@ -159,31 +161,34 @@
             />
           </q-list>
         </q-expansion-item>
-      </div>
+      </q-list>
 
       <!-- extension -->
-      <cxExtension
-        :title="$t('views.editor.extensions')"
-        v-if="questionnaire !== undefined"
-        :extensions="(questionnaire.extension ??= [])"
-        :predefinedExtensions="getQuestionnaireExtensions()"
-        v-on:addExtension="addExtension"
-        v-on:removeExtension="removeExtension"
-      />
+      <q-list padding bordered>
+        <cxExtension
+          :title="$t('views.editor.extensions')"
+          v-if="questionnaire !== undefined"
+          :extensions="(questionnaire.extension ??= [])"
+          :predefinedExtensions="getQuestionnaireExtensions()"
+          v-on:addExtension="addExtension"
+          v-on:removeExtension="removeExtension"
+        />
+      </q-list>
 
       <!-- modifierExtension -->
-      <cxExtension
-        title="ModifierExtension"
-        v-if="questionnaire !== undefined"
-        :extensions="questionnaire.modifierExtension"
-        :predefinedExtensions="[]"
-        v-on:addExtension="addModifierExtension"
-        v-on:removeExtension="removeModifierExtension"
-      />
+      <q-list padding bordered>
+        <cxExtension
+          title="ModifierExtension"
+          v-if="questionnaire !== undefined"
+          :extensions="questionnaire.modifierExtension"
+          :predefinedExtensions="[]"
+          v-on:addExtension="addModifierExtension"
+          v-on:removeExtension="removeModifierExtension"
+        />
+      </q-list>
 
-      <q-separator />
       <!-- identifier -->
-      <q-list class="rounded-borders">
+      <q-list padding bordered>
         <q-expansion-item
           icon="info"
           :label="$t('components.navigationBar.metadataItems.identifier')"
@@ -523,14 +528,6 @@ export default defineComponent({
       },
       set(value: string) {
         this.$store.commit("setLastReviewDate", value);
-      },
-    },
-    experimental: {
-      get() {
-        return this.$store.state.questionnaire.experimental;
-      },
-      set(value: boolean | null) {
-        this.$store.commit("setExperimental", value);
       },
     },
   },
