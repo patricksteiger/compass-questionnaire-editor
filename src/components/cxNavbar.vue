@@ -179,6 +179,7 @@ import { exportTools } from "../utils/exportJson";
 import { Questionnaire } from "@/types";
 import { ErrorChecker } from "@/utils/validation/ErrorChecker";
 import cxConfirmDialog from "@/components/cxConfirmDialog.vue";
+import { EDITOR_PATH, IMPORT_PATH } from "@/router";
 
 export default defineComponent({
   components: {
@@ -245,8 +246,7 @@ export default defineComponent({
       this.alertMetadata = true;
     },
     continueLeavingEditorScreen() {
-      this.resetQuestionnaire();
-      this.$router.push("Import");
+      this.$router.push(IMPORT_PATH);
     },
     async validateExportBundle() {
       const questionnaires: Questionnaire[] = this.getQuestionnaires;
@@ -318,7 +318,7 @@ export default defineComponent({
     },
     createNewEmptyQRE() {
       this.setNewEmptyQuestionnaire();
-      this.$router.push("/");
+      this.$router.push(EDITOR_PATH);
     },
   },
 });

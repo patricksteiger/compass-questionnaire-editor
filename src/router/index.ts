@@ -5,15 +5,20 @@ import { Screen, store } from "../store";
 import EditorScreen from "../views/EditorScreen.vue";
 import ImportScreen from "../views/ImportScreen.vue";
 
+export const EDITOR_PATH = "/";
+export const EDITOR_NAME = "EditorScreen";
+export const IMPORT_PATH = "/import";
+export const IMPORT_NAME = "Import";
+
 const routes = [
   {
-    path: "/",
-    name: "EditorScreen",
+    path: EDITOR_PATH,
+    name: EDITOR_NAME,
     component: EditorScreen,
   },
   {
-    path: "/import",
-    name: "Import",
+    path: IMPORT_PATH,
+    name: IMPORT_NAME,
     component: ImportScreen,
   },
 ] as const;
@@ -23,10 +28,10 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, _from, next) => {
+router.beforeEach((to, from, next) => {
   const currentScreen: Screen = store.getters.getCurrentScreen;
-  if (to.name !== "Import" && currentScreen === "init") {
-    next({ name: "Import" });
+  if (!from.name && to.name === EDITOR_NAME && currentScreen !== "editor") {
+    next({ name: IMPORT_NAME });
   } else {
     next();
   }

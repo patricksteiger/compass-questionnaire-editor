@@ -161,6 +161,7 @@ import { Language } from "@/store";
 import { v4 as uuidv4 } from "uuid";
 import { transformer } from "@/utils/importing/Transformer";
 import { fileUtils } from "@/utils/importing/FileUtils";
+import { EDITOR_PATH } from "@/router";
 
 type LanguageInfo = {
   language: Language;
@@ -337,7 +338,7 @@ export default defineComponent({
         }
       }
       this.setQuestionnaireBundle(qres);
-      this.$router.push("/");
+      this.$router.push(EDITOR_PATH);
     },
     findDuplicateLanguage(file: FileInfo): boolean {
       for (const other of this.uploadedFiles) {
