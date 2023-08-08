@@ -4,12 +4,20 @@
       <cx-navbar></cx-navbar>
     </q-header>
     <q-page-container>
-      <RouterView />
+      <router-view />
     </q-page-container>
   </q-layout>
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
+import { defineComponent } from "vue";
 import cxNavbar from "@/components/cxNavbar.vue";
-import { RouterView } from "vue-router";
+
+export default defineComponent({
+  name: "LayoutDefault",
+  components: {
+    cxNavbar,
+  },
+  setup() {},
+});
 </script>

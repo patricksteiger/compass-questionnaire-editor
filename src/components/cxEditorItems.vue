@@ -206,15 +206,16 @@
             <div
               class="row items-center justify-between text-caption text-grey-8 non-selectable"
               style="width: 100%"
+              v-if="selectedItem !== undefined"
             >
-              <span>Type: {{ selectedItem?.type || '""' }}</span>
+              <span>Type: {{ selectedItem.type }}</span>
             </div>
             <!-- LinkId field -->
             <div
               class="row items-center justify-between text-bold text-h5 q-mb-md"
+              v-if="selectedItem !== undefined"
             >
               <q-input
-                v-if="selectedItem !== undefined"
                 v-model="selectedItem.linkId"
                 autogrow
                 readonly
@@ -227,7 +228,6 @@
               <!-- Change LinkId button -->
               <div>
                 <q-btn
-                  v-if="selectedItem !== undefined"
                   flat
                   round
                   color="primary"
@@ -240,7 +240,6 @@
               <!-- Swap LinkId button -->
               <div>
                 <q-btn
-                  v-if="selectedItem !== undefined"
                   flat
                   round
                   color="primary"
@@ -264,11 +263,11 @@
             </div>
             <div
               class="row items-center justify-between text-bold text-h5 q-mb-md"
+              v-if="selectedItem !== undefined"
             >
               <!-- Question text -->
               <q-input
                 autogrow
-                v-if="selectedItem !== undefined"
                 v-model="selectedItem.text"
                 class="col-10"
                 input-class="text-h5 text-bold"
@@ -285,6 +284,7 @@
                 <template v-slot:error>
                   {{ $t("components.fieldEmpty") }}
                 </template>
+                <q-tooltip>Question text displayed to the user</q-tooltip>
               </q-input>
               <!-- Show Dependence Condition -->
               <div>
@@ -294,7 +294,6 @@
                   color="primary"
                   icon="device_hub"
                   @click="alert = true"
-                  v-if="selectedItem !== undefined"
                   :disable="!selectedItem.__dependenceCondition"
                 />
                 <q-tooltip v-if="selectedItem?.__dependenceCondition">
@@ -307,15 +306,16 @@
             </div>
             <div
               class="row items-center justify-between text-bold text-h5 q-mb-md"
+              v-if="selectedItem !== undefined"
             >
               <!-- prefix -->
               <q-input
-                v-if="selectedItem !== undefined"
                 v-model="selectedItem.prefix"
                 label="Prefix"
                 dense
                 class="col-8"
               />
+              <q-tooltip>Prefix for the question text, e.g. 1.a)</q-tooltip>
             </div>
             <!-- other language prefix and text -->
             <div v-if="selectedItem !== undefined">
@@ -376,7 +376,6 @@
             >
               <!-- required toggle -->
               <q-toggle
-                left-label
                 label="required"
                 color="primary"
                 keep-color
@@ -384,7 +383,6 @@
               />
               <!-- repeats toggle -->
               <q-toggle
-                left-label
                 label="repeats"
                 color="primary"
                 keep-color
@@ -392,7 +390,6 @@
               />
               <!-- readOnly toggle -->
               <q-toggle
-                left-label
                 label="readOnly"
                 color="primary"
                 keep-color
@@ -401,11 +398,11 @@
             </div>
             <div
               class="row items-center justify-between text-bold text-h5 q-mb-md"
+              v-if="selectedItem !== undefined"
             >
               <!-- definition -->
               <q-input
                 :disable="!selectedItem.__active"
-                v-if="selectedItem !== undefined"
                 v-model="selectedItem.definition"
                 label="Definition"
                 dense
@@ -414,12 +411,10 @@
             </div>
             <div
               class="row items-center justify-between text-bold text-h5 q-mb-md"
+              v-if="selectedItem !== undefined && allowsMaxLength(selectedItem)"
             >
               <!-- Max Length-->
               <q-input
-                v-if="
-                  selectedItem !== undefined && allowsMaxLength(selectedItem)
-                "
                 :disable="!selectedItem.__active"
                 :label="$t('views.editor.maxLength')"
                 dense
@@ -449,12 +444,13 @@
               />
             </div>
             <!-- answerConstraint -->
-            <div>
+            <div
+              v-if="
+                selectedItem !== undefined &&
+                allowsAnswerOption(selectedItem.type)
+              "
+            >
               <q-select
-                v-if="
-                  selectedItem !== undefined &&
-                  allowsAnswerOption(selectedItem.type)
-                "
                 v-model="selectedItem.answerConstraint"
                 label="answerConstraint"
                 :options="answerConstraints"
@@ -492,14 +488,17 @@
               </div>
             </div>
             <!-- Answers/Conditions -->
-            <q-list padding bordered>
+            <q-list
+              padding
+              bordered
+              v-if="
+                selectedItem !== undefined &&
+                !selectedItem.__answerValueSetCheck &&
+                allowsAnswerOption(selectedItem.type)
+              "
+            >
               <!-- AnswerOption section -->
               <q-expansion-item
-                v-if="
-                  selectedItem !== undefined &&
-                  !selectedItem.__answerValueSetCheck &&
-                  allowsAnswerOption(selectedItem.type)
-                "
                 :disable="!selectedItem.__active"
                 expand-separator
                 icon="question_answer"
@@ -1125,16 +1124,15 @@
                 </q-card>
               </q-expansion-item>
             </q-list>
-            <q-list padding bordered>
+            <q-list padding bordered v-if="selectedItem !== undefined">
               <!-- enableWhen -->
               <q-expansion-item
-                v-if="selectedItem !== undefined"
                 expand-separator
                 icon="account_tree"
                 :label="$t('views.editor.enableWhen')"
                 default-opened
               >
-                <div class="row" v-if="selectedItem !== undefined">
+                <div class="row">
                   <q-separator />
                   <!-- enableWhen behavior -->
                   <q-select
