@@ -1,4 +1,4 @@
-export type ResourceType = typeof resourceTypes[number];
+export type ResourceType = (typeof resourceTypes)[number];
 export const resourceTypes = [
   "Account",
   "ActivityDefinition",

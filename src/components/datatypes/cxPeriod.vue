@@ -34,11 +34,11 @@
 <script setup lang="ts">
 import { Period } from "@/types";
 import { dateTools } from "@/utils/date";
-import { ref } from "vue";
+import { toRef } from "vue";
 
 const props = defineProps<{
   period: Period;
 }>();
 
-const periodValue = ref(props.period);
+const periodValue = toRef(props, "period");
 </script>

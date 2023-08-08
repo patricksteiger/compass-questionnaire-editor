@@ -350,7 +350,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, toRefs } from "vue";
 import { editorTools } from "../utils/editor";
 import { extensionTypes, Extension, ExtensionType } from "@/types";
 import { HIDDEN_EXTENSION_URL, PredefinedExtension } from "@/utils/extension";
@@ -358,13 +358,13 @@ import { dateTools } from "@/utils/date";
 import cxComplexExtension from "@/components/cxComplexExtension.vue";
 import { itemTools } from "@/utils/item";
 
-// eslint-disable-next-line no-unused-vars
 const props = defineProps<{
   title: string;
   extensions: Extension[];
   predefinedExtensions: PredefinedExtension[];
 }>();
 
+const { title, extensions, predefinedExtensions } = toRefs(props);
 const url = ref("");
 const type = ref<ExtensionType>("boolean");
 const splitterLimits = ref([30, 100]);

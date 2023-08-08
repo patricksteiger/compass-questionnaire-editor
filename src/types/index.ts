@@ -42,10 +42,10 @@ export type AnswerType =
   | "attachment";
 
 export const operators = ["exists", "=", "!=", ">", "<", ">=", "<="] as const;
-export type Operator = typeof operators[number] | "";
+export type Operator = (typeof operators)[number] | "";
 
 export const comparators = [">", ">=", "<", "<=", "ad"] as const;
-export type Comparator = typeof comparators[number];
+export type Comparator = (typeof comparators)[number];
 
 export type Quantity = {
   value?: number;
@@ -209,7 +209,7 @@ export const identifierUse = [
   "secondary",
   "old",
 ] as const;
-export type IdentifierUse = typeof identifierUse[number];
+export type IdentifierUse = (typeof identifierUse)[number];
 
 export type Identifier = {
   use?: IdentifierUse;
@@ -223,17 +223,17 @@ export type Identifier = {
 };
 
 export const enableBehaviors = ["all", "any"] as const;
-export type EnableBehavior = typeof enableBehaviors[number];
+export type EnableBehavior = (typeof enableBehaviors)[number];
 
 export const disabledDisplays = ["hidden", "protected"] as const;
-export type DisabledDisplay = typeof disabledDisplays[number];
+export type DisabledDisplay = (typeof disabledDisplays)[number];
 
 export const answerConstraints = [
   "optionsOnly",
   "optionsOrType",
   "optionsOrString",
 ] as const;
-export type AnswerConstraint = typeof answerConstraints[number];
+export type AnswerConstraint = (typeof answerConstraints)[number];
 
 export type Attachment = {
   contentType?: string;
@@ -313,7 +313,7 @@ export type Item = {
 };
 
 export const status = ["draft", "active", "retired", "unknown"] as const;
-export type Status = typeof status[number];
+export type Status = (typeof status)[number];
 
 export type Period = {
   start?: string;
@@ -329,7 +329,7 @@ export const contactPointSystems = [
   "sms",
   "other",
 ] as const;
-export type ContactPointSystem = typeof contactPointSystems[number];
+export type ContactPointSystem = (typeof contactPointSystems)[number];
 
 export const contactPointUses = [
   "home",
@@ -338,7 +338,7 @@ export const contactPointUses = [
   "old",
   "mobile",
 ] as const;
-export type ContactPointUse = typeof contactPointUses[number];
+export type ContactPointUse = (typeof contactPointUses)[number];
 
 export type ContactPoint = {
   system?: ContactPointSystem;
@@ -359,7 +359,7 @@ export const useContextTypes = [
   "range",
   "reference",
 ] as const;
-export type UseContextType = typeof useContextTypes[number];
+export type UseContextType = (typeof useContextTypes)[number];
 
 export type UsageContext = {
   code: Coding;
@@ -376,7 +376,7 @@ export const derivedFromExtensionValues = [
   "inspiredBy",
 ] as const;
 export type DerivedFromExtensionValue =
-  typeof derivedFromExtensionValues[number];
+  (typeof derivedFromExtensionValues)[number];
 
 export const derivedFromExtensionUrl =
   "http://hl7.org/fhir/StructureDefinition/questionnaire-derivationType";
@@ -451,7 +451,7 @@ export const narrativeStatuses = [
   "additional",
   "empty",
 ] as const;
-export type NarrativeStatus = typeof narrativeStatuses[number];
+export type NarrativeStatus = (typeof narrativeStatuses)[number];
 
 export type Narrative = {
   status: NarrativeStatus;

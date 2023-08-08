@@ -57,7 +57,7 @@ export const getDefaultQuestionnaire = (lang: Language): Questionnaire => {
 const defaultQuestionnaire = getDefaultQuestionnaire(defaultLanguage);
 
 export const languages = ["de", "en", "es", "fr"] as const;
-export type Language = typeof languages[number];
+export type Language = (typeof languages)[number];
 export const isSupportedLanguage = (lang: string): lang is Language => {
   return languages.includes(lang as Language);
 };

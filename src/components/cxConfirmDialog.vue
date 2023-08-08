@@ -18,13 +18,14 @@
 </template>
 
 <script setup lang="ts">
-// eslint-disable-next-line no-unused-vars
+import { toRefs } from "vue";
+
 const props = defineProps<{
   message: string;
 }>();
 
+const { message } = toRefs(props);
 const emit = defineEmits<{
-  // eslint-disable-next-line no-unused-vars
   (_e: "confirmation"): void;
 }>();
 </script>

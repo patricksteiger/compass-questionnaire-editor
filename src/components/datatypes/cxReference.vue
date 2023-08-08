@@ -27,17 +27,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { toRef } from "vue";
 import { Reference } from "@/types";
 
 const props = defineProps<{
   reference: Reference;
 }>();
 
-const referenceValue = ref(props.reference);
+const referenceValue = toRef(props, "reference");
 
 const emit = defineEmits<{
-  // eslint-disable-next-line no-unused-vars
   (e: "addReference", _reference: Reference): void;
 }>();
 

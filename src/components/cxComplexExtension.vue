@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, toRefs } from "vue";
 import { ComplexExtension } from "@/types";
 import cxExtension from "@/components/cxExtension.vue";
 
@@ -19,5 +19,6 @@ const props = defineProps<{
   extension: ComplexExtension;
 }>();
 
-const extensions = ref(props.extension.extension);
+const { extension } = toRefs(props);
+const extensions = ref(extension.value.extension);
 </script>

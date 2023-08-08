@@ -4,25 +4,12 @@
       <cx-navbar></cx-navbar>
     </q-header>
     <q-page-container>
-      <router-view />
+      <RouterView />
     </q-page-container>
   </q-layout>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from "vue";
+<script setup lang="ts">
 import cxNavbar from "@/components/cxNavbar.vue";
-export default defineComponent({
-  name: "LayoutDefault",
-
-  components: {
-    cxNavbar,
-  },
-
-  setup() {
-    return {
-      leftDrawerOpen: ref(false),
-    };
-  },
-});
+import { RouterView } from "vue-router";
 </script>

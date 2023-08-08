@@ -235,15 +235,16 @@
     </q-page-container>
   </q-layout>
 </template>
+
 <script lang="ts">
-import { defineComponent, PropType, ref } from "vue";
+import { defineComponent, PropType, ref, toRefs } from "vue";
 import { editorTools, UnreachableError } from "../utils/editor";
 import {
   AnswerOption,
   EnableWhen,
   Item,
   Questionnaire,
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   SelectableItem,
   SelectedItem,
 } from "@/types";
@@ -273,11 +274,12 @@ export default defineComponent({
   },
   setup(prop) {
     const filter = ref(defaultLanguage);
-    const item = ref<Item[]>(prop.questionnaire.item);
-    const linkId = ref(prop.enableWhenItem.question);
+    const { questionnaire, enableWhenItem } = toRefs(prop);
+    const item = ref<Item[]>(questionnaire.value.item);
+    const linkId = ref(enableWhenItem.value.question);
     const selected = ref<string | null>(null);
     const linkedItem = questionnaireTools.getItemByLinkId(
-      prop.questionnaire,
+      questionnaire.value,
       linkId.value,
     );
     const selectedItem = ref<Item | undefined>(linkedItem);

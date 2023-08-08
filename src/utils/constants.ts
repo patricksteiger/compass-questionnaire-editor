@@ -18,7 +18,7 @@ export const allItemTypes = [
   "coding",
   "reference",
 ] as const;
-export type ItemType = typeof allItemTypes[number];
+export type ItemType = (typeof allItemTypes)[number];
 export function isInvalidItemType(type: unknown): boolean {
   return !allItemTypes.includes(type as ItemType);
 }
@@ -62,7 +62,7 @@ export const itemTypeIcons = [
   { name: "coding", icon: "code", label: "Coding" },
   { name: "reference", icon: "manage_search", label: "Reference" },
 ] as const;
-export type ItemTypeLabel = typeof itemTypeIcons[number];
+export type ItemTypeLabel = (typeof itemTypeIcons)[number];
 export type ItemTypeIcon = ItemTypeLabel["icon"];
 
 export const noChoiceItemTypeIcons = [
@@ -85,9 +85,9 @@ export const choiceItemTypeIcons = [
   { name: "reference", icon: "manage_search", label: "Reference" },
 ] as const;
 
-export type AnswerOptionButton = typeof choiceItemTypeIcons[number];
-export type AnswerOptionType = typeof choiceItemTypeIcons[number]["name"];
-export type AnswerOptionIcon = typeof choiceItemTypeIcons[number]["icon"];
+export type AnswerOptionButton = (typeof choiceItemTypeIcons)[number];
+export type AnswerOptionType = (typeof choiceItemTypeIcons)[number]["name"];
+export type AnswerOptionIcon = (typeof choiceItemTypeIcons)[number]["icon"];
 
 export function getAnswerOptionIcon(type: AnswerOptionType): AnswerOptionIcon {
   const answerOptionButton = choiceItemTypeIcons.find((a) => a.name === type);
@@ -118,7 +118,7 @@ export function getItemTypeIcon(type: ItemType): ItemTypeIcon {
 }
 
 export const notSelectableQuestionTypes = ["display", "group"] as const;
-export type NotSelectableItem = typeof notSelectableQuestionTypes[number];
+export type NotSelectableItem = (typeof notSelectableQuestionTypes)[number];
 
 export function isSelectableItem(item: Item): boolean {
   const selectableType = !notSelectableQuestionTypes.includes(
@@ -177,8 +177,8 @@ export const versionAlgorithms = [
     userSelected: undefined,
   },
 ] as const;
-export type VersionAlgorithmCode = typeof versionAlgorithms[number]["code"];
-export type VersionAlgorithmCoding = typeof versionAlgorithms[number];
+export type VersionAlgorithmCode = (typeof versionAlgorithms)[number]["code"];
+export type VersionAlgorithmCoding = (typeof versionAlgorithms)[number];
 export function getVersionAlgorithmCoding(
   code: VersionAlgorithmCode,
 ): VersionAlgorithmCoding {

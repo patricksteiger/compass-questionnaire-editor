@@ -332,7 +332,7 @@ import { Initial } from "@/types";
 import { InitialItem } from "@/utils/constants";
 import { editorTools } from "@/utils/editor";
 import { itemTools } from "@/utils/item";
-import { ref } from "vue";
+import { ref, toRefs } from "vue";
 import { dateTools } from "../utils/date";
 import cxCoding from "@/components/datatypes/cxCoding.vue";
 import cxQuantity from "@/components/datatypes/cxQuantity.vue";
@@ -343,7 +343,8 @@ const props = defineProps<{
   selectedItem: InitialItem;
 }>();
 
-const initials = ref<Initial[]>(props.selectedItem.initial);
+const { selectedItem } = toRefs(props);
+const initials = ref<Initial[]>(selectedItem.value.initial);
 
 const selectedInitial = ref<Initial | undefined>(undefined);
 const complexLayout = ref(false);
@@ -354,9 +355,7 @@ function showComplexDialog(initial: Initial): void {
 }
 
 const emit = defineEmits<{
-  // eslint-disable-next-line no-unused-vars
   (e: "addInitial", _initial: Initial): void;
-  // eslint-disable-next-line no-unused-vars
   (e: "removeInitial", _index: number): void;
 }>();
 

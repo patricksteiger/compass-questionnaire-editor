@@ -20,12 +20,14 @@ type SimpleEquals<T extends object, O extends object> = {
  * en is missing key
  * de and en have mismatching value
  * */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const d: SimpleEquals<typeof de, typeof en> = de;
 /*
  * Error if:
  * de is missing key
  * de and en have mismatching value
  * */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const e: SimpleEquals<typeof en, typeof de> = en;
 
 export type Locale = "de" | "en";

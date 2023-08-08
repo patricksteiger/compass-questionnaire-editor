@@ -41,17 +41,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { toRef } from "vue";
 import { Coding } from "@/types";
 
 const props = defineProps<{
   coding: Coding;
 }>();
 
-const codingValue = ref(props.coding);
+const codingValue = toRef(props, "coding");
 
 const emit = defineEmits<{
-  // eslint-disable-next-line no-unused-vars
   (e: "addCoding", _coding: Coding): void;
 }>();
 

@@ -85,9 +85,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, toRef } from "vue";
 import cxPeriod from "@/components/datatypes/cxPeriod.vue";
-// import cxContactPoint from "@/components/datatypes/cxContactPoint.vue";
 import {
   ContactDetail,
   ContactPoint,
@@ -101,13 +100,12 @@ const props = defineProps<{
 }>();
 
 const emits = defineEmits<{
-  // eslint-disable-next-line no-unused-vars
   (e: "addContactPoint", contactPoint: ContactPoint): void;
-  // eslint-disable-next-line no-unused-vars
   (e: "removeContactPoint", index: number): void;
 }>();
 
-const telecom = ref(props.contactDetail.telecom);
+const contactDetailProp = toRef(props, "contactDetail");
+const telecom = ref(contactDetailProp.value.telecom);
 const currentContactPoint = ref<ContactPoint | undefined>(undefined);
 
 const complexDialog = ref(false);

@@ -136,7 +136,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, toRef } from "vue";
 import { Attachment } from "@/types";
 import { dateTools } from "@/utils/date";
 import { editorTools } from "@/utils/editor";
@@ -148,7 +148,7 @@ const props = defineProps<{
   attachment: Attachment;
 }>();
 
-const attachmentValue = ref(props.attachment);
+const attachmentValue = toRef(props, "attachment");
 const shortData = ref(getShortenedData(attachmentValue.value.data));
 
 function getShortenedData(data: string | undefined): string | undefined {
@@ -210,7 +210,6 @@ function handleFileUploadRejected(
 }
 
 const emit = defineEmits<{
-  // eslint-disable-next-line no-unused-vars
   (e: "addAttachment", _attachment: Attachment): void;
 }>();
 

@@ -1589,10 +1589,12 @@
                   :key="answerOption.__id"
                   clickable
                   @dblclick="
-                  () => {
-                    chosenEnableWhen!.answerCoding = editorTools.clone(answerOption.valueCoding);
-                    setCodingAnswer(chosenEnableWhen);
-                  }
+                    () => {
+                      chosenEnableWhen!.answerCoding = editorTools.clone(
+                        answerOption.valueCoding,
+                      );
+                      setCodingAnswer(chosenEnableWhen);
+                    }
                   "
                 >
                   <q-item-section>
@@ -1692,10 +1694,12 @@
                   :key="answerOption.__id"
                   clickable
                   @dblclick="
-                  () => {
-                    chosenEnableWhen!.answerDecimal = Number(answerOption.valueDecimal);
-                    setDecimalAnswer(chosenEnableWhen);
-                  }
+                    () => {
+                      chosenEnableWhen!.answerDecimal = Number(
+                        answerOption.valueDecimal,
+                      );
+                      setDecimalAnswer(chosenEnableWhen);
+                    }
                   "
                 >
                   <q-item-section>
@@ -1755,10 +1759,12 @@
                   :key="answerOption.__id"
                   clickable
                   @dblclick="
-                  () => {
-                    chosenEnableWhen!.answerInteger = Number(answerOption.valueInteger);
-                    setIntegerAnswer(chosenEnableWhen);
-                  }
+                    () => {
+                      chosenEnableWhen!.answerInteger = Number(
+                        answerOption.valueInteger,
+                      );
+                      setIntegerAnswer(chosenEnableWhen);
+                    }
                   "
                 >
                   <q-item-section>
@@ -1818,10 +1824,10 @@
                   :key="answerOption.__id"
                   clickable
                   @dblclick="
-                  () => {
-                    chosenEnableWhen!.answerDate = answerOption.valueDate;
-                    setDateAnswer(chosenEnableWhen);
-                  }
+                    () => {
+                      chosenEnableWhen!.answerDate = answerOption.valueDate;
+                      setDateAnswer(chosenEnableWhen);
+                    }
                   "
                 >
                   <q-item-section>
@@ -1885,10 +1891,11 @@
                   :key="answerOption.__id"
                   clickable
                   @dblclick="
-                  () => {
-                    chosenEnableWhen!.answerDateTime = answerOption.valueDateTime;
-                    setDateTimeAnswer(chosenEnableWhen);
-                  }
+                    () => {
+                      chosenEnableWhen!.answerDateTime =
+                        answerOption.valueDateTime;
+                      setDateTimeAnswer(chosenEnableWhen);
+                    }
                   "
                 >
                   <q-item-section>
@@ -1956,10 +1963,10 @@
                   :key="answerOption.__id"
                   clickable
                   @dblclick="
-                  () => {
-                    chosenEnableWhen!.answerTime = answerOption.valueTime;
-                    setTimeAnswer(chosenEnableWhen);
-                  }
+                    () => {
+                      chosenEnableWhen!.answerTime = answerOption.valueTime;
+                      setTimeAnswer(chosenEnableWhen);
+                    }
                   "
                 >
                   <q-item-section>
@@ -2022,10 +2029,10 @@
                   :key="answerOption.__id"
                   clickable
                   @dblclick="
-                  () => {
-                    chosenEnableWhen!.answerString = answerOption.valueString;
-                    setStringAnswer(chosenEnableWhen);
-                  }
+                    () => {
+                      chosenEnableWhen!.answerString = answerOption.valueString;
+                      setStringAnswer(chosenEnableWhen);
+                    }
                   "
                 >
                   <q-item-section>
@@ -2085,10 +2092,10 @@
                   :key="answerOption.__id"
                   clickable
                   @dblclick="
-                  () => {
-                    chosenEnableWhen!.answerUri = answerOption.valueUri;
-                    setUrlAnswer(chosenEnableWhen);
-                  }
+                    () => {
+                      chosenEnableWhen!.answerUri = answerOption.valueUri;
+                      setUrlAnswer(chosenEnableWhen);
+                    }
                   "
                 >
                   <q-item-section>
@@ -2148,10 +2155,12 @@
                   :key="answerOption.__id"
                   clickable
                   @dblclick="
-                  () => {
-                    chosenEnableWhen!.answerQuantity = editorTools.clone(answerOption.valueQuantity);
-                    setQuantityAnswer(chosenEnableWhen);
-                  }
+                    () => {
+                      chosenEnableWhen!.answerQuantity = editorTools.clone(
+                        answerOption.valueQuantity,
+                      );
+                      setQuantityAnswer(chosenEnableWhen);
+                    }
                   "
                 >
                   <q-item-section>
@@ -2237,10 +2246,12 @@
                   :key="answerOption.__id"
                   clickable
                   @dblclick="
-                  () => {
-                    chosenEnableWhen!.answerReference = editorTools.clone(answerOption.valueReference);
-                    setReferenceAnswer(chosenEnableWhen);
-                  }
+                    () => {
+                      chosenEnableWhen!.answerReference = editorTools.clone(
+                        answerOption.valueReference,
+                      );
+                      setReferenceAnswer(chosenEnableWhen);
+                    }
                   "
                 >
                   <q-item-section>
@@ -2597,7 +2608,7 @@ import {
   allowsAnswerValueSet,
   AnswerOptionType,
   allowsInitial,
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   InitialItem,
 } from "@/utils/constants";
 import { useQuasar } from "quasar";

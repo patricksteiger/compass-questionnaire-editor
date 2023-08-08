@@ -34,17 +34,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { toRef } from "vue";
 import { SimpleQuantity } from "@/types";
 
 const props = defineProps<{
   simpleQuantity: SimpleQuantity;
 }>();
 
-const quantity = ref(props.simpleQuantity);
+const quantity = toRef(props, "simpleQuantity");
 
 const emit = defineEmits<{
-  // eslint-disable-next-line no-unused-vars
   (e: "addSimpleQuantity", _coding: SimpleQuantity): void;
 }>();
 

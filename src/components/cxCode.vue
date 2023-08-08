@@ -68,7 +68,7 @@
 
 <script setup lang="ts">
 import { Coding } from "@/types";
-import { ref } from "vue";
+import { ref, toRef } from "vue";
 import { editorTools } from "@/utils/editor";
 import cxCoding from "@/components/datatypes/cxCoding.vue";
 
@@ -76,7 +76,7 @@ const props = defineProps<{
   codes: Coding[];
 }>();
 
-const codesValue = ref(props.codes);
+const codesValue = toRef(props, "codes");
 
 const complexLayout = ref(false);
 const selectedCoding = ref<Coding | undefined>(undefined);

@@ -41,17 +41,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import { comparators, Quantity } from "@/types";
+import { toRef } from "vue";
 
 const props = defineProps<{
   quantity: Quantity;
 }>();
 
-const quantityValue = ref(props.quantity);
+const quantityValue = toRef(props, "quantity");
 
 const emit = defineEmits<{
-  // eslint-disable-next-line no-unused-vars
   (e: "addQuantity", _coding: Quantity): void;
 }>();
 

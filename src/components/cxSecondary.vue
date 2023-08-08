@@ -327,13 +327,15 @@
                       label="URL of Questionnaire"
                       class="col-8"
                       :model-value="derivedFrom"
-                      @update:model-value="(v) => {
-                        if (v === null) {
-                          questionnaire!.derivedFrom[index] = '';
-                        } else if (typeof v === 'string') {
-                          questionnaire!.derivedFrom[index] = v;
+                      @update:model-value="
+                        (v) => {
+                          if (v === null) {
+                            questionnaire!.derivedFrom[index] = '';
+                          } else if (typeof v === 'string') {
+                            questionnaire!.derivedFrom[index] = v;
+                          }
                         }
-                      }"
+                      "
                       clearable
                     />
                   </div>
@@ -342,10 +344,12 @@
                   flat
                   icon="highlight_off"
                   color="grey-6"
-                  @click="() => {
-                    questionnaire!.derivedFrom.splice(index, 1);
-                    questionnaire!._derivedFrom.splice(index, 1);
-                  }"
+                  @click="
+                    () => {
+                      questionnaire!.derivedFrom.splice(index, 1);
+                      questionnaire!._derivedFrom.splice(index, 1);
+                    }
+                  "
                 />
               </q-item>
             </q-list>
@@ -355,10 +359,14 @@
               padding="none xl"
               color="primary"
               fab
-              @click="() => {
-                questionnaire!.derivedFrom.push('');
-                questionnaire!._derivedFrom.push(getDerivedFromExtension(null));
-              }"
+              @click="
+                () => {
+                  questionnaire!.derivedFrom.push('');
+                  questionnaire!._derivedFrom.push(
+                    getDerivedFromExtension(null),
+                  );
+                }
+              "
             />
           </q-expansion-item>
         </q-list>
@@ -385,7 +393,9 @@
                     <q-select
                       :options="resourceTypes"
                       :model-value="subjectType"
-                      @update:model-value="(v) => (questionnaire!.subjectType[index] = v)"
+                      @update:model-value="
+                        (v) => (questionnaire!.subjectType[index] = v)
+                      "
                     >
                       <template v-slot:prepend>
                         <div>{{ index + 1 }}</div>

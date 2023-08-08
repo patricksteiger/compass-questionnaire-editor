@@ -46,14 +46,17 @@ function versionAlgorithmHelper<T extends string, R extends string>(
     display: z
       .literal(display)
       .optional()
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       .refine((_d) => display),
     system: z
       .literal(versionAlgorithmSystem)
       .optional()
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       .refine((_s) => versionAlgorithmSystem),
     version: z
       .literal(versionAlgorithmVersion)
       .optional()
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       .refine((_v) => versionAlgorithmVersion),
   });
 }
