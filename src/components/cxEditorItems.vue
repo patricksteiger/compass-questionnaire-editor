@@ -2615,7 +2615,6 @@ import { editorTools, UnreachableError } from "@/utils/editor";
 import { dateTools } from "@/utils/date";
 import { questionnaireTools } from "@/utils/questionnaire";
 import { mapGetters, useStore } from "vuex";
-import { v4 as uuidv4 } from "uuid";
 import cxEnableWhen from "@/components/cxEnableWhen.vue";
 import cxExtension from "@/components/cxExtension.vue";
 import cxInitial from "@/components/cxInitial.vue";
@@ -2723,7 +2722,6 @@ export default defineComponent({
       itemTools,
       questionnaireTools,
       COLORS,
-      uuidv4,
       chosenAnswerOptionLayout: ref(false),
       answerOptionItem,
       operators,

@@ -11,7 +11,7 @@ import {
 import { languageTools } from "@/utils/language";
 import { questionnaireTools } from "@/utils/questionnaire";
 import { createStore } from "vuex";
-import VuexPersistence from "vuex-persist";
+import VuexPersister from "vuex-persister";
 
 export const getDefaultQuestionnaire = (lang: Language): Questionnaire => {
   const locale = getLocaleFromLanguage(lang);
@@ -232,22 +232,14 @@ const languageMutations = {
   },
 };
 
-// TODO: Add Zod-schema for better validation?
-const vuexLocal = new VuexPersistence({
-  storage: window.localStorage,
-  restoreState: (key, store) => {
-    try {
-      const value = store!.getItem(key);
-      if (!value) return undefined;
-      return typeof value === "string" ? JSON.parse(value) : value;
-    } catch (e) {
-      return undefined;
-    }
-  },
+const vuexPersister = new VuexPersister({
+  key: "editor-state",
+  overwrite: false,
+  storage: localStorage,
 });
 
 export const store = createStore<StoreState>({
-  plugins: [vuexLocal.plugin],
+  plugins: [vuexPersister.persist],
   state: {
     questionnaire: defaultQuestionnaire,
     selectedItem: undefined,
