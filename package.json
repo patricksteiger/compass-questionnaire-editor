@@ -10,12 +10,12 @@
     "i18n:report": "vue-cli-service i18n:report --src \"./src/**/*.?(js|vue|json)\" --locales \"./src/locales/**/*.json\""
   },
   "dependencies": {
-    "@quasar/extras": "^1.14.3",
-    "core-js": "^3.23.4",
-    "file-saver": "^2.0.5",
     "quasar": "^2.7.5",
+    "@quasar/extras": "^1.14.3",
+    "core-js": "^3.32.0",
+    "file-saver": "^2.0.5",
     "register-service-worker": "^1.7.2",
-    "uuid": "^8.3.2",
+    "uuid": "^9.0.0",
     "vue": "^3.2.37",
     "vue-class-component": "^8.0.0-0",
     "vue-i18n": "^9.1.10",
