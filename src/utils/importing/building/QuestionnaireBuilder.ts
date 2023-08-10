@@ -290,7 +290,7 @@ export class QuestionnaireBuilder {
       __disabled: false,
       __icon: getItemTypeIcon(fhirItem.type),
       __internalID: itemTools.createInternalId(),
-      __newQuestion: true,
+      __newQuestion: false,
       __oldText: text,
       __dependenceCondition: undefined,
       __OldAnswerValueSet: answerValueSet,

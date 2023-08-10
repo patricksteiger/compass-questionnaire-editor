@@ -1,5 +1,12 @@
 <template>
   <q-expansion-item label="Code" expand-separator icon="code">
+    <template v-slot:header>
+      <cxExpansionItemHeader
+        icon="code"
+        title="Code"
+        :tooltip="$t('tutorial.code')"
+      />
+    </template>
     <q-list
       dense
       bordered
@@ -71,6 +78,7 @@ import { Coding } from "@/types";
 import { ref, toRef } from "vue";
 import { editorTools } from "@/utils/editor";
 import cxCoding from "@/components/datatypes/cxCoding.vue";
+import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
 
 const props = defineProps<{
   codes: Coding[];

@@ -4,6 +4,13 @@
     :icon="selectedItem.__icon"
     :label="$t('views.editor.initials')"
   >
+    <template v-slot:header>
+      <cxExpansionItemHeader
+        :icon="selectedItem.__icon"
+        :title="$t('views.editor.initials')"
+        :tooltip="$t('tutorial.initial')"
+      />
+    </template>
     <q-separator />
     <q-card>
       <q-list
@@ -338,6 +345,7 @@ import cxCoding from "@/components/datatypes/cxCoding.vue";
 import cxQuantity from "@/components/datatypes/cxQuantity.vue";
 import cxReference from "@/components/datatypes/cxReference.vue";
 import cxAttachment from "@/components/datatypes/cxAttachment.vue";
+import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
 
 const props = defineProps<{
   selectedItem: InitialItem;

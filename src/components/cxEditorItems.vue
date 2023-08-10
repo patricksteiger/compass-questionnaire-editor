@@ -183,6 +183,9 @@
                   :icon="questionTypeIcon.icon"
                   :label="questionTypeIcon.label"
                 />
+                <template v-slot:tooltip>
+                  <q-tooltip>{{ $t("tutorial.answerChoice") }}</q-tooltip>
+                </template>
               </q-fab>
             </q-page-sticky>
           </div>
@@ -208,7 +211,10 @@
               style="width: 100%"
               v-if="selectedItem !== undefined"
             >
-              <span>Type: {{ selectedItem.type }}</span>
+              <span>
+                Type: {{ selectedItem.type }}
+                <q-tooltip>{{ $t("tutorial.type") }}</q-tooltip>
+              </span>
             </div>
             <!-- LinkId field -->
             <div
@@ -224,7 +230,9 @@
                 input-class="text-h5 text-bold"
                 :disable="!selectedItem.__active"
                 label="LinkId"
-              />
+              >
+                <q-tooltip>{{ $t("tutorial.linkId") }}</q-tooltip>
+              </q-input>
               <!-- Change LinkId button -->
               <div>
                 <q-btn
@@ -284,7 +292,7 @@
                 <template v-slot:error>
                   {{ $t("components.fieldEmpty") }}
                 </template>
-                <q-tooltip>Question text displayed to the user</q-tooltip>
+                <q-tooltip>{{ $t("tutorial.text") }}</q-tooltip>
               </q-input>
               <!-- Show Dependence Condition -->
               <div>
@@ -315,7 +323,7 @@
                 dense
                 class="col-8"
               />
-              <q-tooltip>Prefix for the question text, e.g. 1.a)</q-tooltip>
+              <q-tooltip>{{ $t("tutorial.prefix") }}</q-tooltip>
             </div>
             <!-- other language prefix and text -->
             <div v-if="selectedItem !== undefined">
@@ -380,21 +388,27 @@
                 color="primary"
                 keep-color
                 v-model="requiredItem"
-              />
+              >
+                <q-tooltip>{{ $t("tutorial.required") }}</q-tooltip>
+              </q-toggle>
               <!-- repeats toggle -->
               <q-toggle
                 label="repeats"
                 color="primary"
                 keep-color
                 v-model="repeatedItem"
-              />
+              >
+                <q-tooltip>{{ $t("tutorial.repeats") }}</q-tooltip>
+              </q-toggle>
               <!-- readOnly toggle -->
               <q-toggle
                 label="readOnly"
                 color="primary"
                 keep-color
                 v-model="selectedItem.readOnly"
-              />
+              >
+                <q-tooltip>{{ $t("tutorial.readOnly") }}</q-tooltip>
+              </q-toggle>
             </div>
             <div
               class="row items-center justify-between text-bold text-h5 q-mb-md"
@@ -402,12 +416,13 @@
             >
               <!-- definition -->
               <q-input
-                :disable="!selectedItem.__active"
                 v-model="selectedItem.definition"
                 label="Definition"
                 dense
                 class="col-8"
-              />
+              >
+                <q-tooltip>{{ $t("tutorial.definition") }}</q-tooltip>
+              </q-input>
             </div>
             <div
               class="row items-center justify-between text-bold text-h5 q-mb-md"
@@ -415,13 +430,14 @@
             >
               <!-- Max Length-->
               <q-input
-                :disable="!selectedItem.__active"
                 :label="$t('views.editor.maxLength')"
                 dense
                 type="number"
                 @keypress="onlyNumber"
                 v-model.number="selectedItem.maxLength"
-              />
+              >
+                <q-tooltip>{{ $t("tutorial.maxLength") }}</q-tooltip>
+              </q-input>
             </div>
             <!-- answerValueSet/Option toggle -->
             <div
@@ -440,8 +456,9 @@
                     : $t('views.editor.AnswerValueSet'))
                 "
                 v-model="selectedItem.__answerValueSetCheck"
-                :disable="!selectedItem.__active"
-              />
+              >
+                <q-tooltip>{{ $t("tutorial.answerChoiceToggle") }}</q-tooltip>
+              </q-toggle>
             </div>
             <!-- answerConstraint -->
             <div
@@ -452,7 +469,7 @@
             >
               <q-select
                 v-model="selectedItem.answerConstraint"
-                label="answerConstraint"
+                label="AnswerConstraint"
                 :options="answerConstraints"
                 clearable
                 :error="
@@ -466,7 +483,9 @@
                     ? 'If answerConstraint is defined, answerValueSet must be non-empty'
                     : 'If answerConstraint is defined, answerOption must be non-empty'
                 "
-              />
+              >
+                <q-tooltip>{{ $t("tutorial.answerConstraint") }}</q-tooltip>
+              </q-select>
             </div>
             <!-- answerValueSet -->
             <div
@@ -482,9 +501,10 @@
                   :label="$t('views.editor.AnswerValueSet')"
                   dense
                   v-model="selectedItem.answerValueSet"
-                  :disable="!selectedItem.__active"
                   :rules="[questionnaireTools.isCanonicalOrEmpty]"
-                />
+                >
+                  <q-tooltip>{{ $t("tutorial.answerValueSet") }}</q-tooltip>
+                </q-input>
               </div>
             </div>
             <!-- Answers/Conditions -->
@@ -498,12 +518,14 @@
               "
             >
               <!-- AnswerOption section -->
-              <q-expansion-item
-                :disable="!selectedItem.__active"
-                expand-separator
-                icon="question_answer"
-                :label="$t('views.editor.answers')"
-              >
+              <q-expansion-item expand-separator>
+                <template v-slot:header>
+                  <cxExpansionItemHeader
+                    icon="question_answer"
+                    :title="$t('views.editor.answers')"
+                    :tooltip="$t('tutorial.answerOption')"
+                  />
+                </template>
                 <q-separator />
                 <q-card>
                   <!-- Multiple answers -->
@@ -1125,44 +1147,52 @@
               </q-expansion-item>
             </q-list>
             <q-list padding bordered v-if="selectedItem !== undefined">
+              <q-separator />
+              <div class="row">
+                <q-separator />
+                <!-- enableWhen behavior -->
+                <q-select
+                  class="col-4"
+                  v-model="selectedItem.enableBehavior"
+                  label="EnableBehavior"
+                  :options="enableBehaviors"
+                  :clearable="selectedItem.enableWhen.length <= 1"
+                  :error="
+                    !selectedItem.enableBehavior &&
+                    selectedItem.enableWhen.length > 1
+                  "
+                >
+                  <q-tooltip>{{ $t("tutorial.enableBehavior") }}</q-tooltip>
+                </q-select>
+                <!-- disabledDisplay -->
+                <q-toggle
+                  class="col-6"
+                  v-model="selectedItem.disabledDisplay"
+                  :label="
+                    selectedItem.disabledDisplay !== null
+                      ? `DisabledDisplay: ${selectedItem.disabledDisplay}`
+                      : 'DisabledDisplay'
+                  "
+                  true-value="protected"
+                  false-value="hidden"
+                  :indeterminate-value="null"
+                  toggle-indeterminate
+                  color="primary"
+                  :keep-color="selectedItem.disabledDisplay !== null"
+                >
+                  <q-tooltip>{{ $t("tutorial.disabledDisplay") }}</q-tooltip>
+                </q-toggle>
+              </div>
+              <q-separator />
               <!-- enableWhen -->
-              <q-expansion-item
-                expand-separator
-                icon="account_tree"
-                :label="$t('views.editor.enableWhen')"
-                default-opened
-              >
-                <div class="row">
-                  <q-separator />
-                  <!-- enableWhen behavior -->
-                  <q-select
-                    class="col-4"
-                    v-model="selectedItem.enableBehavior"
-                    label="EnableBehavior"
-                    :options="enableBehaviors"
-                    :clearable="selectedItem.enableWhen.length <= 1"
-                    :error="
-                      !selectedItem.enableBehavior &&
-                      selectedItem.enableWhen.length > 1
-                    "
+              <q-expansion-item expand-separator>
+                <template v-slot:header>
+                  <cxExpansionItemHeader
+                    icon="account_tree"
+                    :title="$t('views.editor.enableWhen')"
+                    :tooltip="$t('tutorial.enableWhen')"
                   />
-                  <!-- disabledDisplay -->
-                  <q-toggle
-                    class="col-6"
-                    v-model="selectedItem.disabledDisplay"
-                    :label="
-                      selectedItem.disabledDisplay !== null
-                        ? `DisabledDisplay: ${selectedItem.disabledDisplay}`
-                        : 'DisabledDisplay'
-                    "
-                    true-value="protected"
-                    false-value="hidden"
-                    :indeterminate-value="null"
-                    toggle-indeterminate
-                    color="primary"
-                    :keep-color="selectedItem.disabledDisplay !== null"
-                  />
-                </div>
+                </template>
                 <q-separator />
                 <q-card>
                   <q-list
@@ -2622,6 +2652,7 @@ import cxCode from "@/components/cxCode.vue";
 import cxAttachment from "@/components/datatypes/cxAttachment.vue";
 import cxValidationHub from "@/components/cxValidationHub.vue";
 import cxLanguageHub from "@/components/cxLanguageHub.vue";
+import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
 import { i18n, defaultLanguage } from "@/i18n";
 import {
   AnswerOption,
@@ -2652,6 +2683,7 @@ export default defineComponent({
     cxAttachment,
     cxLanguageHub,
     cxValidationHub,
+    cxExpansionItemHeader,
   },
   emits: {
     switchToPrimary(language: Language): boolean {

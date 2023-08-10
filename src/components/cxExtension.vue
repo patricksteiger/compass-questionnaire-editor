@@ -1,5 +1,12 @@
 <template>
-  <q-expansion-item expand-separator icon="account_tree" :label="title">
+  <q-expansion-item expand-separator>
+    <template v-slot:header>
+      <cxExpansionItemHeader
+        icon="account_tree"
+        :title="title"
+        :tooltip="$t('tutorial.extension')"
+      />
+    </template>
     <q-separator />
     <q-card>
       <q-list
@@ -356,6 +363,7 @@ import { extensionTypes, Extension, ExtensionType } from "@/types";
 import { HIDDEN_EXTENSION_URL, PredefinedExtension } from "@/utils/extension";
 import { dateTools } from "@/utils/date";
 import cxComplexExtension from "@/components/cxComplexExtension.vue";
+import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
 import { itemTools } from "@/utils/item";
 
 const props = defineProps<{
@@ -373,9 +381,7 @@ const extensionLayout = ref(false);
 const addPredefinedLayout = ref(true);
 
 const emit = defineEmits<{
-  // eslint-disable-next-line no-unused-vars
   (e: "addExtension", extension: Extension): void;
-  // eslint-disable-next-line no-unused-vars
   (e: "removeExtension", index: number): void;
 }>();
 
