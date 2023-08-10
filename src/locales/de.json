@@ -176,6 +176,8 @@
     }
   },
   "tutorial": {
+    "answerChoice": "Fragen die vordefinierte Antworten mit AnswerOption und AnswerValueSet erlauben.",
+    "validationHub": "Fehler und Warnungen anzeigen.",
     "type": "Type repräsentiert ein Display, eine Gruppiernug von Fragen oder eine Frage. Der Type einer Frage diktiert welche Daten als Antworten vom Endbenutzer zu dieser Frage aufgenommen werden.",
     "linkId": "LinkId identifiziert die Frage eindeutig und wird benutzt um Antworten der entpsrechenden Frage zuzuordnen.",
     "text": "Fragetext der dem Endbenutzer angezeigt wird.",
@@ -195,6 +197,13 @@
     "extension": "Extensions erlauben weitere Funktionalitäten für den Fragebogen, abhängig vom Type des Elements. Mehr Informationen sind in der Dokumentation.",
     "initial": "Initial Werte sind vordefinierte Antworten für dieser Frage für den Endbenutzer. Mehrere Initial Werte sind nur für wiederholbare Fragen erlaubt.",
     "code": "Codes repräsentieren Konzepte aus dem LOINC Codesystem die mit diesem Element korrespondieren. Mehr Informationen sind in der Dokumentation.",
-    "answerChoice": "Fragen die vordefinierte Antworten mit AnswerOption und AnswerValueSet erlauben."
+    "url": "URL ist eine global eindeutige canonical-URI die diesen Fragebogen referenziert. Dies erlaubt das referenzieren des Fragebogens mit z.B. \"derivedFrom\".",
+    "versionAlgorithmString": "Dies ist eine FHIRPath expression die zwei Versionen vergleicht.",
+    "name": "Name ist ein maschinenfreundlicher Name der den Fragebogen für Anwendungen identifiziert.",
+    "title": "Title ist ein menschenfreundlicher Name für den Fragebogen für den Endbenutzer.",
+    "date": "Date ist das Datum, optional Zeitpunkt, an dem der Fragebogen zuletzts erheblich verändert wurde.",
+    "effectivePeriod": "EffectivePeriod ist die Periode in der der Fragebogen verwendet werden soll.",
+    "Text": "Text ist ein menschenlesbares Narrative mit einer Zusammenfassung des Fragebogens, die den Fragebogen dem Endbenutzer repräsentieren kann.",
+    "identifier": "Identifier beinhaltet business identifier die außerhalb von FHIR verwenden werden."
   }
 }

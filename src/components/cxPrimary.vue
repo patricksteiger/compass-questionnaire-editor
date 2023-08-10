@@ -11,7 +11,9 @@
             URL = '';
           }
         "
-      />
+      >
+        <q-tooltip>{{ $t("tutorial.url") }}</q-tooltip>
+      </q-input>
       <q-list padding bordered>
         <q-input
           v-model="version"
@@ -48,7 +50,9 @@
             v-model="questionnaire.versionAlgorithmString"
             @update:model-value="updateVersionAlgorithmString"
             clearable
-          />
+          >
+            <q-tooltip>{{ $t("tutorial.versionAlgorithmString") }}</q-tooltip>
+          </q-input>
         </div>
       </q-list>
 
@@ -62,7 +66,9 @@
             name = '';
           }
         "
-      />
+      >
+        <q-tooltip>{{ $t("tutorial.name") }}</q-tooltip>
+      </q-input>
       <q-input
         v-model="title"
         :label="$t('components.navigationBar.metadataItems.title')"
@@ -72,7 +78,9 @@
             title = '';
           }
         "
-      />
+      >
+        <q-tooltip>{{ $t("tutorial.title") }}</q-tooltip>
+      </q-input>
 
       <div class="row">
         <q-select
@@ -94,7 +102,9 @@
             :rules="[dateTools.isDateTimeOrEmpty]"
             clearable
             :clear="() => (date = '')"
-          />
+          >
+            <q-tooltip>{{ $t("tutorial.date") }}</q-tooltip>
+          </q-input>
           <q-btn
             label="Now"
             flat
@@ -140,11 +150,20 @@
         <div class="text-bold">
           EffectivePeriod:
           <cxPeriod :period="questionnaire.effectivePeriod" />
+          <q-tooltip>{{ $t("tutorial.effectivePeriod") }}</q-tooltip>
         </div>
       </q-list>
 
       <q-list class="q-mt-md" padding bordered>
-        <q-expansion-item icon="description" label="Text">
+        <q-expansion-item>
+          <template v-slot:header>
+            <cxExpansionItemHeader
+              icon="description"
+              title="Text"
+              :tooltip="$t('tutorial.Text')"
+            />
+          </template>
+          <q-separator />
           <q-list bordered separator dense padding class="rounded-borders">
             <q-select
               label="Status"
@@ -194,6 +213,13 @@
           :label="$t('components.navigationBar.metadataItems.identifier')"
           v-model="expanded"
         >
+          <template v-slot:header>
+            <cxExpansionItemHeader
+              icon="info"
+              :title="$t('components.navigationBar.metadataItems.identifier')"
+              :tooltip="$t('tutorial.identifier')"
+            />
+          </template>
           <q-separator />
           <q-card>
             <!-- Btn Add Identifier -->
@@ -406,6 +432,7 @@ import {
 import { getQuestionnaireExtensions } from "@/utils/extension";
 import cxExtension from "@/components/cxExtension.vue";
 import cxPeriod from "@/components/datatypes/cxPeriod.vue";
+import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
 import { dateTools } from "@/utils/date";
 import {
   getVersionAlgorithmCoding,
@@ -419,6 +446,7 @@ export default defineComponent({
   components: {
     cxExtension,
     cxPeriod,
+    cxExpansionItemHeader,
   },
   setup() {
     const questionnaire = ref<Questionnaire>(

@@ -176,6 +176,8 @@
     }
   },
   "tutorial": {
+    "answerChoice": "Questions allowing pre-defined answers via AnswerOption and AnswerValueSet.",
+    "validationHub": "Check for errors and warnings.",
     "type": "Type represents a display, grouping of questions or a question. The type of a question dictates what data is captured as answers to this question from the end-user.",
     "linkId": "LinkId uniquely identifies the question in the questionnaire and is used to link collected answers to the corresponding question.",
     "text": "Question text displayed to the end-user.",
@@ -195,6 +197,13 @@
     "extension": "Extensions add additional functionality to the questionnaire, depending on the type of the item. Fore more information check the documentation.",
     "initial": "Initial values are pre-populated answers to this question for the end-user. Multiple initial values are only permitted for repeating questions.",
     "code": "Codes represent concepts from the LOINC codesystem this item corresponds to. Fore more information check the documentation.",
-    "answerChoice": "Questions allowing pre-defined answers via AnswerOption and AnswerValueSet."
+    "url": "URL is a globally unique canonical URI referencing this questionnaires. This allows linking to this questionnaire with e.g. \"derivedFrom\".",
+    "versionAlgorithmString": "This is a FHIRPath expression comparing two versions.",
+    "name": "Name is a machine-friendly, natural language name identifying the questionnaire for application processing.",
+    "title": "Title is a human-friendly, natural language name for the questionnaire for the end-user.",
+    "date": "Date is the latest date, and optionally time, when the questionnaire substantially changed.",
+    "effectivePeriod": "EffectivePeriod is the period in which the questionnaire is expected to be used.",
+    "Text": "Text is a human-readable Narrative containing a summary of the questionnaire, that can be used to represent the questionnaire to the end-user.",
+    "identifier": "Identifier contains business identifiers used outside of FHIR."
   }
 }
