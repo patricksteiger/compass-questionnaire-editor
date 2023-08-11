@@ -37,13 +37,11 @@
                         size="20px"
                         class="q-mr-sm text-grey-8"
                       >
-                        <q-tooltip>
-                          {{ prop.node.type }}
-                        </q-tooltip>
+                        <cxTooltip :text="prop.node.type" />
                       </q-icon>
                       <div class="text-bold q-pr-sm">
                         {{ prop.node.linkId }}
-                        <q-tooltip> {{ $t("components.linkId") }} </q-tooltip>
+                        <cxTooltip :text="$t('components.linkId')" />
                       </div>
                       <div class="q-body-1">
                         {{ prop.node.text }}
@@ -256,8 +254,12 @@ import {
 } from "@/utils/constants";
 import { questionnaireTools } from "@/utils/questionnaire";
 import { itemTools } from "@/utils/item";
+import cxTooltip from "@/components/helper/cxTooltip.vue";
 
 export default defineComponent({
+  components: {
+    cxTooltip,
+  },
   props: {
     questionnaire: {
       type: Object as PropType<Questionnaire>,

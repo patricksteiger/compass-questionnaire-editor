@@ -48,7 +48,7 @@
                       size="15px"
                       class="q-mr-sm text-grey-8"
                     >
-                      <q-tooltip>{{ prop.node.type }}</q-tooltip>
+                      <cxTooltip :text="prop.node.type" />
                     </q-icon>
                     <div class="col-12 q-body-1 text-weight-bold">
                       {{ prop.node.prefix }} {{ prop.node.text }}
@@ -73,9 +73,7 @@
                         "
                         @click="prop.node.text = prop.node.__oldText"
                       >
-                        <q-tooltip>
-                          {{ $t("views.editor.reverseText") }}
-                        </q-tooltip>
+                        <cxTooltip :text="$t('views.editor.reverseText')" />
                       </q-btn>
                     </div>
                     <!-- toggle item -->
@@ -85,13 +83,13 @@
                         v-model="prop.node.__active"
                         @click="toggleItem(prop.node)"
                       >
-                        <q-tooltip>
-                          {{
+                        <cxTooltip
+                          :text="
                             prop.node.__active
-                              ? $t("views.editor.disableItem")
-                              : $t("views.editor.enableItem")
-                          }}
-                        </q-tooltip>
+                              ? $t('views.editor.disableItem')
+                              : $t('views.editor.enableItem')
+                          "
+                        />
                       </q-toggle>
                     </div>
                     <div style="width: 30px">
@@ -103,9 +101,7 @@
                         class="q-mr-sm text-grey-8"
                         @click="deleteItem(prop.key)"
                       >
-                        <q-tooltip>
-                          {{ $t("views.editor.deleteItem") }}
-                        </q-tooltip>
+                        <cxTooltip :text="$t('views.editor.deleteItem')" />
                       </q-btn>
                     </div>
                     <div class="q-body-1">
@@ -114,9 +110,7 @@
                         size="20px"
                         class="q-mr-sm text-grey-5"
                       >
-                        <q-tooltip>
-                          {{ $t("views.editor.dragItem") }}
-                        </q-tooltip>
+                        <cxTooltip :text="$t('views.editor.dragItem')" />
                       </q-icon>
                     </div>
                   </div>
@@ -128,9 +122,7 @@
                 >
                   <span>
                     LinkId: {{ prop.node.linkId }}
-                    <q-tooltip>
-                      {{ $t("components.linkId") }}
-                    </q-tooltip>
+                    <cxTooltip :text="$t('components.linkId')" />
                   </span>
                 </div>
               </div>
@@ -184,7 +176,7 @@
                   :label="questionTypeIcon.label"
                 />
                 <template v-slot:tooltip>
-                  <q-tooltip>{{ $t("tutorial.answerChoice") }}</q-tooltip>
+                  <cxTooltip :text="$t('tutorial.answerChoice')" />
                 </template>
               </q-fab>
             </q-page-sticky>
@@ -213,7 +205,7 @@
             >
               <span>
                 Type: {{ selectedItem.type }}
-                <q-tooltip>{{ $t("tutorial.type") }}</q-tooltip>
+                <cxTooltip :text="$t('tutorial.type')" />
               </span>
             </div>
             <!-- LinkId field -->
@@ -231,7 +223,7 @@
                 :disable="!selectedItem.__active"
                 label="LinkId"
               >
-                <q-tooltip>{{ $t("tutorial.linkId") }}</q-tooltip>
+                <cxTooltip :text="$t('tutorial.linkId')" />
               </q-input>
               <!-- Change LinkId button -->
               <div>
@@ -243,10 +235,10 @@
                   :disable="!selectedItem.__active"
                   @click="changeLinkId(selectedItem!)"
                 />
-                <q-tooltip>Change LinkId</q-tooltip>
+                <cxTooltip text="Change LinkId" />
               </div>
               <!-- Swap LinkId button -->
-              <div>
+              <div v-if="selectedItem !== undefined">
                 <q-btn
                   flat
                   round
@@ -256,17 +248,16 @@
                     !selectedItem.__active ||
                     questionnaireTools.hasNotMultipleItems(currentQuestionnaire)
                   "
-                  @click="swapLinkId(selectedItem!)"
+                  @click="swapLinkId(selectedItem)"
                 >
                 </q-btn>
-                <q-tooltip
+                <cxTooltip
                   v-if="
                     questionnaireTools.hasNotMultipleItems(currentQuestionnaire)
                   "
-                >
-                  Multiple items needed
-                </q-tooltip>
-                <q-tooltip v-else>Swap LinkId</q-tooltip>
+                  text="Multiple items needed"
+                />
+                <cxTooltip v-else text="Swap LinkId" />
               </div>
             </div>
             <div
@@ -292,10 +283,10 @@
                 <template v-slot:error>
                   {{ $t("components.fieldEmpty") }}
                 </template>
-                <q-tooltip>{{ $t("tutorial.text") }}</q-tooltip>
+                <cxTooltip :text="$t('tutorial.text')" />
               </q-input>
               <!-- Show Dependence Condition -->
-              <div>
+              <div v-if="selectedItem !== undefined">
                 <q-btn
                   flat
                   round
@@ -304,12 +295,11 @@
                   @click="alert = true"
                   :disable="!selectedItem.__dependenceCondition"
                 />
-                <q-tooltip v-if="selectedItem?.__dependenceCondition">
-                  {{ $t("views.editor.conditionFulfilled") }}
-                </q-tooltip>
-                <q-tooltip v-else-if="selectedItem !== undefined">
-                  No other item depends on this item
-                </q-tooltip>
+                <cxTooltip
+                  v-if="selectedItem.__dependenceCondition"
+                  :text="$t('views.editor.conditionFulfilled')"
+                />
+                <cxTooltip v-else text="No other item depends on this item" />
               </div>
             </div>
             <div
@@ -323,7 +313,7 @@
                 dense
                 class="col-8"
               />
-              <q-tooltip>{{ $t("tutorial.prefix") }}</q-tooltip>
+              <cxTooltip :text="$t('tutorial.prefix')" />
             </div>
             <!-- other language prefix and text -->
             <div v-if="selectedItem !== undefined">
@@ -389,7 +379,7 @@
                 keep-color
                 v-model="requiredItem"
               >
-                <q-tooltip>{{ $t("tutorial.required") }}</q-tooltip>
+                <cxTooltip :text="$t('tutorial.required')" />
               </q-toggle>
               <!-- repeats toggle -->
               <q-toggle
@@ -398,7 +388,7 @@
                 keep-color
                 v-model="repeatedItem"
               >
-                <q-tooltip>{{ $t("tutorial.repeats") }}</q-tooltip>
+                <cxTooltip :text="$t('tutorial.repeats')" />
               </q-toggle>
               <!-- readOnly toggle -->
               <q-toggle
@@ -407,7 +397,7 @@
                 keep-color
                 v-model="selectedItem.readOnly"
               >
-                <q-tooltip>{{ $t("tutorial.readOnly") }}</q-tooltip>
+                <cxTooltip :text="$t('tutorial.readOnly')" />
               </q-toggle>
             </div>
             <div
@@ -421,7 +411,7 @@
                 dense
                 class="col-8"
               >
-                <q-tooltip>{{ $t("tutorial.definition") }}</q-tooltip>
+                <cxTooltip :text="$t('tutorial.definition')" />
               </q-input>
             </div>
             <div
@@ -436,7 +426,7 @@
                 @keypress="onlyNumber"
                 v-model.number="selectedItem.maxLength"
               >
-                <q-tooltip>{{ $t("tutorial.maxLength") }}</q-tooltip>
+                <cxTooltip :text="$t('tutorial.maxLength')" />
               </q-input>
             </div>
             <!-- answerValueSet/Option toggle -->
@@ -457,7 +447,7 @@
                 "
                 v-model="selectedItem.__answerValueSetCheck"
               >
-                <q-tooltip>{{ $t("tutorial.answerChoiceToggle") }}</q-tooltip>
+                <cxTooltip :text="$t('tutorial.answerChoiceToggle')" />
               </q-toggle>
             </div>
             <!-- answerConstraint -->
@@ -484,7 +474,7 @@
                     : 'If answerConstraint is defined, answerOption must be non-empty'
                 "
               >
-                <q-tooltip>{{ $t("tutorial.answerConstraint") }}</q-tooltip>
+                <cxTooltip :text="$t('tutorial.answerConstraint')" />
               </q-select>
             </div>
             <!-- answerValueSet -->
@@ -503,7 +493,7 @@
                   v-model="selectedItem.answerValueSet"
                   :rules="[questionnaireTools.isCanonicalOrEmpty]"
                 >
-                  <q-tooltip>{{ $t("tutorial.answerValueSet") }}</q-tooltip>
+                  <cxTooltip :text="$t('tutorial.answerValueSet')" />
                 </q-input>
               </div>
             </div>
@@ -578,7 +568,9 @@
                                       v-model="answerOption.initialSelected"
                                       size="sm"
                                     />
-                                    <q-tooltip>initialSelected</q-tooltip>
+                                    <cxTooltip
+                                      :text="$t('tutorial.initialSelected')"
+                                    />
                                   </div>
                                 </template>
                                 <!-- reverse original text answer -->
@@ -593,9 +585,9 @@
                                     editorTools.setDisplayToOld(answerOption)
                                   "
                                 >
-                                  <q-tooltip>
-                                    {{ $t("components.reverseAnswer") }}
-                                  </q-tooltip>
+                                  <cxTooltip
+                                    :text="$t('components.reverseAnswer')"
+                                  />
                                 </q-btn>
                               </q-input>
                             </div>
@@ -627,7 +619,9 @@
                                       v-model="answerOption.initialSelected"
                                       size="sm"
                                     />
-                                    <q-tooltip>initialSelected</q-tooltip>
+                                    <cxTooltip
+                                      :text="$t('tutorial.initialSelected')"
+                                    />
                                   </div>
                                 </template>
                                 <!-- reverse original text answer -->
@@ -648,9 +642,9 @@
                                         answerOption.__oldValueDecimal
                                     "
                                   />
-                                  <q-tooltip>
-                                    {{ $t("components.reverseAnswer") }}
-                                  </q-tooltip>
+                                  <cxTooltip
+                                    :text="$t('components.reverseAnswer')"
+                                  />
                                 </div>
                               </q-input>
                             </div>
@@ -682,7 +676,9 @@
                                       v-model="answerOption.initialSelected"
                                       size="sm"
                                     />
-                                    <q-tooltip>initialSelected</q-tooltip>
+                                    <cxTooltip
+                                      :text="$t('tutorial.initialSelected')"
+                                    />
                                   </div>
                                 </template>
                                 <!-- reverse original text answer -->
@@ -703,9 +699,9 @@
                                         answerOption.__oldValueInteger
                                     "
                                   />
-                                  <q-tooltip>
-                                    {{ $t("components.reverseAnswer") }}
-                                  </q-tooltip>
+                                  <cxTooltip
+                                    :text="$t('components.reverseAnswer')"
+                                  />
                                 </div>
                               </q-input>
                             </div>
@@ -730,16 +726,16 @@
                                     : answerOption.__type
                                 "
                               >
-                                <q-tooltip>
-                                  Valid examples: 2000, 2000-01, 2000-12-30
-                                </q-tooltip>
+                                <cxTooltip :text="$t('tutorial.valid.date')" />
                                 <template v-slot:prepend>
                                   <div>
                                     <q-checkbox
                                       v-model="answerOption.initialSelected"
                                       size="sm"
                                     />
-                                    <q-tooltip>initialSelected</q-tooltip>
+                                    <cxTooltip
+                                      :text="$t('tutorial.initialSelected')"
+                                    />
                                   </div>
                                 </template>
                                 <!-- reverse original text answer -->
@@ -760,9 +756,9 @@
                                         answerOption.__oldValueDate
                                     "
                                   />
-                                  <q-tooltip>
-                                    {{ $t("components.reverseAnswer") }}
-                                  </q-tooltip>
+                                  <cxTooltip
+                                    :text="$t('components.reverseAnswer')"
+                                  />
                                 </div>
                               </q-input>
                             </div>
@@ -787,17 +783,18 @@
                                     : answerOption.__type
                                 "
                               >
-                                <q-tooltip>
-                                  Valid examples: 2000, 2000-01, 2000-12-30,
-                                  2000-12-30T12:33:59+01:00
-                                </q-tooltip>
+                                <cxTooltip
+                                  :text="$t('tutorial.valid.dateTime')"
+                                />
                                 <template v-slot:prepend>
                                   <div>
                                     <q-checkbox
                                       v-model="answerOption.initialSelected"
                                       size="sm"
                                     />
-                                    <q-tooltip>initialSelected</q-tooltip>
+                                    <cxTooltip
+                                      :text="$t('tutorial.initialSelected')"
+                                    />
                                   </div>
                                 </template>
                                 <!-- reverse original text answer -->
@@ -818,9 +815,9 @@
                                         answerOption.__oldValueDateTime
                                     "
                                   />
-                                  <q-tooltip>
-                                    {{ $t("components.reverseAnswer") }}
-                                  </q-tooltip>
+                                  <cxTooltip
+                                    :text="$t('components.reverseAnswer')"
+                                  />
                                 </div>
                               </q-input>
                             </div>
@@ -853,7 +850,9 @@
                                       v-model="answerOption.initialSelected"
                                       size="sm"
                                     />
-                                    <q-tooltip>initialSelected</q-tooltip>
+                                    <cxTooltip
+                                      :text="$t('tutorial.initialSelected')"
+                                    />
                                   </div>
                                 </template>
                                 <!-- reverse original time answer -->
@@ -873,9 +872,9 @@
                                       answerOption.__oldValueTime
                                   "
                                 >
-                                  <q-tooltip>
-                                    {{ $t("components.reverseAnswer") }}
-                                  </q-tooltip>
+                                  <cxTooltip
+                                    :text="$t('components.reverseAnswer')"
+                                  />
                                 </q-btn>
                               </q-input>
                             </div>
@@ -908,7 +907,9 @@
                                       v-model="answerOption.initialSelected"
                                       size="sm"
                                     />
-                                    <q-tooltip>initialSelected</q-tooltip>
+                                    <cxTooltip
+                                      :text="$t('tutorial.initialSelected')"
+                                    />
                                   </div>
                                 </template>
                                 <!-- reverse original text answer -->
@@ -927,10 +928,11 @@
                                     answerOption.valueString =
                                       answerOption.__oldValueString
                                   "
-                                  ><q-tooltip>
-                                    {{ $t("components.reverseAnswer") }}
-                                  </q-tooltip></q-btn
                                 >
+                                  <cxTooltip
+                                    :text="$t('components.reverseAnswer')"
+                                  />
+                                </q-btn>
                               </q-input>
                             </div>
                             <!-- answerOption url -->
@@ -960,7 +962,9 @@
                                       v-model="answerOption.initialSelected"
                                       size="sm"
                                     />
-                                    <q-tooltip>initialSelected</q-tooltip>
+                                    <cxTooltip
+                                      :text="$t('tutorial.initialSelected')"
+                                    />
                                   </div>
                                 </template>
                                 <!-- reverse original text answer -->
@@ -979,10 +983,11 @@
                                     answerOption.valueUri =
                                       answerOption.__oldValueUri
                                   "
-                                  ><q-tooltip>
-                                    {{ $t("components.reverseAnswer") }}
-                                  </q-tooltip></q-btn
                                 >
+                                  <cxTooltip
+                                    :text="$t('components.reverseAnswer')"
+                                  />
+                                </q-btn>
                               </q-input>
                             </div>
                             <!-- answerOption quantity -->
@@ -1021,7 +1026,9 @@
                                       v-model="answerOption.initialSelected"
                                       size="sm"
                                     />
-                                    <q-tooltip>initialSelected</q-tooltip>
+                                    <cxTooltip
+                                      :text="$t('tutorial.initialSelected')"
+                                    />
                                   </div>
                                 </template>
                                 <!-- reverse original text answer -->
@@ -1038,9 +1045,9 @@
                                     editorTools.setDisplayToOld(answerOption)
                                   "
                                 >
-                                  <q-tooltip>
-                                    {{ $t("components.reverseAnswer") }}
-                                  </q-tooltip>
+                                  <cxTooltip
+                                    :text="$t('components.reverseAnswer')"
+                                  />
                                 </q-btn>
                               </q-input>
                             </div>
@@ -1080,7 +1087,9 @@
                                       v-model="answerOption.initialSelected"
                                       size="sm"
                                     />
-                                    <q-tooltip>initialSelected</q-tooltip>
+                                    <cxTooltip
+                                      :text="$t('tutorial.initialSelected')"
+                                    />
                                   </div>
                                 </template>
                                 <!-- reverse original text answer -->
@@ -1097,9 +1106,9 @@
                                     editorTools.setDisplayToOld(answerOption)
                                   "
                                 >
-                                  <q-tooltip>
-                                    {{ $t("components.reverseAnswer") }}
-                                  </q-tooltip>
+                                  <cxTooltip
+                                    :text="$t('components.reverseAnswer')"
+                                  />
                                 </q-btn>
                               </q-input>
                             </div>
@@ -1116,9 +1125,7 @@
                                   :disable="!selectedItem.__active"
                                   @click="removeAnswerOption(answerOption)"
                                 >
-                                  <q-tooltip>
-                                    {{ $t("components.remove") }}
-                                  </q-tooltip>
+                                  <cxTooltip :text="$t('components.remove')" />
                                 </q-btn>
                               </div>
                             </div>
@@ -1162,7 +1169,7 @@
                     selectedItem.enableWhen.length > 1
                   "
                 >
-                  <q-tooltip>{{ $t("tutorial.enableBehavior") }}</q-tooltip>
+                  <cxTooltip :text="$t('tutorial.enableBehavior')" />
                 </q-select>
                 <!-- disabledDisplay -->
                 <q-toggle
@@ -1180,7 +1187,7 @@
                   color="primary"
                   :keep-color="selectedItem.disabledDisplay !== null"
                 >
-                  <q-tooltip>{{ $t("tutorial.disabledDisplay") }}</q-tooltip>
+                  <cxTooltip :text="$t('tutorial.disabledDisplay')" />
                 </q-toggle>
               </div>
               <q-separator />
@@ -1217,9 +1224,9 @@
                                 icon="subdirectory_arrow_left"
                                 @click="onGotoItem(enableWhen.question)"
                               />
-                              <q-tooltip>
-                                {{ $t("views.editor.navigateToItem") }}
-                              </q-tooltip>
+                              <cxTooltip
+                                :text="$t('views.editor.navigateToItem')"
+                              />
                             </div>
                           </div>
                           <q-input
@@ -1454,9 +1461,7 @@
                             icon="highlight_off"
                             @click="onRemoveCondition(index)"
                           >
-                            <q-tooltip>
-                              {{ $t("components.remove") }}
-                            </q-tooltip>
+                            <cxTooltip :text="$t('components.remove')" />
                           </q-btn>
                         </div>
                       </q-card-section>
@@ -1879,9 +1884,7 @@
                 :rules="[dateTools.isDate]"
                 dense
               >
-                <q-tooltip>
-                  Valid examples: 2000, 2000-01, 2000-12-30
-                </q-tooltip>
+                <cxTooltip :text="$t('tutorial.valid.date')" />
               </q-input>
               <div>
                 <q-btn icon="add" @click="setDateAnswer(chosenEnableWhen)" />
@@ -1947,10 +1950,7 @@
                 :rules="[dateTools.isDateTime]"
                 dense
               >
-                <q-tooltip>
-                  Valid examples: 2000, 2000-01, 2000-12-30,
-                  2000-12-30T12:33:59+01:00
-                </q-tooltip>
+                <cxTooltip :text="$t('tutorial.valid.dateTime')" />
               </q-input>
               <div>
                 <q-btn
@@ -2584,7 +2584,7 @@
   <div>
     <q-page-sticky position="bottom-right" :offset="[130, 18]">
       <q-btn icon="warning_amber" color="red" @click="validateState">
-        <q-tooltip>{{ $t("tutorial.validationHub") }}</q-tooltip>
+        <cxTooltip :text="$t('tutorial.validationHub')" />
       </q-btn>
     </q-page-sticky>
   </div>
@@ -2607,7 +2607,7 @@
         :label="language"
         @click="() => (languageLayout = !languageLayout)"
       >
-        <q-tooltip>{{ $t("views.languages.buttonTooltip") }}</q-tooltip>
+        <cxTooltip :text="$t('views.languages.buttonTooltip')" />
       </q-btn>
     </q-page-sticky>
   </div>
@@ -2653,6 +2653,7 @@ import cxAttachment from "@/components/datatypes/cxAttachment.vue";
 import cxValidationHub from "@/components/cxValidationHub.vue";
 import cxLanguageHub from "@/components/cxLanguageHub.vue";
 import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
+import cxTooltip from "@/components/helper/cxTooltip.vue";
 import { i18n, defaultLanguage } from "@/i18n";
 import {
   AnswerOption,
@@ -2684,6 +2685,7 @@ export default defineComponent({
     cxLanguageHub,
     cxValidationHub,
     cxExpansionItemHeader,
+    cxTooltip,
   },
   emits: {
     switchToPrimary(language: Language): boolean {

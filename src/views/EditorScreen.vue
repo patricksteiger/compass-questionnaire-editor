@@ -37,7 +37,7 @@
     <div>
       <q-page-sticky position="bottom-right" :offset="[130, 18]">
         <q-btn icon="warning_amber" color="red" @click="validateState">
-          <q-tooltip>{{ $t("tutorial.validationHub") }}</q-tooltip>
+          <cxTooltip :text="$t('tutorial.validationHub')" />
         </q-btn>
       </q-page-sticky>
     </div>
@@ -60,7 +60,7 @@
           :label="language"
           @click="() => (languageLayout = !languageLayout)"
         >
-          <q-tooltip>{{ $t("views.languages.buttonTooltip") }}</q-tooltip>
+          <cxTooltip :text="$t('views.languages.buttonTooltip')" />
         </q-btn>
       </q-page-sticky>
     </div>
@@ -79,6 +79,7 @@ import cxPrimary from "@/components/cxPrimary.vue";
 import cxSecondary from "@/components/cxSecondary.vue";
 import cxValidationHub from "@/components/cxValidationHub.vue";
 import cxLanguageHub from "@/components/cxLanguageHub.vue";
+import cxTooltip from "@/components/helper/cxTooltip.vue";
 import { Language } from "@/store";
 import { Questionnaire } from "@/types";
 import { questionnaireTools } from "@/utils/questionnaire";
@@ -96,6 +97,7 @@ export default defineComponent({
     cxSecondary,
     cxValidationHub,
     cxLanguageHub,
+    cxTooltip,
   },
   setup() {
     const store = useStore();

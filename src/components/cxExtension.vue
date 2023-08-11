@@ -103,12 +103,12 @@
                   v-model.boolean="extension.valueBoolean"
                   :disable="disableGUIExtension(extension)"
                 />
-                <q-tooltip v-if="disableGUIExtension(extension)">
-                  Hidden can only be changed using the toggle in the item-tree
-                </q-tooltip>
+                <cxTooltip
+                  v-if="disableGUIExtension(extension)"
+                  :text="$t('tutorial.Extension.hidden')"
+                />
               </div>
               <div v-else-if="extension.__type === 'complex'">
-                <!-- <q-btn icon="add" @click="handleComplexExtension(extension)" /> -->
                 <cxComplexExtension :extension="extension" />
               </div>
             </q-card-section>
@@ -185,7 +185,7 @@
                           <q-item-section>
                             URL: {{ extension.url }}
                           </q-item-section>
-                          <q-tooltip>{{ extension.__tooltip }}</q-tooltip>
+                          <cxTooltip :text="extension.__tooltip" />
                         </div>
                       </q-item>
                     </q-list>
@@ -211,13 +211,14 @@
                         :disable="invalidToAddCustomExtension(url, type)"
                         @click="onSelectedCustomExtension(url, type)"
                       />
-                      <q-tooltip v-if="invalidToAddCustomExtension(url, type)">
-                        {{
+                      <cxTooltip
+                        v-if="invalidToAddCustomExtension(url, type)"
+                        :text="
                           !url
-                            ? "URL must be non-empty"
-                            : "Hidden extension already exists and cannot be added"
-                        }}
-                      </q-tooltip>
+                            ? 'URL must be non-empty'
+                            : 'Hidden extension already exists and cannot be added'
+                        "
+                      />
                     </div>
                   </q-card>
                 </div>
@@ -257,10 +258,10 @@
                               v-model.boolean="extension.valueBoolean"
                               :disable="disableGUIExtension(extension)"
                             />
-                            <q-tooltip v-if="disableGUIExtension(extension)">
-                              Hidden can only be changed using the toggle in the
-                              item-tree
-                            </q-tooltip>
+                            <cxTooltip
+                              v-if="disableGUIExtension(extension)"
+                              :text="$t('tutorial.Extension.hidden')"
+                            />
                           </div>
                           <q-input
                             v-else-if="extension.__type === 'code'"
@@ -364,6 +365,7 @@ import { HIDDEN_EXTENSION_URL, PredefinedExtension } from "@/utils/extension";
 import { dateTools } from "@/utils/date";
 import cxComplexExtension from "@/components/cxComplexExtension.vue";
 import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
+import cxTooltip from "@/components/helper/cxTooltip.vue";
 import { itemTools } from "@/utils/item";
 
 const props = defineProps<{

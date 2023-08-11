@@ -12,7 +12,7 @@
           }
         "
       >
-        <q-tooltip>{{ $t("tutorial.url") }}</q-tooltip>
+        <cxTooltip :text="$t('tutorial.url')" />
       </q-input>
       <q-list padding bordered>
         <q-input
@@ -51,7 +51,7 @@
             @update:model-value="updateVersionAlgorithmString"
             clearable
           >
-            <q-tooltip>{{ $t("tutorial.versionAlgorithmString") }}</q-tooltip>
+            <cxTooltip :text="$t('tutorial.versionAlgorithmString')" />
           </q-input>
         </div>
       </q-list>
@@ -67,7 +67,7 @@
           }
         "
       >
-        <q-tooltip>{{ $t("tutorial.name") }}</q-tooltip>
+        <cxTooltip :text="$t('tutorial.name')" />
       </q-input>
       <q-input
         v-model="title"
@@ -79,7 +79,7 @@
           }
         "
       >
-        <q-tooltip>{{ $t("tutorial.title") }}</q-tooltip>
+        <cxTooltip :text="$t('tutorial.title')" />
       </q-input>
 
       <div class="row">
@@ -103,7 +103,7 @@
             clearable
             :clear="() => (date = '')"
           >
-            <q-tooltip>{{ $t("tutorial.date") }}</q-tooltip>
+            <cxTooltip :text="$t('tutorial.date')" />
           </q-input>
           <q-btn
             label="Now"
@@ -150,7 +150,7 @@
         <div class="text-bold">
           EffectivePeriod:
           <cxPeriod :period="questionnaire.effectivePeriod" />
-          <q-tooltip>{{ $t("tutorial.effectivePeriod") }}</q-tooltip>
+          <cxTooltip :text="$t('tutorial.effectivePeriod')" />
         </div>
       </q-list>
 
@@ -433,6 +433,7 @@ import { getQuestionnaireExtensions } from "@/utils/extension";
 import cxExtension from "@/components/cxExtension.vue";
 import cxPeriod from "@/components/datatypes/cxPeriod.vue";
 import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
+import cxTooltip from "@/components/helper/cxTooltip.vue";
 import { dateTools } from "@/utils/date";
 import {
   getVersionAlgorithmCoding,
@@ -447,6 +448,7 @@ export default defineComponent({
     cxExtension,
     cxPeriod,
     cxExpansionItemHeader,
+    cxTooltip,
   },
   setup() {
     const questionnaire = ref<Questionnaire>(

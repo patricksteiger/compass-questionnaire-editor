@@ -190,7 +190,8 @@
     "answerChoiceToggle": "AnswerOption and AnswerValueSet contain pre-defined answers, used for single- and multiple-choice questions, to this question. AnswerOption allows custom pre-defined answers, while AnswerValueSet links to a set of pre-defined values.",
     "answerConstraint": "AnswerConstraint defines whether additional answers to the pre-defined answers in AnswerOption or AnswerValueSet are allowed. \"optionsOnly\" signals no additional answers are allowed. \"optionsOrType\" or \"optionsOrString\" allow an answer of the same type of the question or a free-text answer respectively.",
     "answerValueSet": "AnswerValueSet is a canonical URI linking to a set of pre-defined values allowed as answers to this question. Repeating items with defined AnswerValueSet are multiple-choice, otherwise they are single-choice.",
-    "answerOption": "AnswerOptions contain custom pre-defined answers for this question. They match the type of this question. Repeating items with defined AnswerOptions are multiple-choice, otherwise they are single-choice. InitialSelected indicates which option is selected by default.",
+    "answerOption": "AnswerOptions contain custom pre-defined answers for this question.\nThey match the type of this question. Repeating items with defined AnswerOptions are multiple-choice, otherwise they are single-choice. InitialSelected indicates which option is selected by default.",
+    "initialSelected": "InitialSelected",
     "enableWhen": "EnableWhen contains conditions, based on answers to other questions, that have to be met for this question to be enabled for the end-user. With operator \"exists\" it is checked whether any answer to the linked question exists or not. If this question is disabled, all its child-items are disabled as well.",
     "enableBehavior": "EnableBehavior indicates whether all or any conditions of EnableWhen have to be met for this question to be enabled.",
     "disabledDisplay": "DisabledDisplay indicates whether this question is hidden or not interactable (protected) for the end-user if it is disabled.",
@@ -204,6 +205,13 @@
     "date": "Date is the latest date, and optionally time, when the questionnaire substantially changed.",
     "effectivePeriod": "EffectivePeriod is the period in which the questionnaire is expected to be used.",
     "Text": "Text is a human-readable Narrative containing a summary of the questionnaire, that can be used to represent the questionnaire to the end-user.",
-    "identifier": "Identifier contains business identifiers used outside of FHIR."
+    "identifier": "Identifier contains business identifiers used outside of FHIR.",
+    "valid": {
+      "date": "Valid examples: 2000, 2000-01, 2000-12-30",
+      "dateTime": "Valid examples: 2000, 2000-01, 2000-12-30, 2000-12-30T12:33:59+01:00"
+    },
+    "Extension": {
+      "hidden": "Hidden can only be changed using the toggle in the item-tree"
+    }
   }
 }
