@@ -193,6 +193,7 @@
     "answerOption": "AnswerOptions beinhalten die benutzerdefinierten Antwortmöglichkeiten für diese Frage. Deren Typ ist gleich dem Typs dieser Frage. Wiederholbare Fragen mit definierter AnswerOption sind Multiple-Choice, sonst Single-Choice.",
     "initialSelected": "InitialSelected",
     "enableWhen": "EnableWhen beinhaltet Bedingungen, basierend auf Antworten zu anderen Fragen, die erfüllt werden müssen, um diese Frage zu aktivieren. Mit Operator \"exists\" wird geprüft ob irgendeine Antwort zu der verlinkten Frage gegen wurde oder nicht. Ist diese Frage deaktiviert, sind ihre Kindelemente auch deaktiviert.",
+    "enableWhenInfo": "Mehr informationen über EnableWhen.",
     "enableBehavior": "EnableBehavior gibt an, ob alle Bedingungen oder irgendeine Bedingung erfüllt werden müssen, damit diese Frage aktiviert wird.",
     "disabledDisplay": "DisabledDisplay gibt an, ob diese Frage für den Endbenutzer nicht angezeigt wird (hidden) oder nicht veränderbar ist, falls sie deaktiviert ist.",
     "extension": "Extensions erlauben weitere Funktionalitäten für den Fragebogen, abhängig vom Type des Elements. Mehr Informationen sind in der Dokumentation.",
@@ -207,11 +208,11 @@
     "Text": "Text ist ein menschenlesbares Narrative mit einer Zusammenfassung des Fragebogens, die den Fragebogen dem Endbenutzer repräsentieren kann.",
     "identifier": "Identifier beinhaltet business identifier die außerhalb von FHIR verwenden werden.",
     "valid": {
-      "date": "Valid examples: 2000, 2000-01, 2000-12-30",
-      "dateTime": "Valid examples: 2000, 2000-01, 2000-12-30, 2000-12-30T12:33:59+01:00"
+      "date": "Valide Beispiele: 2000, 2000-01, 2000-12-30",
+      "dateTime": "Valide Beispiele: 2000, 2000-01, 2000-12-30, 2000-12-30T12:33:59+01:00"
     },
     "Extension": {
-      "hidden": "Hidden can only be changed using the toggle in the item-tree"
+      "hidden": "Hidden kann nur im Element-Baum verändert werden."
     }
   }
 }

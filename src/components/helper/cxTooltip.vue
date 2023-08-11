@@ -1,5 +1,5 @@
 <template>
-  <q-tooltip class="text-subtitle2" max-width="600px">
+  <q-tooltip class="text-body2" max-width="600px">
     {{ text }}
   </q-tooltip>
 </template>

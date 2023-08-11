@@ -192,7 +192,8 @@
     "answerValueSet": "AnswerValueSet is a canonical URI linking to a set of pre-defined values allowed as answers to this question. Repeating items with defined AnswerValueSet are multiple-choice, otherwise they are single-choice.",
     "answerOption": "AnswerOptions contain custom pre-defined answers for this question.\nThey match the type of this question. Repeating items with defined AnswerOptions are multiple-choice, otherwise they are single-choice. InitialSelected indicates which option is selected by default.",
     "initialSelected": "InitialSelected",
-    "enableWhen": "EnableWhen contains conditions, based on answers to other questions, that have to be met for this question to be enabled for the end-user. With operator \"exists\" it is checked whether any answer to the linked question exists or not. If this question is disabled, all its child-items are disabled as well.",
+    "enableWhen": "EnableWhen contains conditions, based on answers to other questions, that have to be met for this question to be enabled for the end-user.",
+    "enableWhenInfo": "More information about EnableWhen.",
     "enableBehavior": "EnableBehavior indicates whether all or any conditions of EnableWhen have to be met for this question to be enabled.",
     "disabledDisplay": "DisabledDisplay indicates whether this question is hidden or not interactable (protected) for the end-user if it is disabled.",
     "extension": "Extensions add additional functionality to the questionnaire, depending on the type of the item. Fore more information check the documentation.",
@@ -211,7 +212,7 @@
       "dateTime": "Valid examples: 2000, 2000-01, 2000-12-30, 2000-12-30T12:33:59+01:00"
     },
     "Extension": {
-      "hidden": "Hidden can only be changed using the toggle in the item-tree"
+      "hidden": "Hidden can only be changed using the toggle in the item-tree."
     }
   }
 }
