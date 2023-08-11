@@ -45,7 +45,7 @@
   },
   "views": {
     "languages": {
-      "buttonTooltip": "Sprachen Hub",
+      "buttonTooltip": "Sprachen",
       "selectedLanguages": "Ausgewählte Sprachen",
       "notSelectedLanguages": "Weitere Sprachen",
       "confirmDeletion": "Soll der Fragebogen mit der Sprache '{language}' gelöscht werden und der Fortschritt verloren gehen?"
@@ -207,6 +207,13 @@
     "effectivePeriod": "EffectivePeriod ist die Periode in der der Fragebogen verwendet werden soll.",
     "Text": "Text ist ein menschenlesbares Narrative mit einer Zusammenfassung des Fragebogens, die den Fragebogen dem Endbenutzer repräsentieren kann.",
     "identifier": "Identifier beinhaltet business identifier die außerhalb von FHIR verwenden werden.",
+    "id": "ID is der logische Identifier für die FHIR Ressource, die niemals verändert werden darf, nachdem sie gesetzt wurde.",
+    "implicitRules": "ImplicitRules ist eine URI zu einem Regelset, welche bei dem Erstellen des Fragebogens berücksichtigt wurden. Dies ist normalerweise ein Implementationsguide.",
+    "meta": "Meta beinhaltet Metadaten über die FHIR Ressource. Mehr Informationen sind in der Dokumentation.",
+    "derivedFrom": "DerivedForm ist eine canonical-URI die zu einem Fragebogen verlinkt, auf den dieser Fragebogen basiert.",
+    "subjectType": "SubjectType definiert die FHIR Ressourcen, die das Subjekt sind, welche den Fragebogen ausfüllen dürfen.",
+    "useContext": "UseContext definiert die Kontexte in welchen der Fragebogen entwickelt wurde. Dies könnte ein Thema wie Geschlecht, oder ein spezifisches Programm wie ein Versicherungsplan sein. Mehr Informationen sind in der Dokumentation.",
+    "contact": "Contact beinhaltet Kontaktinformationen des Herausgebers.",
     "valid": {
       "date": "Valide Beispiele: 2000, 2000-01, 2000-12-30",
       "dateTime": "Valide Beispiele: 2000, 2000-01, 2000-12-30, 2000-12-30T12:33:59+01:00"

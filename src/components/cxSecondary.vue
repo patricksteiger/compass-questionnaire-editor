@@ -9,7 +9,9 @@
             :rules="[questionnaireTools.isIdOrEmpty]"
             clearable
             @clear="() => (id = '')"
-          />
+          >
+            <cxTooltip :text="$t('tutorial.id')" />
+          </q-input>
         </div>
 
         <div>
@@ -19,12 +21,21 @@
             :rules="[questionnaireTools.isUriOrEmpty]"
             clearable
             @clear="() => (implicitRules = '')"
-          />
+          >
+            <cxTooltip :text="$t('tutorial.implicitRules')" />
+          </q-input>
         </div>
 
         <div>
           <q-list padding bordered>
-            <q-expansion-item icon="information" label="Meta">
+            <q-expansion-item expand-separator>
+              <template v-slot:header>
+                <cxExpansionItemHeader
+                  icon="information"
+                  title="Meta"
+                  :tooltip="$t('tutorial.meta')"
+                />
+              </template>
               <q-separator />
               <q-list separator dense padding>
                 <div>
@@ -292,7 +303,14 @@
       <!-- derivedFrom -->
       <div class="q-mt-md">
         <q-list padding bordered>
-          <q-expansion-item icon="upgrade" label="DerivedFrom">
+          <q-expansion-item expand-separator>
+            <template v-slot:header>
+              <cxExpansionItemHeader
+                icon="upgrade"
+                title="DerivedFrom"
+                :tooltip="$t('tutorial.derivedFrom')"
+              />
+            </template>
             <q-list
               v-if="$route.name !== 'Import' && questionnaire !== undefined"
               bordered
@@ -375,7 +393,14 @@
       <!-- subjectType -->
       <div>
         <q-list padding bordered>
-          <q-expansion-item icon="quickreply" label="SubjectType">
+          <q-expansion-item expand-separator>
+            <template v-slot:header>
+              <cxExpansionItemHeader
+                icon="quickreply"
+                title="SubjectType"
+                :tooltip="$t('tutorial.subjectType')"
+              />
+            </template>
             <q-list
               v-if="$route.name !== 'Import' && questionnaire !== undefined"
               bordered
@@ -433,7 +458,14 @@
       <!-- UseContext -->
       <div>
         <q-list padding bordered>
-          <q-expansion-item icon="unfold_more" label="UseContext">
+          <q-expansion-item expand-separator>
+            <template v-slot:header>
+              <cxExpansionItemHeader
+                icon="unfold_more"
+                title="UseContext"
+                :tooltip="$t('tutorial.useContext')"
+              />
+            </template>
             <q-list bordered separator dense padding class="rounded-borders">
               <q-item
                 v-for="(usageContext, index) in questionnaire.useContext"
@@ -754,7 +786,14 @@
       <!-- Contact -->
       <div>
         <q-list bordered padding>
-          <q-expansion-item icon="contacts" label="Contact">
+          <q-expansion-item expand-separator>
+            <template v-slot:header>
+              <cxExpansionItemHeader
+                icon="contacts"
+                title="Contact"
+                :tooltip="$t('tutorial.contact')"
+              />
+            </template>
             <q-list bordered separator dense padding class="rounded-borders">
               <q-item
                 v-for="(contactDetail, index) in contact"
@@ -861,6 +900,8 @@ import cxCoding from "@/components/datatypes/cxCoding.vue";
 import cxQuantity from "@/components/datatypes/cxQuantity.vue";
 import cxSimpleQuantity from "@/components/datatypes/cxSimpleQuantity.vue";
 import cxReference from "@/components/datatypes/cxReference.vue";
+import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
+import cxTooltip from "@/components/helper/cxTooltip.vue";
 import {
   Coding,
   ContactDetail,
@@ -883,6 +924,8 @@ export default defineComponent({
     cxQuantity,
     cxSimpleQuantity,
     cxReference,
+    cxExpansionItemHeader,
+    cxTooltip,
   },
   setup() {
     const questionnaire = ref<Questionnaire>(

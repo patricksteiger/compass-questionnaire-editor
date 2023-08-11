@@ -45,7 +45,7 @@
   },
   "views": {
     "languages": {
-      "buttonTooltip": "Language Hub",
+      "buttonTooltip": "Languages",
       "selectedLanguages": "Selected languages",
       "notSelectedLanguages": "More languages",
       "confirmDeletion": "Do you wish to delete the questionnaire with language '{language}', losing all progress?"
@@ -207,6 +207,13 @@
     "effectivePeriod": "EffectivePeriod is the period in which the questionnaire is expected to be used.",
     "Text": "Text is a human-readable Narrative containing a summary of the questionnaire, that can be used to represent the questionnaire to the end-user.",
     "identifier": "Identifier contains business identifiers used outside of FHIR.",
+    "id": "ID is the logical identifier of the FHIR Resource which never changes after being assigned.",
+    "implicitRules": "ImplicitRules is a URI to a set of rules that were followed when constructing the questionnaire. This is usually an implementation guide.",
+    "meta": "Meta contains metadata about the FHIR Resource. Fore more information check the documentation.",
+    "derivedFrom": "DerivedForm is a canonical URI linking to a questionnaire which this questionnaire is based on.",
+    "subjectType": "SubjectType defines the FHIR Resources which are the subjects allowed to answer the questionnaire.",
+    "useContext": "UseContext defines the contexts for which the questionnaire was developed. This could be topics such as gender, or references to specific programs like insurance plans. Fore more information check the documentation.",
+    "contact": "Contact contains contact information from the publisher.",
     "valid": {
       "date": "Valid examples: 2000, 2000-01, 2000-12-30",
       "dateTime": "Valid examples: 2000, 2000-01, 2000-12-30, 2000-12-30T12:33:59+01:00"
