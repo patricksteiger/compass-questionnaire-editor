@@ -36,7 +36,7 @@
     <!-- ValidationHub -->
     <div>
       <q-page-sticky position="bottom-right" :offset="[130, 18]">
-        <q-btn icon="warning_amber" color="orange" @click="validateState">
+        <q-btn icon="warning_amber" color="red" @click="validateState">
           <q-tooltip>{{ $t("tutorial.validationHub") }}</q-tooltip>
         </q-btn>
       </q-page-sticky>
