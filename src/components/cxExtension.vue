@@ -2,7 +2,7 @@
   <q-expansion-item expand-separator>
     <template v-slot:header>
       <cxExpansionItemHeader
-        icon="account_tree"
+        icon="extension"
         :title="title"
         :tooltip="$t('tutorial.extension')"
       />

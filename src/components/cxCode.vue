@@ -42,7 +42,12 @@
           icon="highlight_off"
           flat
           color="grey-6"
-          @click="() => codesValue.splice(index, 1)"
+          @click="
+            () => {
+              codesValue.splice(index, 1);
+              $store.commit('saveState');
+            }
+          "
         />
       </q-item>
     </q-list>
@@ -52,7 +57,12 @@
       padding="none xl"
       color="primary"
       fab
-      @click="() => codesValue.push({})"
+      @click="
+        () => {
+          codesValue.push({});
+          $store.commit('saveState');
+        }
+      "
     />
   </q-expansion-item>
 

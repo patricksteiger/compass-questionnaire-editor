@@ -520,7 +520,6 @@ function filterIdentifier(identifier: Identifier) {
 }
 
 function filterIdentifiers(qre: Questionnaire) {
-  if (qre.identifier === undefined) return;
   for (let i = qre.identifier.length - 1; i >= 0; i--) {
     const id = qre.identifier[i];
     filterIdentifier(id);
@@ -529,7 +528,7 @@ function filterIdentifiers(qre: Questionnaire) {
     }
   }
   if (qre.identifier.length === 0) {
-    delete qre.identifier;
+    delete (qre as Partial<Questionnaire>).identifier;
   }
 }
 
@@ -631,11 +630,9 @@ function getFilteredQuestionnaire(qre: Questionnaire): Questionnaire {
   if (qre.code.length === 0) {
     delete (qre as Partial<Questionnaire>).code;
   }
-  if (qre.extension !== undefined) {
-    filterExtension(qre.extension);
-    if (qre.extension.length === 0) {
-      delete qre.extension;
-    }
+  filterExtension(qre.extension);
+  if (qre.extension.length === 0) {
+    delete (qre as Partial<Questionnaire>).extension;
   }
   filterExtension(qre.modifierExtension);
   if (qre.modifierExtension.length === 0) {
@@ -721,11 +718,9 @@ function filterInitial(item: Item): void {
 }
 
 function filterItem(item: Item): void {
-  if (item.extension !== undefined) {
-    filterExtension(item.extension);
-    if (item.extension.length === 0) {
-      delete item.extension;
-    }
+  filterExtension(item.extension);
+  if (item.extension.length === 0) {
+    delete (item as Partial<Item>).extension;
   }
   filterExtension(item.modifierExtension);
   if (item.modifierExtension.length === 0) {

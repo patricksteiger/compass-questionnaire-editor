@@ -302,7 +302,7 @@ export type Item = {
   answerConstraint?: AnswerConstraint | null;
   answerOption?: AnswerOption[];
   answerValueSet?: string;
-  extension?: Extension[];
+  extension: Extension[];
   modifierExtension: Extension[];
   code: Coding[];
   prefix?: string;
@@ -467,7 +467,7 @@ export type Questionnaire = {
   language: Language;
   text: Narrative;
   url?: string;
-  identifier?: Identifier[];
+  identifier: Identifier[];
   version?: string;
   versionAlgorithmString?: string;
   versionAlgorithmCoding?: VersionAlgorithmCoding;
@@ -490,7 +490,7 @@ export type Questionnaire = {
   lastReviewDate?: string;
   effectivePeriod: Period;
   code: Coding[];
-  extension?: Extension[];
+  extension: Extension[];
   modifierExtension: Extension[];
   item: Item[];
 };

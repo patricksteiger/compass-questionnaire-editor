@@ -116,7 +116,7 @@ class EditorTools {
 
   toggleEntireItem(disableItem: Item, activateToggle: boolean): void {
     if (disableItem.__disabled) return;
-    const extension = disableItem.extension!;
+    const extension = disableItem.extension;
     const hiddenExtension = getOrAddHiddenExtension(extension);
     hiddenExtension.valueBoolean = !activateToggle;
     disableItem.__active = activateToggle;
@@ -129,7 +129,7 @@ class EditorTools {
     for (const item of items) {
       item.__active = activate;
       item.__disabled = !activate;
-      const extension = item.extension!;
+      const extension = item.extension;
       const hiddenExtension = getOrAddHiddenExtension(extension);
       hiddenExtension.valueBoolean = !activate;
       if (item.item) {

@@ -6,13 +6,19 @@
       dense
       clearable
       v-model="periodValue.start"
+      @update:model-value="$store.commit('saveState')"
       :rules="[dateTools.isDateTimeOrEmpty]"
     />
     <q-btn
       label="Now"
       flat
       dense
-      @click="() => (periodValue.start = dateTools.getCurrentDateTime())"
+      @click="
+        () => {
+          periodValue.start = dateTools.getCurrentDateTime();
+          $store.commit('saveState');
+        }
+      "
     />
     <q-input
       label="End"
@@ -20,13 +26,19 @@
       dense
       clearable
       v-model="periodValue.end"
+      @update:model-value="$store.commit('saveState')"
       :rules="[dateTools.isDateTimeOrEmpty]"
     />
     <q-btn
       label="Now"
       flat
       dense
-      @click="() => (periodValue.end = dateTools.getCurrentDateTime())"
+      @click="
+        () => {
+          periodValue.end = dateTools.getCurrentDateTime();
+          $store.commit('saveState');
+        }
+      "
     />
   </div>
 </template>

@@ -91,12 +91,14 @@ export class QuestionnaireBuilder {
     }
     const meta = this.fromMeta(this.qre.meta);
     const text = this.fromText(this.qre.text);
+    const identifier = this.qre.identifier ?? [];
     return {
       ...this.qre,
       __versionAlgorithmUsesCoding: !this.qre.versionAlgorithmString,
       code,
       meta,
       text,
+      identifier,
       derivedFrom,
       _derivedFrom,
       subjectType,
@@ -202,8 +204,7 @@ export class QuestionnaireBuilder {
   }
 
   private handleHiddenFor(item: Item): void {
-    const extension = item.extension!;
-    const hiddenExtension = getOrAddHiddenExtension(extension);
+    const hiddenExtension = getOrAddHiddenExtension(item.extension);
     if (hiddenExtension.valueBoolean) {
       item.__active = false;
       // First hidden item still needs to allow toggle
@@ -221,8 +222,7 @@ export class QuestionnaireBuilder {
   }
 
   private setHiddenFor(item: Item): void {
-    const extension = item.extension!;
-    const hiddenExtension = getOrAddHiddenExtension(extension);
+    const hiddenExtension = getOrAddHiddenExtension(item.extension);
     hiddenExtension.valueBoolean = true;
     item.__active = false;
     item.__disabled = true;

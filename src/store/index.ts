@@ -1,5 +1,8 @@
 import { defaultLanguage, i18n, getLocaleFromLanguage } from "@/i18n";
 import {
+  Coding,
+  ContactDetail,
+  Extension,
   Identifier,
   Item,
   Meta,
@@ -7,7 +10,12 @@ import {
   NarrativeStatus,
   Questionnaire,
   Status,
+  UsageContext,
 } from "@/types";
+import {
+  getVersionAlgorithmCoding,
+  VersionAlgorithmCode,
+} from "@/utils/constants";
 import { languageTools } from "@/utils/language";
 import { questionnaireTools } from "@/utils/questionnaire";
 import { createStore } from "vuex";
@@ -48,6 +56,7 @@ export const getDefaultQuestionnaire = (lang: Language): Questionnaire => {
     experimental: true,
     code: [],
     subjectType: [],
+    extension: [],
     modifierExtension: [],
     item: [],
     resourceType: "Questionnaire",
@@ -66,11 +75,14 @@ export const isSupportedLanguage = (lang: string): lang is Language => {
 // Switching between screens is done when creating Screen-components (see ImportScreen, EditorScreen)
 export type Screen = "init" | "import" | "editor";
 
+export type Tab = "editor" | "primary" | "secondary";
+
 export type StoreState = {
   questionnaire: Questionnaire;
   selectedItem: Item | undefined;
   questionnaireRepo: Questionnaire[];
   currentScreen: Screen;
+  currentTab: Tab;
 };
 
 const screenMutations = {
@@ -80,9 +92,18 @@ const screenMutations = {
   switchToImportScreen(state: StoreState): void {
     state.currentScreen = "import";
   },
+  switchToEditorTab(state: StoreState): void {
+    state.currentTab = "editor";
+  },
+  switchToPrimaryTab(state: StoreState): void {
+    state.currentTab = "primary";
+  },
+  switchToSecondaryTab(state: StoreState): void {
+    state.currentTab = "secondary";
+  },
 };
 
-const metadataMutations = {
+const primaryMutations = {
   setTextStatus(state: StoreState, payload: NarrativeStatus) {
     state.questionnaire.text.status = payload;
   },
@@ -149,6 +170,110 @@ const metadataMutations = {
   setCopyright(state: StoreState, payload: string | undefined) {
     state.questionnaire.copyright = payload;
   },
+  addIdentifier(state: StoreState, payload: Identifier) {
+    state.questionnaire.identifier.push(payload);
+  },
+  removeIdentifier(state: StoreState, index: number) {
+    state.questionnaire.identifier.splice(index, 1);
+  },
+  addExtension(state: StoreState, payload: Extension) {
+    state.questionnaire.extension.push(payload);
+  },
+  removeExtension(state: StoreState, index: number) {
+    state.questionnaire.extension.splice(index, 1);
+  },
+  addModifierExtension(state: StoreState, payload: Extension) {
+    state.questionnaire.modifierExtension.push(payload);
+  },
+  removeModifierExtension(state: StoreState, index: number) {
+    state.questionnaire.modifierExtension.splice(index, 1);
+  },
+  updateVersionAlgorithmCoding(
+    state: StoreState,
+    code: VersionAlgorithmCode | null,
+  ) {
+    if (code === null) {
+      state.questionnaire.versionAlgorithmCoding = undefined;
+    } else {
+      const coding = getVersionAlgorithmCoding(code);
+      state.questionnaire.versionAlgorithmCoding = coding;
+    }
+  },
+  updateVersionAlgorithmString(state: StoreState, str: string | number | null) {
+    if (str === null) {
+      state.questionnaire.versionAlgorithmString = undefined;
+    } else if (typeof str === "number") {
+      state.questionnaire.versionAlgorithmString = str.toString();
+    } else {
+      state.questionnaire.versionAlgorithmString = str;
+    }
+  },
+  addUseContext(state: StoreState, payload: UsageContext) {
+    state.questionnaire.useContext.push(payload);
+  },
+  removeUseContext(state: StoreState, index: number) {
+    state.questionnaire.useContext.splice(index, 1);
+  },
+  addProfile(state: StoreState, profile: string) {
+    state.questionnaire.meta.profile.push(profile);
+  },
+  removeProfileAt(state: StoreState, index: number) {
+    state.questionnaire.meta.profile.splice(index, 1);
+  },
+  clearProfileAt(state: StoreState, index: number) {
+    state.questionnaire.meta.profile[index] = "";
+  },
+  addSecurity(state: StoreState, security: Coding) {
+    state.questionnaire.meta.security.push(security);
+  },
+  removeSecurityAt(state: StoreState, index: number) {
+    state.questionnaire.meta.security.splice(index, 1);
+  },
+  addTag(state: StoreState, tag: Coding) {
+    state.questionnaire.meta.tag.push(tag);
+  },
+  removeTagAt(state: StoreState, index: number) {
+    state.questionnaire.meta.tag.splice(index, 1);
+  },
+  addEmptyDerivedFrom(state: StoreState) {
+    state.questionnaire.derivedFrom.push("");
+    const ext = questionnaireTools.getDerivedFromExtension(null);
+    state.questionnaire._derivedFrom.push(ext);
+  },
+  removeDerivedFrom(state: StoreState, index: number) {
+    state.questionnaire.derivedFrom.splice(index, 1);
+    state.questionnaire._derivedFrom.splice(index, 1);
+  },
+  addPatientSubjectType(state: StoreState) {
+    state.questionnaire.subjectType.push("Patient");
+  },
+  removeSubjectType(state: StoreState, index: number) {
+    state.questionnaire.subjectType.splice(index, 1);
+  },
+  addContactDetail(state: StoreState, payload: ContactDetail) {
+    state.questionnaire.contact.push(payload);
+  },
+  removeContactDetail(state: StoreState, index: number) {
+    state.questionnaire.contact.splice(index, 1);
+  },
+};
+
+const itemMutations = {
+  setText(state: StoreState, payload: string) {
+    state.selectedItem!.text = payload;
+  },
+  setPrefix(state: StoreState, payload: string) {
+    state.selectedItem!.prefix = payload;
+  },
+  setRepeats(state: StoreState, payload: boolean) {
+    state.selectedItem!.repeats = payload;
+  },
+  setRequired(state: StoreState, payload: boolean) {
+    state.selectedItem!.required = payload;
+  },
+  setReadOnly(state: StoreState, payload: boolean) {
+    state.selectedItem!.readOnly = payload;
+  },
 };
 
 const setQuestionnaireMutations = {
@@ -157,6 +282,7 @@ const setQuestionnaireMutations = {
     state.questionnaire = qre;
     state.questionnaireRepo = [qre];
     state.selectedItem = undefined;
+    state.currentTab = "editor";
   },
   setQuestionnaireBundle(state: StoreState, payload: Questionnaire[]): void {
     if (payload.length === 0) {
@@ -166,6 +292,7 @@ const setQuestionnaireMutations = {
     state.questionnaire = payload[0];
     state.questionnaireRepo = payload;
     state.selectedItem = undefined;
+    state.currentTab = "editor";
   },
   resetQuestionnaire(state: StoreState): void {
     const language = state.questionnaire.language || defaultLanguage;
@@ -245,12 +372,18 @@ export const store = createStore<StoreState>({
     selectedItem: undefined,
     questionnaireRepo: [],
     currentScreen: "init",
+    currentTab: "editor",
   },
   mutations: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    saveState(state: StoreState) {
+      // Calling a mutation persists state with VuexPersister.
+    },
     ...setQuestionnaireMutations,
     ...languageMutations,
-    ...metadataMutations,
+    ...primaryMutations,
     ...screenMutations,
+    ...itemMutations,
     refreshState(state): void {
       const currentQre = state.questionnaireRepo.find(
         (qre) => qre.language === state.questionnaire.language,

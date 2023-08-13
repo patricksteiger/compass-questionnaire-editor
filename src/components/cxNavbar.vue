@@ -13,32 +13,35 @@
     </q-toolbar-title>
     <q-toolbar-title v-else />
     <q-btn
+      v-if="inEditorScreen()"
       icon="upload_file"
       flat
       stack
       no-caps
-      v-if="inEditorScreen()"
       @click="importing"
-      >{{ $t("components.navigationBar.ImportJSONBtn") }}</q-btn
     >
+      {{ $t("components.navigationBar.ImportJSONBtn") }}
+    </q-btn>
     <q-btn
       v-if="inEditorScreen()"
-      icon="download_file"
+      icon="download"
       flat
       stack
       no-caps
       @click="validateExportQuestionnaire"
-      >{{ $t("components.navigationBar.ExportJSONBtn") }}</q-btn
     >
+      {{ $t("components.navigationBar.ExportJSONBtn") }}
+    </q-btn>
     <q-btn
       v-if="inEditorScreen()"
-      icon="download_file"
+      icon="download"
       flat
       stack
       no-caps
       @click="validateExportBundle"
-      >{{ $t("components.navigationBar.ExportBundleJSONBtn") }}</q-btn
     >
+      {{ $t("components.navigationBar.ExportBundleJSONBtn") }}
+    </q-btn>
     <q-btn
       v-if="inImportScreen()"
       icon="post_add"
@@ -46,8 +49,9 @@
       stack
       no-caps
       @click="createNewEmptyQRE"
-      >{{ $t("components.navigationBar.createNewQRE") }}</q-btn
     >
+      {{ $t("components.navigationBar.createNewQRE") }}
+    </q-btn>
   </q-toolbar>
 
   <!-- alert of leaving the screen -->

@@ -31,7 +31,7 @@
             <q-expansion-item expand-separator>
               <template v-slot:header>
                 <cxExpansionItemHeader
-                  icon="information"
+                  icon="info"
                   title="Meta"
                   :tooltip="$t('tutorial.meta')"
                 />
@@ -94,7 +94,7 @@
                               :rules="[questionnaireTools.isCanonicalOrEmpty]"
                               clearable
                               @clear="
-                                () => (questionnaire.meta.profile[index] = '')
+                                () => $store.commit('clearProfileAt', index)
                               "
                             >
                               <template v-slot:prepend>
@@ -107,9 +107,7 @@
                             icon="highlight_off"
                             color="grey-6"
                             @click="
-                              () => {
-                                questionnaire.meta.profile.splice(index, 1);
-                              }
+                              () => $store.commit('removeProfileAt', index)
                             "
                           />
                         </q-item>
@@ -120,7 +118,7 @@
                         padding="none xl"
                         color="primary"
                         fab
-                        @click="() => questionnaire.meta.profile.push('')"
+                        @click="() => $store.commit('addProfile', '')"
                       />
                     </q-expansion-item>
                   </q-list>
@@ -171,7 +169,7 @@
                             flat
                             color="grey-6"
                             @click="
-                              () => questionnaire.meta.security.splice(index, 1)
+                              () => $store.commit('removeSecurityAt', index)
                             "
                           />
                         </q-item>
@@ -182,7 +180,7 @@
                         padding="none xl"
                         color="primary"
                         fab
-                        @click="() => questionnaire.meta.security.push({})"
+                        @click="() => $store.commit('addSecurity', {})"
                       />
                     </q-expansion-item>
                   </q-list>
@@ -232,9 +230,7 @@
                             icon="highlight_off"
                             flat
                             color="grey-6"
-                            @click="
-                              () => questionnaire.meta.tag.splice(index, 1)
-                            "
+                            @click="() => $store.commit('removeTagAt', index)"
                           />
                         </q-item>
                       </q-list>
@@ -244,7 +240,7 @@
                         padding="none xl"
                         color="primary"
                         fab
-                        @click="() => questionnaire.meta.tag.push({})"
+                        @click="() => $store.commit('addTag', {})"
                       />
                     </q-expansion-item>
                   </q-list>
@@ -362,12 +358,7 @@
                   flat
                   icon="highlight_off"
                   color="grey-6"
-                  @click="
-                    () => {
-                      questionnaire!.derivedFrom.splice(index, 1);
-                      questionnaire!._derivedFrom.splice(index, 1);
-                    }
-                  "
+                  @click="() => $store.commit('removeDerivedFrom', index)"
                 />
               </q-item>
             </q-list>
@@ -377,14 +368,7 @@
               padding="none xl"
               color="primary"
               fab
-              @click="
-                () => {
-                  questionnaire!.derivedFrom.push('');
-                  questionnaire!._derivedFrom.push(
-                    getDerivedFromExtension(null),
-                  );
-                }
-              "
+              @click="() => $store.commit('addEmptyDerivedFrom')"
             />
           </q-expansion-item>
         </q-list>
@@ -432,7 +416,7 @@
                   flat
                   icon="highlight_off"
                   color="grey-6"
-                  @click="() => questionnaire!.subjectType.splice(index, 1)"
+                  @click="() => $store.commit('removeSubjectType', index)"
                 />
               </q-item>
             </q-list>
@@ -442,7 +426,7 @@
               padding="none xl"
               color="primary"
               fab
-              @click="() => questionnaire!.subjectType.push('Patient')"
+              @click="() => $store.commit('addPatientSubjectType')"
             />
           </q-expansion-item>
         </q-list>
@@ -620,7 +604,7 @@
                   flat
                   icon="highlight_off"
                   color="grey-6"
-                  @click="() => questionnaire.useContext.splice(index, 1)"
+                  @click="() => $store.commit('removeUseContext', index)"
                 />
               </q-item>
             </q-list>
@@ -817,7 +801,7 @@
                   flat
                   icon="highlight_off"
                   color="grey-6"
-                  @click="() => contact.splice(index, 1)"
+                  @click="() => $store.commit('removeContactDetail', index)"
                 />
               </q-item>
             </q-list>
@@ -827,7 +811,10 @@
               color="primary"
               fab
               label="ContactDetail"
-              @click="() => contact.push({ name: '', telecom: [] })"
+              @click="
+                () =>
+                  $store.commit('addContactDetail', { name: '', telecom: [] })
+              "
             />
           </q-expansion-item>
         </q-list>
@@ -983,7 +970,7 @@ export default defineComponent({
     },
     addNewToUseContext(type: UseContextType) {
       const usageContext = questionnaireTools.getUsageContextFrom(type);
-      this.questionnaire.useContext.push(usageContext);
+      this.$store.commit("addUseContext", usageContext);
     },
     unreachableCode(n: never) {
       throw new UnreachableError(n);

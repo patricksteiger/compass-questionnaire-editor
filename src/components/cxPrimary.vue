@@ -187,7 +187,7 @@
         <cxExtension
           :title="$t('views.editor.extensions')"
           v-if="questionnaire !== undefined"
-          :extensions="(questionnaire.extension ??= [])"
+          :extensions="questionnaire.extension"
           :predefinedExtensions="getQuestionnaireExtensions()"
           v-on:addExtension="addExtension"
           v-on:removeExtension="removeExtension"
@@ -208,14 +208,10 @@
 
       <!-- identifier -->
       <q-list padding bordered>
-        <q-expansion-item
-          icon="info"
-          :label="$t('components.navigationBar.metadataItems.identifier')"
-          v-model="expanded"
-        >
+        <q-expansion-item expand-separator v-model="expanded">
           <template v-slot:header>
             <cxExpansionItemHeader
-              icon="info"
+              icon="fingerprint"
               :title="$t('components.navigationBar.metadataItems.identifier')"
               :tooltip="$t('tutorial.identifier')"
             />
@@ -242,7 +238,7 @@
               padding
               class="rounded-borders"
               v-for="(id, index) in identifier"
-              :key="id.value"
+              :key="index"
             >
               <!-- Btn Remove Identifier -->
               <div class="row justify-end">
@@ -431,8 +427,8 @@ import {
 } from "@/types";
 import { getQuestionnaireExtensions } from "@/utils/extension";
 import cxExtension from "@/components/cxExtension.vue";
-import cxPeriod from "@/components/datatypes/cxPeriod.vue";
 import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
+import cxPeriod from "@/components/datatypes/cxPeriod.vue";
 import cxTooltip from "@/components/helper/cxTooltip.vue";
 import { dateTools } from "@/utils/date";
 import {
@@ -563,33 +559,22 @@ export default defineComponent({
   },
   methods: {
     updateVersionAlgorithmCoding(code: VersionAlgorithmCode | null): void {
-      if (code === null) {
-        this.questionnaire!.versionAlgorithmCoding = undefined;
-      } else {
-        const coding = getVersionAlgorithmCoding(code);
-        this.questionnaire!.versionAlgorithmCoding = coding;
-      }
+      this.$store.commit("updateVersionAlgorithmCoding", code);
     },
     updateVersionAlgorithmString(str: string | number | null): void {
-      if (str === null) {
-        this.questionnaire!.versionAlgorithmString = undefined;
-      } else if (typeof str === "number") {
-        this.questionnaire!.versionAlgorithmString = str.toString();
-      } else {
-        this.questionnaire!.versionAlgorithmString = str;
-      }
+      this.$store.commit("updateVersionAlgorithmString", str);
     },
     addExtension(extension: Extension): void {
-      this.questionnaire!.extension!.push(extension);
+      this.$store.commit("addExtension", extension);
     },
     removeExtension(index: number): void {
-      this.questionnaire!.extension!.splice(index, 1);
+      this.$store.commit("removeExtension", index);
     },
     addModifierExtension(extension: Extension): void {
-      this.questionnaire!.modifierExtension.push(extension);
+      this.$store.commit("addModifierExtension", extension);
     },
     removeModifierExtension(index: number): void {
-      this.questionnaire!.modifierExtension.splice(index, 1);
+      this.$store.commit("removeModifierExtension", index);
     },
     addEmptyId() {
       const newID: Identifier = {
@@ -610,11 +595,10 @@ export default defineComponent({
           text: "",
         },
       };
-      this.$store.state.questionnaire.identifier ??= [];
-      this.$store.state.questionnaire.identifier.push(newID);
+      this.$store.commit("addIdentifier", newID);
     },
     removeID(indexID: number) {
-      this.$store.state.questionnaire.identifier?.splice(indexID, 1);
+      this.$store.commit("removeIdentifier", indexID);
     },
   },
 });

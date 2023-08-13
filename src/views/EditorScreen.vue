@@ -80,15 +80,14 @@ import cxSecondary from "@/components/cxSecondary.vue";
 import cxValidationHub from "@/components/cxValidationHub.vue";
 import cxLanguageHub from "@/components/cxLanguageHub.vue";
 import cxTooltip from "@/components/helper/cxTooltip.vue";
-import { Language } from "@/store";
+import { Language, Tab } from "@/store";
 import { Questionnaire } from "@/types";
 import { questionnaireTools } from "@/utils/questionnaire";
 import { QuestionnaireReport } from "@/utils/validation/QuestionnaireValidator";
 import { Validator } from "@/utils/validation/Validator";
 import { defineComponent, ref } from "vue";
 import { mapGetters, mapMutations, useStore } from "vuex";
-
-type Tab = "editor" | "primary" | "secondary";
+import { UnreachableError } from "@/utils/editor";
 
 export default defineComponent({
   components: {
@@ -101,7 +100,7 @@ export default defineComponent({
   },
   setup() {
     const store = useStore();
-    const tab = ref<Tab>("editor");
+    const tab = ref<Tab>(store.state.currentTab);
     const validationResult = ref<QuestionnaireReport[]>([]);
     const language = ref<Language>(store.state.questionnaire.language);
     return {
@@ -125,13 +124,31 @@ export default defineComponent({
     ]),
   },
   watch: {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    tab(_newTab: Tab) {
+    tab(newTab: Tab) {
       this.language = this.getLanguage;
+      switch (newTab) {
+        case "editor":
+          this.switchToEditorTab();
+          break;
+        case "primary":
+          this.switchToPrimaryTab();
+          break;
+        case "secondary":
+          this.switchToSecondaryTab();
+          break;
+        default:
+          throw new UnreachableError(newTab);
+      }
     },
   },
   methods: {
-    ...mapMutations(["refreshState", "switchToEditorScreen"]),
+    ...mapMutations([
+      "refreshState",
+      "switchToEditorScreen",
+      "switchToEditorTab",
+      "switchToPrimaryTab",
+      "switchToSecondaryTab",
+    ]),
     validateState() {
       this.validationResult = Validator.check(this.getQuestionnaires);
       this.validationLayout = true;
@@ -142,12 +159,12 @@ export default defineComponent({
     },
     switchToPrimary(language: Language) {
       this.switchQuestionnaireAndLanguage(language);
-      this.tab = "primary";
+      this.switchToPrimaryTab();
       this.validationLayout = false;
     },
     switchToSecondary(language: Language) {
       this.switchQuestionnaireAndLanguage(language);
-      this.tab = "secondary";
+      this.switchToSecondaryTab();
       this.validationLayout = false;
     },
     switchToItemFromValidationHub(language: Language, internalId: string) {
@@ -158,7 +175,7 @@ export default defineComponent({
         internalId,
       );
       this.$store.commit("setSelectedItem", selectedItem);
-      this.tab = "editor";
+      this.switchToEditorTab();
       this.validationLayout = false;
     },
     deleteLanguage(): void {

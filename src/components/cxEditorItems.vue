@@ -267,7 +267,7 @@
               <!-- Question text -->
               <q-input
                 autogrow
-                v-model="selectedItem.text"
+                v-model="itemText"
                 class="col-10"
                 input-class="text-h5 text-bold"
                 :error="!selectedItem.text"
@@ -308,7 +308,7 @@
             >
               <!-- prefix -->
               <q-input
-                v-model="selectedItem.prefix"
+                v-model="itemPrefix"
                 label="Prefix"
                 dense
                 class="col-8"
@@ -410,6 +410,7 @@
                 label="Definition"
                 dense
                 class="col-8"
+                @blur="saveState"
               >
                 <cxTooltip :text="$t('tutorial.definition')" />
               </q-input>
@@ -425,6 +426,7 @@
                 type="number"
                 @keypress="onlyNumber"
                 v-model.number="selectedItem.maxLength"
+                @blur="saveState"
               >
                 <cxTooltip :text="$t('tutorial.maxLength')" />
               </q-input>
@@ -446,6 +448,12 @@
                     : $t('views.editor.AnswerValueSet'))
                 "
                 v-model="selectedItem.__answerValueSetCheck"
+                @update:model-value="
+                  (value, _e) => {
+                    selectedItem!.__answerValueSetCheck = value;
+                    saveState();
+                  }
+                "
               >
                 <cxTooltip :text="$t('tutorial.answerChoiceToggle')" />
               </q-toggle>
@@ -459,6 +467,12 @@
             >
               <q-select
                 v-model="selectedItem.answerConstraint"
+                @update:model-value="
+                  (value) => {
+                    selectedItem!.answerConstraint = value;
+                    saveState();
+                  }
+                "
                 label="AnswerConstraint"
                 :options="answerConstraints"
                 clearable
@@ -492,6 +506,7 @@
                   dense
                   v-model="selectedItem.answerValueSet"
                   :rules="[questionnaireTools.isCanonicalOrEmpty]"
+                  @blur="saveState"
                 >
                   <cxTooltip :text="$t('tutorial.answerValueSet')" />
                 </q-input>
@@ -511,7 +526,7 @@
               <q-expansion-item expand-separator>
                 <template v-slot:header>
                   <cxExpansionItemHeader
-                    icon="question_answer"
+                    icon="list"
                     :title="$t('views.editor.answers')"
                     :tooltip="$t('tutorial.answerOption')"
                   />
@@ -1172,8 +1187,9 @@
                 </q-btn>
                 <!-- enableWhen behavior -->
                 <q-select
-                  class="col-2"
+                  class="col-4"
                   v-model="selectedItem.enableBehavior"
+                  @update:model-value="(_value) => saveState()"
                   label="EnableBehavior"
                   :options="enableBehaviors"
                   :clearable="selectedItem.enableWhen.length <= 1"
@@ -1188,6 +1204,7 @@
                 <q-toggle
                   class="col-6"
                   v-model="selectedItem.disabledDisplay"
+                  @update:model-value="saveState"
                   :label="
                     selectedItem.disabledDisplay !== null
                       ? `DisabledDisplay: ${selectedItem.disabledDisplay}`
@@ -1208,7 +1225,7 @@
               <q-expansion-item expand-separator>
                 <template v-slot:header>
                   <cxExpansionItemHeader
-                    icon="account_tree"
+                    icon="visibility"
                     :title="$t('views.editor.enableWhen')"
                     :tooltip="$t('tutorial.enableWhen')"
                   />
@@ -1251,6 +1268,7 @@
                             v-model="enableWhen.question"
                             @click="onShowQuestionsItems(enableWhen)"
                             :rules="[validItemId]"
+                            @blur="saveState"
                           >
                           </q-input>
                           <q-select
@@ -1261,6 +1279,7 @@
                             :label="$t('views.editor.operator')"
                             dense
                             :rules="[validOperator]"
+                            @blur="saveState"
                           />
                           <!-- enableWhen exists/boolean -->
                           <q-select
@@ -1499,13 +1518,13 @@
             <q-list v-if="selectedItem !== undefined" padding bordered>
               <cxExtension
                 :title="$t('views.editor.extensions')"
-                :extensions="(selectedItem.extension ??= [])"
+                :extensions="selectedItem.extension"
                 :predefinedExtensions="getItemExtensions(selectedItem)"
                 v-on:addExtension="addExtension"
                 v-on:removeExtension="removeExtension"
               />
             </q-list>
-            <!-- modifierExtension -->
+            <!-- modifierExtension component -->
             <q-list v-if="selectedItem !== undefined" padding bordered>
               <cxExtension
                 title="ModifierExtension"
@@ -2719,7 +2738,7 @@ import { computed, defineComponent, ref } from "vue";
 import { editorTools, UnreachableError } from "@/utils/editor";
 import { dateTools } from "@/utils/date";
 import { questionnaireTools } from "@/utils/questionnaire";
-import { mapGetters, useStore } from "vuex";
+import { mapGetters, mapMutations, useStore } from "vuex";
 import cxEnableWhen from "@/components/cxEnableWhen.vue";
 import cxExtension from "@/components/cxExtension.vue";
 import cxInitial from "@/components/cxInitial.vue";
@@ -2858,6 +2877,7 @@ export default defineComponent({
     };
   },
   methods: {
+    ...mapMutations(["saveState"]),
     changeLinkId(item: Item): void {
       this.newLinkId = item.linkId;
       this.addLinkIdLayout = true;
@@ -2877,6 +2897,7 @@ export default defineComponent({
         this.updateEnableWhen(qre, item.linkId, newLinkId);
         item.linkId = newLinkId;
       }
+      this.saveState();
       this.addLinkIdLayout = false;
     },
     updateEnableWhen(
@@ -2929,6 +2950,7 @@ export default defineComponent({
           e.question = otherItem.linkId;
         }
       }
+      this.saveState();
       this.swapLinkIdLayout = false;
     },
     addItemWithLinkId(linkId: string, type: ItemType): void {
@@ -2938,6 +2960,7 @@ export default defineComponent({
         return;
       }
       this.onAddQuestion(linkId, type);
+      this.saveState();
       this.newLinkIdLayout = false;
     },
     addItemWithType(type: ItemType): void {
@@ -3301,22 +3324,28 @@ export default defineComponent({
       this.editorTools.onlyInteger($event);
     },
     addExtension(e: Extension): void {
-      this.selectedItem!.extension!.push(e);
+      this.selectedItem!.extension.push(e);
+      this.saveState();
     },
     removeExtension(index: number): void {
-      this.selectedItem!.extension!.splice(index, 1);
+      this.selectedItem!.extension.splice(index, 1);
+      this.saveState();
     },
     addModifierExtension(e: Extension): void {
       this.selectedItem!.modifierExtension.push(e);
+      this.saveState();
     },
     removeModifierExtension(index: number): void {
       this.selectedItem!.modifierExtension.splice(index, 1);
+      this.saveState();
     },
     addInitial(e: Initial): void {
       this.selectedItem!.initial.push(e);
+      this.saveState();
     },
     removeInitial(index: number): void {
       this.selectedItem!.initial.splice(index, 1);
+      this.saveState();
     },
     // Called for answers from answerOption-item
     onEnableWhenWithAnswerOption(e: AnswerOption): void {
@@ -3410,12 +3439,14 @@ export default defineComponent({
       if (this.selectedItem.enableWhen.length > 1) {
         this.selectedItem.enableBehavior ??= "any";
       }
+      this.saveState();
     },
     onRemoveCondition(index: number): void {
       if (this.selectedItem === undefined) {
         throw new Error("Remove can't be used with no conditions!");
       }
       this.selectedItem.enableWhen.splice(index, 1);
+      this.saveState();
     },
     onShowQuestionsItems(enableWhen: EnableWhen): void {
       this.enableWhenItem = enableWhen;
@@ -3564,6 +3595,7 @@ export default defineComponent({
       }
 
       this.editorTools.regenerateInternalLinkIDs(questionnaire);
+      this.saveState();
     },
     toggleItem(currentNode: Item) {
       if (!currentNode.__active) {
@@ -3590,6 +3622,7 @@ export default defineComponent({
       }
       const toggle = currentNode.__active;
       this.editorTools.toggleEntireItem(currentNode, toggle);
+      this.saveState();
     },
     isCondition(internalId: string): boolean {
       const item = this.questionnaireTools.getItemByInternalId(
@@ -3658,6 +3691,7 @@ export default defineComponent({
         return;
       }
       this.addAnswerOption(answerOption);
+      this.saveState();
     },
     addAnswerOption(e: AnswerOptionButton): void {
       if (this.selectedItem === undefined) {
@@ -3732,6 +3766,7 @@ export default defineComponent({
         return;
       }
       this.selectedItem.answerOption.splice(indexOfItemtoBeRemoved, 1);
+      this.saveState();
     },
     deleteItem(internalID: string) {
       const answer = confirm(i18n.global.t("views.editor.deleteItemDialogue"));
@@ -3812,6 +3847,26 @@ export default defineComponent({
       "getQuestionnaires",
       "getUsedLanguages",
     ]),
+    itemText: {
+      get(): string {
+        return this.selectedItem?.text ?? "";
+      },
+      set(val: string): void {
+        if (this.selectedItem !== undefined) {
+          this.$store.commit("setText", val);
+        }
+      },
+    },
+    itemPrefix: {
+      get(): string {
+        return this.selectedItem?.prefix ?? "";
+      },
+      set(val: string): void {
+        if (this.selectedItem !== undefined) {
+          this.$store.commit("setPrefix", val);
+        }
+      },
+    },
     requiredItem: {
       get(): boolean | null {
         if (this.selectedItem === undefined) {
@@ -3824,10 +3879,9 @@ export default defineComponent({
         return this.selectedItem.required;
       },
       set(val: boolean): void {
-        if (this.selectedItem === undefined) {
-          return;
+        if (this.selectedItem !== undefined) {
+          this.$store.commit("setRequired", val);
         }
-        this.selectedItem.required = val;
       },
     },
     repeatedItem: {
@@ -3842,10 +3896,26 @@ export default defineComponent({
         return this.selectedItem.repeats;
       },
       set(val: boolean): void {
-        if (this.selectedItem === undefined) {
-          return;
+        if (this.selectedItem !== undefined) {
+          this.$store.commit("setRepeats", val);
         }
-        this.selectedItem.repeats = val;
+      },
+    },
+    readOnlyItem: {
+      get(): boolean | null {
+        if (this.selectedItem === undefined) {
+          return null;
+        }
+        if (this.selectedItem.readOnly === undefined) {
+          console.error("Required should not be undefined.");
+          return false;
+        }
+        return this.selectedItem.readOnly;
+      },
+      set(val: boolean): void {
+        if (this.selectedItem !== undefined) {
+          this.$store.commit("setReadOnly", val);
+        }
       },
     },
   },
