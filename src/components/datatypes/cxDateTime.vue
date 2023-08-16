@@ -19,7 +19,7 @@
     <template v-slot:prepend>
       <q-icon name="event" class="cursor-pointer">
         <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-          <div>Value: {{ getCurrentDateTime() }}</div>
+          <div>Value preview: {{ getCurrentDateTime() }}</div>
           <div class="row">
             <cxDate
               inputClass="col-8"

@@ -1,41 +1,23 @@
 <template>
   <div class="row justify-between">
-    <q-input
+    <cxDateTime
+      inputClass="col-5"
       label="Start"
-      class="col-5"
-      dense
-      clearable
-      v-model="periodValue.start"
-      @update:model-value="$store.commit('saveState')"
-      :rules="[dateTools.isDateTimeOrEmpty]"
-    />
-    <q-btn
-      label="Now"
-      flat
-      dense
-      @click="
-        () => {
-          periodValue.start = dateTools.getCurrentDateTime();
+      :value="(period.start ??= '')"
+      v-on:update="
+        (value) => {
+          period.start = value;
           $store.commit('saveState');
         }
       "
     />
-    <q-input
+    <cxDateTime
+      inputClass="col-5"
       label="End"
-      class="col-5"
-      dense
-      clearable
-      v-model="periodValue.end"
-      @update:model-value="$store.commit('saveState')"
-      :rules="[dateTools.isDateTimeOrEmpty]"
-    />
-    <q-btn
-      label="Now"
-      flat
-      dense
-      @click="
-        () => {
-          periodValue.end = dateTools.getCurrentDateTime();
+      :value="(period.end ??= '')"
+      v-on:update="
+        (value) => {
+          period.end = value;
           $store.commit('saveState');
         }
       "
@@ -45,12 +27,12 @@
 
 <script setup lang="ts">
 import { Period } from "@/types";
-import { dateTools } from "@/utils/date";
-import { toRef } from "vue";
+import { toRefs } from "vue";
+import cxDateTime from "@/components/datatypes/cxDateTime.vue";
 
 const props = defineProps<{
   period: Period;
 }>();
 
-const periodValue = toRef(props, "period");
+const { period } = toRefs(props);
 </script>

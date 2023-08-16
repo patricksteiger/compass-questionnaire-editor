@@ -52,32 +52,45 @@
                 @keypress="onlyNumber"
                 v-model.number="extension.valueInteger"
               />
-              <q-input
-                v-else-if="extension.__type === 'date'"
-                :label="getExtensionLabel(extension)"
-                dense
-                type="text"
-                :rules="[dateTools.isDate]"
-                v-model="extension.valueDate"
-              />
-              <q-input
-                v-else-if="extension.__type === 'dateTime'"
-                :label="getExtensionLabel(extension)"
-                dense
-                type="text"
-                :rules="[dateTools.isDateTime]"
-                v-model="extension.valueDateTime"
-              />
-              <q-input
-                v-else-if="extension.__type === 'time'"
-                :label="getExtensionLabel(extension)"
-                dense
-                type="text"
-                mask="fulltime"
-                fill-mask
-                :rules="[dateTools.isTime]"
-                v-model="extension.valueTime"
-              />
+              <div v-else-if="extension.__type === 'date'" class="row">
+                <cxDate
+                  inputClass=""
+                  :label="getExtensionLabel(extension)"
+                  :value="extension.valueDate"
+                  v-on:update="
+                    (value) => {
+                      extension.valueDate = value;
+                      saveState();
+                    }
+                  "
+                />
+              </div>
+              <div v-else-if="extension.__type === 'dateTime'" class="row">
+                <cxDateTime
+                  inputClass="col-6"
+                  :label="getExtensionLabel(extension)"
+                  :value="extension.valueDateTime"
+                  v-on:update="
+                    (value) => {
+                      extension.valueDateTime = value;
+                      saveState();
+                    }
+                  "
+                />
+              </div>
+              <div v-else-if="extension.__type === 'time'" class="row">
+                <cxTime
+                  inputClass=""
+                  :label="getExtensionLabel(extension)"
+                  :value="extension.valueTime"
+                  v-on:update="
+                    (value) => {
+                      extension.valueTime = value;
+                      saveState();
+                    }
+                  "
+                />
+              </div>
               <q-input
                 v-else-if="extension.__type === 'string'"
                 :label="getExtensionLabel(extension)"
@@ -363,10 +376,14 @@ import { editorTools } from "../utils/editor";
 import { extensionTypes, Extension, ExtensionType } from "@/types";
 import { HIDDEN_EXTENSION_URL, PredefinedExtension } from "@/utils/extension";
 import { dateTools } from "@/utils/date";
+import cxDate from "@/components/datatypes/cxDate.vue";
+import cxDateTime from "@/components/datatypes/cxDateTime.vue";
+import cxTime from "@/components/datatypes/cxTime.vue";
 import cxComplexExtension from "@/components/cxComplexExtension.vue";
 import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
 import cxTooltip from "@/components/helper/cxTooltip.vue";
 import { itemTools } from "@/utils/item";
+import { useStore } from "vuex";
 
 const props = defineProps<{
   title: string;
@@ -433,5 +450,10 @@ function onlyNumber(event: KeyboardEvent): void {
 
 function getExtensionLabel(extension: Extension): string {
   return extension.__type.toUpperCase();
+}
+
+const store = useStore();
+function saveState() {
+  store.commit("saveState");
 }
 </script>
