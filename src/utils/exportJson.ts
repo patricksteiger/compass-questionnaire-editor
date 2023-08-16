@@ -459,19 +459,19 @@ function filterEffectivePeriod(qre: Questionnaire) {
 
 function filterDate(qre: Questionnaire) {
   if (dateTools.isDateTime(qre.date) !== true) {
-    delete qre.date;
+    delete (qre as Partial<Questionnaire>).date;
   }
 }
 
 function filterApprovalDate(qre: Questionnaire) {
   if (dateTools.isDate(qre.approvalDate) !== true) {
-    delete qre.approvalDate;
+    delete (qre as Partial<Questionnaire>).approvalDate;
   }
 }
 
 function filterLastReviewDate(qre: Questionnaire) {
   if (dateTools.isDate(qre.lastReviewDate) !== true) {
-    delete qre.lastReviewDate;
+    delete (qre as Partial<Questionnaire>).lastReviewDate;
   }
 }
 

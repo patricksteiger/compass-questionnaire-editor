@@ -93,57 +93,43 @@
 
       <q-list class="q-mt-md" padding bordered>
         <div class="row">
-          <q-input
-            type="text"
-            class="col-8"
-            dense
-            v-model="date"
+          <cxDateTime
+            inputClass="col-8"
             :label="$t('components.navigationBar.metadataItems.date')"
-            :rules="[dateTools.isDateTimeOrEmpty]"
-            clearable
-            :clear="() => (date = '')"
-          >
-            <cxTooltip :text="$t('tutorial.date')" />
-          </q-input>
-          <q-btn
-            label="Now"
-            flat
-            dense
-            @click="() => (date = dateTools.getCurrentDateTime())"
+            v-on:update="updateDate"
+            :value="date"
           />
+          <!-- <q-input -->
+          <!--   type="text" -->
+          <!--   class="col-8" -->
+          <!--   dense -->
+          <!--   v-model="date" -->
+          <!--   :label="$t('components.navigationBar.metadataItems.date')" -->
+          <!--   :rules="[dateTools.isDateTimeOrEmpty]" -->
+          <!--   clearable -->
+          <!--   :clear="() => (date = '')" -->
+          <!-- > -->
+          <!--   <cxTooltip :text="$t('tutorial.date')" /> -->
+          <!-- </q-input> -->
+          <!-- <q-btn -->
+          <!--   label="Now" -->
+          <!--   flat -->
+          <!--   dense -->
+          <!--   @click="() => (date = dateTools.getCurrentDateTime())" -->
+          <!-- /> -->
         </div>
         <div class="row justify-between">
-          <q-input
-            class="col-4"
-            type="text"
-            dense
-            v-model="approvalDate"
+          <cxDate
+            inputClass="col-4"
             :label="$t('components.navigationBar.metadataItems.approvalDate')"
-            :rules="[dateTools.isDateOrEmpty]"
-            clearable
-            :clear="() => (approvalDate = '')"
+            :value="approvalDate"
+            v-on:update="(value) => (approvalDate = value)"
           />
-          <q-btn
-            label="Today"
-            flat
-            dense
-            @click="() => (approvalDate = dateTools.getCurrentDate())"
-          />
-          <q-input
-            type="text"
-            dense
-            class="col-4"
-            v-model="lastReviewDate"
+          <cxDate
+            inputClass="col-4"
             :label="$t('components.navigationBar.metadataItems.lastReviewDate')"
-            :rules="[dateTools.isDateOrEmpty]"
-            clearable
-            :clear="() => (lastReviewDate = '')"
-          />
-          <q-btn
-            label="Today"
-            flat
-            dense
-            @click="() => (lastReviewDate = dateTools.getCurrentDate())"
+            :value="lastReviewDate"
+            v-on:update="(value) => (lastReviewDate = value)"
           />
         </div>
         <q-separator />
@@ -429,6 +415,8 @@ import { getQuestionnaireExtensions } from "@/utils/extension";
 import cxExtension from "@/components/cxExtension.vue";
 import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
 import cxPeriod from "@/components/datatypes/cxPeriod.vue";
+import cxDate from "@/components/datatypes/cxDate.vue";
+import cxDateTime from "@/components/datatypes/cxDateTime.vue";
 import cxTooltip from "@/components/helper/cxTooltip.vue";
 import { dateTools } from "@/utils/date";
 import {
@@ -443,6 +431,8 @@ export default defineComponent({
   components: {
     cxExtension,
     cxPeriod,
+    cxDate,
+    cxDateTime,
     cxExpansionItemHeader,
     cxTooltip,
   },
@@ -558,6 +548,9 @@ export default defineComponent({
     },
   },
   methods: {
+    updateDate(value: string) {
+      this.date = value;
+    },
     updateVersionAlgorithmCoding(code: VersionAlgorithmCode | null): void {
       this.$store.commit("updateVersionAlgorithmCoding", code);
     },

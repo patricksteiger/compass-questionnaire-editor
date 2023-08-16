@@ -195,19 +195,13 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  // eslint-disable-next-line no-unused-vars
   (e: "switchLanguageFromValidationHub", language: Language): void;
   (
-    // eslint-disable-next-line no-unused-vars
     e: "switchToItemFromValidationHub",
-    // eslint-disable-next-line no-unused-vars
     language: Language,
-    // eslint-disable-next-line no-unused-vars
     internalId: string,
   ): void;
-  // eslint-disable-next-line no-unused-vars
   (e: "switchToPrimary", lang: Language): void;
-  // eslint-disable-next-line no-unused-vars
   (e: "switchToSecondary", lang: Language): void;
 }>();
 

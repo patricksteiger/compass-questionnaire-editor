@@ -478,7 +478,7 @@ export type Questionnaire = {
   status: Status;
   experimental: boolean;
   subjectType: ResourceType[];
-  date?: string;
+  date: string;
   publisher?: string;
   description?: string;
   contact: ContactDetail[];
@@ -486,8 +486,8 @@ export type Questionnaire = {
   useContext: UsageContext[];
   copyright?: string;
   copyrightLabel?: string;
-  approvalDate?: string;
-  lastReviewDate?: string;
+  approvalDate: string;
+  lastReviewDate: string;
   effectivePeriod: Period;
   code: Coding[];
   extension: Extension[];

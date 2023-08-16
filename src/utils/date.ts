@@ -6,6 +6,9 @@ const DATE_REGEXP =
 // Source: https://www.hl7.org/fhir/datatypes.html#dateTime
 const DATE_TIME_REGEXP =
   /([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?/g;
+// Source: https://www.hl7.org/fhir/datatypes.html#dateTime
+const DATE_TIMEZONE_OFFSET_REGEXP =
+  /(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))/g;
 // Source: https://www.hl7.org/fhir/datatypes.html#time
 const TIME_REGEXP = /([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?/g;
 // Source: https://www.hl7.org/fhir/datatypes.html#instant
@@ -42,6 +45,22 @@ class DateTools {
       !s ||
       matches(DATE_TIME_REGEXP, s) ||
       "value doesn't match YYYY, YYYY-MM, YYYY-MM-DD or YYYY-MM-DDThh:mm:ss+zz:zz"
+    );
+  }
+
+  isTimezoneOffset(s: string | undefined | null): true | string {
+    if (!s) return "dateTimezoneOffset has to be non-empty";
+    return (
+      matches(DATE_TIMEZONE_OFFSET_REGEXP, s) ||
+      "value doesn't match examples Z, +02:00, or -01:30"
+    );
+  }
+
+  isTimezoneOffsetOrEmpty(s: string | undefined | null): true | string {
+    if (!s) return true;
+    return (
+      matches(DATE_TIMEZONE_OFFSET_REGEXP, s) ||
+      "value doesn't match examples Z, +02:00, or -01:30"
     );
   }
 
@@ -94,8 +113,14 @@ class DateTools {
     const hour = this.padClock(now.getHours());
     const minute = this.padClock(now.getMinutes());
     const second = this.padClock(now.getSeconds());
-    const offset = this.getTimezoneOffset(now.getTimezoneOffset());
+    const offset = this.getTimezoneOffset(now);
     return `${year}-${month}-${day}T${hour}:${minute}:${second}${offset}`;
+  }
+
+  getDateTime(date: string, time: string): string {
+    const now = new Date();
+    const offset = this.getTimezoneOffset(now);
+    return `${date}T${time}${offset}`;
   }
 
   getInstant(): string {
@@ -106,11 +131,12 @@ class DateTools {
     const hour = this.padClock(now.getHours());
     const minute = this.padClock(now.getMinutes());
     const second = this.padClock(now.getSeconds());
-    const offset = this.getTimezoneOffset(now.getTimezoneOffset());
+    const offset = this.getTimezoneOffset(now);
     return `${year}-${month}-${day}T${hour}:${minute}:${second}${offset}`;
   }
 
-  private getTimezoneOffset(offset: number): string {
+  getTimezoneOffset(date: Date): string {
+    const offset = date.getTimezoneOffset();
     const sign = offset > 0 ? "-" : "+";
     const minutes = 60;
     const absOffset = Math.abs(offset);
