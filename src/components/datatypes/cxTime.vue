@@ -7,8 +7,9 @@
     v-model="time"
     :label="label"
     :rules="[dateTools.isTimeOrEmpty]"
+    @focus="timePicker = time"
     clearable
-    @clear="() => (time = '')"
+    @clear="time = ''"
   >
     <cxTooltip v-if="inputTooltip !== undefined" :text="inputTooltip" />
     <template v-slot:prepend>
@@ -30,12 +31,7 @@
       </q-icon>
     </template>
   </q-input>
-  <q-btn
-    label="Now"
-    flat
-    dense
-    @click="() => (time = dateTools.getCurrentTime())"
-  />
+  <q-btn label="Now" flat dense @click="time = dateTools.getCurrentTime()" />
 </template>
 
 <script setup lang="ts">

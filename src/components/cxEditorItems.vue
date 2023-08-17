@@ -1913,16 +1913,20 @@
               "
             >
               <div><h6>Custom date</h6></div>
-              <q-input
-                label="Date"
-                class="col-4"
-                v-model="chosenEnableWhen.answerDate"
-                type="text"
-                :rules="[dateTools.isDate]"
-                dense
-              >
-                <cxTooltip :text="$t('tutorial.valid.date')" />
-              </q-input>
+              <div class="row">
+                <cxDate
+                  inputClass="col-6"
+                  label="Date"
+                  :inputTooltip="$t('tutorial.valid.date')"
+                  :value="(chosenEnableWhen.answerDate ??= '')"
+                  v-on:update="
+                    (value) => {
+                      chosenEnableWhen!.answerDate = value;
+                      saveState();
+                    }
+                  "
+                />
+              </div>
               <div>
                 <q-btn icon="add" @click="setDateAnswer(chosenEnableWhen)" />
               </div>
@@ -1979,16 +1983,20 @@
               "
             >
               <div><h6>Custom dateTime</h6></div>
-              <q-input
-                label="DateTime"
-                class="col-4"
-                v-model="chosenEnableWhen.answerDateTime"
-                type="text"
-                :rules="[dateTools.isDateTime]"
-                dense
-              >
-                <cxTooltip :text="$t('tutorial.valid.dateTime')" />
-              </q-input>
+              <div class="row">
+                <cxDateTime
+                  inputClass="col-8"
+                  :inputTooltip="$t('tutorial.valid.dateTime')"
+                  label="DateTime"
+                  :value="(chosenEnableWhen.answerDateTime ??= '')"
+                  v-on:update="
+                    (value) => {
+                      chosenEnableWhen!.answerDateTime = value;
+                      saveState();
+                    }
+                  "
+                />
+              </div>
               <div>
                 <q-btn
                   icon="add"
@@ -2047,16 +2055,19 @@
               "
             >
               <div><h6>Custom time</h6></div>
-              <q-input
-                label="Time"
-                class="col-4"
-                v-model="chosenEnableWhen.answerTime"
-                type="text"
-                mask="fulltime"
-                fill-mask
-                :rules="[dateTools.isTime]"
-                dense
-              />
+              <div class="row">
+                <cxTime
+                  inputClass="col-6"
+                  label="Time"
+                  :value="(chosenEnableWhen.answerTime ??= '')"
+                  v-on:update="
+                    (value) => {
+                      chosenEnableWhen!.answerTime = value;
+                      saveState();
+                    }
+                  "
+                />
+              </div>
               <div>
                 <q-btn icon="add" @click="setTimeAnswer(chosenEnableWhen)" />
               </div>

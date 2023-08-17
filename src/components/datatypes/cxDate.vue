@@ -7,8 +7,9 @@
     v-model="date"
     :label="label"
     :rules="[dateTools.isDateOrEmpty]"
+    @focus="datePicker = date"
     clearable
-    @clear="() => (date = '')"
+    @clear="date = ''"
   >
     <cxTooltip v-if="inputTooltip !== undefined" :text="inputTooltip" />
     <template v-slot:prepend>
@@ -30,12 +31,7 @@
       </q-icon>
     </template>
   </q-input>
-  <q-btn
-    label="Today"
-    flat
-    dense
-    @click="() => (date = dateTools.getCurrentDate())"
-  />
+  <q-btn label="Today" flat dense @click="date = dateTools.getCurrentDate()" />
 </template>
 
 <script setup lang="ts">
