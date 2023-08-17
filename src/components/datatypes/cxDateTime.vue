@@ -1,4 +1,5 @@
 <template>
+  <slot name="prepend"></slot>
   <q-input
     :class="inputClass"
     type="text"
@@ -16,6 +17,7 @@
     "
     @clear="dateTime = ''"
   >
+    <cxTooltip v-if="inputTooltip !== undefined" :text="inputTooltip" />
     <template v-slot:prepend>
       <q-icon name="event" class="cursor-pointer">
         <q-popup-proxy cover transition-show="scale" transition-hide="scale">
@@ -73,9 +75,11 @@ import { ref, toRef, watch } from "vue";
 import { dateTools } from "@/utils/date";
 import cxDate from "@/components/datatypes/cxDate.vue";
 import cxTime from "@/components/datatypes/cxTime.vue";
+import cxTooltip from "@/components/helper/cxTooltip.vue";
 
 const props = defineProps<{
   inputClass: string;
+  inputTooltip?: string;
   label: string;
   value: string;
 }>();

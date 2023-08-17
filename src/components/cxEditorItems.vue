@@ -725,12 +725,9 @@
                               class="row"
                               v-else-if="answerOption.__type === 'date'"
                             >
-                              <q-input
-                                stack-label
-                                class="col-12"
-                                v-model="answerOption.valueDate"
-                                :rules="[dateTools.isDate]"
-                                :disable="!selectedItem.__active"
+                              <cxDate
+                                inputClass="col-8"
+                                :inputTooltip="$t('tutorial.valid.date')"
                                 :label="
                                   answerOption.valueDate !==
                                     answerOption.__oldValueDate &&
@@ -740,8 +737,14 @@
                                       }`
                                     : answerOption.__type
                                 "
+                                :value="(answerOption.valueDate ??= '')"
+                                v-on:update="
+                                  (value) => {
+                                    answerOption.valueDate = value;
+                                    saveState();
+                                  }
+                                "
                               >
-                                <cxTooltip :text="$t('tutorial.valid.date')" />
                                 <template v-slot:prepend>
                                   <div>
                                     <q-checkbox
@@ -775,19 +778,23 @@
                                     :text="$t('components.reverseAnswer')"
                                   />
                                 </div>
-                              </q-input>
+                              </cxDate>
                             </div>
                             <!-- answerOption dateTime -->
                             <div
                               class="row"
                               v-else-if="answerOption.__type === 'dateTime'"
                             >
-                              <q-input
-                                stack-label
-                                class="col-12"
-                                v-model="answerOption.valueDateTime"
-                                :disable="!selectedItem.__active"
-                                :rules="[dateTools.isDateTime]"
+                              <cxDateTime
+                                inputClass="col-8"
+                                :inputTooltip="$t('tutorial.valid.dateTime')"
+                                :value="(answerOption.valueDateTime ??= '')"
+                                v-on:update="
+                                  (value) => {
+                                    answerOption.valueDateTime = value;
+                                    saveState();
+                                  }
+                                "
                                 :label="
                                   answerOption.valueDateTime !==
                                     answerOption.__oldValueDateTime &&
@@ -798,9 +805,6 @@
                                     : answerOption.__type
                                 "
                               >
-                                <cxTooltip
-                                  :text="$t('tutorial.valid.dateTime')"
-                                />
                                 <template v-slot:prepend>
                                   <div>
                                     <q-checkbox
@@ -834,21 +838,15 @@
                                     :text="$t('components.reverseAnswer')"
                                   />
                                 </div>
-                              </q-input>
+                              </cxDateTime>
                             </div>
                             <!-- answerOption time -->
                             <div
                               class="row"
                               v-else-if="answerOption.__type === 'time'"
                             >
-                              <q-input
-                                class="col-12"
-                                autogrow
-                                v-model="answerOption.valueTime"
-                                :disable="!selectedItem.__active"
-                                mask="fulltime"
-                                fill-mask
-                                :rules="[dateTools.isTime]"
+                              <cxTime
+                                inputClass="col-8"
                                 :label="
                                   answerOption.valueTime !==
                                     answerOption.__oldValueTime &&
@@ -857,6 +855,13 @@
                                         answerOption.__oldValueTime
                                       }`
                                     : answerOption.__type
+                                "
+                                :value="(answerOption.valueTime ??= '')"
+                                v-on:update="
+                                  (value) => {
+                                    answerOption.valueTime = value;
+                                    saveState();
+                                  }
                                 "
                               >
                                 <template v-slot:prepend>
@@ -891,7 +896,7 @@
                                     :text="$t('components.reverseAnswer')"
                                   />
                                 </q-btn>
-                              </q-input>
+                              </cxTime>
                             </div>
                             <!-- answerOption string and text -->
                             <div
@@ -2743,6 +2748,9 @@ import cxEnableWhen from "@/components/cxEnableWhen.vue";
 import cxExtension from "@/components/cxExtension.vue";
 import cxInitial from "@/components/cxInitial.vue";
 import cxCode from "@/components/cxCode.vue";
+import cxDate from "@/components/datatypes/cxDate.vue";
+import cxDateTime from "@/components/datatypes/cxDateTime.vue";
+import cxTime from "@/components/datatypes/cxTime.vue";
 import cxAttachment from "@/components/datatypes/cxAttachment.vue";
 import cxValidationHub from "@/components/cxValidationHub.vue";
 import cxLanguageHub from "@/components/cxLanguageHub.vue";
@@ -2775,6 +2783,9 @@ export default defineComponent({
     cxExtension,
     cxInitial,
     cxCode,
+    cxDate,
+    cxDateTime,
+    cxTime,
     cxAttachment,
     cxLanguageHub,
     cxValidationHub,

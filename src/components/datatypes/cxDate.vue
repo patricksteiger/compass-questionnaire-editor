@@ -1,4 +1,5 @@
 <template>
+  <slot name="prepend"></slot>
   <q-input
     :class="inputClass"
     type="text"
@@ -9,6 +10,7 @@
     clearable
     @clear="() => (date = '')"
   >
+    <cxTooltip v-if="inputTooltip !== undefined" :text="inputTooltip" />
     <template v-slot:prepend>
       <q-icon name="calendar_month" class="cursor-pointer">
         <q-popup-proxy cover transition-show="scale" transition-hide="scale">
@@ -39,9 +41,11 @@
 <script setup lang="ts">
 import { ref, toRef, watch } from "vue";
 import { dateTools } from "@/utils/date";
+import cxTooltip from "@/components/helper/cxTooltip.vue";
 
 const props = defineProps<{
   inputClass: string;
+  inputTooltip?: string;
   label: string;
   value: string;
 }>();
