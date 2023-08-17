@@ -65,66 +65,61 @@
                 </q-input>
               </div>
               <div class="row" v-else-if="initial.__type === 'date'">
-                <q-input
+                <cxDate
+                  inputClass="col-6"
                   :label="initial.__type.toUpperCase()"
-                  class="col-12"
-                  v-model="initial.valueDate"
-                  :rules="[dateTools.isDate]"
-                  type="text"
-                  dense
+                  :value="initial.valueDate"
+                  v-on:update="
+                    (value) => {
+                      initial.valueDate = value;
+                      saveState();
+                    }
+                  "
                 >
                   <template v-slot:prepend>
                     <div>
                       {{ index + 1 }}
                     </div>
                   </template>
-                </q-input>
+                </cxDate>
               </div>
               <div class="row" v-else-if="initial.__type === 'dateTime'">
-                <q-input
+                <cxDateTime
+                  inputClass="col-8"
                   :label="initial.__type.toUpperCase()"
-                  class="col-12"
-                  v-model="initial.valueDateTime"
-                  :rules="[dateTools.isDateTime]"
-                  type="text"
-                  dense
+                  :value="initial.valueDateTime"
+                  v-on:update="
+                    (value) => {
+                      initial.valueDateTime = value;
+                      saveState();
+                    }
+                  "
                 >
                   <template v-slot:prepend>
                     <div>
                       {{ index + 1 }}
                     </div>
                   </template>
-                  <template v-slot:after>
-                    <div>
-                      <q-btn
-                        label="Now"
-                        @click="
-                          () =>
-                            (initial.valueDateTime =
-                              dateTools.getCurrentDateTime())
-                        "
-                      />
-                    </div>
-                  </template>
-                </q-input>
+                </cxDateTime>
               </div>
               <div class="row" v-else-if="initial.__type === 'time'">
-                <q-input
+                <cxTime
+                  inputClass="col-6"
                   :label="initial.__type.toUpperCase()"
-                  class="col-12"
-                  v-model="initial.valueTime"
-                  :rules="[dateTools.isTime]"
-                  mask="fulltime"
-                  fill-mask
-                  type="text"
-                  dense
+                  :value="initial.valueTime"
+                  v-on:update="
+                    (value) => {
+                      initial.valueTime = value;
+                      saveState();
+                    }
+                  "
                 >
                   <template v-slot:prepend>
                     <div>
                       {{ index + 1 }}
                     </div>
                   </template>
-                </q-input>
+                </cxTime>
               </div>
               <div class="row" v-else-if="initial.__type === 'string'">
                 <q-input
@@ -340,12 +335,15 @@ import { InitialItem } from "@/utils/constants";
 import { editorTools } from "@/utils/editor";
 import { itemTools } from "@/utils/item";
 import { ref, toRefs } from "vue";
-import { dateTools } from "../utils/date";
 import cxCoding from "@/components/datatypes/cxCoding.vue";
+import cxDate from "@/components/datatypes/cxDate.vue";
+import cxDateTime from "@/components/datatypes/cxDateTime.vue";
+import cxTime from "@/components/datatypes/cxTime.vue";
 import cxQuantity from "@/components/datatypes/cxQuantity.vue";
 import cxReference from "@/components/datatypes/cxReference.vue";
 import cxAttachment from "@/components/datatypes/cxAttachment.vue";
 import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
+import { useStore } from "vuex";
 
 const props = defineProps<{
   selectedItem: InitialItem;
@@ -382,5 +380,10 @@ function onlyNumberDec($event: KeyboardEvent): void {
 
 function onlyNumber($event: KeyboardEvent): void {
   editorTools.onlyInteger($event);
+}
+
+const store = useStore();
+function saveState() {
+  store.commit("saveState");
 }
 </script>
