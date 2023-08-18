@@ -197,11 +197,6 @@ export type Condition = {
   __text: string;
 };
 
-export type IdentifierType = {
-  coding?: Coding;
-  text?: string;
-};
-
 export const identifierUse = [
   "usual",
   "official",
@@ -219,7 +214,7 @@ export type Identifier = {
     start?: string;
     end?: string;
   };
-  type?: IdentifierType;
+  type?: CodeableConcept;
 };
 
 export const enableBehaviors = ["all", "any"] as const;

@@ -1,5 +1,6 @@
 <template>
   <div class="q-pa-md">
+    <div class="text-h6" v-if="header">{{ header }}</div>
     <q-input
       label="Code"
       class="col-4"
@@ -36,7 +37,12 @@
       dense
     />
     <q-separator />
-    <q-btn class="col-4" icon="add" @click="addCoding(codingValue)" />
+    <q-btn
+      v-if="!noButton"
+      class="col-4"
+      icon="add"
+      @click="addCoding(codingValue)"
+    />
   </div>
 </template>
 
@@ -46,6 +52,8 @@ import { Coding } from "@/types";
 
 const props = defineProps<{
   coding: Coding;
+  noButton?: true;
+  header?: string;
 }>();
 
 const codingValue = toRef(props, "coding");

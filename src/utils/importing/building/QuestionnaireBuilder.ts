@@ -2,6 +2,7 @@ import { defaultLanguage } from "@/i18n";
 import {
   AnswerOption,
   AnswerType,
+  CodeableConcept,
   ContactDetail,
   ContactPoint,
   DerivedFromExtension,
@@ -12,7 +13,9 @@ import {
   Item,
   Meta,
   Narrative,
+  Identifier,
   Questionnaire,
+  Reference,
   UsageContext,
 } from "@/types";
 import { getOrAddHiddenExtension } from "@/utils/extension";
@@ -29,7 +32,11 @@ import {
   ParsedInitial,
   ParsedItem,
 } from "../parsing/item";
-import { ParsedContactDetail, ParsedUsageContext } from "../parsing/schemas";
+import {
+  ParsedContactDetail,
+  ParsedIdentifier,
+  ParsedUsageContext,
+} from "../parsing/schemas";
 import {
   ParsedMeta,
   ParsedQuestionnaire,
@@ -91,7 +98,7 @@ export class QuestionnaireBuilder {
     }
     const meta = this.fromMeta(this.qre.meta);
     const text = this.fromText(this.qre.text);
-    const identifier = this.qre.identifier ?? [];
+    const identifier = this.fromIdentifiers(this.qre.identifier);
     return {
       ...this.qre,
       __versionAlgorithmUsesCoding: !this.qre.versionAlgorithmString,
@@ -116,6 +123,29 @@ export class QuestionnaireBuilder {
       modifierExtension: newModifierExtension,
       item: newItem,
     };
+  }
+
+  private fromIdentifiers(
+    identifiers: ParsedIdentifier[] | undefined,
+  ): Identifier[] {
+    if (identifiers === undefined) return [];
+    const newIdentifiers: Identifier[] = [];
+    for (const id of identifiers) {
+      const newId = this.fromIdentifier(id);
+      newIdentifiers.push(newId);
+    }
+    return newIdentifiers;
+  }
+
+  private fromIdentifier(id: ParsedIdentifier) {
+    const type: CodeableConcept | undefined =
+      id.type === undefined
+        ? undefined
+        : {
+            coding: id.type.coding ?? [],
+            text: id.type.text,
+          };
+    return { ...id, type };
   }
 
   private fromDerivedFromExtension(
@@ -184,10 +214,15 @@ export class QuestionnaireBuilder {
         valueRange: useContext.valueRange,
       };
     } else if (useContext.valueReference !== undefined) {
+      const oldRef = useContext.valueReference;
+      const newRef = {
+        ...oldRef,
+        identifier: this.fromIdentifier(oldRef.identifier ?? {}),
+      };
       return {
         __type: "reference",
         code,
-        valueReference: useContext.valueReference,
+        valueReference: newRef,
       };
     }
     throw new Error("Missing implementation!");
@@ -337,7 +372,12 @@ export class QuestionnaireBuilder {
     } else if (initial.valueQuantity !== undefined) {
       return { __type: "quantity", valueQuantity: initial.valueQuantity };
     } else if (initial.valueReference !== undefined) {
-      return { __type: "reference", valueReference: initial.valueReference };
+      const oldRef = initial.valueReference;
+      const newRef = {
+        ...oldRef,
+        identifier: this.fromIdentifier(oldRef.identifier ?? {}),
+      };
+      return { __type: "reference", valueReference: newRef };
     } else if (initial.valueAttachment !== undefined) {
       return { __type: "attachment", valueAttachment: initial.valueAttachment };
     }
@@ -436,8 +476,17 @@ export class QuestionnaireBuilder {
     parsedItem: ParsedItem,
   ): AnswerOption {
     const initialSelected = parsedAnswerOption.initialSelected ?? false;
+    const oldRef = parsedAnswerOption.valueReference;
+    const newRef =
+      oldRef === undefined
+        ? undefined
+        : {
+            ...oldRef,
+            identifier: this.fromIdentifier(oldRef.identifier ?? {}),
+          };
     const answerOption: AnswerOption = {
       ...parsedAnswerOption,
+      valueReference: newRef,
       initialSelected,
       __id: itemTools.createAnswerOptionId(),
       __type: "coding",
@@ -520,7 +569,18 @@ export class QuestionnaireBuilder {
     if (editorTools.emptyArray(fhirItem.enableWhen)) return [];
     const resultEnableWhen: EnableWhen[] = [];
     for (const enableWhen of fhirItem.enableWhen) {
-      const result: EnableWhen = editorTools.clone(enableWhen);
+      const oldRef = enableWhen.answerReference;
+      const newRef: Reference | undefined =
+        oldRef === undefined
+          ? undefined
+          : {
+              ...oldRef,
+              identifier: this.fromIdentifier(oldRef.identifier ?? {}),
+            };
+      const result: EnableWhen = {
+        ...editorTools.clone(enableWhen),
+        answerReference: newRef,
+      };
       // linkedItem is always defined and its type is never "group" or "display", guaranteed by FHIRItemValidator
       const linkedItem = validatorUtils.getItemByLinkId(
         this.qre,
@@ -549,9 +609,7 @@ export class QuestionnaireBuilder {
       } else if (enableWhen.answerQuantity !== undefined) {
         result.__answer = editorTools.formatQuantity(enableWhen.answerQuantity);
       } else if (enableWhen.answerReference !== undefined) {
-        result.__answer = editorTools.formatReference(
-          enableWhen.answerReference,
-        );
+        result.__answer = editorTools.formatReference(newRef!);
       } else if (enableWhen.answerAttachment !== undefined) {
         result.__answer = editorTools.formatAttachment(
           enableWhen.answerAttachment,

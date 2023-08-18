@@ -69,14 +69,7 @@ const period = z
   })
   .optional();
 
-const coding = optionalCodingSchema;
-
-const type = z
-  .object({
-    coding,
-    text: optionalStringSchema,
-  })
-  .optional();
+const type = codeableConceptSchema.optional();
 
 // TODO: Add assigner to identifierSchema
 export const identifierSchema = z

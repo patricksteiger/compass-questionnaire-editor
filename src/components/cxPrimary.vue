@@ -208,6 +208,14 @@
               v-for="(id, index) in identifier"
               :key="index"
             >
+              <q-item-section>
+                <q-card-section>
+                  <cxIdentifier
+                    :identifier="id"
+                    :header="index + 1 + '. Identifier'"
+                  />
+                </q-card-section>
+              </q-item-section>
               <!-- Btn Remove Identifier -->
               <div class="row justify-end">
                 <q-btn
@@ -221,160 +229,6 @@
                   <div>{{ $t("views.tabs.metadata.removeId") }}</div>
                 </q-btn>
               </div>
-              <q-item-section>
-                <q-card-section>
-                  <div class="row">
-                    <div class="col-3">
-                      <!-- use -->
-                      <q-input
-                        v-model="id.use"
-                        dense
-                        class="q-mr-sm"
-                        :label="$t('views.tabs.metadata.use')"
-                      />
-                    </div>
-                    <div class="col-3">
-                      <!-- system -->
-                      <q-input
-                        v-model="id.system"
-                        dense
-                        class="q-mr-sm"
-                        :label="$t('views.tabs.metadata.system')"
-                      />
-                    </div>
-                    <div class="col-3">
-                      <!-- value -->
-                      <q-input
-                        v-model="id.value"
-                        dense
-                        class="q-mr-sm"
-                        :label="$t('views.tabs.metadata.value')"
-                      />
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="row q-my-sm text-weight-medium">
-                      {{ $t("views.tabs.metadata.type.type") }}
-                    </div>
-                  </div>
-                  <q-card flat bordered class="my-card">
-                    <q-card-section>
-                      <div class="text-subtitle2 text-deep-orange q-my-md">
-                        {{ $t("views.tabs.metadata.type.coding.coding") }}
-                      </div>
-                      <q-separator />
-                      <div class="row">
-                        <div class="col-3">
-                          <!-- system -->
-                          <q-input
-                            v-if="id.type?.coding !== undefined"
-                            v-model="id.type.coding.system"
-                            dense
-                            class="q-mr-sm"
-                            :label="
-                              $t('views.tabs.metadata.type.coding.system')
-                            "
-                          />
-                        </div>
-                        <div class="col-2">
-                          <!-- version -->
-                          <q-input
-                            v-if="id.type?.coding !== undefined"
-                            v-model="id.type.coding.version"
-                            dense
-                            class="q-mr-sm"
-                            :label="
-                              $t('views.tabs.metadata.type.coding.version')
-                            "
-                          />
-                        </div>
-                        <div class="col-2">
-                          <!-- code -->
-                          <q-input
-                            v-if="id.type?.coding !== undefined"
-                            v-model="id.type.coding.code"
-                            dense
-                            class="q-mr-sm"
-                            :label="$t('views.tabs.metadata.type.coding.code')"
-                          />
-                        </div>
-                        <div class="col-3">
-                          <!-- display -->
-                          <q-input
-                            v-if="id.type?.coding !== undefined"
-                            v-model="id.type.coding.display"
-                            dense
-                            class="q-mr-sm"
-                            :label="
-                              $t('views.tabs.metadata.type.coding.display')
-                            "
-                          />
-                        </div>
-                        <div class="col-2">
-                          <!-- userSelected -->
-                          <div class="q-gutter-sm">
-                            <q-checkbox
-                              left-label
-                              v-if="id.type?.coding !== undefined"
-                              v-model="id.type.coding.userSelected"
-                              :label="
-                                $t(
-                                  'views.tabs.metadata.type.coding.userSelected',
-                                )
-                              "
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <div class="text-subtitle2 text-deep-orange q-my-md">
-                        {{ $t("views.tabs.metadata.type.text") }}
-                      </div>
-                      <q-separator />
-                      <div class="row">
-                        <div class="col-3">
-                          <!-- system -->
-                          <q-input
-                            v-if="id.type !== undefined"
-                            v-model="id.type.text"
-                            dense
-                            class="q-mr-sm"
-                            :label="$t('views.tabs.metadata.type.text')"
-                          />
-                        </div>
-                      </div>
-                    </q-card-section>
-                  </q-card>
-                  <div class="row q-my-sm text-weight-medium">
-                    {{ $t("views.tabs.metadata.period.period") }}
-                  </div>
-                  <div class="row">
-                    <div class="col-3">
-                      <!-- start -->
-                      <q-input
-                        v-if="id.period !== undefined"
-                        v-model="id.period.start"
-                        dense
-                        type="date"
-                        stack-label
-                        class="q-mr-sm"
-                        :label="$t('views.tabs.metadata.period.start')"
-                      />
-                    </div>
-                    <div class="col-3">
-                      <!-- end -->
-                      <q-input
-                        v-if="id.period !== undefined"
-                        v-model="id.period.end"
-                        dense
-                        type="date"
-                        stack-label
-                        class="q-mr-sm"
-                        :label="$t('views.tabs.metadata.period.end')"
-                      />
-                    </div>
-                  </div>
-                </q-card-section>
-              </q-item-section>
             </q-list>
           </q-card>
         </q-expansion-item>
@@ -387,9 +241,9 @@ import { mapGetters } from "vuex";
 import { computed, defineComponent, ref } from "vue";
 import {
   Extension,
-  Identifier,
   NarrativeStatus,
   narrativeStatuses,
+  Identifier,
   Questionnaire,
   status,
 } from "@/types";
@@ -399,6 +253,7 @@ import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue
 import cxPeriod from "@/components/datatypes/cxPeriod.vue";
 import cxDate from "@/components/datatypes/cxDate.vue";
 import cxDateTime from "@/components/datatypes/cxDateTime.vue";
+import cxIdentifier from "@/components/datatypes/cxIdentifier.vue";
 import cxTooltip from "@/components/helper/cxTooltip.vue";
 import { dateTools } from "@/utils/date";
 import {
@@ -415,6 +270,7 @@ export default defineComponent({
     cxPeriod,
     cxDate,
     cxDateTime,
+    cxIdentifier,
     cxExpansionItemHeader,
     cxTooltip,
   },
@@ -560,13 +416,7 @@ export default defineComponent({
           end: "",
         },
         type: {
-          coding: {
-            system: "",
-            version: "",
-            code: "",
-            display: "",
-            userSelected: false,
-          },
+          coding: [],
           text: "",
         },
       };

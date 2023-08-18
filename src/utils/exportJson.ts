@@ -8,9 +8,9 @@ import {
   DerivedFromExtensionValue,
   EnableWhen,
   Extension,
-  Identifier,
   Item,
   Meta,
+  Identifier,
   operators,
   Period,
   Quantity,
@@ -501,12 +501,7 @@ function filterIdentifier(identifier: Identifier) {
     if (!type.text) {
       delete type.text;
     }
-    if (type.coding !== undefined) {
-      filterCoding(type.coding);
-      if (editorTools.isEmptyObject(type.coding)) {
-        delete type.coding;
-      }
-    }
+    filterCodeableConcept(type);
     if (editorTools.isEmptyObject(identifier.type)) {
       delete identifier.type;
     }

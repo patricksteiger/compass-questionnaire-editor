@@ -10,7 +10,7 @@ import {
   ContactPoint,
   SimpleQuantity,
   Identifier,
-  IdentifierType,
+  CodeableConcept,
 } from "@/types";
 import { getOrAddHiddenExtension } from "./extension";
 import { itemTools } from "./item";
@@ -373,23 +373,30 @@ class EditorTools {
   }
 
   private equalsIdentifierType(
-    s1: IdentifierType | undefined,
-    s2: IdentifierType | undefined,
+    s1: CodeableConcept | undefined,
+    s2: CodeableConcept | undefined,
   ): boolean {
     if (s1 === undefined && s2 === undefined) return true;
     if (s1 === undefined || s2 === undefined) return false;
     return (
       this.equalsString(s1.text, s2.text) &&
-      this.equalsCoding(s1.coding, s2.coding)
+      this.equalsCodings(s1.coding, s2.coding)
     );
   }
 
-  private equalsCoding(
-    c1: Coding | undefined,
-    c2: Coding | undefined,
-  ): boolean {
-    if (c1 === undefined && c2 === undefined) return true;
-    if (c1 === undefined || c2 === undefined) return false;
+  private equalsCodings(c1: Coding[], c2: Coding[]): boolean {
+    if (c1.length !== c2.length) {
+      return false;
+    }
+    for (let i = 0; i < c1.length; i++) {
+      if (!this.equalsCoding(c1[i], c2[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private equalsCoding(c1: Coding, c2: Coding): boolean {
     return (
       this.equalsString(c1.system, c2.system) &&
       this.equalsString(c1.code, c2.code) &&
