@@ -14,6 +14,7 @@
     <cxTooltip v-if="inputTooltip !== undefined" :text="inputTooltip" />
     <template v-slot:prepend>
       <q-icon name="schedule" class="cursor-pointer">
+        <cxTooltip text="Time picker" />
         <q-popup-proxy cover transition-show="scale" transition-hide="scale">
           <q-time v-model="timePicker" with-seconds format24h>
             <div class="row items-center justify-end">
@@ -31,7 +32,9 @@
       </q-icon>
     </template>
   </q-input>
-  <q-btn label="Now" flat dense @click="time = dateTools.getCurrentTime()" />
+  <q-btn label="Now" flat dense @click="time = dateTools.getCurrentTime()">
+    <cxTooltip text="Set to current time" />
+  </q-btn>
 </template>
 
 <script setup lang="ts">

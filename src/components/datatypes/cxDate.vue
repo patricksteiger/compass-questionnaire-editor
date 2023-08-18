@@ -14,6 +14,7 @@
     <cxTooltip v-if="inputTooltip !== undefined" :text="inputTooltip" />
     <template v-slot:prepend>
       <q-icon name="calendar_month" class="cursor-pointer">
+        <cxTooltip text="Date picker" />
         <q-popup-proxy cover transition-show="scale" transition-hide="scale">
           <q-date v-model="datePicker" mask="YYYY-MM-DD">
             <div class="row items-center justify-end">
@@ -31,7 +32,9 @@
       </q-icon>
     </template>
   </q-input>
-  <q-btn label="Today" flat dense @click="date = dateTools.getCurrentDate()" />
+  <q-btn label="Today" flat dense @click="date = dateTools.getCurrentDate()">
+    <cxTooltip text="Set to current date" />
+  </q-btn>
 </template>
 
 <script setup lang="ts">

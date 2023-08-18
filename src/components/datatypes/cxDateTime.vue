@@ -20,6 +20,7 @@
     <cxTooltip v-if="inputTooltip !== undefined" :text="inputTooltip" />
     <template v-slot:prepend>
       <q-icon name="event" class="cursor-pointer">
+        <cxTooltip text="DateTime picker" />
         <q-popup-proxy cover transition-show="scale" transition-hide="scale">
           <div>Value preview: {{ getCurrentDateTime() }}</div>
           <div class="row">
@@ -67,7 +68,9 @@
     flat
     dense
     @click="dateTime = dateTools.getCurrentDateTime()"
-  />
+  >
+    <cxTooltip text="Set to current timestamp" />
+  </q-btn>
 </template>
 
 <script setup lang="ts">
