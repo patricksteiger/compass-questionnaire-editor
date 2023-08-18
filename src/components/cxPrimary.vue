@@ -186,19 +186,6 @@
           </template>
           <q-separator />
           <q-card>
-            <!-- Btn Add Identifier -->
-            <div class="row">
-              <q-btn
-                class="q-ma-sm"
-                outline
-                color="primary"
-                size="sm"
-                @click="addEmptyId"
-              >
-                <q-icon left name="add" />
-                <div>{{ $t("views.tabs.metadata.addNewId") }}</div>
-              </q-btn>
-            </div>
             <!-- identifier -->
             <q-list
               dense
@@ -230,6 +217,19 @@
                 </q-btn>
               </div>
             </q-list>
+            <!-- Btn Add Identifier -->
+            <div class="row">
+              <q-btn
+                class="q-ma-sm"
+                outline
+                color="primary"
+                size="sm"
+                @click="addEmptyId"
+              >
+                <q-icon left name="add" />
+                <div>{{ $t("views.tabs.metadata.addNewId") }}</div>
+              </q-btn>
+            </div>
           </q-card>
         </q-expansion-item>
       </q-list>

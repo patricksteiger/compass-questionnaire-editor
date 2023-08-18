@@ -114,8 +114,8 @@
     },
     "tabs": {
       "metadata": {
-        "addNewId": "Füge neuen Identifier hinzu",
-        "removeId": "Entferne ID",
+        "addNewId": "Identifier",
+        "removeId": "Entferne Identifier",
         "use": "Use",
         "system": "System",
         "value": "Value",
