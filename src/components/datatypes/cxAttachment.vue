@@ -74,19 +74,15 @@
       dense
     />
     <div class="row justify-between">
-      <q-input
+      <cxDateTime
+        inputClass="col-8"
         label="Creation"
-        class="col-8"
-        v-model="attachmentValue.creation"
-        type="text"
-        :rules="[dateTools.isDateTimeOrEmpty]"
-        dense
-      />
-      <q-btn
-        label="Now"
-        dense
-        @click="
-          () => (attachmentValue.creation = dateTools.getCurrentDateTime())
+        :value="(attachmentValue.creation ??= '')"
+        v-on:update="
+          (value) => {
+            attachmentValue.creation = value;
+            $store.commit('saveState');
+          }
         "
       />
     </div>
@@ -141,6 +137,7 @@ import { Attachment } from "@/types";
 import { dateTools } from "@/utils/date";
 import { editorTools } from "@/utils/editor";
 import { useQuasar } from "quasar";
+import cxDateTime from "@/components/datatypes/cxDateTime.vue";
 
 const uploadedFile = ref<File | null | undefined>(null);
 

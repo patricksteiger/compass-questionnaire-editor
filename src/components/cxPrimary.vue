@@ -99,24 +99,6 @@
             v-on:update="updateDate"
             :value="date"
           />
-          <!-- <q-input -->
-          <!--   type="text" -->
-          <!--   class="col-8" -->
-          <!--   dense -->
-          <!--   v-model="date" -->
-          <!--   :label="$t('components.navigationBar.metadataItems.date')" -->
-          <!--   :rules="[dateTools.isDateTimeOrEmpty]" -->
-          <!--   clearable -->
-          <!--   :clear="() => (date = '')" -->
-          <!-- > -->
-          <!--   <cxTooltip :text="$t('tutorial.date')" /> -->
-          <!-- </q-input> -->
-          <!-- <q-btn -->
-          <!--   label="Now" -->
-          <!--   flat -->
-          <!--   dense -->
-          <!--   @click="() => (date = dateTools.getCurrentDateTime())" -->
-          <!-- /> -->
         </div>
         <div class="row justify-between">
           <cxDate
