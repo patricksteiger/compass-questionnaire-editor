@@ -187,11 +187,12 @@
     "readOnly": "Nur lesbare Elemente verhindern dem Endbenutzer die Antworten zu der Frage zu verändern. Ist das Element eine Gruppe, sind alle Kindelemente nur lesbar.",
     "definition": "Definition ist eine URI zu einer FHIR Ressource mit zusätzlichen Informationen. Mehr Informationen sind in der Dokumentation.",
     "maxLength": "Maximale Anzahl von Zeichen erlaubt für Antworten zu dieser Frage.",
-    "answerChoiceToggle": "AnswerOption und AnswerValueSet werden verwendet um vordefinierte Antworten, für Single- und Multiple-Choice-Fragen, zu dieser Frage zu definieren. AnswerOption erlaubt benutzerdefinierte Antworten und AnswerValueSet enthält eine URI zu einem Set von Werten.",
+    "answerChoiceToggle": "AnswerOption und AnswerValueSet werden verwendet um vordefinierte Antworten für Single- und Multiple-Choice-Fragen zu definieren. AnswerOption erlaubt benutzerdefinierte Antworten und AnswerValueSet enthält eine URI zu einem Set von Antworten.",
     "answerConstraint": "AnswerConstraint definiert ob zusätzliche Antworten zu den vordefinierten Antworten von AnswerOption oder AnswerValueSet erlaubt sind. \"optionsOnly\" signalisiert, dass keine zusätzlichen Antworten erlaubt sind. \"optionsOrType\" oder \"optionsOrString\" erlauben eine Antwort vom selben Type der Frage oder eine Freitextantwort.",
     "answerValueSet": "AnswerValueSet ist eine canonical-URI die auf eine Sammlung verlinkt, deren Inhalt die erlaubten Antworten für diese Frage ist. Wiederholbare Fragen mit definiertem AnswerValueSet sind Multiple-Choice, sonst Single-Choice.",
     "answerOption": "AnswerOptions beinhalten die benutzerdefinierten Antwortmöglichkeiten für diese Frage. Deren Typ ist gleich dem Typs dieser Frage. Wiederholbare Fragen mit definierter AnswerOption sind Multiple-Choice, sonst Single-Choice.",
-    "initialSelected": "InitialSelected",
+    "itemWeight": "ItemWeight ist ein Zahlenwert der bei der Verarbeitung von AnswerOption verwendet werden kann, wie z.B. Summieren und Aggregieren.",
+    "initialSelected": "InitialSelected AnswerOption wird standardmäßig für den Endbenutzer ausgewählt. Mehrere InitialSelected mit Wert \"true\" sind nur für wiederholbare Fragen eralubt.",
     "enableWhen": "EnableWhen beinhaltet Bedingungen, basierend auf Antworten zu anderen Fragen, die erfüllt werden müssen, um diese Frage zu aktivieren. Mit Operator \"exists\" wird geprüft ob irgendeine Antwort zu der verlinkten Frage gegen wurde oder nicht. Ist diese Frage deaktiviert, sind ihre Kindelemente auch deaktiviert.",
     "enableWhenInfo": "Mehr informationen über EnableWhen.",
     "enableBehavior": "EnableBehavior gibt an, ob alle Bedingungen oder irgendeine Bedingung erfüllt werden müssen, damit diese Frage aktiviert wird.",
@@ -214,6 +215,7 @@
     "subjectType": "SubjectType definiert die FHIR Ressourcen, die das Subjekt sind, welche den Fragebogen ausfüllen dürfen.",
     "useContext": "UseContext definiert die Kontexte in welchen der Fragebogen entwickelt wurde. Dies könnte ein Thema wie Geschlecht, oder ein spezifisches Programm wie ein Versicherungsplan sein. Mehr Informationen sind in der Dokumentation.",
     "contact": "Contact beinhaltet Kontaktinformationen des Herausgebers.",
+    "advanced": "Fortgeschrittene FHIR Features",
     "valid": {
       "date": "Valide Beispiele: 2000, 2000-01, 2000-12-30",
       "dateTime": "Valide Beispiele: 2000, 2000-01, 2000-12-30, 2000-12-30T12:33:59+01:00"

@@ -187,11 +187,12 @@
     "readOnly": "ReadOnly items do not allow the end-user to change answers to this question. If the item is a group, all of its children are read-only.",
     "definition": "Definition is a URI to another FHIR Resource containing additional information about this item. For more information check the documentation.",
     "maxLength": "The maximum amount of characters allowed for answers to this question.",
-    "answerChoiceToggle": "AnswerOption and AnswerValueSet contain pre-defined answers, used for single- and multiple-choice questions, to this question. AnswerOption allows custom pre-defined answers, while AnswerValueSet links to a set of pre-defined values.",
+    "answerChoiceToggle": "AnswerOption and AnswerValueSet contain pre-defined answers used for single- and multiple-choice questions. AnswerOption allows custom pre-defined answers, while AnswerValueSet links to a set of pre-defined values.",
     "answerConstraint": "AnswerConstraint defines whether additional answers to the pre-defined answers in AnswerOption or AnswerValueSet are allowed. \"optionsOnly\" signals no additional answers are allowed. \"optionsOrType\" or \"optionsOrString\" allow an answer of the same type of the question or a free-text answer respectively.",
     "answerValueSet": "AnswerValueSet is a canonical URI linking to a set of pre-defined values allowed as answers to this question. Repeating items with defined AnswerValueSet are multiple-choice, otherwise they are single-choice.",
-    "answerOption": "AnswerOptions contain custom pre-defined answers for this question.\nThey match the type of this question. Repeating items with defined AnswerOptions are multiple-choice, otherwise they are single-choice. InitialSelected indicates which option is selected by default.",
-    "initialSelected": "InitialSelected",
+    "answerOption": "AnswerOptions contain custom pre-defined answers to this question.\nThey match the type of this question. Repeating items with defined AnswerOptions are multiple-choice, otherwise they are single-choice. InitialSelected indicates which option is selected by default.",
+    "itemWeight": "ItemWeight is a number value, which can be used for processing the AnswerOption, like comparing or aggregating.",
+    "initialSelected": "InitialSelected AnswerOption is selected by default when rendered to the end-user. Multiple InitialSelected set to \"true\" are only allowed for repeating items.",
     "enableWhen": "EnableWhen contains conditions, based on answers to other questions, that have to be met for this question to be enabled for the end-user.",
     "enableWhenInfo": "More information about EnableWhen.",
     "enableBehavior": "EnableBehavior indicates whether all or any conditions of EnableWhen have to be met for this question to be enabled.",
@@ -214,6 +215,7 @@
     "subjectType": "SubjectType defines the FHIR Resources which are the subjects allowed to answer the questionnaire.",
     "useContext": "UseContext defines the contexts for which the questionnaire was developed. This could be topics such as gender, or references to specific programs like insurance plans. Fore more information check the documentation.",
     "contact": "Contact contains contact information from the publisher.",
+    "advanced": "Advanced FHIR Features",
     "valid": {
       "date": "Valid examples: 2000, 2000-01, 2000-12-30",
       "dateTime": "Valid examples: 2000, 2000-01, 2000-12-30, 2000-12-30T12:33:59+01:00"

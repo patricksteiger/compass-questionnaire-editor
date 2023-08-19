@@ -374,7 +374,7 @@
               v-if="
                 selectedItem !== undefined && selectedItem.type !== 'display'
               "
-              class="row items-center text-bold text-h5 q-mb-md"
+              class="row items-center text-bold text-h5 q-my-md"
             >
               <!-- required toggle -->
               <q-toggle
@@ -406,21 +406,6 @@
             </div>
             <div
               class="row items-center justify-between text-bold text-h5 q-mb-md"
-              v-if="selectedItem !== undefined"
-            >
-              <!-- definition -->
-              <q-input
-                v-model="selectedItem.definition"
-                label="Definition"
-                dense
-                class="col-8"
-                @blur="saveState"
-              >
-                <cxTooltip :text="$t('tutorial.definition')" />
-              </q-input>
-            </div>
-            <div
-              class="row items-center justify-between text-bold text-h5 q-mb-md"
               v-if="selectedItem !== undefined && allowsMaxLength(selectedItem)"
             >
               <!-- Max Length-->
@@ -435,227 +420,166 @@
                 <cxTooltip :text="$t('tutorial.maxLength')" />
               </q-input>
             </div>
-            <!-- answerValueSet/Option toggle -->
-            <div
-              v-if="
-                selectedItem !== undefined &&
-                allowsAnswerValueSet(selectedItem.type) &&
-                allowsAnswerOption(selectedItem.type)
-              "
-              class="row items-center text-bold q-mb-md"
-            >
-              <q-toggle
-                :label="
-                  'Switch to ' +
-                  (selectedItem.__answerValueSetCheck
-                    ? 'AnswerOption'
-                    : $t('views.editor.AnswerValueSet'))
-                "
-                v-model="selectedItem.__answerValueSetCheck"
-                @update:model-value="
-                  (value, _e) => {
-                    selectedItem!.__answerValueSetCheck = value;
-                    saveState();
-                  }
-                "
-              >
-                <cxTooltip :text="$t('tutorial.answerChoiceToggle')" />
-              </q-toggle>
-            </div>
-            <!-- answerConstraint -->
-            <div
-              v-if="
-                selectedItem !== undefined &&
-                allowsAnswerOption(selectedItem.type)
-              "
-            >
-              <q-select
-                v-model="selectedItem.answerConstraint"
-                @update:model-value="
-                  (value) => {
-                    selectedItem!.answerConstraint = value;
-                    saveState();
-                  }
-                "
-                label="AnswerConstraint"
-                :options="answerConstraints"
-                clearable
-                :error="
-                  !!selectedItem.answerConstraint &&
-                  (selectedItem.__answerValueSetCheck
-                    ? !selectedItem.answerValueSet
-                    : itemTools.undefinedAnswerOption(selectedItem))
-                "
-                :error-message="
-                  selectedItem.__answerValueSetCheck
-                    ? 'If answerConstraint is defined, answerValueSet must be non-empty'
-                    : 'If answerConstraint is defined, answerOption must be non-empty'
-                "
-              >
-                <cxTooltip :text="$t('tutorial.answerConstraint')" />
-              </q-select>
-            </div>
-            <!-- answerValueSet -->
-            <div
-              v-if="
-                selectedItem !== undefined &&
-                selectedItem.__answerValueSetCheck &&
-                allowsAnswerValueSet(selectedItem.type)
-              "
-            >
-              <div>
-                <q-input
-                  v-if="selectedItem.__answerValueSetCheck"
-                  :label="$t('views.editor.AnswerValueSet')"
-                  dense
-                  v-model="selectedItem.answerValueSet"
-                  :rules="[questionnaireTools.isCanonicalOrEmpty]"
-                  @blur="saveState"
-                >
-                  <cxTooltip :text="$t('tutorial.answerValueSet')" />
-                </q-input>
-              </div>
-            </div>
             <!-- Answers/Conditions -->
-            <q-list
-              padding
-              bordered
-              v-if="
-                selectedItem !== undefined &&
-                !selectedItem.__answerValueSetCheck &&
-                allowsAnswerOption(selectedItem.type)
-              "
-            >
-              <!-- AnswerOption section -->
-              <q-expansion-item expand-separator>
-                <template v-slot:header>
-                  <cxExpansionItemHeader
-                    icon="list"
-                    :title="$t('views.editor.answers')"
-                    :tooltip="$t('tutorial.answerOption')"
-                  />
-                </template>
-                <q-separator />
-                <q-card>
-                  <!-- Multiple answers -->
-                  <div>
-                    <div class="q-pa-md" style="width: 100%">
-                      <q-list
-                        dense
-                        v-if="
-                          !selectedItem.__answerValueSetCheck &&
-                          selectedItem.answerOption
-                        "
-                      >
-                        <q-item
-                          v-for="answerOption in selectedItem.answerOption"
-                          :key="answerOption.__id"
+            <q-list padding bordered v-if="selectedItem !== undefined">
+              <div
+                v-if="allowsAnswerOption(selectedItem.type)"
+                class="row items-center"
+              >
+                <!-- answerConstraint -->
+                <div
+                  class="q-pl-md col-5"
+                  v-if="allowsAnswerOption(selectedItem.type)"
+                >
+                  <q-select
+                    v-model="selectedItem.answerConstraint"
+                    @update:model-value="
+                      (value) => {
+                        selectedItem!.answerConstraint = value;
+                        saveState();
+                      }
+                    "
+                    label="AnswerConstraint"
+                    :options="answerConstraints"
+                    clearable
+                    :error="
+                      !!selectedItem.answerConstraint &&
+                      (selectedItem.__answerValueSetCheck
+                        ? !selectedItem.answerValueSet
+                        : itemTools.undefinedAnswerOption(selectedItem))
+                    "
+                    :error-message="
+                      selectedItem.__answerValueSetCheck
+                        ? 'If answerConstraint is defined, answerValueSet must be non-empty'
+                        : 'If answerConstraint is defined, answerOption must be non-empty'
+                    "
+                  >
+                    <cxTooltip :text="$t('tutorial.answerConstraint')" />
+                  </q-select>
+                </div>
+                <!-- answerValueSet/Option toggle -->
+                <div
+                  v-if="
+                    allowsAnswerValueSet(selectedItem.type) &&
+                    allowsAnswerOption(selectedItem.type)
+                  "
+                  class="col-6 text-bold"
+                >
+                  <q-toggle
+                    :label="
+                      'Switch to ' +
+                      (selectedItem.__answerValueSetCheck
+                        ? 'AnswerOption'
+                        : $t('views.editor.AnswerValueSet'))
+                    "
+                    v-model="selectedItem.__answerValueSetCheck"
+                    @update:model-value="
+                      (value, _e) => {
+                        selectedItem!.__answerValueSetCheck = value;
+                        saveState();
+                      }
+                    "
+                  >
+                    <cxTooltip :text="$t('tutorial.answerChoiceToggle')" />
+                  </q-toggle>
+                </div>
+              </div>
+              <!-- answerValueSet -->
+              <div
+                v-if="
+                  selectedItem.__answerValueSetCheck &&
+                  allowsAnswerValueSet(selectedItem.type)
+                "
+              >
+                <div>
+                  <q-input
+                    v-if="selectedItem.__answerValueSetCheck"
+                    :label="$t('views.editor.AnswerValueSet')"
+                    dense
+                    v-model="selectedItem.answerValueSet"
+                    :rules="[questionnaireTools.isCanonicalOrEmpty]"
+                    @blur="saveState"
+                  >
+                    <cxTooltip :text="$t('tutorial.answerValueSet')" />
+                  </q-input>
+                </div>
+              </div>
+              <q-separator />
+              <div
+                v-if="
+                  !selectedItem.__answerValueSetCheck &&
+                  allowsAnswerOption(selectedItem.type)
+                "
+              >
+                <!-- AnswerOption section -->
+                <q-expansion-item expand-separator>
+                  <template v-slot:header>
+                    <cxExpansionItemHeader
+                      icon="list"
+                      :title="$t('views.editor.answers')"
+                      :tooltip="$t('tutorial.answerOption')"
+                    />
+                  </template>
+                  <q-separator />
+                  <q-card>
+                    <!-- Multiple answers -->
+                    <div>
+                      <div class="q-pa-md" style="width: 100%">
+                        <q-list
+                          dense
+                          v-if="
+                            !selectedItem.__answerValueSetCheck &&
+                            selectedItem.answerOption
+                          "
                         >
-                          <!-- answerOption -->
-                          <q-item-section>
-                            <div>
-                              <q-input
-                                class="col-12"
-                                type="number"
-                                v-model.number="answerOption.__itemWeight"
-                                label="ItemWeight"
-                                @keypress="onlyNumberDec"
-                                clearable
-                                @clear="answerOption.__itemWeight = null"
-                              />
-                            </div>
-                            <!-- answerOption coding -->
-                            <div
-                              class="row"
-                              v-if="
-                                answerOption.__type === 'coding' &&
-                                answerOption.valueCoding !== undefined
-                              "
-                            >
-                              <q-input
-                                class="col-12"
-                                autogrow
-                                readonly
-                                v-model="answerOption.__formattedValueCoding"
-                                :disable="!selectedItem.__active"
-                                :error="!answerOption.__formattedValueCoding"
-                                clickable
-                                @click="handleAnswerOptionCoding(answerOption)"
-                                :label="
-                                  editorTools.changedCoding(answerOption)
-                                    ? `${$t('views.editor.originalText')}: ${
-                                        answerOption.__oldFormattedValueCoding
-                                      }`
-                                    : answerOption.__type
+                          <q-item
+                            v-for="answerOption in selectedItem.answerOption"
+                            :key="answerOption.__id"
+                          >
+                            <!-- answerOption -->
+                            <q-item-section>
+                              <!-- answerOption coding -->
+                              <div
+                                class="row"
+                                v-if="
+                                  answerOption.__type === 'coding' &&
+                                  answerOption.valueCoding !== undefined
                                 "
                               >
-                                <template v-slot:error>
-                                  {{ $t("components.fieldEmpty") }}
-                                </template>
-                                <template v-slot:prepend>
-                                  <div>
-                                    <q-checkbox
-                                      v-model="answerOption.initialSelected"
-                                      size="sm"
-                                    />
-                                    <cxTooltip
-                                      :text="$t('tutorial.initialSelected')"
-                                    />
-                                  </div>
-                                </template>
-                                <!-- reverse original text answer -->
-                                <q-btn
-                                  flat
-                                  round
-                                  icon="history"
+                                <q-input
+                                  class="col-12"
+                                  autogrow
+                                  readonly
+                                  v-model="answerOption.__formattedValueCoding"
                                   :disable="!selectedItem.__active"
-                                  class="q-mr-sm text-grey-8"
-                                  v-if="editorTools.changedCoding(answerOption)"
+                                  :error="!answerOption.__formattedValueCoding"
+                                  clickable
                                   @click="
-                                    editorTools.setDisplayToOld(answerOption)
+                                    handleAnswerOptionCoding(answerOption)
+                                  "
+                                  :label="
+                                    editorTools.changedCoding(answerOption)
+                                      ? `${$t('views.editor.originalText')}: ${
+                                          answerOption.__oldFormattedValueCoding
+                                        }`
+                                      : answerOption.__type
                                   "
                                 >
-                                  <cxTooltip
-                                    :text="$t('components.reverseAnswer')"
-                                  />
-                                </q-btn>
-                              </q-input>
-                            </div>
-                            <!-- answerOption decimal -->
-                            <div
-                              class="row"
-                              v-else-if="answerOption.__type === 'decimal'"
-                            >
-                              <q-input
-                                class="col-12"
-                                @keypress="onlyNumberDec"
-                                autogrow
-                                v-model.number="answerOption.valueDecimal"
-                                type="number"
-                                :disable="!selectedItem.__active"
-                                :label="
-                                  answerOption.valueDecimal !==
-                                    answerOption.__oldValueDecimal &&
-                                  !answerOption.__newAnswer
-                                    ? `${$t('views.editor.originalText')}: ${
-                                        answerOption.__oldValueDecimal
-                                      }`
-                                    : answerOption.__type
-                                "
-                              >
-                                <template v-slot:prepend>
-                                  <div>
-                                    <q-checkbox
-                                      v-model="answerOption.initialSelected"
-                                      size="sm"
-                                    />
-                                    <cxTooltip
-                                      :text="$t('tutorial.initialSelected')"
-                                    />
-                                  </div>
-                                </template>
-                                <!-- reverse original text answer -->
-                                <div>
+                                  <template v-slot:error>
+                                    {{ $t("components.fieldEmpty") }}
+                                  </template>
+                                  <template v-slot:prepend>
+                                    <div>
+                                      <q-checkbox
+                                        v-model="answerOption.initialSelected"
+                                        size="sm"
+                                      />
+                                      <cxTooltip
+                                        :text="$t('tutorial.initialSelected')"
+                                      />
+                                    </div>
+                                  </template>
+                                  <!-- reverse original text answer -->
                                   <q-btn
                                     flat
                                     round
@@ -663,532 +587,617 @@
                                     :disable="!selectedItem.__active"
                                     class="q-mr-sm text-grey-8"
                                     v-if="
-                                      answerOption.valueDecimal !==
-                                        answerOption.__oldValueDecimal &&
-                                      !answerOption.__newAnswer
+                                      editorTools.changedCoding(answerOption)
                                     "
                                     @click="
-                                      answerOption.valueDecimal =
-                                        answerOption.__oldValueDecimal
+                                      editorTools.setDisplayToOld(answerOption)
                                     "
-                                  />
-                                  <cxTooltip
-                                    :text="$t('components.reverseAnswer')"
-                                  />
-                                </div>
-                              </q-input>
-                            </div>
-                            <!-- answerOption integer -->
-                            <div
-                              class="row"
-                              v-else-if="answerOption.__type === 'integer'"
-                            >
-                              <q-input
-                                class="col-12"
-                                @keypress="onlyNumber"
-                                autogrow
-                                type="number"
-                                v-model.number="answerOption.valueInteger"
-                                :disable="!selectedItem.__active"
-                                :label="
-                                  answerOption.valueInteger !==
-                                    answerOption.__oldValueInteger &&
-                                  !answerOption.__newAnswer
-                                    ? `${$t('views.editor.originalText')}: ${
-                                        answerOption.__oldValueInteger
-                                      }`
-                                    : answerOption.__type
-                                "
-                              >
-                                <template v-slot:prepend>
-                                  <div>
-                                    <q-checkbox
-                                      v-model="answerOption.initialSelected"
-                                      size="sm"
-                                    />
+                                  >
                                     <cxTooltip
-                                      :text="$t('tutorial.initialSelected')"
+                                      :text="$t('components.reverseAnswer')"
                                     />
-                                  </div>
-                                </template>
-                                <!-- reverse original text answer -->
-                                <div>
-                                  <q-btn
-                                    flat
-                                    round
-                                    icon="history"
-                                    :disable="!selectedItem.__active"
-                                    class="q-mr-sm text-grey-8"
-                                    v-if="
-                                      answerOption.valueInteger !==
-                                        answerOption.__oldValueInteger &&
-                                      !answerOption.__newAnswer
-                                    "
-                                    @click="
-                                      answerOption.valueInteger =
-                                        answerOption.__oldValueInteger
-                                    "
-                                  />
-                                  <cxTooltip
-                                    :text="$t('components.reverseAnswer')"
-                                  />
-                                </div>
-                              </q-input>
-                            </div>
-                            <!-- answerOption date -->
-                            <div
-                              class="row"
-                              v-else-if="answerOption.__type === 'date'"
-                            >
-                              <cxDate
-                                inputClass="col-8"
-                                :inputTooltip="$t('tutorial.valid.date')"
-                                :label="
-                                  answerOption.valueDate !==
-                                    answerOption.__oldValueDate &&
-                                  !answerOption.__newAnswer
-                                    ? `${$t('views.editor.originalText')}: ${
-                                        answerOption.__oldValueDate
-                                      }`
-                                    : answerOption.__type
-                                "
-                                :value="(answerOption.valueDate ??= '')"
-                                v-on:update="
-                                  (value) => {
-                                    answerOption.valueDate = value;
-                                    saveState();
-                                  }
-                                "
+                                  </q-btn>
+                                </q-input>
+                              </div>
+                              <!-- answerOption decimal -->
+                              <div
+                                class="row"
+                                v-else-if="answerOption.__type === 'decimal'"
                               >
-                                <template v-slot:prepend>
-                                  <div>
-                                    <q-checkbox
-                                      v-model="answerOption.initialSelected"
-                                      size="sm"
-                                    />
-                                    <cxTooltip
-                                      :text="$t('tutorial.initialSelected')"
-                                    />
-                                  </div>
-                                </template>
-                                <!-- reverse original text answer -->
-                                <div>
-                                  <q-btn
-                                    flat
-                                    round
-                                    icon="history"
-                                    :disable="!selectedItem.__active"
-                                    class="q-mr-sm text-grey-8"
-                                    v-if="
-                                      answerOption.valueDate !==
-                                        answerOption.__oldValueDate &&
-                                      !answerOption.__newAnswer
-                                    "
-                                    @click="
-                                      answerOption.valueDate =
-                                        answerOption.__oldValueDate
-                                    "
-                                  />
-                                  <cxTooltip
-                                    :text="$t('components.reverseAnswer')"
-                                  />
-                                </div>
-                              </cxDate>
-                            </div>
-                            <!-- answerOption dateTime -->
-                            <div
-                              class="row"
-                              v-else-if="answerOption.__type === 'dateTime'"
-                            >
-                              <cxDateTime
-                                inputClass="col-8"
-                                :inputTooltip="$t('tutorial.valid.dateTime')"
-                                :value="(answerOption.valueDateTime ??= '')"
-                                v-on:update="
-                                  (value) => {
-                                    answerOption.valueDateTime = value;
-                                    saveState();
-                                  }
-                                "
-                                :label="
-                                  answerOption.valueDateTime !==
-                                    answerOption.__oldValueDateTime &&
-                                  !answerOption.__newAnswer
-                                    ? `${$t('views.editor.originalText')}: ${
-                                        answerOption.__oldValueDateTime
-                                      }`
-                                    : answerOption.__type
-                                "
-                              >
-                                <template v-slot:prepend>
-                                  <div>
-                                    <q-checkbox
-                                      v-model="answerOption.initialSelected"
-                                      size="sm"
-                                    />
-                                    <cxTooltip
-                                      :text="$t('tutorial.initialSelected')"
-                                    />
-                                  </div>
-                                </template>
-                                <!-- reverse original text answer -->
-                                <div>
-                                  <q-btn
-                                    flat
-                                    round
-                                    icon="history"
-                                    :disable="!selectedItem.__active"
-                                    class="q-mr-sm text-grey-8"
-                                    v-if="
-                                      answerOption.valueDateTime !==
-                                        answerOption.__oldValueDateTime &&
-                                      !answerOption.__newAnswer
-                                    "
-                                    @click="
-                                      answerOption.valueDateTime =
-                                        answerOption.__oldValueDateTime
-                                    "
-                                  />
-                                  <cxTooltip
-                                    :text="$t('components.reverseAnswer')"
-                                  />
-                                </div>
-                              </cxDateTime>
-                            </div>
-                            <!-- answerOption time -->
-                            <div
-                              class="row"
-                              v-else-if="answerOption.__type === 'time'"
-                            >
-                              <cxTime
-                                inputClass="col-8"
-                                :label="
-                                  answerOption.valueTime !==
-                                    answerOption.__oldValueTime &&
-                                  !answerOption.__newAnswer
-                                    ? `${$t('views.editor.originalText')}: ${
-                                        answerOption.__oldValueTime
-                                      }`
-                                    : answerOption.__type
-                                "
-                                :value="(answerOption.valueTime ??= '')"
-                                v-on:update="
-                                  (value) => {
-                                    answerOption.valueTime = value;
-                                    saveState();
-                                  }
-                                "
-                              >
-                                <template v-slot:prepend>
-                                  <div>
-                                    <q-checkbox
-                                      v-model="answerOption.initialSelected"
-                                      size="sm"
-                                    />
-                                    <cxTooltip
-                                      :text="$t('tutorial.initialSelected')"
-                                    />
-                                  </div>
-                                </template>
-                                <!-- reverse original time answer -->
-                                <q-btn
-                                  flat
-                                  round
-                                  icon="history"
+                                <q-input
+                                  class="col-12"
+                                  @keypress="onlyNumberDec"
+                                  autogrow
+                                  v-model.number="answerOption.valueDecimal"
+                                  type="number"
                                   :disable="!selectedItem.__active"
-                                  class="q-mr-sm text-grey-8"
-                                  v-if="
+                                  :label="
+                                    answerOption.valueDecimal !==
+                                      answerOption.__oldValueDecimal &&
+                                    !answerOption.__newAnswer
+                                      ? `${$t('views.editor.originalText')}: ${
+                                          answerOption.__oldValueDecimal
+                                        }`
+                                      : answerOption.__type
+                                  "
+                                >
+                                  <template v-slot:prepend>
+                                    <div>
+                                      <q-checkbox
+                                        v-model="answerOption.initialSelected"
+                                        size="sm"
+                                      />
+                                      <cxTooltip
+                                        :text="$t('tutorial.initialSelected')"
+                                      />
+                                    </div>
+                                  </template>
+                                  <!-- reverse original text answer -->
+                                  <div>
+                                    <q-btn
+                                      flat
+                                      round
+                                      icon="history"
+                                      :disable="!selectedItem.__active"
+                                      class="q-mr-sm text-grey-8"
+                                      v-if="
+                                        answerOption.valueDecimal !==
+                                          answerOption.__oldValueDecimal &&
+                                        !answerOption.__newAnswer
+                                      "
+                                      @click="
+                                        answerOption.valueDecimal =
+                                          answerOption.__oldValueDecimal
+                                      "
+                                    />
+                                    <cxTooltip
+                                      :text="$t('components.reverseAnswer')"
+                                    />
+                                  </div>
+                                </q-input>
+                              </div>
+                              <!-- answerOption integer -->
+                              <div
+                                class="row"
+                                v-else-if="answerOption.__type === 'integer'"
+                              >
+                                <q-input
+                                  class="col-12"
+                                  @keypress="onlyNumber"
+                                  autogrow
+                                  type="number"
+                                  v-model.number="answerOption.valueInteger"
+                                  :disable="!selectedItem.__active"
+                                  :label="
+                                    answerOption.valueInteger !==
+                                      answerOption.__oldValueInteger &&
+                                    !answerOption.__newAnswer
+                                      ? `${$t('views.editor.originalText')}: ${
+                                          answerOption.__oldValueInteger
+                                        }`
+                                      : answerOption.__type
+                                  "
+                                >
+                                  <template v-slot:prepend>
+                                    <div>
+                                      <q-checkbox
+                                        v-model="answerOption.initialSelected"
+                                        size="sm"
+                                      />
+                                      <cxTooltip
+                                        :text="$t('tutorial.initialSelected')"
+                                      />
+                                    </div>
+                                  </template>
+                                  <!-- reverse original text answer -->
+                                  <div>
+                                    <q-btn
+                                      flat
+                                      round
+                                      icon="history"
+                                      :disable="!selectedItem.__active"
+                                      class="q-mr-sm text-grey-8"
+                                      v-if="
+                                        answerOption.valueInteger !==
+                                          answerOption.__oldValueInteger &&
+                                        !answerOption.__newAnswer
+                                      "
+                                      @click="
+                                        answerOption.valueInteger =
+                                          answerOption.__oldValueInteger
+                                      "
+                                    />
+                                    <cxTooltip
+                                      :text="$t('components.reverseAnswer')"
+                                    />
+                                  </div>
+                                </q-input>
+                              </div>
+                              <!-- answerOption date -->
+                              <div
+                                class="row"
+                                v-else-if="answerOption.__type === 'date'"
+                              >
+                                <cxDate
+                                  inputClass="col-8"
+                                  :inputTooltip="$t('tutorial.valid.date')"
+                                  :label="
+                                    answerOption.valueDate !==
+                                      answerOption.__oldValueDate &&
+                                    !answerOption.__newAnswer
+                                      ? `${$t('views.editor.originalText')}: ${
+                                          answerOption.__oldValueDate
+                                        }`
+                                      : answerOption.__type
+                                  "
+                                  :value="(answerOption.valueDate ??= '')"
+                                  v-on:update="
+                                    (value) => {
+                                      answerOption.valueDate = value;
+                                      saveState();
+                                    }
+                                  "
+                                >
+                                  <template v-slot:prepend>
+                                    <div>
+                                      <q-checkbox
+                                        v-model="answerOption.initialSelected"
+                                        size="sm"
+                                      />
+                                      <cxTooltip
+                                        :text="$t('tutorial.initialSelected')"
+                                      />
+                                    </div>
+                                  </template>
+                                  <!-- reverse original text answer -->
+                                  <div>
+                                    <q-btn
+                                      flat
+                                      round
+                                      icon="history"
+                                      :disable="!selectedItem.__active"
+                                      class="q-mr-sm text-grey-8"
+                                      v-if="
+                                        answerOption.valueDate !==
+                                          answerOption.__oldValueDate &&
+                                        !answerOption.__newAnswer
+                                      "
+                                      @click="
+                                        answerOption.valueDate =
+                                          answerOption.__oldValueDate
+                                      "
+                                    />
+                                    <cxTooltip
+                                      :text="$t('components.reverseAnswer')"
+                                    />
+                                  </div>
+                                </cxDate>
+                              </div>
+                              <!-- answerOption dateTime -->
+                              <div
+                                class="row"
+                                v-else-if="answerOption.__type === 'dateTime'"
+                              >
+                                <cxDateTime
+                                  inputClass="col-8"
+                                  :inputTooltip="$t('tutorial.valid.dateTime')"
+                                  :value="(answerOption.valueDateTime ??= '')"
+                                  v-on:update="
+                                    (value) => {
+                                      answerOption.valueDateTime = value;
+                                      saveState();
+                                    }
+                                  "
+                                  :label="
+                                    answerOption.valueDateTime !==
+                                      answerOption.__oldValueDateTime &&
+                                    !answerOption.__newAnswer
+                                      ? `${$t('views.editor.originalText')}: ${
+                                          answerOption.__oldValueDateTime
+                                        }`
+                                      : answerOption.__type
+                                  "
+                                >
+                                  <template v-slot:prepend>
+                                    <div>
+                                      <q-checkbox
+                                        v-model="answerOption.initialSelected"
+                                        size="sm"
+                                      />
+                                      <cxTooltip
+                                        :text="$t('tutorial.initialSelected')"
+                                      />
+                                    </div>
+                                  </template>
+                                  <!-- reverse original text answer -->
+                                  <div>
+                                    <q-btn
+                                      flat
+                                      round
+                                      icon="history"
+                                      :disable="!selectedItem.__active"
+                                      class="q-mr-sm text-grey-8"
+                                      v-if="
+                                        answerOption.valueDateTime !==
+                                          answerOption.__oldValueDateTime &&
+                                        !answerOption.__newAnswer
+                                      "
+                                      @click="
+                                        answerOption.valueDateTime =
+                                          answerOption.__oldValueDateTime
+                                      "
+                                    />
+                                    <cxTooltip
+                                      :text="$t('components.reverseAnswer')"
+                                    />
+                                  </div>
+                                </cxDateTime>
+                              </div>
+                              <!-- answerOption time -->
+                              <div
+                                class="row"
+                                v-else-if="answerOption.__type === 'time'"
+                              >
+                                <cxTime
+                                  inputClass="col-8"
+                                  :label="
                                     answerOption.valueTime !==
                                       answerOption.__oldValueTime &&
                                     !answerOption.__newAnswer
+                                      ? `${$t('views.editor.originalText')}: ${
+                                          answerOption.__oldValueTime
+                                        }`
+                                      : answerOption.__type
                                   "
-                                  @click="
-                                    answerOption.valueTime =
-                                      answerOption.__oldValueTime
+                                  :value="(answerOption.valueTime ??= '')"
+                                  v-on:update="
+                                    (value) => {
+                                      answerOption.valueTime = value;
+                                      saveState();
+                                    }
                                   "
                                 >
-                                  <cxTooltip
-                                    :text="$t('components.reverseAnswer')"
-                                  />
-                                </q-btn>
-                              </cxTime>
-                            </div>
-                            <!-- answerOption string and text -->
-                            <div
-                              class="row"
-                              v-else-if="
-                                answerOption.__type === 'string' ||
-                                answerOption.__type === 'text'
-                              "
-                            >
-                              <q-input
-                                class="col-12"
-                                autogrow
-                                v-model="answerOption.valueString"
-                                :disable="!selectedItem.__active"
-                                :label="
-                                  answerOption.valueString !==
-                                    answerOption.__oldValueString &&
-                                  !answerOption.__newAnswer
-                                    ? `${$t('views.editor.originalText')}: ${
-                                        answerOption.__oldValueString
-                                      }`
-                                    : answerOption.__type
+                                  <template v-slot:prepend>
+                                    <div>
+                                      <q-checkbox
+                                        v-model="answerOption.initialSelected"
+                                        size="sm"
+                                      />
+                                      <cxTooltip
+                                        :text="$t('tutorial.initialSelected')"
+                                      />
+                                    </div>
+                                  </template>
+                                  <!-- reverse original time answer -->
+                                  <q-btn
+                                    flat
+                                    round
+                                    icon="history"
+                                    :disable="!selectedItem.__active"
+                                    class="q-mr-sm text-grey-8"
+                                    v-if="
+                                      answerOption.valueTime !==
+                                        answerOption.__oldValueTime &&
+                                      !answerOption.__newAnswer
+                                    "
+                                    @click="
+                                      answerOption.valueTime =
+                                        answerOption.__oldValueTime
+                                    "
+                                  >
+                                    <cxTooltip
+                                      :text="$t('components.reverseAnswer')"
+                                    />
+                                  </q-btn>
+                                </cxTime>
+                              </div>
+                              <!-- answerOption string and text -->
+                              <div
+                                class="row"
+                                v-else-if="
+                                  answerOption.__type === 'string' ||
+                                  answerOption.__type === 'text'
                                 "
                               >
-                                <template v-slot:prepend>
-                                  <div>
-                                    <q-checkbox
-                                      v-model="answerOption.initialSelected"
-                                      size="sm"
-                                    />
-                                    <cxTooltip
-                                      :text="$t('tutorial.initialSelected')"
-                                    />
-                                  </div>
-                                </template>
-                                <!-- reverse original text answer -->
-                                <q-btn
-                                  flat
-                                  round
-                                  icon="history"
+                                <q-input
+                                  class="col-12"
+                                  autogrow
+                                  v-model="answerOption.valueString"
                                   :disable="!selectedItem.__active"
-                                  class="q-mr-sm text-grey-8"
-                                  v-if="
+                                  :label="
                                     answerOption.valueString !==
                                       answerOption.__oldValueString &&
                                     !answerOption.__newAnswer
-                                  "
-                                  @click="
-                                    answerOption.valueString =
-                                      answerOption.__oldValueString
+                                      ? `${$t('views.editor.originalText')}: ${
+                                          answerOption.__oldValueString
+                                        }`
+                                      : answerOption.__type
                                   "
                                 >
-                                  <cxTooltip
-                                    :text="$t('components.reverseAnswer')"
-                                  />
-                                </q-btn>
-                              </q-input>
-                            </div>
-                            <!-- answerOption url -->
-                            <div
-                              class="row"
-                              v-else-if="answerOption.__type === 'url'"
-                            >
-                              <q-input
-                                class="col-12"
-                                autogrow
-                                v-model="answerOption.valueUri"
-                                :disable="!selectedItem.__active"
-                                :rules="[questionnaireTools.isUri]"
-                                :label="
-                                  answerOption.valueUri !==
-                                    answerOption.__oldValueUri &&
-                                  !answerOption.__newAnswer
-                                    ? `${$t('views.editor.originalText')}: ${
-                                        answerOption.__oldValueUri
-                                      }`
-                                    : answerOption.__type
-                                "
-                              >
-                                <template v-slot:prepend>
-                                  <div>
-                                    <q-checkbox
-                                      v-model="answerOption.initialSelected"
-                                      size="sm"
-                                    />
+                                  <template v-slot:prepend>
+                                    <div>
+                                      <q-checkbox
+                                        v-model="answerOption.initialSelected"
+                                        size="sm"
+                                      />
+                                      <cxTooltip
+                                        :text="$t('tutorial.initialSelected')"
+                                      />
+                                    </div>
+                                  </template>
+                                  <!-- reverse original text answer -->
+                                  <q-btn
+                                    flat
+                                    round
+                                    icon="history"
+                                    :disable="!selectedItem.__active"
+                                    class="q-mr-sm text-grey-8"
+                                    v-if="
+                                      answerOption.valueString !==
+                                        answerOption.__oldValueString &&
+                                      !answerOption.__newAnswer
+                                    "
+                                    @click="
+                                      answerOption.valueString =
+                                        answerOption.__oldValueString
+                                    "
+                                  >
                                     <cxTooltip
-                                      :text="$t('tutorial.initialSelected')"
+                                      :text="$t('components.reverseAnswer')"
                                     />
-                                  </div>
-                                </template>
-                                <!-- reverse original text answer -->
-                                <q-btn
-                                  flat
-                                  round
-                                  icon="history"
+                                  </q-btn>
+                                </q-input>
+                              </div>
+                              <!-- answerOption url -->
+                              <div
+                                class="row"
+                                v-else-if="answerOption.__type === 'url'"
+                              >
+                                <q-input
+                                  class="col-12"
+                                  autogrow
+                                  v-model="answerOption.valueUri"
                                   :disable="!selectedItem.__active"
-                                  class="q-mr-sm text-grey-8"
-                                  v-if="
+                                  :rules="[questionnaireTools.isUri]"
+                                  :label="
                                     answerOption.valueUri !==
                                       answerOption.__oldValueUri &&
                                     !answerOption.__newAnswer
-                                  "
-                                  @click="
-                                    answerOption.valueUri =
-                                      answerOption.__oldValueUri
+                                      ? `${$t('views.editor.originalText')}: ${
+                                          answerOption.__oldValueUri
+                                        }`
+                                      : answerOption.__type
                                   "
                                 >
-                                  <cxTooltip
-                                    :text="$t('components.reverseAnswer')"
-                                  />
-                                </q-btn>
-                              </q-input>
-                            </div>
-                            <!-- answerOption quantity -->
-                            <div
-                              class="row"
-                              v-else-if="
-                                answerOption.__type === 'quantity' &&
-                                answerOption.valueQuantity !== undefined
-                              "
-                            >
-                              <q-input
-                                class="col-12"
-                                autogrow
-                                readonly
-                                v-model="answerOption.__formattedValueQuantity"
-                                :disable="!selectedItem.__active"
-                                :error="!answerOption.__formattedValueQuantity"
-                                clickable
-                                @click="
-                                  handleAnswerOptionQuantity(answerOption)
-                                "
-                                :label="
-                                  editorTools.changedQuantity(answerOption)
-                                    ? `${$t('views.editor.originalText')}: ${
-                                        answerOption.__oldFormattedValueQuantity
-                                      }`
-                                    : answerOption.__type
-                                "
-                              >
-                                <template v-slot:error>
-                                  {{ $t("components.fieldEmpty") }}
-                                </template>
-                                <template v-slot:prepend>
-                                  <div>
-                                    <q-checkbox
-                                      v-model="answerOption.initialSelected"
-                                      size="sm"
-                                    />
+                                  <template v-slot:prepend>
+                                    <div>
+                                      <q-checkbox
+                                        v-model="answerOption.initialSelected"
+                                        size="sm"
+                                      />
+                                      <cxTooltip
+                                        :text="$t('tutorial.initialSelected')"
+                                      />
+                                    </div>
+                                  </template>
+                                  <!-- reverse original text answer -->
+                                  <q-btn
+                                    flat
+                                    round
+                                    icon="history"
+                                    :disable="!selectedItem.__active"
+                                    class="q-mr-sm text-grey-8"
+                                    v-if="
+                                      answerOption.valueUri !==
+                                        answerOption.__oldValueUri &&
+                                      !answerOption.__newAnswer
+                                    "
+                                    @click="
+                                      answerOption.valueUri =
+                                        answerOption.__oldValueUri
+                                    "
+                                  >
                                     <cxTooltip
-                                      :text="$t('tutorial.initialSelected')"
+                                      :text="$t('components.reverseAnswer')"
                                     />
-                                  </div>
-                                </template>
-                                <!-- reverse original text answer -->
-                                <q-btn
-                                  flat
-                                  round
-                                  icon="history"
-                                  :disable="!selectedItem.__active"
-                                  class="q-mr-sm text-grey-8"
-                                  v-if="
-                                    editorTools.changedQuantity(answerOption)
-                                  "
-                                  @click="
-                                    editorTools.setDisplayToOld(answerOption)
-                                  "
-                                >
-                                  <cxTooltip
-                                    :text="$t('components.reverseAnswer')"
-                                  />
-                                </q-btn>
-                              </q-input>
-                            </div>
-                            <!-- answerOption reference -->
-                            <div
-                              class="row"
-                              v-else-if="
-                                answerOption.__type === 'reference' &&
-                                answerOption.valueReference !== undefined
-                              "
-                            >
-                              <q-input
-                                class="col-12"
-                                autogrow
-                                readonly
-                                v-model="answerOption.__formattedValueReference"
-                                :disable="!selectedItem.__active"
-                                :error="!answerOption.__formattedValueReference"
-                                clickable
-                                @click="
-                                  handleAnswerOptionReference(answerOption)
-                                "
-                                :label="
-                                  editorTools.changedReference(answerOption)
-                                    ? `${$t('views.editor.originalText')}: ${
-                                        answerOption.__oldFormattedValueReference
-                                      }`
-                                    : answerOption.__type
-                                "
-                              >
-                                <template v-slot:error>
-                                  {{ $t("components.fieldEmpty") }}
-                                </template>
-                                <template v-slot:prepend>
-                                  <div>
-                                    <q-checkbox
-                                      v-model="answerOption.initialSelected"
-                                      size="sm"
-                                    />
-                                    <cxTooltip
-                                      :text="$t('tutorial.initialSelected')"
-                                    />
-                                  </div>
-                                </template>
-                                <!-- reverse original text answer -->
-                                <q-btn
-                                  flat
-                                  round
-                                  icon="history"
-                                  :disable="!selectedItem.__active"
-                                  class="q-mr-sm text-grey-8"
-                                  v-if="
-                                    editorTools.changedReference(answerOption)
-                                  "
-                                  @click="
-                                    editorTools.setDisplayToOld(answerOption)
-                                  "
-                                >
-                                  <cxTooltip
-                                    :text="$t('components.reverseAnswer')"
-                                  />
-                                </q-btn>
-                              </q-input>
-                            </div>
-                          </q-item-section>
-                          <q-item-section top side class="justify-center">
-                            <div class="row items-center">
-                              <div class="text-grey-8">
-                                <!-- remove answerOption -->
-                                <q-btn
-                                  flat
-                                  round
-                                  color="grey-6"
-                                  icon="highlight_off"
-                                  :disable="!selectedItem.__active"
-                                  @click="removeAnswerOption(answerOption)"
-                                >
-                                  <cxTooltip :text="$t('components.remove')" />
-                                </q-btn>
+                                  </q-btn>
+                                </q-input>
                               </div>
-                            </div>
-                          </q-item-section>
-                        </q-item>
-                      </q-list>
+                              <!-- answerOption quantity -->
+                              <div
+                                class="row"
+                                v-else-if="
+                                  answerOption.__type === 'quantity' &&
+                                  answerOption.valueQuantity !== undefined
+                                "
+                              >
+                                <q-input
+                                  class="col-12"
+                                  autogrow
+                                  readonly
+                                  v-model="
+                                    answerOption.__formattedValueQuantity
+                                  "
+                                  :disable="!selectedItem.__active"
+                                  :error="
+                                    !answerOption.__formattedValueQuantity
+                                  "
+                                  clickable
+                                  @click="
+                                    handleAnswerOptionQuantity(answerOption)
+                                  "
+                                  :label="
+                                    editorTools.changedQuantity(answerOption)
+                                      ? `${$t('views.editor.originalText')}: ${
+                                          answerOption.__oldFormattedValueQuantity
+                                        }`
+                                      : answerOption.__type
+                                  "
+                                >
+                                  <template v-slot:error>
+                                    {{ $t("components.fieldEmpty") }}
+                                  </template>
+                                  <template v-slot:prepend>
+                                    <div>
+                                      <q-checkbox
+                                        v-model="answerOption.initialSelected"
+                                        size="sm"
+                                      />
+                                      <cxTooltip
+                                        :text="$t('tutorial.initialSelected')"
+                                      />
+                                    </div>
+                                  </template>
+                                  <!-- reverse original text answer -->
+                                  <q-btn
+                                    flat
+                                    round
+                                    icon="history"
+                                    :disable="!selectedItem.__active"
+                                    class="q-mr-sm text-grey-8"
+                                    v-if="
+                                      editorTools.changedQuantity(answerOption)
+                                    "
+                                    @click="
+                                      editorTools.setDisplayToOld(answerOption)
+                                    "
+                                  >
+                                    <cxTooltip
+                                      :text="$t('components.reverseAnswer')"
+                                    />
+                                  </q-btn>
+                                </q-input>
+                              </div>
+                              <!-- answerOption reference -->
+                              <div
+                                class="row"
+                                v-else-if="
+                                  answerOption.__type === 'reference' &&
+                                  answerOption.valueReference !== undefined
+                                "
+                              >
+                                <q-input
+                                  class="col-12"
+                                  autogrow
+                                  readonly
+                                  v-model="
+                                    answerOption.__formattedValueReference
+                                  "
+                                  :disable="!selectedItem.__active"
+                                  :error="
+                                    !answerOption.__formattedValueReference
+                                  "
+                                  clickable
+                                  @click="
+                                    handleAnswerOptionReference(answerOption)
+                                  "
+                                  :label="
+                                    editorTools.changedReference(answerOption)
+                                      ? `${$t('views.editor.originalText')}: ${
+                                          answerOption.__oldFormattedValueReference
+                                        }`
+                                      : answerOption.__type
+                                  "
+                                >
+                                  <template v-slot:error>
+                                    {{ $t("components.fieldEmpty") }}
+                                  </template>
+                                  <template v-slot:prepend>
+                                    <div>
+                                      <q-checkbox
+                                        v-model="answerOption.initialSelected"
+                                        size="sm"
+                                      />
+                                      <cxTooltip
+                                        :text="$t('tutorial.initialSelected')"
+                                      />
+                                    </div>
+                                  </template>
+                                  <!-- reverse original text answer -->
+                                  <q-btn
+                                    flat
+                                    round
+                                    icon="history"
+                                    :disable="!selectedItem.__active"
+                                    class="q-mr-sm text-grey-8"
+                                    v-if="
+                                      editorTools.changedReference(answerOption)
+                                    "
+                                    @click="
+                                      editorTools.setDisplayToOld(answerOption)
+                                    "
+                                  >
+                                    <cxTooltip
+                                      :text="$t('components.reverseAnswer')"
+                                    />
+                                  </q-btn>
+                                </q-input>
+                              </div>
+                            </q-item-section>
+                            <q-item-section top side class="justify-center">
+                              <div class="row items-center">
+                                <div>
+                                  <q-input
+                                    class="col-6"
+                                    type="number"
+                                    v-model.number="answerOption.__itemWeight"
+                                    label="ItemWeight"
+                                    @keypress="onlyNumberDec"
+                                    clearable
+                                    @clear="answerOption.__itemWeight = null"
+                                  >
+                                    <cxTooltip
+                                      :text="$t('tutorial.itemWeight')"
+                                    />
+                                  </q-input>
+                                </div>
+                                <div class="text-grey-8">
+                                  <!-- remove answerOption -->
+                                  <q-btn
+                                    flat
+                                    round
+                                    color="grey-6"
+                                    icon="highlight_off"
+                                    :disable="!selectedItem.__active"
+                                    @click="removeAnswerOption(answerOption)"
+                                  >
+                                    <cxTooltip
+                                      :text="$t('components.remove')"
+                                    />
+                                  </q-btn>
+                                </div>
+                              </div>
+                            </q-item-section>
+                          </q-item>
+                        </q-list>
 
-                      <!-- Add answerOption -->
-                      <q-btn
-                        padding="none xl"
-                        fab
-                        icon="add"
-                        :label="$t('views.editor.addAnswer')"
-                        direction="right"
-                        color="primary"
-                        v-if="!selectedItem.__answerValueSetCheck"
-                        @click="
-                          addAnswerOptionType(
-                            selectedItem!.type as AnswerOptionType,
-                          )
-                        "
-                      />
+                        <!-- Add answerOption -->
+                        <q-btn
+                          padding="none xl"
+                          fab
+                          icon="add"
+                          :label="$t('views.editor.addAnswer')"
+                          direction="right"
+                          color="primary"
+                          v-if="!selectedItem.__answerValueSetCheck"
+                          @click="
+                            addAnswerOptionType(
+                              selectedItem!.type as AnswerOptionType,
+                            )
+                          "
+                        />
+                      </div>
                     </div>
-                  </div>
-                </q-card>
-              </q-expansion-item>
+                  </q-card>
+                </q-expansion-item>
+              </div>
             </q-list>
-            <q-list padding bordered v-if="selectedItem !== undefined">
+            <q-list
+              class="q-my-md"
+              padding
+              bordered
+              v-if="selectedItem !== undefined"
+            >
               <div class="row">
                 <q-separator />
                 <!-- enableWhen info button -->
@@ -1535,47 +1544,74 @@
               </q-expansion-item>
             </q-list>
             <!-- initial component -->
-            <q-list
-              padding
-              bordered
-              v-if="selectedItem !== undefined && allowsInitial(selectedItem)"
+            <div class="q-pb-md">
+              <q-list
+                padding
+                bordered
+                v-if="selectedItem !== undefined && allowsInitial(selectedItem)"
+              >
+                <cxInitial
+                  :selectedItem="selectedItem"
+                  v-on:addInitial="addInitial"
+                  v-on:removeInitial="removeInitial"
+                />
+              </q-list>
+            </div>
+            <q-separator color="primary" />
+            <div class="q-ma-md text-h5 text-primary">
+              {{ $t("tutorial.advanced") }}
+            </div>
+            <q-separator color="primary" />
+            <div
+              class="row items-center justify-between text-bold text-h5 q-mb-md"
+              v-if="selectedItem !== undefined"
             >
-              <cxInitial
-                :selectedItem="selectedItem"
-                v-on:addInitial="addInitial"
-                v-on:removeInitial="removeInitial"
-              />
-            </q-list>
+              <!-- definition -->
+              <q-input
+                v-model="selectedItem.definition"
+                label="Definition"
+                dense
+                class="col-8"
+                @blur="saveState"
+              >
+                <cxTooltip :text="$t('tutorial.definition')" />
+              </q-input>
+            </div>
             <!-- extension component -->
-            <q-list v-if="selectedItem !== undefined" padding bordered>
-              <cxExtension
-                :title="$t('views.editor.extensions')"
-                :extensions="selectedItem.extension"
-                :predefinedExtensions="getItemExtensions(selectedItem)"
-                v-on:addExtension="addExtension"
-                v-on:removeExtension="removeExtension"
-              />
-            </q-list>
+            <div class="q-my-md" v-if="selectedItem !== undefined">
+              <q-list padding bordered>
+                <cxExtension
+                  :title="$t('views.editor.extensions')"
+                  :extensions="selectedItem.extension"
+                  :predefinedExtensions="getItemExtensions(selectedItem)"
+                  v-on:addExtension="addExtension"
+                  v-on:removeExtension="removeExtension"
+                />
+              </q-list>
+            </div>
             <!-- modifierExtension component -->
-            <q-list v-if="selectedItem !== undefined" padding bordered>
-              <cxExtension
-                title="ModifierExtension"
-                :extensions="selectedItem.modifierExtension"
-                :predefinedExtensions="[]"
-                v-on:addExtension="addModifierExtension"
-                v-on:removeExtension="removeModifierExtension"
-              />
-            </q-list>
+            <div class="q-my-md" v-if="selectedItem !== undefined">
+              <q-list padding bordered>
+                <cxExtension
+                  title="ModifierExtension"
+                  :extensions="selectedItem.modifierExtension"
+                  :predefinedExtensions="[]"
+                  v-on:addExtension="addModifierExtension"
+                  v-on:removeExtension="removeModifierExtension"
+                />
+              </q-list>
+            </div>
             <!-- code component -->
-            <q-list
-              padding
-              bordered
+            <div
+              class="q-my-md"
               v-if="
                 selectedItem !== undefined && selectedItem.type !== 'display'
               "
             >
-              <cxCode :codes="selectedItem.code" />
-            </q-list>
+              <q-list padding bordered>
+                <cxCode :codes="selectedItem.code" />
+              </q-list>
+            </div>
           </q-tab-panel>
         </q-tab-panels>
       </template>
@@ -2759,8 +2795,6 @@ import {
   allowsAnswerValueSet,
   AnswerOptionType,
   allowsInitial,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  InitialItem,
 } from "@/utils/constants";
 import { useQuasar } from "quasar";
 import { computed, defineComponent, ref } from "vue";
