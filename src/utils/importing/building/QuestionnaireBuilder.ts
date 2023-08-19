@@ -22,6 +22,7 @@ import { getOrAddHiddenExtension } from "@/utils/extension";
 import {
   getAnswerOptionIcon,
   getItemTypeIcon,
+  ITEM_WEIGHT_URL,
   VersionAlgorithmCoding,
 } from "../../constants";
 import { editorTools, UnreachableError } from "../../editor";
@@ -78,20 +79,8 @@ export class QuestionnaireBuilder {
       newItem.push(item);
       linkIdCount++;
     }
-    const extension = this.qre.extension;
-    const newExtension: Extension[] = [];
-    if (extension !== undefined) {
-      for (const e of extension) {
-        newExtension.push(this.fromExtension(e));
-      }
-    }
-    const modifierExtension = this.qre.modifierExtension;
-    const newModifierExtension: Extension[] = [];
-    if (modifierExtension !== undefined) {
-      for (const e of modifierExtension) {
-        newModifierExtension.push(this.fromExtension(e));
-      }
-    }
+    const extension = this.fromExtensions(this.qre.extension);
+    const modifierExtension = this.fromExtensions(this.qre.modifierExtension);
     let versAlg = undefined;
     if (this.qre.versionAlgorithmCoding !== undefined) {
       versAlg = this.qre.versionAlgorithmCoding as VersionAlgorithmCoding;
@@ -119,8 +108,8 @@ export class QuestionnaireBuilder {
       effectivePeriod,
       language,
       experimental,
-      extension: newExtension,
-      modifierExtension: newModifierExtension,
+      extension,
+      modifierExtension,
       item: newItem,
     };
   }
@@ -403,6 +392,17 @@ export class QuestionnaireBuilder {
     };
   }
 
+  private fromExtensions(
+    extensions: ParsedExtension[] | undefined,
+  ): Extension[] {
+    if (extensions === undefined) return [];
+    const newExtensions: Extension[] = [];
+    for (const extension of extensions) {
+      newExtensions.push(this.fromExtension(extension));
+    }
+    return newExtensions;
+  }
+
   private fromExtension(extension: ParsedExtension): Extension {
     if (extension.valueBoolean !== undefined) {
       return {
@@ -459,11 +459,7 @@ export class QuestionnaireBuilder {
         valueString: extension.valueString,
       };
     } else if (editorTools.nonEmptyArray(extension.extension)) {
-      const newExtension: Extension[] = [];
-      for (const child of extension.extension) {
-        const ext = this.fromExtension(child);
-        newExtension.push(ext);
-      }
+      const newExtension = this.fromExtensions(extension.extension);
       return { __type: "complex", url: extension.url, extension: newExtension };
     }
     throw new Error(
@@ -490,6 +486,8 @@ export class QuestionnaireBuilder {
       initialSelected,
       __id: itemTools.createAnswerOptionId(),
       __type: "coding",
+      __itemWeight: this.getItemWeight(parsedAnswerOption),
+      extension: this.fromExtensions(parsedAnswerOption.extension),
     };
     if (answerOption.valueCoding !== undefined) {
       answerOption.__type = "coding";
@@ -563,6 +561,14 @@ export class QuestionnaireBuilder {
       );
     }
     return answerOption;
+  }
+
+  private getItemWeight(fhirAnswerOption: ParsedAnswerOption): number | null {
+    if (fhirAnswerOption.extension === undefined) return null;
+    const extension = fhirAnswerOption.extension.find(
+      (e) => e.url === ITEM_WEIGHT_URL && e.valueDecimal !== undefined,
+    );
+    return extension?.valueDecimal ?? null;
   }
 
   private fromEnableWhen(fhirItem: ParsedItem): EnableWhen[] {

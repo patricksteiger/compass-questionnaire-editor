@@ -170,7 +170,11 @@
                   v-for="questionTypeIcon in choiceItemTypeIcons"
                   :key="questionTypeIcon.name"
                   label-position="right"
-                  color="primary"
+                  :color="
+                    allowsAnswerValueSet(questionTypeIcon.name)
+                      ? 'secondary'
+                      : 'primary'
+                  "
                   @click="addItemWithType(questionTypeIcon.name)"
                   :icon="questionTypeIcon.icon"
                   :label="questionTypeIcon.label"
@@ -549,6 +553,17 @@
                         >
                           <!-- answerOption -->
                           <q-item-section>
+                            <div>
+                              <q-input
+                                class="col-12"
+                                type="number"
+                                v-model.number="answerOption.__itemWeight"
+                                label="ItemWeight"
+                                @keypress="onlyNumberDec"
+                                clearable
+                                @clear="answerOption.__itemWeight = null"
+                              />
+                            </div>
                             <!-- answerOption coding -->
                             <div
                               class="row"
@@ -1519,6 +1534,18 @@
                 </q-card>
               </q-expansion-item>
             </q-list>
+            <!-- initial component -->
+            <q-list
+              padding
+              bordered
+              v-if="selectedItem !== undefined && allowsInitial(selectedItem)"
+            >
+              <cxInitial
+                :selectedItem="selectedItem"
+                v-on:addInitial="addInitial"
+                v-on:removeInitial="removeInitial"
+              />
+            </q-list>
             <!-- extension component -->
             <q-list v-if="selectedItem !== undefined" padding bordered>
               <cxExtension
@@ -1537,20 +1564,6 @@
                 :predefinedExtensions="[]"
                 v-on:addExtension="addModifierExtension"
                 v-on:removeExtension="removeModifierExtension"
-              />
-            </q-list>
-            <!-- initial component -->
-            <q-list
-              v-if="
-                selectedItem !== undefined && allowsInitial(selectedItem.type)
-              "
-              padding
-              bordered
-            >
-              <cxInitial
-                :selectedItem="selectedItem as InitialItem"
-                v-on:addInitial="addInitial"
-                v-on:removeInitial="removeInitial"
               />
             </q-list>
             <!-- code component -->
@@ -3709,7 +3722,6 @@ export default defineComponent({
     addAnswerOptionType(type: AnswerOptionType): void {
       const answerOption = choiceItemTypeIcons.find((a) => a.name === type);
       if (answerOption === undefined) {
-        console.error(`Type ${type} does not support AnswerOption!`);
         return;
       }
       this.addAnswerOption(answerOption);
@@ -3717,17 +3729,16 @@ export default defineComponent({
     },
     addAnswerOption(e: AnswerOptionButton): void {
       if (this.selectedItem === undefined) {
-        console.error("Can't add answerOption if no item is selected!");
         return;
       }
       this.selectedItem.answerOption ??= [];
-
       const answerOption: AnswerOption = {
         __icon: e.icon,
         __id: itemTools.createAnswerOptionId(),
         __newAnswer: true,
         __type: e.name,
         initialSelected: false,
+        extension: [],
       };
       switch (e.name) {
         case "coding":

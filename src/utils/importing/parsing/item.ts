@@ -30,6 +30,8 @@ const maxLength = optionalNumberSchema;
 
 const answerConstraint = z.enum(answerConstraints).optional();
 
+const optionalExtensionSchema = extensionSchema.array().optional();
+
 const answerOptionSchema = z.object({
   valueCoding: optionalCodingSchema,
   valueDecimal: optionalNumberSchema,
@@ -42,6 +44,7 @@ const answerOptionSchema = z.object({
   valueQuantity: optionalQuantitySchema,
   valueReference: optionalReferenceSchema,
   initialSelected: optionalBooleanSchema,
+  extension: optionalExtensionSchema,
 });
 
 export type ParsedAnswerOption = z.infer<typeof answerOptionSchema>;

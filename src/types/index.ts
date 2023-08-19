@@ -124,6 +124,7 @@ export type AnswerOption = {
   __formattedValueReference?: string;
   __oldFormattedValueReference?: string;
   __linkId?: string;
+  __itemWeight?: number | null;
   valueCoding?: Coding;
   valueDecimal?: number;
   valueInteger?: number;
@@ -135,6 +136,7 @@ export type AnswerOption = {
   valueQuantity?: Quantity;
   valueReference?: Reference;
   initialSelected: boolean;
+  extension: Extension[];
 };
 
 export const extensionTypes = [

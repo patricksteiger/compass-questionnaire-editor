@@ -1,4 +1,4 @@
-import { Item } from "@/types";
+import { Extension, Item } from "@/types";
 import { ParsedItem } from "./importing/parsing/item";
 
 export const allItemTypes = [
@@ -36,10 +36,14 @@ export function allowsMaxLength(item: Item | ParsedItem): boolean {
   );
 }
 
-export type InitialItemType = Exclude<ItemType, "display" | "group">;
+export type InitialItemType = Exclude<ItemType, "group" | "display">;
 
-export function allowsInitial(type: ItemType): type is InitialItemType {
-  return type !== "display" && type !== "group";
+export function allowsInitial(item: Item): item is InitialItem {
+  return typeAllowsInitial(item.type);
+}
+
+export function typeAllowsInitial(type: ItemType): type is InitialItemType {
+  return type !== "group" && type !== "display";
 }
 
 // display- and group-items don't allow initial and are filtered in cxEditorItems
@@ -72,15 +76,15 @@ export const noChoiceItemTypeIcons = [
   { name: "attachment", icon: "library_add", label: "Attachment" },
 ] as const;
 export const choiceItemTypeIcons = [
-  { name: "text", icon: "input", label: "Text" },
-  { name: "url", icon: "link", label: "URL" },
   { name: "coding", icon: "code", label: "Coding" },
+  { name: "string", icon: "text_fields", label: "String" },
+  { name: "url", icon: "link", label: "URL" },
+  { name: "text", icon: "input", label: "Text" },
   { name: "decimal", icon: "pin", label: "Decimal" },
   { name: "integer", icon: "pin", label: "Integer" },
   { name: "date", icon: "calendar_month", label: "Date" },
   { name: "dateTime", icon: "event", label: "DateTime" },
   { name: "time", icon: "schedule", label: "Time" },
-  { name: "string", icon: "text_fields", label: "String" },
   { name: "quantity", icon: "biotech", label: "Quantity" },
   { name: "reference", icon: "manage_search", label: "Reference" },
 ] as const;
@@ -91,11 +95,7 @@ export type AnswerOptionIcon = (typeof choiceItemTypeIcons)[number]["icon"];
 
 export function getAnswerOptionIcon(type: AnswerOptionType): AnswerOptionIcon {
   const answerOptionButton = choiceItemTypeIcons.find((a) => a.name === type);
-  if (answerOptionButton === undefined) {
-    console.error(`Illegal AnswerOptionType: ${type}`);
-    return "" as unknown as AnswerOptionIcon;
-  }
-  return answerOptionButton.icon;
+  return answerOptionButton!.icon;
 }
 
 export function allowsAnswerOption(type: ItemType): type is AnswerOptionType {
@@ -110,11 +110,7 @@ export function allowsAnswerValueSet(
 
 export function getItemTypeIcon(type: ItemType): ItemTypeIcon {
   const icon = itemTypeIcons.find((i) => i.name === type);
-  if (icon === undefined) {
-    console.error(`Invalid itemType: ${type}`);
-    return undefined as unknown as ItemTypeIcon;
-  }
-  return icon.icon;
+  return icon!.icon;
 }
 
 export const notSelectableQuestionTypes = ["display", "group"] as const;
@@ -199,3 +195,13 @@ export const MAX_ALLOWED_LEVELS_FOR_GROUPS = MAX_ALLOWED_LEVELS - 1;
 export const DRAG_KEY_INTERNAL_ID = "internalId";
 export const MAX_LENGTH_LINKID = 255;
 export const COPYRIGHT_LABEL_LENGTH_LIMIT = 50;
+
+export const ITEM_WEIGHT_URL =
+  "http://hl7.org/fhir/StructureDefinition/itemWeight";
+export function getItemWeightExtension(value: number): Extension {
+  return {
+    url: ITEM_WEIGHT_URL,
+    __type: "decimal",
+    valueDecimal: value,
+  };
+}

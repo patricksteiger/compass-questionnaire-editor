@@ -2,6 +2,7 @@
   <div class="row justify-center">
     <div class="col-7">
       <q-list padding bordered>
+        <div class="text-h6">FHIR Resource metadata:</div>
         <div>
           <q-input
             label="ID"

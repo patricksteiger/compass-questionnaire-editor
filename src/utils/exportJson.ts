@@ -18,8 +18,13 @@ import {
   Range,
   Reference,
   SimpleQuantity,
+  AnswerOption,
 } from "@/types";
-import { allowsMaxLength } from "./constants";
+import {
+  ITEM_WEIGHT_URL,
+  allowsMaxLength,
+  getItemWeightExtension,
+} from "./constants";
 import { dateTools } from "./date";
 import { editorTools, UnreachableError } from "./editor";
 import { itemTools } from "./item";
@@ -744,6 +749,27 @@ function filterItem(item: Item): void {
     if (item.answerOption !== undefined) {
       for (let i = item.answerOption.length - 1; i >= 0; i--) {
         const answer = item.answerOption[i];
+        filterExtension(answer.extension);
+        const itemWeightIndex = answer.extension.findIndex(
+          (e) => e.url === ITEM_WEIGHT_URL && e.__type === "decimal",
+        );
+        if (itemWeightIndex < 0) {
+          if (answer.__itemWeight != null) {
+            answer.extension.push(getItemWeightExtension(answer.__itemWeight));
+          }
+        } else {
+          if (answer.__itemWeight != null) {
+            const ext = answer.extension[itemWeightIndex];
+            if (ext.__type === "decimal") {
+              ext.valueDecimal = answer.__itemWeight;
+            }
+          } else {
+            answer.extension.splice(itemWeightIndex, 1);
+          }
+        }
+        if (answer.extension.length === 0) {
+          delete (answer as Partial<AnswerOption>).extension;
+        }
         switch (answer.__type) {
           case "coding":
             if (answer.valueCoding !== undefined) {

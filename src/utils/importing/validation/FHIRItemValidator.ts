@@ -7,11 +7,11 @@ import { ParsedQuestionnaire } from "../parsing/questionnaire";
 import {
   allowsAnswerOption,
   allowsAnswerValueSet,
-  allowsInitial,
   allowsMaxLength,
   MAX_ALLOWED_LEVELS,
   MAX_ALLOWED_LEVELS_FOR_GROUPS,
   MAX_LENGTH_LINKID,
+  typeAllowsInitial,
 } from "@/utils/constants";
 import { validatorUtils } from "../TransformerUtils";
 import { ParsedEnableWhen } from "../parsing/enableWhen";
@@ -203,6 +203,14 @@ export class FHIRItemValidator {
           throw new UnreachableError(item.type);
       }
     }
+    if (answerOption.extension) {
+      this.validateExtensionHelper(
+        answerOption.extension,
+        item,
+        "answerOption.extension",
+        undefined,
+      );
+    }
   }
 
   private validateEnableWhenAndBehavior(item: ParsedItem): void {
@@ -363,7 +371,7 @@ export class FHIRItemValidator {
 
   private validateInitial(item: ParsedItem): void {
     if (!editorTools.nonEmptyArray(item.initial)) return;
-    if (!allowsInitial(item.type)) {
+    if (!typeAllowsInitial(item.type)) {
       this.errors.push(
         `LinkId "${item.linkId}" has type "${item.type}" which does not allow initial values.`,
       );
