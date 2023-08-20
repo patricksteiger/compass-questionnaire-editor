@@ -4,8 +4,8 @@ import { editorTools } from "../editor";
 
 export type Warnings = {
   items: ItemWarning[];
-  primary: string[];
-  secondary: string[];
+  elements: string[];
+  advanced: string[];
 };
 
 export type ItemWarning = {
@@ -25,16 +25,16 @@ export class WarningChecker {
   static nonEmpty(warnings: Warnings): boolean {
     return (
       warnings.items.length > 0 ||
-      warnings.primary.length > 0 ||
-      warnings.secondary.length > 0
+      warnings.elements.length > 0 ||
+      warnings.advanced.length > 0
     );
   }
 
   validate(): Warnings {
     const items = this.items();
-    const primary = this.primary();
-    const secondary = this.secondary();
-    return { items, primary, secondary };
+    const elements = this.elements();
+    const advanced = this.advanced();
+    return { items, elements, advanced };
   }
 
   items(): ItemWarning[] {
@@ -70,7 +70,7 @@ export class WarningChecker {
     }
   }
 
-  primary(): string[] {
+  elements(): string[] {
     const { copyrightLabel, description, status, url } = this.questionnaire;
     const warnings: string[] = [];
     if (url) {
@@ -98,7 +98,7 @@ export class WarningChecker {
     return warnings;
   }
 
-  secondary(): string[] {
+  advanced(): string[] {
     const warnings: string[] = [];
     return warnings;
   }

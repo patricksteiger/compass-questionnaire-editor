@@ -4,6 +4,7 @@ import {
   ContactDetail,
   ContactPoint,
   Extension,
+  Identifier,
   Item,
   Meta,
   Narrative,
@@ -18,8 +19,8 @@ import { allowsAnswerOption, allowsAnswerValueSet } from "../constants";
 
 export type Errors = {
   items: ItemError[];
-  primary: string[];
-  secondary: string[];
+  elements: string[];
+  advanced: string[];
 };
 
 export type ItemError = {
@@ -38,16 +39,16 @@ export class ErrorChecker {
 
   validate(): Errors {
     const items = this.items();
-    const primary = this.primary();
-    const secondary = this.secondary();
-    return { items, primary, secondary };
+    const elements = this.elements();
+    const advanced = this.advanced();
+    return { items, elements, advanced };
   }
 
   static nonEmpty(errors: Errors): boolean {
     return (
       errors.items.length > 0 ||
-      errors.primary.length > 0 ||
-      errors.secondary.length > 0
+      errors.elements.length > 0 ||
+      errors.advanced.length > 0
     );
   }
 
@@ -530,7 +531,7 @@ export class ErrorChecker {
     }
   }
 
-  private primary(): string[] {
+  private elements(): string[] {
     const errors: string[] = [];
     this.url(this.questionnaire.url, errors);
     this.name(this.questionnaire.name, errors);
@@ -597,9 +598,10 @@ export class ErrorChecker {
   }
 
   // FIXME: Add Identifier erros
-  private secondary(): string[] {
+  private advanced(): string[] {
     const errors: string[] = [];
     this.id(this.questionnaire.id, errors);
+    this.identifier(this.questionnaire.identifier, errors);
     this.implicitRules(this.questionnaire.implicitRules, errors);
     this.meta(this.questionnaire.meta, errors);
     this.derivedFrom(this.questionnaire.derivedFrom, errors);
@@ -612,6 +614,41 @@ export class ErrorChecker {
     this.code(this.questionnaire.code, errors);
     this.useContext(this.questionnaire.useContext, errors);
     return errors;
+  }
+
+  private identifier(identifier: Identifier[], errors: string[]) {
+    for (let pos = 1; pos <= identifier.length; pos++) {
+      const id = identifier[pos - 1];
+      if (editorTools.isEmptyObject(id)) {
+        errors.push(`Identifier at position ${pos} is empty`);
+      } else {
+        if (questionnaireTools.isUriOrEmpty(id.system) !== true) {
+          errors.push(`Identifier at position ${pos} has invalid system`);
+        }
+        if (id.period !== undefined) {
+          if (dateTools.isDateTimeOrEmpty(id.period.start) !== true) {
+            errors.push(
+              `Identifier at position ${pos} has invalid value in period: start`,
+            );
+          }
+          if (dateTools.isDateTimeOrEmpty(id.period.end) !== true) {
+            errors.push(
+              `Identifier at position ${pos} has invalid value in period: end`,
+            );
+          }
+        }
+        if (id.type !== undefined) {
+          for (let typePos = 1; typePos <= id.type.coding.length; typePos++) {
+            const coding = id.type.coding[typePos - 1];
+            if (editorTools.isEmptyObject(coding)) {
+              errors.push(
+                `Identifier at position ${pos} has empty coding in type at position ${typePos}`,
+              );
+            }
+          }
+        }
+      }
+    }
   }
 
   private id(id: string | undefined, errors: string[]) {

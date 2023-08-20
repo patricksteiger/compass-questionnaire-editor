@@ -51,13 +51,13 @@
                 </q-item>
               </q-list>
             </div>
-            <div class="q-pa-md" v-if="result.errors.primary.length > 0">
+            <div class="q-pa-md" v-if="result.errors.elements.length > 0">
               <div class="text-primary">
                 Tab: {{ $t("views.tabsTitles.elements") }}
               </div>
               <q-list bordered separator>
                 <q-item
-                  v-for="error in result.errors.primary"
+                  v-for="error in result.errors.elements"
                   :key="error"
                   clickable
                   @click="switchToElementsWithLanguage(result.language)"
@@ -68,13 +68,13 @@
                 </q-item>
               </q-list>
             </div>
-            <div class="q-pa-md" v-if="result.errors.secondary.length > 0">
+            <div class="q-pa-md" v-if="result.errors.advanced.length > 0">
               <div class="text-primary">
                 Tab: {{ $t("views.tabsTitles.advanced") }}
               </div>
               <q-list bordered separator>
                 <q-item
-                  v-for="error in result.errors.secondary"
+                  v-for="error in result.errors.advanced"
                   :key="error"
                   clickable
                   @click="switchToAdvancedWithLanguage(result.language)"
@@ -140,13 +140,13 @@
                 </q-item>
               </q-list>
             </div>
-            <div class="q-pa-md" v-if="result.warnings.primary.length > 0">
+            <div class="q-pa-md" v-if="result.warnings.elements.length > 0">
               <div class="text-primary">
                 Tab: {{ $t("views.tabsTitles.elements") }}
               </div>
               <q-list bordered separator>
                 <q-item
-                  v-for="warning in result.warnings.primary"
+                  v-for="warning in result.warnings.elements"
                   :key="warning"
                   clickable
                   @click="switchToElementsWithLanguage(result.language)"
@@ -157,13 +157,13 @@
                 </q-item>
               </q-list>
             </div>
-            <div class="q-pa-md" v-if="result.warnings.secondary.length > 0">
+            <div class="q-pa-md" v-if="result.warnings.advanced.length > 0">
               <div class="text-primary">
                 Tab: {{ $t("views.tabsTitles.advanced") }}
               </div>
               <q-list bordered separator>
                 <q-item
-                  v-for="warning in result.warnings.secondary"
+                  v-for="warning in result.warnings.advanced"
                   :key="warning"
                   clickable
                   @click="switchToAdvancedWithLanguage(result.language)"

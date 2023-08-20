@@ -16,7 +16,7 @@
         v-model="identifier.system"
         :rules="[questionnaireTools.isUriOrEmpty]"
         clearable
-        @clear="identifier.system"
+        @clear="identifier.system = ''"
       />
     </div>
     <div>
