@@ -75,7 +75,7 @@ export const isSupportedLanguage = (lang: string): lang is Language => {
 // Switching between screens is done when creating Screen-components (see ImportScreen, EditorScreen)
 export type Screen = "init" | "import" | "editor";
 
-export type Tab = "editor" | "primary" | "secondary";
+export type Tab = "items" | "elements" | "advanced";
 
 export type StoreState = {
   questionnaire: Questionnaire;
@@ -92,14 +92,14 @@ const screenMutations = {
   switchToImportScreen(state: StoreState): void {
     state.currentScreen = "import";
   },
-  switchToEditorTab(state: StoreState): void {
-    state.currentTab = "editor";
+  switchToItemsTab(state: StoreState): void {
+    state.currentTab = "items";
   },
-  switchToPrimaryTab(state: StoreState): void {
-    state.currentTab = "primary";
+  switchToElementsTab(state: StoreState): void {
+    state.currentTab = "elements";
   },
-  switchToSecondaryTab(state: StoreState): void {
-    state.currentTab = "secondary";
+  switchToAdvancedTab(state: StoreState): void {
+    state.currentTab = "advanced";
   },
 };
 
@@ -282,7 +282,7 @@ const setQuestionnaireMutations = {
     state.questionnaire = qre;
     state.questionnaireRepo = [qre];
     state.selectedItem = undefined;
-    state.currentTab = "editor";
+    state.currentTab = "items";
   },
   setQuestionnaireBundle(state: StoreState, payload: Questionnaire[]): void {
     if (payload.length === 0) {
@@ -292,7 +292,7 @@ const setQuestionnaireMutations = {
     state.questionnaire = payload[0];
     state.questionnaireRepo = payload;
     state.selectedItem = undefined;
-    state.currentTab = "editor";
+    state.currentTab = "items";
   },
   resetQuestionnaire(state: StoreState): void {
     const language = state.questionnaire.language || defaultLanguage;
@@ -372,7 +372,7 @@ export const store = createStore<StoreState>({
     selectedItem: undefined,
     questionnaireRepo: [],
     currentScreen: "init",
-    currentTab: "editor",
+    currentTab: "items",
   },
   mutations: {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

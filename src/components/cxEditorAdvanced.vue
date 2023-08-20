@@ -284,21 +284,92 @@
         </q-dialog>
       </q-list>
 
-      <div class="row">
-        <q-item tag="label" v-ripple>
-          <q-item-section avatar>
-            <q-toggle color="red" v-model="experimental" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>
-              {{ $t("components.navigationBar.metadataItems.experimental") }}
-            </q-item-label>
-          </q-item-section>
-        </q-item>
-      </div>
+      <!-- extension -->
+      <q-list class="q-my-md" padding bordered>
+        <cxExtension
+          :title="$t('views.editor.extensions')"
+          v-if="questionnaire !== undefined"
+          :extensions="questionnaire.extension"
+          :predefinedExtensions="getQuestionnaireExtensions()"
+          v-on:addExtension="addExtension"
+          v-on:removeExtension="removeExtension"
+        />
+      </q-list>
+
+      <!-- modifierExtension -->
+      <q-list class="q-my-md" padding bordered>
+        <cxExtension
+          title="ModifierExtension"
+          v-if="questionnaire !== undefined"
+          :extensions="questionnaire.modifierExtension"
+          :predefinedExtensions="[]"
+          v-on:addExtension="addModifierExtension"
+          v-on:removeExtension="removeModifierExtension"
+        />
+      </q-list>
+
+      <!-- identifier -->
+      <q-list class="q-my-md" padding bordered>
+        <q-expansion-item expand-separator>
+          <template v-slot:header>
+            <cxExpansionItemHeader
+              icon="fingerprint"
+              :title="$t('components.navigationBar.metadataItems.identifier')"
+              :tooltip="$t('tutorial.identifier')"
+            />
+          </template>
+          <q-separator />
+          <q-card>
+            <!-- identifier -->
+            <q-list
+              dense
+              bordered
+              padding
+              class="rounded-borders"
+              v-for="(id, index) in identifier"
+              :key="index"
+            >
+              <q-item-section>
+                <q-card-section>
+                  <cxIdentifier
+                    :identifier="id"
+                    :header="index + 1 + '. Identifier'"
+                  />
+                </q-card-section>
+              </q-item-section>
+              <!-- Btn Remove Identifier -->
+              <div class="row justify-end">
+                <q-btn
+                  class="q-ma-sm"
+                  unelevated
+                  color="negative"
+                  size="sm"
+                  @click="removeID(index)"
+                >
+                  <q-icon left name="add" />
+                  <div>{{ $t("views.tabs.metadata.removeId") }}</div>
+                </q-btn>
+              </div>
+            </q-list>
+            <!-- Btn Add Identifier -->
+            <div class="row">
+              <q-btn
+                class="q-ma-sm"
+                outline
+                color="primary"
+                size="sm"
+                @click="addEmptyId"
+              >
+                <q-icon left name="add" />
+                <div>{{ $t("views.tabs.metadata.addNewId") }}</div>
+              </q-btn>
+            </div>
+          </q-card>
+        </q-expansion-item>
+      </q-list>
 
       <!-- derivedFrom -->
-      <div class="q-mt-md">
+      <div class="q-my-md">
         <q-list padding bordered>
           <q-expansion-item expand-separator>
             <template v-slot:header>
@@ -376,7 +447,7 @@
       </div>
 
       <!-- subjectType -->
-      <div>
+      <div class="q-my-md">
         <q-list padding bordered>
           <q-expansion-item expand-separator>
             <template v-slot:header>
@@ -433,15 +504,8 @@
         </q-list>
       </div>
 
-      <!-- code -->
-      <div>
-        <q-list padding bordered>
-          <cxCode :codes="questionnaire.code" />
-        </q-list>
-      </div>
-
       <!-- UseContext -->
-      <div>
+      <div class="q-my-md">
         <q-list padding bordered>
           <q-expansion-item expand-separator>
             <template v-slot:header>
@@ -768,123 +832,27 @@
         </q-layout>
       </q-dialog>
 
-      <!-- Contact -->
-      <div>
-        <q-list bordered padding>
-          <q-expansion-item expand-separator>
-            <template v-slot:header>
-              <cxExpansionItemHeader
-                icon="contacts"
-                title="Contact"
-                :tooltip="$t('tutorial.contact')"
-              />
-            </template>
-            <q-list bordered separator dense padding class="rounded-borders">
-              <q-item
-                v-for="(contactDetail, index) in contact"
-                :key="`set_${index}`"
-              >
-                <q-item-section>
-                  <q-input
-                    label="Name"
-                    v-model="contactDetail.name"
-                    clearable
-                  />
-                  <cxContactDetail
-                    :contactDetail="contactDetail"
-                    v-on:addContactPoint="(p) => contactDetail.telecom.push(p)"
-                    v-on:removeContactPoint="
-                      (i) => contactDetail.telecom.splice(i, 1)
-                    "
-                  />
-                </q-item-section>
-                <q-btn
-                  flat
-                  icon="highlight_off"
-                  color="grey-6"
-                  @click="() => $store.commit('removeContactDetail', index)"
-                />
-              </q-item>
-            </q-list>
-            <q-btn
-              icon="add"
-              padding="none xl"
-              color="primary"
-              fab
-              label="ContactDetail"
-              @click="
-                () =>
-                  $store.commit('addContactDetail', { name: '', telecom: [] })
-              "
-            />
-          </q-expansion-item>
+      <!-- code -->
+      <div class="q-my-md">
+        <q-list padding bordered>
+          <cxCode :codes="questionnaire.code" />
         </q-list>
-      </div>
-
-      <div>
-        <q-input
-          v-model="publisher"
-          :label="$t('components.navigationBar.metadataItems.publisher')"
-          autogrow
-          clearable
-          @clear="() => (publisher = '')"
-        />
-      </div>
-
-      <div>
-        <q-input
-          v-model="purpose"
-          :label="$t('components.navigationBar.metadataItems.purpose')"
-          autogrow
-          clearable
-          @clear="() => (purpose = '')"
-        />
-      </div>
-
-      <div>
-        <q-input
-          v-model="description"
-          :label="$t('components.navigationBar.metadataItems.description')"
-          autogrow
-          clearable
-          @clear="() => (description = '')"
-        />
-      </div>
-
-      <div>
-        <q-input
-          label="CopyrightLabel"
-          v-model="copyrightLabel"
-          type="textarea"
-          autogrow
-          clearable
-          @clear="() => (copyrightLabel = '')"
-        />
-      </div>
-
-      <div>
-        <q-input
-          label="Copyright"
-          v-model="copyright"
-          type="textarea"
-          autogrow
-          clearable
-          @clear="() => (copyright = '')"
-        />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import { getQuestionnaireExtensions } from "@/utils/extension";
 import { store } from "@/store";
 import { computed, defineComponent, ref } from "vue";
 import { editorTools, UnreachableError } from "@/utils/editor";
 import { dateTools } from "@/utils/date";
 import { resourceTypes } from "@/utils/resourceType";
 import cxCode from "@/components/cxCode.vue";
-import cxContactDetail from "@/components/datatypes/cxContactDetail.vue";
+import cxExtension from "@/components/cxExtension.vue";
 import cxCoding from "@/components/datatypes/cxCoding.vue";
+import cxIdentifier from "@/components/datatypes/cxIdentifier.vue";
 import cxQuantity from "@/components/datatypes/cxQuantity.vue";
 import cxSimpleQuantity from "@/components/datatypes/cxSimpleQuantity.vue";
 import cxReference from "@/components/datatypes/cxReference.vue";
@@ -892,11 +860,12 @@ import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue
 import cxTooltip from "@/components/helper/cxTooltip.vue";
 import {
   Coding,
-  ContactDetail,
   DerivedFromExtension,
   derivedFromExtensionUrl,
   DerivedFromExtensionValue,
   derivedFromExtensionValues,
+  Extension,
+  Identifier,
   Questionnaire,
   UsageContext,
   UseContextType,
@@ -907,8 +876,9 @@ import { questionnaireTools } from "@/utils/questionnaire";
 export default defineComponent({
   components: {
     cxCode,
-    cxContactDetail,
+    cxExtension,
     cxCoding,
+    cxIdentifier,
     cxQuantity,
     cxSimpleQuantity,
     cxReference,
@@ -919,7 +889,6 @@ export default defineComponent({
     const questionnaire = ref<Questionnaire>(
       computed(() => store.getters.getQuestionnaireImportedJSON).value,
     );
-    const contact = ref<ContactDetail[]>(questionnaire.value.contact);
     const currentUsageContext = ref<UsageContext | undefined>(undefined);
     const url: typeof derivedFromExtensionUrl = derivedFromExtensionUrl;
     const selectedCoding = ref<Coding | undefined>(undefined);
@@ -928,7 +897,6 @@ export default defineComponent({
       editorTools,
       questionnaireTools,
       questionnaire,
-      contact,
       resourceTypes,
       currentUsageContext,
       selectedCoding,
@@ -939,9 +907,40 @@ export default defineComponent({
       useContextTypes,
       url,
       derivedFromExtensionValues,
+      getQuestionnaireExtensions,
     };
   },
   methods: {
+    addEmptyId() {
+      const newID: Identifier = {
+        system: "",
+        value: "",
+        period: {
+          start: "",
+          end: "",
+        },
+        type: {
+          coding: [],
+          text: "",
+        },
+      };
+      this.$store.commit("addIdentifier", newID);
+    },
+    removeID(indexID: number) {
+      this.$store.commit("removeIdentifier", indexID);
+    },
+    addExtension(extension: Extension): void {
+      this.$store.commit("addExtension", extension);
+    },
+    removeExtension(index: number): void {
+      this.$store.commit("removeExtension", index);
+    },
+    addModifierExtension(extension: Extension): void {
+      this.$store.commit("addModifierExtension", extension);
+    },
+    removeModifierExtension(index: number): void {
+      this.$store.commit("removeModifierExtension", index);
+    },
     showSecurityDialog(coding: Coding) {
       this.selectedCoding = coding;
       this.securityLayout = true;
@@ -1002,6 +1001,14 @@ export default defineComponent({
         this.$store.commit("setLastUpdated", value);
       },
     },
+    identifier: {
+      get() {
+        return this.$store.state.questionnaire.identifier;
+      },
+      set(value: Identifier[]) {
+        this.$store.commit("setIdentifier", value);
+      },
+    },
     source: {
       get(): string | undefined {
         return this.$store.state.questionnaire.meta.source;
@@ -1016,54 +1023,6 @@ export default defineComponent({
       },
       set(value: string) {
         this.$store.commit("setImplicitRules", value);
-      },
-    },
-    experimental: {
-      get(): boolean {
-        return this.$store.state.questionnaire.experimental;
-      },
-      set(value: string) {
-        this.$store.commit("setExperimental", value);
-      },
-    },
-    publisher: {
-      get(): string | undefined {
-        return this.$store.state.questionnaire.publisher;
-      },
-      set(value: string) {
-        this.$store.commit("setPublisher", value);
-      },
-    },
-    purpose: {
-      get(): string | undefined {
-        return this.$store.state.questionnaire.purpose;
-      },
-      set(value: string) {
-        this.$store.commit("setPurpose", value);
-      },
-    },
-    description: {
-      get(): string | undefined {
-        return this.$store.state.questionnaire.description;
-      },
-      set(value: string) {
-        this.$store.commit("setDescription", value);
-      },
-    },
-    copyrightLabel: {
-      get(): string | undefined {
-        return this.$store.state.questionnaire.copyrightLabel;
-      },
-      set(value: string) {
-        this.$store.commit("setCopyrightLabel", value);
-      },
-    },
-    copyright: {
-      get(): string | undefined {
-        return this.$store.state.questionnaire.copyright;
-      },
-      set(value: string) {
-        this.$store.commit("setCopyright", value);
       },
     },
   },

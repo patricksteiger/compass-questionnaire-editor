@@ -108,9 +108,9 @@
       }
     },
     "tabsTitles": {
-      "editorQRE": "Questionnaire Items",
-      "primary": "Questionnaire Primary",
-      "secondary": "Questionnaire Secondary"
+      "items": "Questionnaire Items",
+      "elements": "Questionnaire Elements",
+      "advanced": "Questionnaire Advanced"
     },
     "tabs": {
       "metadata": {
@@ -197,23 +197,23 @@
     "enableWhenInfo": "More information about EnableWhen.",
     "enableBehavior": "EnableBehavior indicates whether all or any conditions of EnableWhen have to be met for this question to be enabled.",
     "disabledDisplay": "DisabledDisplay indicates whether this question is hidden or not interactable (protected) for the end-user if it is disabled.",
-    "extension": "Extensions add additional functionality to the questionnaire, depending on the type of the item. Fore more information check the documentation.",
+    "extension": "Extensions add additional functionality to the questionnaire, depending on the type of the item. For more information check the documentation.",
     "initial": "Initial values are pre-populated answers to this question for the end-user. Multiple initial values are only permitted for repeating questions.",
-    "code": "Codes represent concepts from the LOINC codesystem this item corresponds to. Fore more information check the documentation.",
+    "code": "Codes represent concepts from the LOINC codesystem this item corresponds to. For more information check the documentation.",
     "url": "URL is a globally unique canonical URI referencing this questionnaires. This allows linking to this questionnaire with e.g. \"derivedFrom\".",
     "versionAlgorithmString": "This is a FHIRPath expression comparing two versions.",
     "name": "Name is a machine-friendly, natural language name identifying the questionnaire for application processing.",
     "title": "Title is a human-friendly, natural language name for the questionnaire for the end-user.",
-    "date": "Date is the latest date, and optionally time, when the questionnaire substantially changed.",
+    "date": "Date is the latest date, and optionally time, the questionnaire substantially changed.",
     "effectivePeriod": "EffectivePeriod is the period in which the questionnaire is expected to be used.",
     "Text": "Text is a human-readable Narrative containing a summary of the questionnaire, that can be used to represent the questionnaire to the end-user.",
     "identifier": "Identifier contains business identifiers used outside of FHIR.",
     "id": "ID is the logical identifier of the FHIR Resource which never changes after being assigned.",
     "implicitRules": "ImplicitRules is a URI to a set of rules that were followed when constructing the questionnaire. This is usually an implementation guide.",
-    "meta": "Meta contains metadata about the FHIR Resource. Fore more information check the documentation.",
+    "meta": "Meta contains metadata about the FHIR Resource. For more information check the documentation.",
     "derivedFrom": "DerivedForm is a canonical URI linking to a questionnaire which this questionnaire is based on.",
     "subjectType": "SubjectType defines the FHIR Resources which are the subjects allowed to answer the questionnaire.",
-    "useContext": "UseContext defines the contexts for which the questionnaire was developed. This could be topics such as gender, or references to specific programs like insurance plans. Fore more information check the documentation.",
+    "useContext": "UseContext defines the contexts for which the questionnaire was developed. This could be topics such as gender, or references to specific programs like insurance plans. For more information check the documentation.",
     "contact": "Contact contains contact information from the publisher.",
     "advanced": "Advanced FHIR Features",
     "valid": {

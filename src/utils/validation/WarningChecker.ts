@@ -71,7 +71,7 @@ export class WarningChecker {
   }
 
   primary(): string[] {
-    const { status, url } = this.questionnaire;
+    const { copyrightLabel, description, status, url } = this.questionnaire;
     const warnings: string[] = [];
     if (url) {
       if (url.includes("|")) {
@@ -84,12 +84,6 @@ export class WarningChecker {
     if (status === "unknown") {
       warnings.push("status is 'unknown'");
     }
-    return warnings;
-  }
-
-  secondary(): string[] {
-    const { description, copyrightLabel } = this.questionnaire;
-    const warnings: string[] = [];
     if (!description) {
       warnings.push("description is empty");
     }
@@ -101,6 +95,11 @@ export class WarningChecker {
         `CopyrightLabel should be less than ${COPYRIGHT_LABEL_LENGTH_LIMIT} characters`,
       );
     }
+    return warnings;
+  }
+
+  secondary(): string[] {
+    const warnings: string[] = [];
     return warnings;
   }
 }

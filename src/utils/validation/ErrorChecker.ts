@@ -538,13 +538,8 @@ export class ErrorChecker {
     this.approvalDate(this.questionnaire.approvalDate, errors);
     this.lastReviewDate(this.questionnaire.lastReviewDate, errors);
     this.text(this.questionnaire.text, errors);
-    this.extension(this.questionnaire.extension, errors, "extension");
-    this.extension(
-      this.questionnaire.modifierExtension,
-      errors,
-      "modifierExtension",
-    );
     this.effectivePeriod(this.questionnaire.effectivePeriod, errors);
+    this.contact(this.questionnaire.contact, errors);
     return errors;
   }
 
@@ -601,15 +596,21 @@ export class ErrorChecker {
     }
   }
 
+  // FIXME: Add Identifier erros
   private secondary(): string[] {
     const errors: string[] = [];
     this.id(this.questionnaire.id, errors);
-    this.meta(this.questionnaire.meta, errors);
     this.implicitRules(this.questionnaire.implicitRules, errors);
+    this.meta(this.questionnaire.meta, errors);
     this.derivedFrom(this.questionnaire.derivedFrom, errors);
+    this.extension(this.questionnaire.extension, errors, "extension");
+    this.extension(
+      this.questionnaire.modifierExtension,
+      errors,
+      "modifierExtension",
+    );
     this.code(this.questionnaire.code, errors);
     this.useContext(this.questionnaire.useContext, errors);
-    this.contact(this.questionnaire.contact, errors);
     return errors;
   }
 

@@ -108,9 +108,9 @@
       }
     },
     "tabsTitles": {
-      "editorQRE": "Fragebogenelemente",
-      "primary": "Fragebogen primär",
-      "secondary": "Fragebogen sekundär"
+      "items": "Fragebogenelemente",
+      "elements": "Fragebogeneinträge",
+      "advanced": "Fragebogen fortgeschritten"
     },
     "tabs": {
       "metadata": {

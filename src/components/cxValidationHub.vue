@@ -21,7 +21,7 @@
             </q-toolbar>
             <div class="q-pa-md" v-if="result.errors.items.length > 0">
               <div class="text-primary">
-                Tab: {{ $t("views.tabsTitles.editorQRE") }}
+                Tab: {{ $t("views.tabsTitles.items") }}
               </div>
               <q-list bordered separator>
                 <q-item
@@ -53,14 +53,14 @@
             </div>
             <div class="q-pa-md" v-if="result.errors.primary.length > 0">
               <div class="text-primary">
-                Tab: {{ $t("views.tabsTitles.primary") }}
+                Tab: {{ $t("views.tabsTitles.elements") }}
               </div>
               <q-list bordered separator>
                 <q-item
                   v-for="error in result.errors.primary"
                   :key="error"
                   clickable
-                  @click="switchToPrimaryWithLanguage(result.language)"
+                  @click="switchToElementsWithLanguage(result.language)"
                 >
                   <q-item-section>
                     <q-item-label>{{ error }}</q-item-label>
@@ -70,14 +70,14 @@
             </div>
             <div class="q-pa-md" v-if="result.errors.secondary.length > 0">
               <div class="text-primary">
-                Tab: {{ $t("views.tabsTitles.secondary") }}
+                Tab: {{ $t("views.tabsTitles.advanced") }}
               </div>
               <q-list bordered separator>
                 <q-item
                   v-for="error in result.errors.secondary"
                   :key="error"
                   clickable
-                  @click="switchToSecondaryWithLanguage(result.language)"
+                  @click="switchToAdvancedWithLanguage(result.language)"
                 >
                   <q-item-section>
                     <q-item-label>{{ error }}</q-item-label>
@@ -110,7 +110,7 @@
             </q-toolbar>
             <div class="q-pa-md" v-if="result.warnings.items.length > 0">
               <div class="text-primary">
-                Tab: {{ $t("views.tabsTitles.editorQRE") }}
+                Tab: {{ $t("views.tabsTitles.items") }}
               </div>
               <q-list bordered separator>
                 <q-item
@@ -142,14 +142,14 @@
             </div>
             <div class="q-pa-md" v-if="result.warnings.primary.length > 0">
               <div class="text-primary">
-                Tab: {{ $t("views.tabsTitles.primary") }}
+                Tab: {{ $t("views.tabsTitles.elements") }}
               </div>
               <q-list bordered separator>
                 <q-item
                   v-for="warning in result.warnings.primary"
                   :key="warning"
                   clickable
-                  @click="switchToPrimaryWithLanguage(result.language)"
+                  @click="switchToElementsWithLanguage(result.language)"
                 >
                   <q-item-section>
                     <q-item-label>{{ warning }}</q-item-label>
@@ -159,14 +159,14 @@
             </div>
             <div class="q-pa-md" v-if="result.warnings.secondary.length > 0">
               <div class="text-primary">
-                Tab: {{ $t("views.tabsTitles.secondary") }}
+                Tab: {{ $t("views.tabsTitles.advanced") }}
               </div>
               <q-list bordered separator>
                 <q-item
                   v-for="warning in result.warnings.secondary"
                   :key="warning"
                   clickable
-                  @click="switchToSecondaryWithLanguage(result.language)"
+                  @click="switchToAdvancedWithLanguage(result.language)"
                 >
                   <q-item-section>
                     <q-item-label>{{ warning }}</q-item-label>
@@ -201,18 +201,18 @@ const emit = defineEmits<{
     language: Language,
     internalId: string,
   ): void;
-  (e: "switchToPrimary", lang: Language): void;
-  (e: "switchToSecondary", lang: Language): void;
+  (e: "switchToElements", lang: Language): void;
+  (e: "switchToAdvanced", lang: Language): void;
 }>();
 
 function switchLanguageFromValidationHub(language: Language): void {
   emit("switchLanguageFromValidationHub", language);
 }
-function switchToPrimaryWithLanguage(language: Language): void {
-  emit("switchToPrimary", language);
+function switchToElementsWithLanguage(language: Language): void {
+  emit("switchToElements", language);
 }
-function switchToSecondaryWithLanguage(language: Language): void {
-  emit("switchToSecondary", language);
+function switchToAdvancedWithLanguage(language: Language): void {
+  emit("switchToAdvanced", language);
 }
 function switchToItemFromValidationHub(
   language: Language,

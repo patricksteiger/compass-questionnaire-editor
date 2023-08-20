@@ -2690,8 +2690,8 @@
       :validationResult="validationResult"
       v-on:switchLanguageFromValidationHub="switchLanguageFromValidationHub"
       v-on:switchToItemFromValidationHub="switchToItemFromValidationHub"
-      v-on:switchToPrimary="switchToPrimary"
-      v-on:switchToSecondary="switchToSecondary"
+      v-on:switchToElements="switchToElements"
+      v-on:switchToAdvanced="switchToAdvanced"
     />
   </q-dialog>
 
@@ -2851,10 +2851,10 @@ export default defineComponent({
     cxTooltip,
   },
   emits: {
-    switchToPrimary(language: Language): boolean {
+    switchToElements(language: Language): boolean {
       return !!language;
     },
-    switchToSecondary(language: Language): boolean {
+    switchToAdvanced(language: Language): boolean {
       return !!language;
     },
   },
@@ -3302,14 +3302,14 @@ export default defineComponent({
       this.switchLanguage(language);
       this.validationLayout = false;
     },
-    switchToPrimary(language: Language): void {
+    switchToElements(language: Language): void {
       this.switchLanguage(language);
-      this.$emit("switchToPrimary", language);
+      this.$emit("switchToElements", language);
       this.validationLayout = false;
     },
-    switchToSecondary(language: Language): void {
+    switchToAdvanced(language: Language): void {
       this.switchLanguage(language);
-      this.$emit("switchToSecondary", language);
+      this.$emit("switchToAdvanced", language);
       this.validationLayout = false;
     },
     switchToItemFromValidationHub(

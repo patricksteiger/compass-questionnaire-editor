@@ -89,15 +89,26 @@
           :options="statusOptions"
           :label="$t('components.navigationBar.metadataItems.status')"
         />
+        <q-item tag="label" v-ripple>
+          <q-item-section avatar>
+            <q-toggle color="red" v-model="experimental" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>
+              {{ $t("components.navigationBar.metadataItems.experimental") }}
+            </q-item-label>
+          </q-item-section>
+        </q-item>
       </div>
 
       <q-list class="q-mt-md" padding bordered>
         <div class="row">
           <cxDateTime
             inputClass="col-8"
+            :inputTooltip="$t('tutorial.date')"
             :label="$t('components.navigationBar.metadataItems.date')"
-            v-on:update="updateDate"
             :value="date"
+            v-on:update="(value) => (date = value)"
           />
         </div>
         <div class="row justify-between">
@@ -115,7 +126,7 @@
           />
         </div>
         <q-separator />
-        <div class="text-bold">
+        <div class="q-mt-md text-bold">
           EffectivePeriod:
           <cxPeriod :period="questionnaire.effectivePeriod" />
           <cxTooltip :text="$t('tutorial.effectivePeriod')" />
@@ -150,89 +161,119 @@
         </q-expansion-item>
       </q-list>
 
-      <!-- extension -->
-      <q-list padding bordered>
-        <cxExtension
-          :title="$t('views.editor.extensions')"
-          v-if="questionnaire !== undefined"
-          :extensions="questionnaire.extension"
-          :predefinedExtensions="getQuestionnaireExtensions()"
-          v-on:addExtension="addExtension"
-          v-on:removeExtension="removeExtension"
-        />
-      </q-list>
-
-      <!-- modifierExtension -->
-      <q-list padding bordered>
-        <cxExtension
-          title="ModifierExtension"
-          v-if="questionnaire !== undefined"
-          :extensions="questionnaire.modifierExtension"
-          :predefinedExtensions="[]"
-          v-on:addExtension="addModifierExtension"
-          v-on:removeExtension="removeModifierExtension"
-        />
-      </q-list>
-
-      <!-- identifier -->
-      <q-list padding bordered>
-        <q-expansion-item expand-separator v-model="expanded">
-          <template v-slot:header>
-            <cxExpansionItemHeader
-              icon="fingerprint"
-              :title="$t('components.navigationBar.metadataItems.identifier')"
-              :tooltip="$t('tutorial.identifier')"
-            />
-          </template>
-          <q-separator />
-          <q-card>
-            <!-- identifier -->
-            <q-list
-              dense
-              bordered
-              padding
-              class="rounded-borders"
-              v-for="(id, index) in identifier"
-              :key="index"
-            >
-              <q-item-section>
-                <q-card-section>
-                  <cxIdentifier
-                    :identifier="id"
-                    :header="index + 1 + '. Identifier'"
-                  />
-                </q-card-section>
-              </q-item-section>
-              <!-- Btn Remove Identifier -->
-              <div class="row justify-end">
-                <q-btn
-                  class="q-ma-sm"
-                  unelevated
-                  color="negative"
-                  size="sm"
-                  @click="removeID(index)"
-                >
-                  <q-icon left name="add" />
-                  <div>{{ $t("views.tabs.metadata.removeId") }}</div>
-                </q-btn>
-              </div>
-            </q-list>
-            <!-- Btn Add Identifier -->
-            <div class="row">
-              <q-btn
-                class="q-ma-sm"
-                outline
-                color="primary"
-                size="sm"
-                @click="addEmptyId"
+      <!-- Contact -->
+      <div class="q-my-md">
+        <q-list bordered padding>
+          <q-expansion-item expand-separator>
+            <template v-slot:header>
+              <cxExpansionItemHeader
+                icon="contacts"
+                title="Contact"
+                :tooltip="$t('tutorial.contact')"
+              />
+            </template>
+            <q-list bordered separator dense padding class="rounded-borders">
+              <q-item
+                v-for="(contactDetail, index) in contact"
+                :key="`set_${index}`"
               >
-                <q-icon left name="add" />
-                <div>{{ $t("views.tabs.metadata.addNewId") }}</div>
-              </q-btn>
+                <q-item-section>
+                  <q-input
+                    label="Name"
+                    v-model="contactDetail.name"
+                    clearable
+                  />
+                  <cxContactDetail
+                    :contactDetail="contactDetail"
+                    v-on:addContactPoint="(p) => contactDetail.telecom.push(p)"
+                    v-on:removeContactPoint="
+                      (i) => contactDetail.telecom.splice(i, 1)
+                    "
+                  />
+                </q-item-section>
+                <q-btn
+                  flat
+                  icon="highlight_off"
+                  color="grey-6"
+                  @click="() => $store.commit('removeContactDetail', index)"
+                />
+              </q-item>
+            </q-list>
+            <q-btn
+              icon="add"
+              padding="none xl"
+              color="primary"
+              fab
+              label="ContactDetail"
+              @click="
+                () =>
+                  $store.commit('addContactDetail', { name: '', telecom: [] })
+              "
+            />
+          </q-expansion-item>
+        </q-list>
+      </div>
+
+      <div>
+        <q-input
+          v-model="publisher"
+          :label="$t('components.navigationBar.metadataItems.publisher')"
+          autogrow
+          clearable
+          @clear="publisher = ''"
+        />
+      </div>
+
+      <div>
+        <q-input
+          v-model="purpose"
+          :label="$t('components.navigationBar.metadataItems.purpose')"
+          autogrow
+          clearable
+          @clear="purpose = ''"
+        />
+      </div>
+
+      <div>
+        <q-input
+          v-model="description"
+          :label="$t('components.navigationBar.metadataItems.description')"
+          autogrow
+          clearable
+          @clear="description = ''"
+        />
+      </div>
+
+      <div class="q-my-md">
+        <q-list bordered padding>
+          <q-expansion-item expand-separator>
+            <template v-slot:header>
+              <cxExpansionItemHeader icon="copyright" title="Copyright" />
+            </template>
+            <div>
+              <q-input
+                label="CopyrightLabel"
+                v-model="copyrightLabel"
+                type="textarea"
+                autogrow
+                clearable
+                @clear="() => (copyrightLabel = '')"
+              />
             </div>
-          </q-card>
-        </q-expansion-item>
-      </q-list>
+
+            <div>
+              <q-input
+                label="Copyright"
+                v-model="copyright"
+                type="textarea"
+                autogrow
+                clearable
+                @clear="() => (copyright = '')"
+              />
+            </div>
+          </q-expansion-item>
+        </q-list>
+      </div>
     </div>
   </div>
 </template>
@@ -240,20 +281,18 @@
 import { mapGetters } from "vuex";
 import { computed, defineComponent, ref } from "vue";
 import {
-  Extension,
   NarrativeStatus,
   narrativeStatuses,
   Identifier,
   Questionnaire,
   status,
+  ContactDetail,
 } from "@/types";
-import { getQuestionnaireExtensions } from "@/utils/extension";
-import cxExtension from "@/components/cxExtension.vue";
 import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
+import cxContactDetail from "@/components/datatypes/cxContactDetail.vue";
 import cxPeriod from "@/components/datatypes/cxPeriod.vue";
 import cxDate from "@/components/datatypes/cxDate.vue";
 import cxDateTime from "@/components/datatypes/cxDateTime.vue";
-import cxIdentifier from "@/components/datatypes/cxIdentifier.vue";
 import cxTooltip from "@/components/helper/cxTooltip.vue";
 import { dateTools } from "@/utils/date";
 import {
@@ -266,11 +305,10 @@ import { questionnaireTools } from "@/utils/questionnaire";
 
 export default defineComponent({
   components: {
-    cxExtension,
     cxPeriod,
+    cxContactDetail,
     cxDate,
     cxDateTime,
-    cxIdentifier,
     cxExpansionItemHeader,
     cxTooltip,
   },
@@ -281,12 +319,13 @@ export default defineComponent({
     const versionAlgorithmCoding = ref<VersionAlgorithmCode | null>(
       questionnaire.value.versionAlgorithmCoding?.code ?? null,
     );
+    const contact = ref<ContactDetail[]>(questionnaire.value.contact);
     return {
+      contact,
       dateTools,
       questionnaireTools,
       expanded: ref(false),
       statusOptions: status,
-      getQuestionnaireExtensions,
       questionnaire,
       versionAlgorithmCoding,
       versionAlgorithmCodes,
@@ -310,6 +349,14 @@ export default defineComponent({
       },
       set(value: string) {
         this.$store.commit("setTextDiv", value);
+      },
+    },
+    experimental: {
+      get(): boolean {
+        return this.$store.state.questionnaire.experimental;
+      },
+      set(value: string) {
+        this.$store.commit("setExperimental", value);
       },
     },
     version: {
@@ -384,46 +431,53 @@ export default defineComponent({
         this.$store.commit("setLastReviewDate", value);
       },
     },
+    publisher: {
+      get(): string | undefined {
+        return this.$store.state.questionnaire.publisher;
+      },
+      set(value: string) {
+        this.$store.commit("setPublisher", value);
+      },
+    },
+    purpose: {
+      get(): string | undefined {
+        return this.$store.state.questionnaire.purpose;
+      },
+      set(value: string) {
+        this.$store.commit("setPurpose", value);
+      },
+    },
+    description: {
+      get(): string | undefined {
+        return this.$store.state.questionnaire.description;
+      },
+      set(value: string) {
+        this.$store.commit("setDescription", value);
+      },
+    },
+    copyrightLabel: {
+      get(): string | undefined {
+        return this.$store.state.questionnaire.copyrightLabel;
+      },
+      set(value: string) {
+        this.$store.commit("setCopyrightLabel", value);
+      },
+    },
+    copyright: {
+      get(): string | undefined {
+        return this.$store.state.questionnaire.copyright;
+      },
+      set(value: string) {
+        this.$store.commit("setCopyright", value);
+      },
+    },
   },
   methods: {
-    updateDate(value: string) {
-      this.date = value;
-    },
     updateVersionAlgorithmCoding(code: VersionAlgorithmCode | null): void {
       this.$store.commit("updateVersionAlgorithmCoding", code);
     },
     updateVersionAlgorithmString(str: string | number | null): void {
       this.$store.commit("updateVersionAlgorithmString", str);
-    },
-    addExtension(extension: Extension): void {
-      this.$store.commit("addExtension", extension);
-    },
-    removeExtension(index: number): void {
-      this.$store.commit("removeExtension", index);
-    },
-    addModifierExtension(extension: Extension): void {
-      this.$store.commit("addModifierExtension", extension);
-    },
-    removeModifierExtension(index: number): void {
-      this.$store.commit("removeModifierExtension", index);
-    },
-    addEmptyId() {
-      const newID: Identifier = {
-        system: "",
-        value: "",
-        period: {
-          start: "",
-          end: "",
-        },
-        type: {
-          coding: [],
-          text: "",
-        },
-      };
-      this.$store.commit("addIdentifier", newID);
-    },
-    removeID(indexID: number) {
-      this.$store.commit("removeIdentifier", indexID);
     },
   },
 });

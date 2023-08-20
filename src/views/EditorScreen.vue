@@ -8,31 +8,31 @@
     align="justify"
     narrow-indicator
   >
-    <q-tab name="editor" :label="$t('views.tabsTitles.editorQRE')" />
-    <q-tab name="primary" :label="$t('views.tabsTitles.primary')" />
-    <q-tab name="secondary" :label="$t('views.tabsTitles.secondary')" />
+    <q-tab name="items" :label="$t('views.tabsTitles.items')" />
+    <q-tab name="elements" :label="$t('views.tabsTitles.elements')" />
+    <q-tab name="advanced" :label="$t('views.tabsTitles.advanced')" />
   </q-tabs>
 
   <q-separator />
 
   <q-tab-panels v-model="tab" animated>
-    <q-tab-panel name="editor">
+    <q-tab-panel name="items">
       <cxEditorItems
-        v-on:switchToPrimary="switchToPrimary"
-        v-on:switchToSecondary="switchToSecondary"
+        v-on:switchToElements="switchToElements"
+        v-on:switchToAdvanced="switchToAdvanced"
       />
     </q-tab-panel>
 
-    <q-tab-panel name="primary">
-      <cxPrimary />
+    <q-tab-panel name="elements">
+      <cxEditorElements />
     </q-tab-panel>
 
-    <q-tab-panel name="secondary">
-      <cxSecondary />
+    <q-tab-panel name="advanced">
+      <cxEditorAdvanced />
     </q-tab-panel>
   </q-tab-panels>
 
-  <div v-if="tab !== 'editor'">
+  <div v-if="tab !== 'items'">
     <!-- ValidationHub -->
     <div>
       <q-page-sticky position="bottom-right" :offset="[130, 18]">
@@ -46,8 +46,8 @@
         :validationResult="validationResult"
         v-on:switchLanguageFromValidationHub="switchLanguageFromValidationHub"
         v-on:switchToItemFromValidationHub="switchToItemFromValidationHub"
-        v-on:switchToPrimary="switchToPrimary"
-        v-on:switchToSecondary="switchToSecondary"
+        v-on:switchToElements="switchToElements"
+        v-on:switchToAdvanced="switchToAdvanced"
       />
     </q-dialog>
 
@@ -75,8 +75,8 @@
 
 <script lang="ts">
 import cxEditorItems from "@/components/cxEditorItems.vue";
-import cxPrimary from "@/components/cxPrimary.vue";
-import cxSecondary from "@/components/cxSecondary.vue";
+import cxEditorElements from "@/components/cxEditorElements.vue";
+import cxEditorAdvanced from "@/components/cxEditorAdvanced.vue";
 import cxValidationHub from "@/components/cxValidationHub.vue";
 import cxLanguageHub from "@/components/cxLanguageHub.vue";
 import cxTooltip from "@/components/helper/cxTooltip.vue";
@@ -92,8 +92,8 @@ import { UnreachableError } from "@/utils/editor";
 export default defineComponent({
   components: {
     cxEditorItems,
-    cxPrimary,
-    cxSecondary,
+    cxEditorElements,
+    cxEditorAdvanced,
     cxValidationHub,
     cxLanguageHub,
     cxTooltip,
@@ -127,14 +127,14 @@ export default defineComponent({
     tab(newTab: Tab) {
       this.language = this.getLanguage;
       switch (newTab) {
-        case "editor":
-          this.switchToEditorTab();
+        case "items":
+          this.switchToItemsTab();
           break;
-        case "primary":
-          this.switchToPrimaryTab();
+        case "elements":
+          this.switchToElementsTab();
           break;
-        case "secondary":
-          this.switchToSecondaryTab();
+        case "advanced":
+          this.switchToAdvancedTab();
           break;
         default:
           throw new UnreachableError(newTab);
@@ -145,9 +145,9 @@ export default defineComponent({
     ...mapMutations([
       "refreshState",
       "switchToEditorScreen",
-      "switchToEditorTab",
-      "switchToPrimaryTab",
-      "switchToSecondaryTab",
+      "switchToItemsTab",
+      "switchToElementsTab",
+      "switchToAdvancedTab",
     ]),
     validateState() {
       this.validationResult = Validator.check(this.getQuestionnaires);
@@ -157,14 +157,14 @@ export default defineComponent({
       this.switchQuestionnaireAndLanguage(language);
       this.validationLayout = false;
     },
-    switchToPrimary(language: Language) {
+    switchToElements(language: Language) {
       this.switchQuestionnaireAndLanguage(language);
-      this.switchToPrimaryTab();
+      this.tab = "elements";
       this.validationLayout = false;
     },
-    switchToSecondary(language: Language) {
+    switchToAdvanced(language: Language) {
       this.switchQuestionnaireAndLanguage(language);
-      this.switchToSecondaryTab();
+      this.tab = "advanced";
       this.validationLayout = false;
     },
     switchToItemFromValidationHub(language: Language, internalId: string) {
@@ -175,7 +175,7 @@ export default defineComponent({
         internalId,
       );
       this.$store.commit("setSelectedItem", selectedItem);
-      this.switchToEditorTab();
+      this.tab = "items";
       this.validationLayout = false;
     },
     deleteLanguage(): void {
