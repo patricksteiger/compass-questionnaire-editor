@@ -6,8 +6,15 @@
   <q-dialog v-model="showDialog">
     <q-card>
       <q-card-section class="row items-center">
-        <q-avatar icon="info" color="blue" text-color="white" />
-        <slot name="content"></slot>
+        <div class="row q-mb-md">
+          <q-avatar icon="info" color="blue" text-color="white" />
+          <div class="text-h5 q-ml-md q-mt-sm text-primary">
+            {{ header }}
+          </div>
+        </div>
+        <div>
+          <slot name="content"></slot>
+        </div>
       </q-card-section>
       <q-card-actions align="right">
         <q-btn flat label="OK" color="blue" @click="showDialog = false" />
@@ -21,6 +28,7 @@ import { ref } from "vue";
 import cxTooltip from "@/components/helper/cxTooltip.vue";
 
 defineProps<{
+  header: string;
   tooltip?: string;
 }>();
 
