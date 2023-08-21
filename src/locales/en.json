@@ -224,7 +224,8 @@
     },
     "info": {
       "enableWhen": "More information about EnableWhen.",
-      "extension": "More information about Extension."
+      "extension": "More information about Extension.",
+      "text": "More information about Text."
     }
   }
 }

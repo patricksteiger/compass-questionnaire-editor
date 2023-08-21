@@ -134,6 +134,7 @@
       </q-list>
 
       <q-list class="q-mt-md" padding bordered>
+        <cxInfoText />
         <q-expansion-item>
           <template v-slot:header>
             <cxExpansionItemHeader
@@ -294,6 +295,7 @@ import cxPeriod from "@/components/datatypes/cxPeriod.vue";
 import cxDate from "@/components/datatypes/cxDate.vue";
 import cxDateTime from "@/components/datatypes/cxDateTime.vue";
 import cxTooltip from "@/components/helper/cxTooltip.vue";
+import cxInfoText from "@/components/helper/cxInfoText.vue";
 import { dateTools } from "@/utils/date";
 import {
   getVersionAlgorithmCoding,
@@ -311,6 +313,7 @@ export default defineComponent({
     cxDateTime,
     cxExpansionItemHeader,
     cxTooltip,
+    cxInfoText,
   },
   setup() {
     const questionnaire = ref<Questionnaire>(
