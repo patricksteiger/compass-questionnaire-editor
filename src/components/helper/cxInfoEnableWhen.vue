@@ -1,5 +1,5 @@
 <template>
-  <cxInfoLayout :tooltip="$t('tutorial.enableWhenInfo')">
+  <cxInfoLayout :tooltip="$t('tutorial.info.enableWhen')">
     <template v-slot:content>
       <span class="q-pa-md text-bold"> General information </span>
       <span class="q-pa-xs">

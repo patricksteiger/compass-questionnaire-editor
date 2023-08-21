@@ -194,7 +194,6 @@
     "itemWeight": "ItemWeight is a number value, which can be used for processing the AnswerOption, like comparing or aggregating.",
     "initialSelected": "InitialSelected AnswerOption is selected by default when rendered to the end-user. Multiple InitialSelected set to \"true\" are only allowed for repeating items.",
     "enableWhen": "EnableWhen contains conditions, based on answers to other questions, that have to be met for this question to be enabled for the end-user.",
-    "enableWhenInfo": "More information about EnableWhen.",
     "enableBehavior": "EnableBehavior indicates whether all or any conditions of EnableWhen have to be met for this question to be enabled.",
     "disabledDisplay": "DisabledDisplay indicates whether this question is hidden or not interactable (protected) for the end-user if it is disabled.",
     "extension": "Extensions add additional functionality to the questionnaire, depending on the type of the item. For more information check the documentation.",
@@ -222,6 +221,10 @@
     },
     "Extension": {
       "hidden": "Hidden can only be changed using the toggle in the item-tree."
+    },
+    "info": {
+      "enableWhen": "More information about EnableWhen.",
+      "extension": "More information about Extension."
     }
   }
 }

@@ -194,7 +194,6 @@
     "itemWeight": "ItemWeight ist ein Zahlenwert der bei der Verarbeitung von AnswerOption verwendet werden kann, wie z.B. Summieren und Aggregieren.",
     "initialSelected": "InitialSelected AnswerOption wird standardmäßig für den Endbenutzer ausgewählt. Mehrere InitialSelected mit Wert \"true\" sind nur für wiederholbare Fragen eralubt.",
     "enableWhen": "EnableWhen beinhaltet Bedingungen, basierend auf Antworten zu anderen Fragen, die erfüllt werden müssen, um diese Frage zu aktivieren. Mit Operator \"exists\" wird geprüft ob irgendeine Antwort zu der verlinkten Frage gegen wurde oder nicht. Ist diese Frage deaktiviert, sind ihre Kindelemente auch deaktiviert.",
-    "enableWhenInfo": "Mehr informationen über EnableWhen.",
     "enableBehavior": "EnableBehavior gibt an, ob alle Bedingungen oder irgendeine Bedingung erfüllt werden müssen, damit diese Frage aktiviert wird.",
     "disabledDisplay": "DisabledDisplay gibt an, ob diese Frage für den Endbenutzer nicht angezeigt wird (hidden) oder nicht veränderbar ist, falls sie deaktiviert ist.",
     "extension": "Extensions erlauben weitere Funktionalitäten für den Fragebogen, abhängig vom Type des Elements. Mehr Informationen sind in der Dokumentation.",
@@ -222,6 +221,10 @@
     },
     "Extension": {
       "hidden": "Hidden kann nur im Element-Baum verändert werden."
+    },
+    "info": {
+      "enableWhen": "Mehr informationen über EnableWhen.",
+      "extension": "Mehr informationen über Extension."
     }
   }
 }

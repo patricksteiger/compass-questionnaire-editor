@@ -286,6 +286,7 @@
 
       <!-- extension -->
       <q-list class="q-my-md" padding bordered>
+        <cxInfoExtension />
         <cxExtension
           :title="$t('views.editor.extensions')"
           v-if="questionnaire !== undefined"
@@ -858,6 +859,7 @@ import cxSimpleQuantity from "@/components/datatypes/cxSimpleQuantity.vue";
 import cxReference from "@/components/datatypes/cxReference.vue";
 import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
 import cxTooltip from "@/components/helper/cxTooltip.vue";
+import cxInfoExtension from "@/components/helper/cxInfoExtension.vue";
 import {
   Coding,
   DerivedFromExtension,
@@ -884,6 +886,7 @@ export default defineComponent({
     cxReference,
     cxExpansionItemHeader,
     cxTooltip,
+    cxInfoExtension,
   },
   setup() {
     const questionnaire = ref<Questionnaire>(

@@ -1568,6 +1568,7 @@
             <!-- extension component -->
             <div class="q-my-md" v-if="selectedItem !== undefined">
               <q-list padding bordered>
+                <cxInfoExtension />
                 <cxExtension
                   :title="$t('views.editor.extensions')"
                   :extensions="selectedItem.extension"
@@ -2690,7 +2691,7 @@
         icon="language"
         color="purple"
         :label="language"
-        @click="() => (languageLayout = !languageLayout)"
+        @click="languageLayout = !languageLayout"
       >
         <cxTooltip :text="$t('views.languages.buttonTooltip')" />
       </q-btn>
@@ -2741,6 +2742,7 @@ import cxLanguageHub from "@/components/cxLanguageHub.vue";
 import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
 import cxTooltip from "@/components/helper/cxTooltip.vue";
 import cxInfoEnableWhen from "@/components/helper/cxInfoEnableWhen.vue";
+import cxInfoExtension from "@/components/helper/cxInfoExtension.vue";
 import { i18n, defaultLanguage } from "@/i18n";
 import {
   AnswerOption,
@@ -2777,6 +2779,7 @@ export default defineComponent({
     cxExpansionItemHeader,
     cxTooltip,
     cxInfoEnableWhen,
+    cxInfoExtension,
   },
   emits: {
     switchToElements(language: Language): boolean {
