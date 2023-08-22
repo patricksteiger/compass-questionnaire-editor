@@ -19,6 +19,7 @@ import {
   Reference,
   SimpleQuantity,
   AnswerOption,
+  Attachment,
 } from "@/types";
 import {
   ITEM_WEIGHT_URL,
@@ -95,6 +96,48 @@ function clearOptionsOrString(item: Item, enableWhenIndex: number): void {
   }
 }
 
+function filterAttachment(attachment: Attachment): void {
+  if (!attachment.contentType) {
+    delete attachment.contentType;
+  }
+  if (!attachment.language) {
+    delete attachment.language;
+  }
+  if (!attachment.data) {
+    delete attachment.data;
+  }
+  if (!attachment.url) {
+    delete attachment.url;
+  }
+  if (!Number.isInteger(attachment.size)) {
+    delete attachment.size;
+  }
+  if (!attachment.hash) {
+    delete attachment.hash;
+  }
+  if (!attachment.title) {
+    delete attachment.title;
+  }
+  if (dateTools.isDateTime(attachment.creation) !== true) {
+    delete attachment.title;
+  }
+  if (!Number.isInteger(attachment.height)) {
+    delete attachment.height;
+  }
+  if (!Number.isInteger(attachment.width)) {
+    delete attachment.width;
+  }
+  if (!Number.isInteger(attachment.frames)) {
+    delete attachment.frames;
+  }
+  if (typeof attachment.duration !== "number") {
+    delete attachment.frames;
+  }
+  if (!Number.isInteger(attachment.pages)) {
+    delete attachment.pages;
+  }
+}
+
 function filterExtension(extensions: Extension[]): void {
   for (let i = extensions.length - 1; i >= 0; i--) {
     const extension = extensions[i];
@@ -144,8 +187,8 @@ function filterExtension(extensions: Extension[]): void {
           extensions.splice(i, 1);
         }
         break;
-      // FIXME: Add filterAttachment
       case "attachment":
+        filterAttachment(extension.valueAttachment);
         if (editorTools.isEmptyObject(extension.valueAttachment)) {
           extensions.splice(i, 1);
         }
@@ -710,6 +753,7 @@ function filterInitial(item: Item): void {
         }
         break;
       case "attachment":
+        filterAttachment(initial.valueAttachment);
         if (editorTools.isEmptyObject(initial.valueAttachment)) {
           item.initial.splice(i, 1);
         }
@@ -1122,6 +1166,9 @@ function filterItem(item: Item): void {
           }
           break;
         case "attachment":
+          if (enableWhen.answerAttachment) {
+            filterAttachment(enableWhen.answerAttachment);
+          }
           if (editorTools.isEmptyObject(enableWhen.answerAttachment)) {
             item.enableWhen.splice(i, 1);
           }

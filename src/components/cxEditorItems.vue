@@ -61,16 +61,13 @@
                     <!-- reverse item.text to original value -->
                     <div style="width: 30px">
                       <q-btn
+                        v-if="hasRevertableText(prop.node)"
                         :disable="!prop.node.__active"
                         flat
                         round
                         size="xs"
                         icon="history"
                         class="q-mr-sm text-grey-8"
-                        v-if="
-                          prop.node.text !== prop.node.__oldText &&
-                          !prop.node.__newQuestion
-                        "
                         @click="prop.node.text = prop.node.__oldText"
                       >
                         <cxTooltip :text="$t('views.editor.reverseText')" />
@@ -276,8 +273,7 @@
                 input-class="text-h5 text-bold"
                 :error="!selectedItem.text"
                 :label="
-                  selectedItem.text !== selectedItem.__oldText &&
-                  !selectedItem.__newQuestion
+                  hasRevertableText(selectedItem)
                     ? `${$t('views.editor.originalText')}: ${
                         selectedItem.__oldText
                       }`
@@ -2873,6 +2869,9 @@ export default defineComponent({
   },
   methods: {
     ...mapMutations(["saveState"]),
+    hasRevertableText(item: Item): boolean {
+      return !!item.__oldText && item.text !== item.__oldText;
+    },
     changeLinkId(item: Item): void {
       this.newLinkId = item.linkId;
       this.addLinkIdLayout = true;

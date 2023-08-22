@@ -261,15 +261,7 @@ export class QuestionnaireBuilder {
   }
 
   private fromItem(fhirItem: ParsedItem, internalLinkId: string): Item {
-    const {
-      item,
-      answerOption,
-      extension,
-      modifierExtension,
-      initial,
-      text,
-      answerValueSet,
-    } = fhirItem;
+    const { item, answerOption, initial, text, answerValueSet } = fhirItem;
     const enableWhen = this.fromEnableWhen(fhirItem);
     const disabledDisplay = fhirItem.disabledDisplay ?? null;
     const code = fhirItem.code ?? [];
@@ -291,20 +283,8 @@ export class QuestionnaireBuilder {
         newAnswerOption.push(this.fromAnswerOption(a, fhirItem));
       }
     }
-    const newExtension: Extension[] = [];
-    if (extension !== undefined) {
-      for (let i = 0; i < extension.length; i++) {
-        const e = extension[i];
-        newExtension.push(this.fromExtension(e));
-      }
-    }
-    const newModifierExtension: Extension[] = [];
-    if (modifierExtension !== undefined) {
-      for (let i = 0; i < modifierExtension.length; i++) {
-        const e = modifierExtension[i];
-        newModifierExtension.push(this.fromExtension(e));
-      }
-    }
+    const extension = this.fromExtensions(this.qre.extension);
+    const modifierExtension = this.fromExtensions(this.qre.modifierExtension);
     const newInitial: Initial[] = [];
     if (initial !== undefined) {
       for (let i = 0; i < initial.length; i++) {
@@ -317,7 +297,6 @@ export class QuestionnaireBuilder {
       __disabled: false,
       __icon: getItemTypeIcon(fhirItem.type),
       __internalID: itemTools.createInternalId(),
-      __newQuestion: false,
       __oldText: text,
       __dependenceCondition: undefined,
       __OldAnswerValueSet: answerValueSet,
@@ -328,8 +307,8 @@ export class QuestionnaireBuilder {
       answerOption: newAnswerOption,
       enableWhen,
       disabledDisplay,
-      extension: newExtension,
-      modifierExtension: newModifierExtension,
+      extension,
+      modifierExtension,
       text: text ?? "",
       required: fhirItem.required,
       repeats: fhirItem.repeats,

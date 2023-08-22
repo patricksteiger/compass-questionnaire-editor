@@ -121,7 +121,6 @@ class ItemTools {
       __active: true,
       __disabled: false,
       __linkId: "",
-      __newQuestion: true,
       __answerValueSetCheck: false,
       item: undefined,
       linkId: linkId,
