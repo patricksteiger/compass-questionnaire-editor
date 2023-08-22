@@ -1581,6 +1581,7 @@
             <!-- modifierExtension component -->
             <div class="q-my-md" v-if="selectedItem !== undefined">
               <q-list padding bordered>
+                <cxInfoModifierExtension />
                 <cxExtension
                   title="ModifierExtension"
                   :extensions="selectedItem.modifierExtension"
@@ -2743,6 +2744,7 @@ import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue
 import cxTooltip from "@/components/helper/cxTooltip.vue";
 import cxInfoEnableWhen from "@/components/helper/cxInfoEnableWhen.vue";
 import cxInfoExtension from "@/components/helper/cxInfoExtension.vue";
+import cxInfoModifierExtension from "@/components/helper/cxInfoModifierExtension.vue";
 import { i18n, defaultLanguage } from "@/i18n";
 import {
   AnswerOption,
@@ -2780,6 +2782,7 @@ export default defineComponent({
     cxTooltip,
     cxInfoEnableWhen,
     cxInfoExtension,
+    cxInfoModifierExtension,
   },
   emits: {
     switchToElements(language: Language): boolean {

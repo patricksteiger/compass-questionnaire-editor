@@ -225,6 +225,7 @@
     "info": {
       "enableWhen": "Mehr informationen über EnableWhen.",
       "extension": "Mehr informationen über Extension.",
+      "modifierExtension": "Mehr informationen über ModifierExtension.",
       "text": "Mehr informationen über Text."
     }
   }

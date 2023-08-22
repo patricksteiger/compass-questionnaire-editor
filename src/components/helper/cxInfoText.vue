@@ -15,10 +15,8 @@
         <a
           target="_blank"
           href="https://www.hl7.org/fhir/R5/narrative.html#xhtml"
-        >
-          XHTML-format
-        </a>
-        . "status" sepcifies how "div" should be interpreted.
+          >XHTML-format</a
+        >. "status" sepcifies how "div" should be interpreted.
       </p>
       <p>
         "generated" means it only contains core features of the specification,
@@ -29,7 +27,7 @@
       </p>
       <p class="text-bold">Example</p>
       <p>
-        status equals "generated".<br />div equals:
+        status equals "generated".<br>div equals:
         <pre>
           <code>
 &lt;div xmlns="http://www.w3.org/1999/xhtml">

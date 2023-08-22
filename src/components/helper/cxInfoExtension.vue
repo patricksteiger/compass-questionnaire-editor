@@ -11,9 +11,8 @@
         <a
           target="_blank"
           href="https://hl7.org/fhir/extensions/extensions-Questionnaire.html/"
+          >Extensions tab</a
         >
-          Extensions tab
-        </a>
         of the Documentation.
       </p>
       <p class="text-bold">Structure</p>
