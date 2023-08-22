@@ -701,14 +701,17 @@ function filterInitial(item: Item): void {
     const initial = item.initial[i];
     switch (initial.__type) {
       case "boolean":
+        if (initial.valueBoolean !== true && initial.valueBoolean !== false) {
+          item.initial.splice(i, 1);
+        }
         break;
       case "decimal":
-        if (initial.valueDecimal !== 0 && !initial.valueDecimal) {
+        if (typeof initial.valueDecimal !== "number") {
           item.initial.splice(i, 1);
         }
         break;
       case "integer":
-        if (initial.valueInteger !== 0 && !initial.valueInteger) {
+        if (!Number.isInteger(initial.valueInteger)) {
           item.initial.splice(i, 1);
         }
         break;
@@ -733,21 +736,24 @@ function filterInitial(item: Item): void {
         }
         break;
       case "url":
-        if (!initial.valueUri) {
+        if (questionnaireTools.isUri(initial.valueUri) !== true) {
           item.initial.splice(i, 1);
         }
         break;
       case "coding":
+        filterCoding(initial.valueCoding);
         if (editorTools.isEmptyObject(initial.valueCoding)) {
           item.initial.splice(i, 1);
         }
         break;
       case "quantity":
+        filterQuantity(initial.valueQuantity);
         if (editorTools.isEmptyObject(initial.valueQuantity)) {
           item.initial.splice(i, 1);
         }
         break;
       case "reference":
+        filterReference(initial.valueReference);
         if (editorTools.isEmptyObject(initial.valueReference)) {
           item.initial.splice(i, 1);
         }
@@ -823,21 +829,7 @@ function filterItem(item: Item): void {
         switch (answer.__type) {
           case "coding":
             if (answer.valueCoding !== undefined) {
-              if (!answer.valueCoding.code) {
-                delete answer.valueCoding.code;
-              }
-              if (!answer.valueCoding.system) {
-                delete answer.valueCoding.system;
-              }
-              if (!answer.valueCoding.display) {
-                delete answer.valueCoding.display;
-              }
-              if (!answer.valueCoding.version) {
-                delete answer.valueCoding.version;
-              }
-              if (answer.valueCoding.userSelected === null) {
-                delete answer.valueCoding.userSelected;
-              }
+              filterCoding(answer.valueCoding);
             }
             if (editorTools.isEmptyObject(answer.valueCoding)) {
               item.answerOption.splice(i, 1);
@@ -885,21 +877,7 @@ function filterItem(item: Item): void {
             break;
           case "quantity":
             if (answer.valueQuantity !== undefined) {
-              if (!answer.valueQuantity.value) {
-                delete answer.valueQuantity.value;
-              }
-              if (!answer.valueQuantity.code) {
-                delete answer.valueQuantity.code;
-              }
-              if (!answer.valueQuantity.unit) {
-                delete answer.valueQuantity.unit;
-              }
-              if (!answer.valueQuantity.system) {
-                delete answer.valueQuantity.system;
-              }
-              if (!answer.valueQuantity.comparator) {
-                delete answer.valueQuantity.comparator;
-              }
+              filterQuantity(answer.valueQuantity);
             }
             if (editorTools.isEmptyObject(answer.valueQuantity)) {
               item.answerOption.splice(i, 1);
@@ -907,18 +885,7 @@ function filterItem(item: Item): void {
             break;
           case "reference":
             if (answer.valueReference !== undefined) {
-              if (!answer.valueReference.reference) {
-                delete answer.valueReference.reference;
-              }
-              if (!answer.valueReference.type) {
-                delete answer.valueReference.type;
-              }
-              if (!answer.valueReference.display) {
-                delete answer.valueReference.display;
-              }
-              if (editorTools.isEmptyObject(answer.valueReference.identifier)) {
-                delete answer.valueReference.identifier;
-              }
+              filterReference(answer.valueReference);
             }
             if (editorTools.isEmptyObject(answer.valueReference)) {
               item.answerOption.splice(i, 1);
@@ -1081,21 +1048,7 @@ function filterItem(item: Item): void {
             clearOptionsOrString(item, i);
           } else {
             if (enableWhen.answerCoding !== undefined) {
-              if (!enableWhen.answerCoding.code) {
-                delete enableWhen.answerCoding.code;
-              }
-              if (!enableWhen.answerCoding.display) {
-                delete enableWhen.answerCoding.display;
-              }
-              if (!enableWhen.answerCoding.system) {
-                delete enableWhen.answerCoding.system;
-              }
-              if (!enableWhen.answerCoding.version) {
-                delete enableWhen.answerCoding.version;
-              }
-              if (enableWhen.answerCoding.userSelected === null) {
-                delete enableWhen.answerCoding.userSelected;
-              }
+              filterCoding(enableWhen.answerCoding);
             }
             if (editorTools.isNonEmptyObject(enableWhen.answerCoding)) {
               const safedCoding = enableWhen.answerCoding;
@@ -1111,21 +1064,7 @@ function filterItem(item: Item): void {
             clearOptionsOrString(item, i);
           } else {
             if (enableWhen.answerQuantity !== undefined) {
-              if (!enableWhen.answerQuantity.code) {
-                delete enableWhen.answerQuantity.code;
-              }
-              if (!enableWhen.answerQuantity.unit) {
-                delete enableWhen.answerQuantity.unit;
-              }
-              if (!enableWhen.answerQuantity.system) {
-                delete enableWhen.answerQuantity.system;
-              }
-              if (!enableWhen.answerQuantity.value) {
-                delete enableWhen.answerQuantity.value;
-              }
-              if (!enableWhen.answerQuantity.comparator) {
-                delete enableWhen.answerQuantity.comparator;
-              }
+              filterQuantity(enableWhen.answerQuantity);
             }
             if (editorTools.isNonEmptyObject(enableWhen.answerQuantity)) {
               const safedQuantity = enableWhen.answerQuantity;
@@ -1141,20 +1080,7 @@ function filterItem(item: Item): void {
             clearOptionsOrString(item, i);
           } else {
             if (enableWhen.answerReference !== undefined) {
-              if (!enableWhen.answerReference.reference) {
-                delete enableWhen.answerReference.reference;
-              }
-              if (!enableWhen.answerReference.display) {
-                delete enableWhen.answerReference.display;
-              }
-              if (!enableWhen.answerReference.type) {
-                delete enableWhen.answerReference.type;
-              }
-              if (
-                editorTools.isEmptyObject(enableWhen.answerReference.identifier)
-              ) {
-                delete enableWhen.answerReference.identifier;
-              }
+              filterReference(enableWhen.answerReference);
             }
             if (editorTools.isNonEmptyObject(enableWhen.answerReference)) {
               const safedReference = enableWhen.answerReference;
