@@ -162,6 +162,11 @@ export class ErrorChecker {
             errors.push(`${name} at position ${pos} has empty markdown`);
           }
           break;
+        case "attachment":
+          if (editorTools.isEmptyObject(extension.valueAttachment)) {
+            errors.push(`${name} at position ${pos} has empty attachment`);
+          }
+          break;
         case "complex":
           if (extension.extension.length === 0) {
             errors.push(`complex ${name} at position ${pos} has no children`);

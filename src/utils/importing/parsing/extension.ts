@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  optionalAttachmentSchema,
   optionalBooleanSchema,
   optionalNumberSchema,
   optionalStringSchema,
@@ -17,6 +18,7 @@ const baseExtensionSchema = z
     valueTime: optionalStringSchema,
     valueString: optionalStringSchema,
     valueMarkdown: optionalStringSchema,
+    valueAttachment: optionalAttachmentSchema,
   })
   .passthrough();
 

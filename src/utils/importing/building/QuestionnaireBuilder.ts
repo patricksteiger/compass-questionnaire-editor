@@ -458,6 +458,12 @@ export class QuestionnaireBuilder {
         url: extension.url,
         valueString: extension.valueString,
       };
+    } else if (extension.valueAttachment !== undefined) {
+      return {
+        __type: "attachment",
+        url: extension.url,
+        valueAttachment: extension.valueAttachment,
+      };
     } else if (editorTools.nonEmptyArray(extension.extension)) {
       const newExtension = this.fromExtensions(extension.extension);
       return { __type: "complex", url: extension.url, extension: newExtension };

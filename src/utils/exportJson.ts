@@ -144,6 +144,12 @@ function filterExtension(extensions: Extension[]): void {
           extensions.splice(i, 1);
         }
         break;
+      // FIXME: Add filterAttachment
+      case "attachment":
+        if (editorTools.isEmptyObject(extension.valueAttachment)) {
+          extensions.splice(i, 1);
+        }
+        break;
       case "complex":
         filterExtension(extension.extension);
         if (extension.extension.length === 0) {

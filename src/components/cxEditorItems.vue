@@ -421,16 +421,17 @@
               </q-input>
             </div>
             <!-- Answers/Conditions -->
-            <q-list padding bordered v-if="selectedItem !== undefined">
-              <div
-                v-if="allowsAnswerOption(selectedItem.type)"
-                class="row items-center"
-              >
+            <q-list
+              padding
+              bordered
+              v-if="
+                selectedItem !== undefined &&
+                allowsAnswerOption(selectedItem.type)
+              "
+            >
+              <div class="row items-center">
                 <!-- answerConstraint -->
-                <div
-                  class="q-pl-md col-5"
-                  v-if="allowsAnswerOption(selectedItem.type)"
-                >
+                <div class="q-pl-md col-5">
                   <q-select
                     v-model="selectedItem.answerConstraint"
                     @update:model-value="
@@ -459,10 +460,7 @@
                 </div>
                 <!-- answerValueSet/Option toggle -->
                 <div
-                  v-if="
-                    allowsAnswerValueSet(selectedItem.type) &&
-                    allowsAnswerOption(selectedItem.type)
-                  "
+                  v-if="allowsAnswerValueSet(selectedItem.type)"
                   class="col-6 text-bold"
                 >
                   <q-toggle
@@ -505,12 +503,7 @@
                 </div>
               </div>
               <q-separator />
-              <div
-                v-if="
-                  !selectedItem.__answerValueSetCheck &&
-                  allowsAnswerOption(selectedItem.type)
-                "
-              >
+              <div v-if="!selectedItem.__answerValueSetCheck">
                 <!-- AnswerOption section -->
                 <q-expansion-item expand-separator>
                   <template v-slot:header>

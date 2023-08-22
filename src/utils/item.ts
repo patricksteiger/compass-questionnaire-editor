@@ -207,6 +207,8 @@ class ItemTools {
         return { url, __type: type, valueString: "" };
       case "markdown":
         return { url, __type: type, valueMarkdown: "" };
+      case "attachment":
+        return { url, __type: type, valueAttachment: {} };
       case "complex":
         return { url, __type: type, extension: [] };
       default:

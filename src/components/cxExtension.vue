@@ -110,6 +110,29 @@
                 error-message="Markdown must be non-empty"
                 v-model="extension.valueMarkdown"
               />
+              <div v-else-if="extension.__type === 'attachment'">
+                <div clickable @click="showComplexDialog(extension)">
+                  <q-field
+                    label="Attachment"
+                    stack-label
+                    :error="
+                      editorTools.isEmptyObject(extension.valueAttachment)
+                    "
+                    error-message="Attachment must be non-empty"
+                    dense
+                  >
+                    <template v-slot:control>
+                      <div>
+                        {{
+                          editorTools.formatAttachment(
+                            extension.valueAttachment,
+                          )
+                        }}
+                      </div>
+                    </template>
+                  </q-field>
+                </div>
+              </div>
               <div v-else-if="extension.__type === 'boolean'">
                 <q-toggle
                   :label="getExtensionLabel(extension)"
@@ -158,6 +181,26 @@
       </div>
     </q-card>
   </q-expansion-item>
+
+  <q-dialog v-if="chosenExtension !== undefined" v-model="complexLayout">
+    <q-layout view="Lhh lpR fff" container class="bg-white">
+      <q-page-container>
+        <q-page padding>
+          <div v-if="chosenExtension.__type === 'attachment'">
+            <cxAttachment
+              :attachment="chosenExtension.valueAttachment"
+              v-on:addAttachment="
+                (_a) => {
+                  complexLayout = false;
+                }
+              "
+            />
+          </div>
+        </q-page>
+      </q-page-container>
+    </q-layout>
+  </q-dialog>
+
   <q-dialog v-model="extensionLayout">
     <q-layout view="Lhh lpR fff" container class="bg-white">
       <q-page-container>
@@ -400,6 +443,7 @@ import { HIDDEN_EXTENSION_URL, PredefinedExtension } from "@/utils/extension";
 import cxDate from "@/components/datatypes/cxDate.vue";
 import cxDateTime from "@/components/datatypes/cxDateTime.vue";
 import cxTime from "@/components/datatypes/cxTime.vue";
+import cxAttachment from "@/components/datatypes/cxAttachment.vue";
 import cxComplexExtension from "@/components/cxComplexExtension.vue";
 import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
 import cxTooltip from "@/components/helper/cxTooltip.vue";
@@ -471,6 +515,14 @@ function onlyNumber(event: KeyboardEvent): void {
 
 function getExtensionLabel(extension: Extension): string {
   return extension.__type.toUpperCase();
+}
+
+const complexLayout = ref(false);
+const chosenExtension = ref<Extension | undefined>(undefined);
+
+function showComplexDialog(extension: Extension) {
+  chosenExtension.value = extension;
+  complexLayout.value = true;
 }
 
 const store = useStore();
