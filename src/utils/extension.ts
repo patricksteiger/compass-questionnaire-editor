@@ -189,6 +189,13 @@ function getPredefinedExtensions(): PredefinedExtension[] {
       valueCode: "application/pdf",
     },
     {
+      __allowedItems: ["attachment"],
+      __type: "decimal",
+      __tooltip: "Indicates the maximum size in bytes an attachment can be.",
+      url: "http://hl7.org/fhir/StructureDefinition/maxSize",
+      valueDecimal: 0,
+    },
+    {
       __allowedItems: "all_items",
       __type: "string",
       __tooltip:
