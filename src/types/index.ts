@@ -152,6 +152,7 @@ export const extensionTypes = [
   "markdown",
   "attachment",
   "coding",
+  "quantity",
 ] as const;
 
 type extTypes = typeof extensionTypes;
@@ -159,7 +160,7 @@ type extTypes = typeof extensionTypes;
 export type ExtensionType = extTypes[number];
 
 export type ComplexExtension = {
-  __type: extTypes[0];
+  __type: "complex";
   url: string;
   extension: Extension[];
 };
@@ -177,6 +178,7 @@ export type Extension = { url: string } & (
   | { __type: "markdown"; valueMarkdown: string }
   | { __type: "attachment"; valueAttachment: Attachment }
   | { __type: "coding"; valueCoding: Coding }
+  | { __type: "quantity"; valueQuantity: Quantity }
 );
 
 export type Question = {

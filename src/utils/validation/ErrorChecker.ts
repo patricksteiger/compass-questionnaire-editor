@@ -172,6 +172,11 @@ export class ErrorChecker {
             errors.push(`${name} at position ${pos} has empty coding`);
           }
           break;
+        case "quantity":
+          if (editorTools.isEmptyObject(extension.valueQuantity)) {
+            errors.push(`${name} at position ${pos} has empty quantity`);
+          }
+          break;
         case "complex":
           if (extension.extension.length === 0) {
             errors.push(`complex ${name} at position ${pos} has no children`);

@@ -199,6 +199,12 @@ function filterExtension(extensions: Extension[]): void {
           extensions.splice(i, 1);
         }
         break;
+      case "quantity":
+        filterQuantity(extension.valueQuantity);
+        if (editorTools.isEmptyObject(extension.valueQuantity)) {
+          extensions.splice(i, 1);
+        }
+        break;
       case "complex":
         filterExtension(extension.extension);
         if (extension.extension.length === 0) {

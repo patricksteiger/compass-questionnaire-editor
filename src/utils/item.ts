@@ -210,6 +210,8 @@ class ItemTools {
         return { url, __type: type, valueAttachment: {} };
       case "coding":
         return { url, __type: type, valueCoding: {} };
+      case "quantity":
+        return { url, __type: type, valueQuantity: {} };
       case "complex":
         return { url, __type: type, extension: [] };
       default:

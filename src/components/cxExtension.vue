@@ -150,6 +150,25 @@
                   </q-field>
                 </div>
               </div>
+              <div v-else-if="extension.__type === 'quantity'">
+                <div clickable @click="showComplexDialog(extension)">
+                  <q-field
+                    label="Quantity"
+                    stack-label
+                    :error="editorTools.isEmptyObject(extension.valueQuantity)"
+                    error-message="Quantity must be non-empty"
+                    dense
+                  >
+                    <template v-slot:control>
+                      <div>
+                        {{
+                          editorTools.formatQuantity(extension.valueQuantity)
+                        }}
+                      </div>
+                    </template>
+                  </q-field>
+                </div>
+              </div>
               <div v-else-if="extension.__type === 'boolean'">
                 <q-toggle
                   :label="getExtensionLabel(extension)"
@@ -213,6 +232,12 @@
             <cxCoding
               :coding="chosenExtension.valueCoding"
               v-on:addCoding="complexLayout = false"
+            />
+          </div>
+          <div v-else-if="chosenExtension.__type === 'quantity'">
+            <cxQuantity
+              :quantity="chosenExtension.valueQuantity"
+              v-on:addQuantity="complexLayout = false"
             />
           </div>
         </q-page>
@@ -470,6 +495,34 @@
                               </q-field>
                             </div>
                           </div>
+                          <div v-else-if="extension.__type === 'quantity'">
+                            <div
+                              clickable
+                              @click="showComplexDialog(extension)"
+                            >
+                              <q-field
+                                label="Quantity"
+                                stack-label
+                                :error="
+                                  editorTools.isEmptyObject(
+                                    extension.valueQuantity,
+                                  )
+                                "
+                                error-message="Quantity must be non-empty"
+                                dense
+                              >
+                                <template v-slot:control>
+                                  <div>
+                                    {{
+                                      editorTools.formatQuantity(
+                                        extension.valueQuantity,
+                                      )
+                                    }}
+                                  </div>
+                                </template>
+                              </q-field>
+                            </div>
+                          </div>
                           <q-input
                             v-else-if="extension.__type === 'markdown'"
                             :label="getExtensionLabel(extension)"
@@ -520,6 +573,7 @@ import cxDateTime from "@/components/datatypes/cxDateTime.vue";
 import cxTime from "@/components/datatypes/cxTime.vue";
 import cxAttachment from "@/components/datatypes/cxAttachment.vue";
 import cxCoding from "@/components/datatypes/cxCoding.vue";
+import cxQuantity from "@/components/datatypes/cxQuantity.vue";
 import cxComplexExtension from "@/components/cxComplexExtension.vue";
 import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
 import cxTooltip from "@/components/helper/cxTooltip.vue";

@@ -4,6 +4,7 @@ import {
   optionalBooleanSchema,
   optionalCodingSchema,
   optionalNumberSchema,
+  optionalQuantitySchema,
   optionalStringSchema,
 } from "./schemas";
 
@@ -21,6 +22,7 @@ const baseExtensionSchema = z
     valueMarkdown: optionalStringSchema,
     valueAttachment: optionalAttachmentSchema,
     valueCoding: optionalCodingSchema,
+    valueQuantity: optionalQuantitySchema,
   })
   .passthrough();
 
