@@ -50,6 +50,13 @@ const minValues: PredefinedExtension[] = [
     url: MIN_VALUE_URL,
     valueTime: "00:00:00",
   },
+  {
+    __allowedItems: ["quantity"],
+    __type: "quantity",
+    __tooltip: MIN_VALUE_TOOLTIP,
+    url: MIN_VALUE_URL,
+    valueQuantity: {},
+  },
 ];
 
 const MAX_VALUE_TOOLTIP = "Inclusive upper bound for answer";
@@ -89,6 +96,13 @@ const maxValues: PredefinedExtension[] = [
     __tooltip: MAX_VALUE_TOOLTIP,
     url: MAX_VALUE_URL,
     valueTime: "00:00:00",
+  },
+  {
+    __allowedItems: ["quantity"],
+    __type: "quantity",
+    __tooltip: MAX_VALUE_TOOLTIP,
+    url: MAX_VALUE_URL,
+    valueQuantity: {},
   },
 ];
 
@@ -173,6 +187,14 @@ function getPredefinedExtensions(): PredefinedExtension[] {
       __tooltip: "Kind of attachment allowed as answer",
       url: "http://hl7.org/fhir/StructureDefinition/mimeType",
       valueCode: "application/pdf",
+    },
+    {
+      __allowedItems: "all_items",
+      __type: "string",
+      __tooltip:
+        "Additional instructions for the user to guide their input. In most UIs this is the placeholder (or 'ghost') text placed directly inside the edit controls, which disappears when the control gets the focused.",
+      url: "http://hl7.org/fhir/StructureDefinition/entryFormat",
+      valueString: "",
     },
     ...minValues,
     ...maxValues,
