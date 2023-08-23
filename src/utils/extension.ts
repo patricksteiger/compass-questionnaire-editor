@@ -204,6 +204,14 @@ function getPredefinedExtensions(): PredefinedExtension[] {
       valueString: "",
     },
     {
+      __allowedItems: "all_items",
+      __type: "uri",
+      __tooltip:
+        "A URL that resolves to additional supporting information or guidance related to the question.",
+      url: "http://hl7.org/fhir/StructureDefinition/questionnaire-supportLink",
+      valueUri: "",
+    },
+    {
       __allowedItems: ["quantity"],
       __type: "coding",
       __tooltip:
