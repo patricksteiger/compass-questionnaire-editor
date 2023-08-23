@@ -167,6 +167,11 @@ export class ErrorChecker {
             errors.push(`${name} at position ${pos} has empty attachment`);
           }
           break;
+        case "coding":
+          if (editorTools.isEmptyObject(extension.valueCoding)) {
+            errors.push(`${name} at position ${pos} has empty coding`);
+          }
+          break;
         case "complex":
           if (extension.extension.length === 0) {
             errors.push(`complex ${name} at position ${pos} has no children`);

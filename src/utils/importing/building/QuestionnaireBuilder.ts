@@ -443,6 +443,12 @@ export class QuestionnaireBuilder {
         url: extension.url,
         valueAttachment: extension.valueAttachment,
       };
+    } else if (extension.valueCoding !== undefined) {
+      return {
+        __type: "coding",
+        url: extension.url,
+        valueCoding: extension.valueCoding,
+      };
     } else if (editorTools.nonEmptyArray(extension.extension)) {
       const newExtension = this.fromExtensions(extension.extension);
       return { __type: "complex", url: extension.url, extension: newExtension };

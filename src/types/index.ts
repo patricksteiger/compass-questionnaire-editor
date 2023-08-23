@@ -151,6 +151,7 @@ export const extensionTypes = [
   "string",
   "markdown",
   "attachment",
+  "coding",
 ] as const;
 
 type extTypes = typeof extensionTypes;
@@ -165,16 +166,17 @@ export type ComplexExtension = {
 
 export type Extension = { url: string } & (
   | ComplexExtension
-  | { __type: extTypes[1]; valueBoolean: boolean }
-  | { __type: extTypes[2]; valueCode: string }
-  | { __type: extTypes[3]; valueDecimal: number }
-  | { __type: extTypes[4]; valueInteger: number }
-  | { __type: extTypes[5]; valueDate: string }
-  | { __type: extTypes[6]; valueDateTime: string }
-  | { __type: extTypes[7]; valueTime: string }
-  | { __type: extTypes[8]; valueString: string }
-  | { __type: extTypes[9]; valueMarkdown: string }
-  | { __type: extTypes[10]; valueAttachment: Attachment }
+  | { __type: "boolean"; valueBoolean: boolean }
+  | { __type: "code"; valueCode: string }
+  | { __type: "decimal"; valueDecimal: number }
+  | { __type: "integer"; valueInteger: number }
+  | { __type: "date"; valueDate: string }
+  | { __type: "dateTime"; valueDateTime: string }
+  | { __type: "time"; valueTime: string }
+  | { __type: "string"; valueString: string }
+  | { __type: "markdown"; valueMarkdown: string }
+  | { __type: "attachment"; valueAttachment: Attachment }
+  | { __type: "coding"; valueCoding: Coding }
 );
 
 export type Question = {

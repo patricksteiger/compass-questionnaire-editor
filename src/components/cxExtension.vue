@@ -133,6 +133,23 @@
                   </q-field>
                 </div>
               </div>
+              <div v-else-if="extension.__type === 'coding'">
+                <div clickable @click="showComplexDialog(extension)">
+                  <q-field
+                    label="Coding"
+                    stack-label
+                    :error="editorTools.isEmptyObject(extension.valueCoding)"
+                    error-message="Coding must be non-empty"
+                    dense
+                  >
+                    <template v-slot:control>
+                      <div>
+                        {{ editorTools.formatCoding(extension.valueCoding) }}
+                      </div>
+                    </template>
+                  </q-field>
+                </div>
+              </div>
               <div v-else-if="extension.__type === 'boolean'">
                 <q-toggle
                   :label="getExtensionLabel(extension)"
@@ -189,11 +206,13 @@
           <div v-if="chosenExtension.__type === 'attachment'">
             <cxAttachment
               :attachment="chosenExtension.valueAttachment"
-              v-on:addAttachment="
-                (_a) => {
-                  complexLayout = false;
-                }
-              "
+              v-on:addAttachment="complexLayout = false"
+            />
+          </div>
+          <div v-else-if="chosenExtension.__type === 'coding'">
+            <cxCoding
+              :coding="chosenExtension.valueCoding"
+              v-on:addCoding="complexLayout = false"
             />
           </div>
         </q-page>
@@ -423,6 +442,34 @@
                               </q-field>
                             </div>
                           </div>
+                          <div v-else-if="extension.__type === 'coding'">
+                            <div
+                              clickable
+                              @click="showComplexDialog(extension)"
+                            >
+                              <q-field
+                                label="Coding"
+                                stack-label
+                                :error="
+                                  editorTools.isEmptyObject(
+                                    extension.valueCoding,
+                                  )
+                                "
+                                error-message="Coding must be non-empty"
+                                dense
+                              >
+                                <template v-slot:control>
+                                  <div>
+                                    {{
+                                      editorTools.formatCoding(
+                                        extension.valueCoding,
+                                      )
+                                    }}
+                                  </div>
+                                </template>
+                              </q-field>
+                            </div>
+                          </div>
                           <q-input
                             v-else-if="extension.__type === 'markdown'"
                             :label="getExtensionLabel(extension)"
@@ -472,6 +519,7 @@ import cxDate from "@/components/datatypes/cxDate.vue";
 import cxDateTime from "@/components/datatypes/cxDateTime.vue";
 import cxTime from "@/components/datatypes/cxTime.vue";
 import cxAttachment from "@/components/datatypes/cxAttachment.vue";
+import cxCoding from "@/components/datatypes/cxCoding.vue";
 import cxComplexExtension from "@/components/cxComplexExtension.vue";
 import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
 import cxTooltip from "@/components/helper/cxTooltip.vue";

@@ -193,6 +193,12 @@ function filterExtension(extensions: Extension[]): void {
           extensions.splice(i, 1);
         }
         break;
+      case "coding":
+        filterCoding(extension.valueCoding);
+        if (editorTools.isEmptyObject(extension.valueCoding)) {
+          extensions.splice(i, 1);
+        }
+        break;
       case "complex":
         filterExtension(extension.extension);
         if (extension.extension.length === 0) {
