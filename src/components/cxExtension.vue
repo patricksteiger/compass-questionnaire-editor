@@ -395,6 +395,34 @@
                             type="text"
                             v-model="extension.valueString"
                           />
+                          <div v-else-if="extension.__type === 'attachment'">
+                            <div
+                              clickable
+                              @click="showComplexDialog(extension)"
+                            >
+                              <q-field
+                                label="Attachment"
+                                stack-label
+                                :error="
+                                  editorTools.isEmptyObject(
+                                    extension.valueAttachment,
+                                  )
+                                "
+                                error-message="Attachment must be non-empty"
+                                dense
+                              >
+                                <template v-slot:control>
+                                  <div>
+                                    {{
+                                      editorTools.formatAttachment(
+                                        extension.valueAttachment,
+                                      )
+                                    }}
+                                  </div>
+                                </template>
+                              </q-field>
+                            </div>
+                          </div>
                           <q-input
                             v-else-if="extension.__type === 'markdown'"
                             :label="getExtensionLabel(extension)"
