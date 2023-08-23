@@ -204,6 +204,18 @@ function getPredefinedExtensions(): PredefinedExtension[] {
       valueString: "",
     },
     {
+      __allowedItems: ["quantity"],
+      __type: "coding",
+      __tooltip:
+        "A unit that the user may choose when providing a quantity value.",
+      url: "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+      valueCoding: {
+        code: "g",
+        display: "gram",
+        system: "http://unitsofmeasure.org",
+      },
+    },
+    {
       __allowedItems: "all_items",
       __type: "integer",
       __tooltip:
@@ -227,9 +239,9 @@ function getPredefinedExtensions(): PredefinedExtension[] {
 export function getItemExtensions(item: Item): PredefinedExtension[] {
   return getPredefinedExtensions().filter(
     (ext) =>
-      ext.__allowedItems === "all_elements" ||
-      ext.__allowedItems === "all_items" ||
-      (ext.__allowedItems !== "questionnaire_only" &&
+      ext.__allowedItems !== "questionnaire_only" &&
+      (ext.__allowedItems === "all_elements" ||
+        ext.__allowedItems === "all_items" ||
         ext.__allowedItems.includes(item.type)),
   );
 }
