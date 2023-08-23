@@ -203,6 +203,22 @@ function getPredefinedExtensions(): PredefinedExtension[] {
       url: "http://hl7.org/fhir/StructureDefinition/entryFormat",
       valueString: "",
     },
+    {
+      __allowedItems: "all_items",
+      __type: "integer",
+      __tooltip:
+        "The minimum number of times the group must appear, or the minimum number of answers for a question - when greater than 1.",
+      url: "http://hl7.org/fhir/StructureDefinition/questionnaire-minOccurs",
+      valueInteger: 1,
+    },
+    {
+      __allowedItems: "all_items",
+      __type: "integer",
+      __tooltip:
+        "The maximum number of times the group must appear, or the maximum number of answers for a question - when greater than 1 and not unlimited.",
+      url: "http://hl7.org/fhir/StructureDefinition/questionnaire-maxOccurs",
+      valueInteger: 1,
+    },
     ...minValues,
     ...maxValues,
   ];
