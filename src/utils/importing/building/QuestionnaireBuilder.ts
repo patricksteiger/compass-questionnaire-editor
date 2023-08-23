@@ -283,8 +283,8 @@ export class QuestionnaireBuilder {
         newAnswerOption.push(this.fromAnswerOption(a, fhirItem));
       }
     }
-    const extension = this.fromExtensions(this.qre.extension);
-    const modifierExtension = this.fromExtensions(this.qre.modifierExtension);
+    const extension = this.fromExtensions(fhirItem.extension);
+    const modifierExtension = this.fromExtensions(fhirItem.modifierExtension);
     const newInitial: Initial[] = [];
     if (initial !== undefined) {
       for (let i = 0; i < initial.length; i++) {
@@ -430,6 +430,12 @@ export class QuestionnaireBuilder {
         __type: "markdown",
         url: extension.url,
         valueMarkdown: extension.valueMarkdown,
+      };
+    } else if (extension.valueUri !== undefined) {
+      return {
+        __type: "uri",
+        url: extension.url,
+        valueUri: extension.valueUri,
       };
     } else if (extension.valueString !== undefined) {
       return {

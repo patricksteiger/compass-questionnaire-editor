@@ -110,6 +110,13 @@
                 error-message="Markdown must be non-empty"
                 v-model="extension.valueMarkdown"
               />
+              <q-input
+                v-else-if="extension.__type === 'uri'"
+                :label="getExtensionLabel(extension)"
+                dense
+                :rules="[questionnaireTools.isUri]"
+                v-model="extension.valueUri"
+              />
               <div v-else-if="extension.__type === 'attachment'">
                 <div clickable @click="showComplexDialog(extension)">
                   <q-field
@@ -584,6 +591,13 @@
                             type="textarea"
                             v-model="extension.valueMarkdown"
                           />
+                          <q-input
+                            v-else-if="extension.__type === 'uri'"
+                            :label="getExtensionLabel(extension)"
+                            dense
+                            :rules="[questionnaireTools.isUri]"
+                            v-model="extension.valueUri"
+                          />
                           <div v-else-if="extension.__type === 'complex'">
                             <div
                               v-if="
@@ -632,6 +646,7 @@ import cxComplexExtension from "@/components/cxComplexExtension.vue";
 import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
 import cxTooltip from "@/components/helper/cxTooltip.vue";
 import { itemTools } from "@/utils/item";
+import { questionnaireTools } from "@/utils/questionnaire";
 import { useStore } from "vuex";
 
 const props = defineProps<{

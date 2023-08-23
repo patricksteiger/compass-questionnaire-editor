@@ -162,6 +162,11 @@ export class ErrorChecker {
             errors.push(`${name} at position ${pos} has empty markdown`);
           }
           break;
+        case "uri":
+          if (questionnaireTools.isUri(extension.valueUri) !== true) {
+            errors.push(`${name} at position ${pos} has invalid uri`);
+          }
+          break;
         case "attachment":
           if (editorTools.isEmptyObject(extension.valueAttachment)) {
             errors.push(`${name} at position ${pos} has empty attachment`);

@@ -21,6 +21,7 @@ const baseExtensionSchema = z
     valueTime: optionalStringSchema,
     valueString: optionalStringSchema,
     valueMarkdown: optionalStringSchema,
+    valueUri: optionalStringSchema,
     valueAttachment: optionalAttachmentSchema,
     valueCoding: optionalCodingSchema,
     valueQuantity: optionalQuantitySchema,

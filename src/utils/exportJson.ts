@@ -187,6 +187,11 @@ function filterExtension(extensions: Extension[]): void {
           extensions.splice(i, 1);
         }
         break;
+      case "uri":
+        if (questionnaireTools.isUri(extension.valueUri) !== true) {
+          extensions.splice(i, 1);
+        }
+        break;
       case "attachment":
         filterAttachment(extension.valueAttachment);
         if (editorTools.isEmptyObject(extension.valueAttachment)) {

@@ -150,6 +150,7 @@ export const extensionTypes = [
   "time",
   "string",
   "markdown",
+  "uri",
   "attachment",
   "coding",
   "quantity",
@@ -177,6 +178,7 @@ export type Extension = { url: string } & (
   | { __type: "time"; valueTime: string }
   | { __type: "string"; valueString: string }
   | { __type: "markdown"; valueMarkdown: string }
+  | { __type: "uri"; valueUri: string }
   | { __type: "attachment"; valueAttachment: Attachment }
   | { __type: "coding"; valueCoding: Coding }
   | { __type: "quantity"; valueQuantity: Quantity }
