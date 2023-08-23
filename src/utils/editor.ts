@@ -483,7 +483,7 @@ class EditorTools {
       const prefix = result.length > 0 ? " " : "";
       result += prefix + `(Type: ${reference.type})`;
     }
-    if (reference.identifier) {
+    if (editorTools.isNonEmptyObject(reference.identifier)) {
       const prefix = result.length > 0 ? " " : "";
       result += prefix + `[with Identifier]`;
     }

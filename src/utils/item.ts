@@ -212,6 +212,8 @@ class ItemTools {
         return { url, __type: type, valueCoding: {} };
       case "quantity":
         return { url, __type: type, valueQuantity: {} };
+      case "reference":
+        return { url, __type: type, valueReference: {} };
       case "complex":
         return { url, __type: type, extension: [] };
       default:

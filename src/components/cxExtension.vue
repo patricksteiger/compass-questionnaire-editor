@@ -169,6 +169,25 @@
                   </q-field>
                 </div>
               </div>
+              <div v-else-if="extension.__type === 'reference'">
+                <div clickable @click="showComplexDialog(extension)">
+                  <q-field
+                    label="Reference"
+                    stack-label
+                    :error="editorTools.isEmptyObject(extension.valueReference)"
+                    error-message="Reference must be non-empty"
+                    dense
+                  >
+                    <template v-slot:control>
+                      <div>
+                        {{
+                          editorTools.formatReference(extension.valueReference)
+                        }}
+                      </div>
+                    </template>
+                  </q-field>
+                </div>
+              </div>
               <div v-else-if="extension.__type === 'boolean'">
                 <q-toggle
                   :label="getExtensionLabel(extension)"
@@ -238,6 +257,12 @@
             <cxQuantity
               :quantity="chosenExtension.valueQuantity"
               v-on:addQuantity="complexLayout = false"
+            />
+          </div>
+          <div v-else-if="chosenExtension.__type === 'reference'">
+            <cxReference
+              :reference="chosenExtension.valueReference"
+              v-on:addReference="complexLayout = false"
             />
           </div>
         </q-page>
@@ -523,6 +548,34 @@
                               </q-field>
                             </div>
                           </div>
+                          <div v-else-if="extension.__type === 'reference'">
+                            <div
+                              clickable
+                              @click="showComplexDialog(extension)"
+                            >
+                              <q-field
+                                label="Reference"
+                                stack-label
+                                :error="
+                                  editorTools.isEmptyObject(
+                                    extension.valueReference,
+                                  )
+                                "
+                                error-message="Reference must be non-empty"
+                                dense
+                              >
+                                <template v-slot:control>
+                                  <div>
+                                    {{
+                                      editorTools.formatReference(
+                                        extension.valueReference,
+                                      )
+                                    }}
+                                  </div>
+                                </template>
+                              </q-field>
+                            </div>
+                          </div>
                           <q-input
                             v-else-if="extension.__type === 'markdown'"
                             :label="getExtensionLabel(extension)"
@@ -574,6 +627,7 @@ import cxTime from "@/components/datatypes/cxTime.vue";
 import cxAttachment from "@/components/datatypes/cxAttachment.vue";
 import cxCoding from "@/components/datatypes/cxCoding.vue";
 import cxQuantity from "@/components/datatypes/cxQuantity.vue";
+import cxReference from "@/components/datatypes/cxReference.vue";
 import cxComplexExtension from "@/components/cxComplexExtension.vue";
 import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
 import cxTooltip from "@/components/helper/cxTooltip.vue";

@@ -153,6 +153,7 @@ export const extensionTypes = [
   "attachment",
   "coding",
   "quantity",
+  "reference",
 ] as const;
 
 type extTypes = typeof extensionTypes;
@@ -179,6 +180,7 @@ export type Extension = { url: string } & (
   | { __type: "attachment"; valueAttachment: Attachment }
   | { __type: "coding"; valueCoding: Coding }
   | { __type: "quantity"; valueQuantity: Quantity }
+  | { __type: "reference"; valueReference: Reference }
 );
 
 export type Question = {

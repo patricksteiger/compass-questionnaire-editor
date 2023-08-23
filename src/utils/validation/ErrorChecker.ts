@@ -177,6 +177,11 @@ export class ErrorChecker {
             errors.push(`${name} at position ${pos} has empty quantity`);
           }
           break;
+        case "reference":
+          if (editorTools.isEmptyObject(extension.valueReference)) {
+            errors.push(`${name} at position ${pos} has empty reference`);
+          }
+          break;
         case "complex":
           if (extension.extension.length === 0) {
             errors.push(`complex ${name} at position ${pos} has no children`);

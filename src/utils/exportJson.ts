@@ -205,6 +205,12 @@ function filterExtension(extensions: Extension[]): void {
           extensions.splice(i, 1);
         }
         break;
+      case "reference":
+        filterReference(extension.valueReference);
+        if (editorTools.isEmptyObject(extension.valueReference)) {
+          extensions.splice(i, 1);
+        }
+        break;
       case "complex":
         filterExtension(extension.extension);
         if (extension.extension.length === 0) {

@@ -5,6 +5,7 @@ import {
   optionalCodingSchema,
   optionalNumberSchema,
   optionalQuantitySchema,
+  optionalReferenceSchema,
   optionalStringSchema,
 } from "./schemas";
 
@@ -23,6 +24,7 @@ const baseExtensionSchema = z
     valueAttachment: optionalAttachmentSchema,
     valueCoding: optionalCodingSchema,
     valueQuantity: optionalQuantitySchema,
+    valueReference: optionalReferenceSchema,
   })
   .passthrough();
 

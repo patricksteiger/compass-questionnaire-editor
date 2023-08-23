@@ -455,6 +455,17 @@ export class QuestionnaireBuilder {
         url: extension.url,
         valueQuantity: extension.valueQuantity,
       };
+    } else if (extension.valueReference !== undefined) {
+      const oldRef = extension.valueReference;
+      const newRef = {
+        ...oldRef,
+        identifier: this.fromIdentifier(oldRef.identifier ?? {}),
+      };
+      return {
+        __type: "reference",
+        url: extension.url,
+        valueReference: newRef,
+      };
     } else if (editorTools.nonEmptyArray(extension.extension)) {
       const newExtension = this.fromExtensions(extension.extension);
       return { __type: "complex", url: extension.url, extension: newExtension };
