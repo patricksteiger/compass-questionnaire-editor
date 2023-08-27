@@ -13,7 +13,6 @@ import {
 import { matches } from "./constants";
 import { editorTools, UnreachableError } from "./editor";
 import { itemTools } from "./item";
-import { HIDDEN_EXTENSION_URL } from "./extension";
 
 // Source: https://www.hl7.org/fhir/R5/datatypes.html#id
 const ID_REGEXP = /[A-Za-z0-9\-.]{1,64}/g;
