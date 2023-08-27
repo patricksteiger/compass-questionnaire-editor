@@ -206,6 +206,7 @@
     "date": "Date ist das Datum, optional Zeitpunkt, an dem der Fragebogen zuletzts erheblich verändert wurde.",
     "effectivePeriod": "EffectivePeriod ist die Periode in der der Fragebogen verwendet werden soll.",
     "Text": "Text ist ein menschenlesbares Narrative mit einer Zusammenfassung des Fragebogens, die den Fragebogen dem Endbenutzer repräsentieren kann.",
+    "generatedText": "Soll 'Status' und 'Div' von Text überschrieben werden?",
     "identifier": "Identifier beinhaltet business identifier die außerhalb von FHIR verwenden werden.",
     "id": "ID is der logische Identifier für die FHIR Ressource, die niemals verändert werden darf, nachdem sie gesetzt wurde.",
     "implicitRules": "ImplicitRules ist eine URI zu einem Regelset, welche bei dem Erstellen des Fragebogens berücksichtigt wurden. Dies ist normalerweise ein Implementationsguide.",

@@ -4,13 +4,16 @@ import {
   DerivedFromExtensionValue,
   EnableWhen,
   Item,
+  Narrative,
+  NarrativeStatus,
   Questionnaire,
   UsageContext,
   UseContextType,
 } from "@/types";
 import { matches } from "./constants";
-import { UnreachableError } from "./editor";
+import { editorTools, UnreachableError } from "./editor";
 import { itemTools } from "./item";
+import { HIDDEN_EXTENSION_URL } from "./extension";
 
 // Source: https://www.hl7.org/fhir/R5/datatypes.html#id
 const ID_REGEXP = /[A-Za-z0-9\-.]{1,64}/g;
@@ -324,6 +327,49 @@ class QuestionnaireTools {
       matches(NAME_REGEXP, name) ||
       "Name has to start with A-Z, continue with at least 1 alphanumerical or underscore character, with max length of 255"
     );
+  }
+
+  generateText(qre: Questionnaire): Narrative {
+    const status: NarrativeStatus = this.hasHiddenItem(qre.item)
+      ? "extensions"
+      : "generated";
+    const items = this.generateItemText(qre.item, 1);
+    const div = `<div xmlns="http://www.w3.org/1999/xhtml">\n  <p>\n  ${qre.title}\n  </p>\n  <p>\n${items}  </p>\n</div>`;
+    return { status, div };
+  }
+
+  private hasHiddenItem(items: Item[]): boolean {
+    for (const item of items) {
+      if (!item.__active) {
+        return true;
+      }
+      if (editorTools.nonEmptyArray(item.item)) {
+        const result = this.hasHiddenItem(item.item);
+        if (result) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private generateItemText(items: Item[], prefixFreq: number): string {
+    let whitespace = "";
+    for (let i = 0; i < prefixFreq; i++) {
+      whitespace += "  ";
+    }
+    let result = "";
+    for (const item of items) {
+      if (!item.__active) continue;
+      const prefix = !item.prefix ? "" : `${item.prefix} `;
+      let itemResult = `${whitespace}${prefix}<b>${item.text}</b>\n`;
+      if (editorTools.nonEmptyArray(item.item)) {
+        const child = this.generateItemText(item.item, prefixFreq + 1);
+        itemResult += child;
+      }
+      result += itemResult;
+    }
+    return result;
   }
 }
 

@@ -206,6 +206,7 @@
     "date": "Date is the latest date, and optionally time, the questionnaire substantially changed.",
     "effectivePeriod": "EffectivePeriod is the period in which the questionnaire is expected to be used.",
     "Text": "Text is a human-readable Narrative containing a summary of the questionnaire, that can be used to represent the questionnaire to the end-user.",
+    "generatedText": "Do you wish to overwrite 'Status' and 'Div' of Text?",
     "identifier": "Identifier contains business identifiers used outside of FHIR.",
     "id": "ID is the logical identifier of the FHIR Resource which never changes after being assigned.",
     "implicitRules": "ImplicitRules is a URI to a set of rules that were followed when constructing the questionnaire. This is usually an implementation guide.",

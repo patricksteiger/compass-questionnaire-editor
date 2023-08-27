@@ -145,11 +145,18 @@
           </template>
           <q-separator />
           <q-list bordered separator dense padding class="rounded-borders">
-            <q-select
-              label="Status"
-              v-model="textStatus"
-              :options="narrativeStatuses"
-            />
+            <div class="row justify-between">
+              <q-select
+                label="Status"
+                v-model="textStatus"
+                :options="narrativeStatuses"
+              />
+              <q-btn
+                icon="update"
+                label="Generate Text"
+                @click="generateText"
+              />
+            </div>
             <q-input
               label="Div"
               v-model="textDiv"
@@ -161,6 +168,13 @@
           </q-list>
         </q-expansion-item>
       </q-list>
+
+      <q-dialog v-model="confirmTextLayout">
+        <cxConfirmDialog
+          :message="$t('tutorial.generatedText')"
+          v-on:confirmation="setGeneratedText"
+        />
+      </q-dialog>
 
       <!-- Contact -->
       <div class="q-my-md">
@@ -296,6 +310,7 @@ import cxDate from "@/components/datatypes/cxDate.vue";
 import cxDateTime from "@/components/datatypes/cxDateTime.vue";
 import cxTooltip from "@/components/helper/cxTooltip.vue";
 import cxInfoText from "@/components/helper/cxInfoText.vue";
+import cxConfirmDialog from "@/components/cxConfirmDialog.vue";
 import { dateTools } from "@/utils/date";
 import {
   getVersionAlgorithmCoding,
@@ -314,6 +329,7 @@ export default defineComponent({
     cxExpansionItemHeader,
     cxTooltip,
     cxInfoText,
+    cxConfirmDialog,
   },
   setup() {
     const questionnaire = ref<Questionnaire>(
@@ -334,6 +350,7 @@ export default defineComponent({
       versionAlgorithmCodes,
       getVersionAlgorithmCoding,
       narrativeStatuses,
+      confirmTextLayout: ref(false),
     };
   },
   computed: {
@@ -476,6 +493,20 @@ export default defineComponent({
     },
   },
   methods: {
+    generateText(): void {
+      if (!this.questionnaire.text.div) {
+        this.setGeneratedText();
+      } else {
+        this.confirmTextLayout = true;
+      }
+    },
+    setGeneratedText() {
+      const { status, div } = questionnaireTools.generateText(
+        this.questionnaire,
+      );
+      this.textStatus = status;
+      this.textDiv = div;
+    },
     updateVersionAlgorithmCoding(code: VersionAlgorithmCode | null): void {
       this.$store.commit("updateVersionAlgorithmCoding", code);
     },
