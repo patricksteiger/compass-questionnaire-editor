@@ -333,8 +333,24 @@ class QuestionnaireTools {
       ? "extensions"
       : "generated";
     const items = this.generateItemText(qre.item, 1);
-    const div = `<div xmlns="http://www.w3.org/1999/xhtml">\n  <p>\n  ${qre.title}\n  </p>\n  <p>\n${items}  </p>\n</div>`;
+    const div = `<div xmlns="http://www.w3.org/1999/xhtml">\n    <p>\n    ${qre.title}\n    </p>\n    <p>\n    <pre>\n${items}    </pre>\n    </p>\n</div>`;
     return { status, div };
+  }
+
+  private generateItemText(items: Item[], prefixFreq: number): string {
+    const whitespace = "    ".repeat(prefixFreq);
+    let result = "";
+    for (const item of items) {
+      if (!item.__active) continue;
+      const prefix = !item.prefix ? "" : `${item.prefix} `;
+      let itemResult = `${whitespace}${prefix}${item.text}\n`;
+      if (editorTools.nonEmptyArray(item.item)) {
+        const child = this.generateItemText(item.item, prefixFreq + 1);
+        itemResult += child;
+      }
+      result += itemResult;
+    }
+    return result;
   }
 
   private hasHiddenItem(items: Item[]): boolean {
@@ -350,25 +366,6 @@ class QuestionnaireTools {
       }
     }
     return false;
-  }
-
-  private generateItemText(items: Item[], prefixFreq: number): string {
-    let whitespace = "";
-    for (let i = 0; i < prefixFreq; i++) {
-      whitespace += "  ";
-    }
-    let result = "";
-    for (const item of items) {
-      if (!item.__active) continue;
-      const prefix = !item.prefix ? "" : `${item.prefix} `;
-      let itemResult = `${whitespace}${prefix}<b>${item.text}</b>\n`;
-      if (editorTools.nonEmptyArray(item.item)) {
-        const child = this.generateItemText(item.item, prefixFreq + 1);
-        itemResult += child;
-      }
-      result += itemResult;
-    }
-    return result;
   }
 }
 
