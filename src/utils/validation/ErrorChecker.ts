@@ -622,7 +622,6 @@ export class ErrorChecker {
     }
   }
 
-  // FIXME: Add Identifier erros
   private advanced(): string[] {
     const errors: string[] = [];
     this.id(this.questionnaire.id, errors);

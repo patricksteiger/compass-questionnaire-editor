@@ -58,7 +58,7 @@
           icon="language"
           color="purple"
           :label="language"
-          @click="() => (languageLayout = !languageLayout)"
+          @click="languageLayout = !languageLayout"
         >
           <cxTooltip :text="$t('views.languages.buttonTooltip')" />
         </q-btn>

@@ -332,8 +332,8 @@ export default defineComponent({
     cxConfirmDialog,
   },
   setup() {
-    const questionnaire = ref<Questionnaire>(
-      computed(() => store.getters.getQuestionnaireImportedJSON).value,
+    const questionnaire = computed<Questionnaire>(
+      () => store.getters.getQuestionnaireImportedJSON,
     );
     const versionAlgorithmCoding = ref<VersionAlgorithmCode | null>(
       questionnaire.value.versionAlgorithmCoding?.code ?? null,

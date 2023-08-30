@@ -892,8 +892,8 @@ export default defineComponent({
     cxInfoModifierExtension,
   },
   setup() {
-    const questionnaire = ref<Questionnaire>(
-      computed(() => store.getters.getQuestionnaireImportedJSON).value,
+    const questionnaire = computed<Questionnaire>(
+      () => store.getters.getQuestionnaireImportedJSON,
     );
     const currentUsageContext = ref<UsageContext | undefined>(undefined);
     const url: typeof derivedFromExtensionUrl = derivedFromExtensionUrl;

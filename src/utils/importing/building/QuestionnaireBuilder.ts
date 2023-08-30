@@ -236,12 +236,12 @@ export class QuestionnaireBuilder {
       item.__active = false;
       // First hidden item still needs to allow toggle
       item.__disabled = false;
-      if (item.item !== undefined) {
+      if (editorTools.nonEmptyArray(item.item)) {
         for (const child of item.item) {
           this.setHiddenFor(child);
         }
       }
-    } else if (item.item !== undefined) {
+    } else if (editorTools.nonEmptyArray(item.item)) {
       for (const child of item.item) {
         this.handleHiddenFor(child);
       }
@@ -253,7 +253,7 @@ export class QuestionnaireBuilder {
     hiddenExtension.valueBoolean = true;
     item.__active = false;
     item.__disabled = true;
-    if (item.item !== undefined) {
+    if (editorTools.nonEmptyArray(item.item)) {
       for (const child of item.item) {
         this.setHiddenFor(child);
       }
