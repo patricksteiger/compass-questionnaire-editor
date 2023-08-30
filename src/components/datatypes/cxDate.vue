@@ -7,7 +7,6 @@
     v-model="date"
     :label="label"
     :rules="[dateTools.isDateOrEmpty]"
-    @focus="datePicker = date"
     clearable
     @clear="date = ''"
   >
@@ -15,7 +14,12 @@
     <template v-slot:prepend>
       <q-icon name="calendar_month" class="cursor-pointer">
         <cxTooltip text="Date picker" />
-        <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+        <q-popup-proxy
+          cover
+          transition-show="scale"
+          transition-hide="scale"
+          @before-show="updatePickerData"
+        >
           <q-date v-model="datePicker" mask="YYYY-MM-DD">
             <div class="row items-center justify-end">
               <q-btn
@@ -62,4 +66,8 @@ watch(date, (value) => {
     emit("update", value);
   }
 });
+
+function updatePickerData() {
+  datePicker.value = date.value;
+}
 </script>

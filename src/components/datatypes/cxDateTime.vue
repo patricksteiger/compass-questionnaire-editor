@@ -8,20 +8,18 @@
     :label="label"
     :rules="[dateTools.isDateTimeOrEmpty]"
     clearable
-    @focus="
-      () => {
-        date = getDateFromDateTime(dateTime);
-        time = getTimeFromDateTime(dateTime);
-        timezoneOffset = getTimezoneOffsetFromDateTime(dateTime);
-      }
-    "
     @clear="dateTime = ''"
   >
     <cxTooltip v-if="inputTooltip !== undefined" :text="inputTooltip" />
     <template v-slot:prepend>
       <q-icon name="event" class="cursor-pointer">
         <cxTooltip text="DateTime picker" />
-        <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+        <q-popup-proxy
+          cover
+          transition-show="scale"
+          transition-hide="scale"
+          @before-show="updatePickerData"
+        >
           <div>Value preview: {{ getCurrentDateTime() }}</div>
           <div class="row">
             <cxDate
@@ -142,12 +140,20 @@ function getTimezoneOffsetFromDateTime(value: string): string {
   // Example: 2020-12-30T23:59:59+02:00
   if (value.length <= 19 || dateTools.isDateTime(value) !== true) {
     return dateTools.getTimezoneOffset(new Date());
+  } else if (value.endsWith("Z")) {
+    return "Z";
   }
-  if (value.endsWith("Z")) return "Z";
   const offset = value.substring(value.length - 6, value.length);
   if (dateTools.isTimezoneOffset(offset)) {
     return offset;
   }
   return dateTools.getTimezoneOffset(new Date());
+}
+
+function updatePickerData() {
+  const value = dateTime.value;
+  date.value = getDateFromDateTime(value);
+  time.value = getTimeFromDateTime(value);
+  timezoneOffset.value = getTimezoneOffsetFromDateTime(value);
 }
 </script>

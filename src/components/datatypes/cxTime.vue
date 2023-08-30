@@ -7,7 +7,6 @@
     v-model="time"
     :label="label"
     :rules="[dateTools.isTimeOrEmpty]"
-    @focus="timePicker = time"
     clearable
     @clear="time = ''"
   >
@@ -15,7 +14,12 @@
     <template v-slot:prepend>
       <q-icon name="schedule" class="cursor-pointer">
         <cxTooltip text="Time picker" />
-        <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+        <q-popup-proxy
+          cover
+          transition-show="scale"
+          transition-hide="scale"
+          @before-show="updatePickerData"
+        >
           <q-time v-model="timePicker" with-seconds format24h>
             <div class="row items-center justify-end">
               <q-btn
@@ -62,4 +66,8 @@ watch(time, (value) => {
     emit("update", value);
   }
 });
+
+function updatePickerData() {
+  timePicker.value = time.value;
+}
 </script>
