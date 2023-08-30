@@ -332,8 +332,8 @@ class QuestionnaireTools {
     const status: NarrativeStatus = this.hasHiddenItem(qre.item)
       ? "extensions"
       : "generated";
-    const items = this.generateItemText(qre.item, 1);
-    const div = `<div xmlns="http://www.w3.org/1999/xhtml">\n    <p>\n    ${qre.title}\n    </p>\n    <p>\n    <pre>\n${items}    </pre>\n    </p>\n</div>`;
+    const items = this.generateItemText(qre.item, 0);
+    const div = `<div xmlns="http://www.w3.org/1999/xhtml">\n    <p>\n    ${qre.title}\n    </p>\n    <pre>\n${items}    </pre>\n</div>`;
     return { status, div };
   }
 

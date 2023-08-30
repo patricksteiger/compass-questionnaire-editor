@@ -163,7 +163,7 @@
               :rules="[questionnaireTools.containsNonWhitespace]"
               autogrow
               clearable
-              :clear="() => (textDiv = '')"
+              @clear="textDiv = ''"
             />
           </q-list>
         </q-expansion-item>

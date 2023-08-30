@@ -26,10 +26,8 @@
         specifies no human-readable content is available.
       </p>
       <p class="text-bold">Example</p>
-      <p>
-        status equals "generated".<br>div equals:
-        <pre>
-          <code>
+      status equals: "generated".<br />div equals:
+      <pre>
 &lt;div xmlns="http://www.w3.org/1999/xhtml">
     &lt;pre>
         Tutorial Questionnaire
@@ -37,9 +35,7 @@
         2) What is your date of birth?
     &lt;/pre>
 &lt;/div>
-          </code>
-        </pre>
-      </p>
+      </pre>
     </template>
   </cxInfoLayout>
 </template>
