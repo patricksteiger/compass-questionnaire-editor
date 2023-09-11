@@ -140,6 +140,7 @@
                 :label="$t('views.editor.addComplexItem')"
               >
                 <q-fab-action
+                  padding="xs sm"
                   v-for="questionTypeIcon in noChoiceItemTypeIcons"
                   :key="questionTypeIcon.name"
                   label-position="right"
@@ -164,6 +165,7 @@
                 :label="$t('views.editor.addChoiceItem')"
               >
                 <q-fab-action
+                  padding="xs sm"
                   v-for="questionTypeIcon in choiceItemTypeIcons"
                   :key="questionTypeIcon.name"
                   label-position="right"
