@@ -1,6 +1,24 @@
 import { Extension, Item } from "@/types";
 import { ItemType } from "./constants";
 
+const QUESTIONS: ItemType[] = [
+  "attachment",
+  "date",
+  "dateTime",
+  "time",
+  "string",
+  "url",
+  "text",
+  "coding",
+  "boolean",
+  "decimal",
+  "integer",
+  "reference",
+  "quantity",
+];
+
+const QUESTIONS_AND_GROUP: ItemType[] = [...QUESTIONS, "group"];
+
 export type AllowedItems =
   | ItemType[]
   | "all_elements"
@@ -196,7 +214,7 @@ function getPredefinedExtensions(): PredefinedExtension[] {
       valueDecimal: 0,
     },
     {
-      __allowedItems: "all_items",
+      __allowedItems: QUESTIONS,
       __type: "string",
       __tooltip:
         "Additional instructions for the user to guide their input. In most UIs this is the placeholder (or 'ghost') text placed directly inside the edit controls, which disappears when the control gets the focused.",
@@ -224,7 +242,7 @@ function getPredefinedExtensions(): PredefinedExtension[] {
       },
     },
     {
-      __allowedItems: "all_items",
+      __allowedItems: QUESTIONS_AND_GROUP,
       __type: "integer",
       __tooltip:
         "The minimum number of times the group must appear, or the minimum number of answers for a question - when greater than 1.",
@@ -232,7 +250,7 @@ function getPredefinedExtensions(): PredefinedExtension[] {
       valueInteger: 1,
     },
     {
-      __allowedItems: "all_items",
+      __allowedItems: QUESTIONS_AND_GROUP,
       __type: "integer",
       __tooltip:
         "The maximum number of times the group must appear, or the maximum number of answers for a question - when greater than 1 and not unlimited.",
