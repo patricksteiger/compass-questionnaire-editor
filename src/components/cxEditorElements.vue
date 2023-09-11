@@ -157,14 +157,16 @@
                 @click="generateText"
               />
             </div>
-            <q-input
-              label="Div"
-              v-model="textDiv"
-              :rules="[questionnaireTools.containsNonWhitespace]"
-              autogrow
-              clearable
-              @clear="textDiv = ''"
-            />
+            <code>
+              <q-input
+                label="Div"
+                v-model="textDiv"
+                :rules="[questionnaireTools.containsNonWhitespace]"
+                autogrow
+                clearable
+                @clear="textDiv = ''"
+              />
+            </code>
           </q-list>
         </q-expansion-item>
       </q-list>
