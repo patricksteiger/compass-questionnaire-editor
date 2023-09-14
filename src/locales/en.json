@@ -176,7 +176,7 @@
     }
   },
   "tutorial": {
-    "answerChoice": "Questions allowing pre-defined answers via AnswerOption and AnswerValueSet for single- and multiple-choice functionality.",
+    "answerChoice": "Questions allowing pre-defined answers via AnswerOption for single- and multiple-choice functionality. Coding, String and URL additionally allow AnswerValueSet.",
     "validationHub": "Check for errors and warnings.",
     "type": "Type represents a display, grouping of questions or a question. The type of a question dictates what data is captured as answers to this question from the end-user.",
     "linkId": "LinkId uniquely identifies the question in the questionnaire and is used to link collected answers to the corresponding question.",

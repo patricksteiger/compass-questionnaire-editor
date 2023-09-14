@@ -11,6 +11,7 @@ import {
   UseContextType,
 } from "@/types";
 import { matches } from "./constants";
+import { dateTools } from "./date";
 import { editorTools, UnreachableError } from "./editor";
 import { itemTools } from "./item";
 
@@ -332,20 +333,40 @@ class QuestionnaireTools {
     const status: NarrativeStatus = this.hasHiddenItem(qre.item)
       ? "extensions"
       : "generated";
-    const items = this.generateItemText(qre.item, 0);
-    const div = `<div xmlns="http://www.w3.org/1999/xhtml">\n    <p>\n    ${qre.title}\n    </p>\n    <pre>\n${items}    </pre>\n</div>`;
+    const prefix = "    ";
+    let div = '<div xmlns="http://www.w3.org/1999/xhtml">\n';
+    if (qre.publisher) {
+      div += `${prefix}<p>Publisher: ${qre.publisher}</p>\n`;
+    }
+    div += `${prefix}<p>Title: ${qre.title}</p>\n`;
+    div += `${prefix}<p>Status: ${qre.status}</p>\n`;
+    if (dateTools.isDateTime(qre.date) === true) {
+      div += `${prefix}<p>Last changed: ${qre.date}</p>\n`;
+    }
+    if (qre.description) {
+      div += `${prefix}<p>\n${qre.description}\n${prefix}</p>\n`;
+    }
+    const items = this.generateItemText(qre.item, prefix, 0);
+    if (items) {
+      div += `<pre>\n${items}</pre>\n`;
+    }
+    div += "</div>";
     return { status, div };
   }
 
-  private generateItemText(items: Item[], prefixFreq: number): string {
-    const whitespace = "    ".repeat(prefixFreq);
+  private generateItemText(
+    items: Item[],
+    prefix: string,
+    prefixFreq: number,
+  ): string {
+    const whitespace = prefix.repeat(prefixFreq);
     let result = "";
     for (const item of items) {
       if (!item.__active) continue;
-      const prefix = !item.prefix ? "" : `${item.prefix} `;
-      let itemResult = `${whitespace}${prefix}${item.text}\n`;
+      const itemPrefix = item.prefix ? `${item.prefix} ` : "";
+      let itemResult = `${whitespace}${itemPrefix}${item.text}\n`;
       if (editorTools.nonEmptyArray(item.item)) {
-        const child = this.generateItemText(item.item, prefixFreq + 1);
+        const child = this.generateItemText(item.item, prefix, prefixFreq + 1);
         itemResult += child;
       }
       result += itemResult;
