@@ -50,7 +50,9 @@ class EditorTools {
     return true;
   }
 
-  isEmptyObject<T extends object>(obj: T | undefined | null): boolean {
+  isEmptyObject<T extends object>(
+    obj: T | undefined | null,
+  ): obj is undefined | null {
     if (obj === undefined || obj === null) return true;
     for (const key of this.objectKeys(obj)) {
       const value = obj[key];
@@ -69,7 +71,7 @@ class EditorTools {
     return true;
   }
 
-  isNonEmptyObject<T extends object>(obj: T | undefined | null): boolean {
+  isNonEmptyObject<T extends object>(obj: T | undefined | null): obj is T {
     return !this.isEmptyObject(obj);
   }
 

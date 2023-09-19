@@ -10,7 +10,7 @@ import {
   UsageContext,
   UseContextType,
 } from "@/types";
-import { matches } from "./constants";
+import { allowsAnswerOption, allowsAnswerValueSet, matches } from "./constants";
 import { dateTools } from "./date";
 import { editorTools, UnreachableError } from "./editor";
 import { itemTools } from "./item";
@@ -365,6 +365,7 @@ class QuestionnaireTools {
       if (!item.__active) continue;
       const itemPrefix = item.prefix ? `${item.prefix} ` : "";
       let itemResult = `${whitespace}${itemPrefix}${item.text}\n`;
+      itemResult += `${this.getAnswerOptionText(item, prefix, prefixFreq + 1)}`;
       if (editorTools.nonEmptyArray(item.item)) {
         const child = this.generateItemText(item.item, prefix, prefixFreq + 1);
         itemResult += child;
@@ -372,6 +373,92 @@ class QuestionnaireTools {
       result += itemResult;
     }
     return result;
+  }
+
+  private getAnswerOptionText(
+    item: Item,
+    prefix: string,
+    prefixFreq: number,
+  ): string {
+    const whitespace = prefix.repeat(prefixFreq);
+    if (
+      item.__answerValueSetCheck &&
+      allowsAnswerValueSet(item.type) &&
+      item.answerValueSet
+    ) {
+      return `${whitespace}{{ AnswerValueSet: ${item.answerValueSet} }}\n`;
+    } else if (
+      !item.__answerValueSetCheck &&
+      allowsAnswerOption(item.type) &&
+      editorTools.nonEmptyArray(item.answerOption)
+    ) {
+      const unselected = `${whitespace}(O) `;
+      const selected = `${whitespace}(X) `;
+      let result = "";
+      for (const opt of item.answerOption) {
+        const listing = opt.initialSelected ? selected : unselected;
+        switch (opt.__type) {
+          case "coding":
+            if (editorTools.isNonEmptyObject(opt.valueCoding)) {
+              const value = editorTools.formatCoding(opt.valueCoding);
+              result += `${listing}${value}\n`;
+            }
+            break;
+          case "quantity":
+            if (editorTools.isNonEmptyObject(opt.valueQuantity)) {
+              const value = editorTools.formatQuantity(opt.valueQuantity);
+              result += `${listing}${value}\n`;
+            }
+            break;
+          case "reference":
+            if (editorTools.isNonEmptyObject(opt.valueReference)) {
+              const value = editorTools.formatReference(opt.valueReference);
+              result += `${listing}${value}\n`;
+            }
+            break;
+          case "integer":
+            if (Number.isInteger(opt.valueInteger)) {
+              result += `${listing}${opt.valueInteger}\n`;
+            }
+            break;
+          case "decimal":
+            if (typeof opt.valueDecimal === "number") {
+              result += `${listing}${opt.valueDecimal}\n`;
+            }
+            break;
+          case "text":
+          case "string":
+            if (opt.valueString) {
+              result += `${listing}${opt.valueString}\n`;
+            }
+            break;
+          case "url":
+            if (questionnaireTools.isUri(opt.valueUri) === true) {
+              result += `${listing}${opt.valueUri}\n`;
+            }
+            break;
+          case "date":
+            if (dateTools.isDate(opt.valueDate) === true) {
+              result += `${listing}${opt.valueDate}\n`;
+            }
+            break;
+          case "dateTime":
+            if (dateTools.isDateTime(opt.valueDateTime) === true) {
+              result += `${listing}${opt.valueDateTime}\n`;
+            }
+            break;
+          case "time":
+            if (dateTools.isTime(opt.valueTime) === true) {
+              result += `${listing}${opt.valueTime}\n`;
+            }
+            break;
+          default:
+            throw new UnreachableError(opt.__type);
+        }
+      }
+      return result;
+    }
+    return "";
   }
 
   private hasHiddenItem(items: Item[]): boolean {

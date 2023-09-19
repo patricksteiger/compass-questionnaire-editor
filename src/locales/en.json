@@ -100,7 +100,7 @@
       "showQuestionContidions": "Show Item Conditions",
       "disableItem": "Hide Item",
       "enableItem": "Show Item",
-      "originalText": "Original text",
+      "originalText": "Original value",
       "optionsAnswers": {
         "choice": "Choice",
         "open": "Open",
