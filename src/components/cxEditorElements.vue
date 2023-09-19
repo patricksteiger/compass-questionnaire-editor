@@ -133,51 +133,6 @@
         </div>
       </q-list>
 
-      <q-list class="q-mt-md" padding bordered>
-        <cxInfoText />
-        <q-expansion-item>
-          <template v-slot:header>
-            <cxExpansionItemHeader
-              icon="description"
-              title="Text"
-              :tooltip="$t('tutorial.Text')"
-            />
-          </template>
-          <q-separator />
-          <q-list bordered separator dense padding class="rounded-borders">
-            <div class="row justify-between">
-              <q-select
-                label="Status"
-                v-model="textStatus"
-                :options="narrativeStatuses"
-              />
-              <q-btn
-                icon="update"
-                label="Generate Text"
-                @click="generateText"
-              />
-            </div>
-            <code>
-              <q-input
-                label="Div"
-                v-model="textDiv"
-                :rules="[questionnaireTools.containsNonWhitespace]"
-                autogrow
-                clearable
-                @clear="textDiv = ''"
-              />
-            </code>
-          </q-list>
-        </q-expansion-item>
-      </q-list>
-
-      <q-dialog v-model="confirmTextLayout">
-        <cxConfirmDialog
-          :message="$t('tutorial.generatedText')"
-          v-on:confirmation="setGeneratedText"
-        />
-      </q-dialog>
-
       <!-- Contact -->
       <div class="q-my-md">
         <q-list bordered padding>
@@ -297,22 +252,13 @@
 <script lang="ts">
 import { mapGetters } from "vuex";
 import { computed, defineComponent, ref } from "vue";
-import {
-  NarrativeStatus,
-  narrativeStatuses,
-  Identifier,
-  Questionnaire,
-  status,
-  ContactDetail,
-} from "@/types";
+import { Identifier, Questionnaire, status, ContactDetail } from "@/types";
 import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
 import cxContactDetail from "@/components/datatypes/cxContactDetail.vue";
 import cxPeriod from "@/components/datatypes/cxPeriod.vue";
 import cxDate from "@/components/datatypes/cxDate.vue";
 import cxDateTime from "@/components/datatypes/cxDateTime.vue";
 import cxTooltip from "@/components/helper/cxTooltip.vue";
-import cxInfoText from "@/components/helper/cxInfoText.vue";
-import cxConfirmDialog from "@/components/cxConfirmDialog.vue";
 import { dateTools } from "@/utils/date";
 import {
   getVersionAlgorithmCoding,
@@ -330,8 +276,6 @@ export default defineComponent({
     cxDateTime,
     cxExpansionItemHeader,
     cxTooltip,
-    cxInfoText,
-    cxConfirmDialog,
   },
   setup() {
     const questionnaire = computed<Questionnaire>(
@@ -345,34 +289,15 @@ export default defineComponent({
       contact,
       dateTools,
       questionnaireTools,
-      expanded: ref(false),
       statusOptions: status,
       questionnaire,
       versionAlgorithmCoding,
       versionAlgorithmCodes,
       getVersionAlgorithmCoding,
-      narrativeStatuses,
-      confirmTextLayout: ref(false),
     };
   },
   computed: {
     ...mapGetters(["getNameOfQuestionnaire"]),
-    textStatus: {
-      get() {
-        return this.$store.state.questionnaire.text.status;
-      },
-      set(value: NarrativeStatus) {
-        this.$store.commit("setTextStatus", value);
-      },
-    },
-    textDiv: {
-      get() {
-        return this.$store.state.questionnaire.text.div;
-      },
-      set(value: string) {
-        this.$store.commit("setTextDiv", value);
-      },
-    },
     experimental: {
       get(): boolean {
         return this.$store.state.questionnaire.experimental;
@@ -495,20 +420,6 @@ export default defineComponent({
     },
   },
   methods: {
-    generateText(): void {
-      if (!this.questionnaire.text.div) {
-        this.setGeneratedText();
-      } else {
-        this.confirmTextLayout = true;
-      }
-    },
-    setGeneratedText() {
-      const { status, div } = questionnaireTools.generateText(
-        this.questionnaire,
-      );
-      this.textStatus = status;
-      this.textDiv = div;
-    },
     updateVersionAlgorithmCoding(code: VersionAlgorithmCode | null): void {
       this.$store.commit("updateVersionAlgorithmCoding", code);
     },

@@ -1,7 +1,52 @@
 <template>
   <div class="row justify-center">
     <div class="col-7">
-      <q-list padding bordered>
+      <q-list class="q-mt-md" padding bordered>
+        <cxInfoText />
+        <q-expansion-item>
+          <template v-slot:header>
+            <cxExpansionItemHeader
+              icon="description"
+              title="Text"
+              :tooltip="$t('tutorial.Text')"
+            />
+          </template>
+          <q-separator />
+          <q-list bordered separator dense padding class="rounded-borders">
+            <div class="row justify-between">
+              <q-select
+                label="Status"
+                v-model="textStatus"
+                :options="narrativeStatuses"
+              />
+              <q-btn
+                icon="update"
+                label="Generate Text"
+                @click="generateText"
+              />
+            </div>
+            <code>
+              <q-input
+                label="Div"
+                v-model="textDiv"
+                :rules="[questionnaireTools.containsNonWhitespace]"
+                autogrow
+                clearable
+                @clear="textDiv = ''"
+              />
+            </code>
+          </q-list>
+        </q-expansion-item>
+      </q-list>
+
+      <q-dialog v-model="confirmTextLayout">
+        <cxConfirmDialog
+          :message="$t('tutorial.generatedText')"
+          v-on:confirmation="setGeneratedText"
+        />
+      </q-dialog>
+
+      <q-list class="q-mt-md" padding bordered>
         <div class="text-h6">FHIR Resource metadata:</div>
         <div>
           <q-input
@@ -862,6 +907,8 @@ import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue
 import cxTooltip from "@/components/helper/cxTooltip.vue";
 import cxInfoExtension from "@/components/helper/cxInfoExtension.vue";
 import cxInfoModifierExtension from "@/components/helper/cxInfoExtension.vue";
+import cxInfoText from "@/components/helper/cxInfoText.vue";
+import cxConfirmDialog from "@/components/cxConfirmDialog.vue";
 import {
   Coding,
   DerivedFromExtension,
@@ -870,6 +917,8 @@ import {
   derivedFromExtensionValues,
   Extension,
   Identifier,
+  narrativeStatuses,
+  NarrativeStatus,
   Questionnaire,
   UsageContext,
   UseContextType,
@@ -890,6 +939,8 @@ export default defineComponent({
     cxTooltip,
     cxInfoExtension,
     cxInfoModifierExtension,
+    cxInfoText,
+    cxConfirmDialog,
   },
   setup() {
     const questionnaire = computed<Questionnaire>(
@@ -914,9 +965,25 @@ export default defineComponent({
       url,
       derivedFromExtensionValues,
       getQuestionnaireExtensions,
+      narrativeStatuses,
+      confirmTextLayout: ref(false),
     };
   },
   methods: {
+    generateText(): void {
+      if (!this.questionnaire.text.div) {
+        this.setGeneratedText();
+      } else {
+        this.confirmTextLayout = true;
+      }
+    },
+    setGeneratedText() {
+      const { status, div } = questionnaireTools.generateText(
+        this.questionnaire,
+      );
+      this.textStatus = status;
+      this.textDiv = div;
+    },
     addEmptyId() {
       const newID: Identifier = {
         system: "",
@@ -983,6 +1050,22 @@ export default defineComponent({
     },
   },
   computed: {
+    textStatus: {
+      get() {
+        return this.$store.state.questionnaire.text.status;
+      },
+      set(value: NarrativeStatus) {
+        this.$store.commit("setTextStatus", value);
+      },
+    },
+    textDiv: {
+      get() {
+        return this.$store.state.questionnaire.text.div;
+      },
+      set(value: string) {
+        this.$store.commit("setTextDiv", value);
+      },
+    },
     id: {
       get(): string | undefined {
         return this.$store.state.questionnaire.id;
