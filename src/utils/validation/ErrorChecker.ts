@@ -7,7 +7,6 @@ import {
   Identifier,
   Item,
   Meta,
-  Narrative,
   Period,
   Questionnaire,
   UsageContext,
@@ -563,7 +562,6 @@ export class ErrorChecker {
     this.date(this.questionnaire.date, errors);
     this.approvalDate(this.questionnaire.approvalDate, errors);
     this.lastReviewDate(this.questionnaire.lastReviewDate, errors);
-    this.text(this.questionnaire.text, errors);
     this.effectivePeriod(this.questionnaire.effectivePeriod, errors);
     this.contact(this.questionnaire.contact, errors);
     return errors;
@@ -601,13 +599,6 @@ export class ErrorChecker {
     const msg = dateTools.isDateOrEmpty(date);
     if (msg !== true) {
       errors.push(`lastReviewDate: ${msg}`);
-    }
-  }
-
-  private text(text: Narrative, errors: string[]) {
-    const msg = questionnaireTools.containsNonWhitespace(text.div);
-    if (msg !== true) {
-      errors.push(`Text.Div: ${msg}. Text won't be exported!`);
     }
   }
 

@@ -1,6 +1,7 @@
 import { Item, Questionnaire } from "@/types";
 import { COPYRIGHT_LABEL_LENGTH_LIMIT } from "../constants";
 import { editorTools } from "../editor";
+import { questionnaireTools } from "../questionnaire";
 
 export type Warnings = {
   items: ItemWarning[];
@@ -100,6 +101,16 @@ export class WarningChecker {
 
   advanced(): string[] {
     const warnings: string[] = [];
+    this.questionnaireText(warnings);
     return warnings;
+  }
+
+  private questionnaireText(warnings: string[]) {
+    const msg = questionnaireTools.containsNonWhitespace(
+      this.questionnaire.text.div,
+    );
+    if (msg !== true) {
+      warnings.push(`Text.Div: ${msg}`);
+    }
   }
 }
