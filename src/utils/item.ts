@@ -8,7 +8,7 @@ import {
   ItemType,
 } from "./constants";
 import { dateTools } from "./date";
-import { UnreachableError } from "./editor";
+import { editorTools, UnreachableError } from "./editor";
 import { getHiddenExtension } from "./extension";
 import { ParsedItem } from "./importing/parsing/item";
 
@@ -16,40 +16,57 @@ class ItemTools {
   createInternalId(): string {
     return `${uuidv4()}-${Date.now()}`;
   }
+
   createAnswerOptionId(): string {
     return `${uuidv4()}-${Date.now()}`;
   }
+
   getDefaultText(): string {
     return i18n.global.t("views.editor.newQuestion");
   }
+
   getDefaultRequired(type: ItemType): false | undefined {
     return type !== "display" ? false : undefined;
   }
+
   getDefaultRepeats(type: ItemType): false | undefined {
     return type !== "display" ? false : undefined;
   }
+
   getDefaultReadOnly(type: ItemType): false | undefined {
     return type !== "display" ? false : undefined;
   }
+
   definedAnswerChoices(item: Item | ParsedItem): boolean {
     return !this.undefinedAnswerChoices(item);
   }
+
   undefinedAnswerChoices(item: Item | ParsedItem): boolean {
     return (
       this.undefinedAnswerOption(item) && this.undefinedAnswerValueSet(item)
     );
   }
+
   undefinedAnswerOption(item: Item | ParsedItem): boolean {
     return !item.answerOption || item.answerOption.length === 0;
   }
+
   undefinedAnswerValueSet(item: Item | ParsedItem): boolean {
     return !item.answerValueSet;
   }
+
   definedAnswerOption(item: Item | ParsedItem): boolean {
     return !this.undefinedAnswerOption(item);
   }
+
   definedAnswerValueSet(item: Item | ParsedItem): boolean {
     return !this.undefinedAnswerValueSet(item);
+  }
+
+  getAllLinkIDs(item: Item): Set<string> {
+    const linkIDs = new Set<string>();
+    this.getAllLinkIDsHelper(item, linkIDs);
+    return linkIDs;
   }
 
   private getAllLinkIDsHelper(item: Item, linkIDs: Set<string>): void {
@@ -59,12 +76,6 @@ class ItemTools {
     for (const element of item.item) {
       this.getAllLinkIDsHelper(element, linkIDs);
     }
-  }
-
-  getAllLinkIDs(item: Item): Set<string> {
-    const linkIDs = new Set<string>();
-    this.getAllLinkIDsHelper(item, linkIDs);
-    return linkIDs;
   }
 
   getAllLinkIDsStrict(item: Item): Set<string> {
@@ -81,15 +92,12 @@ class ItemTools {
     }
   }
 
-  getItemByInternalId(
-    internalId: string,
-    rootItem: Item[] | undefined,
-  ): Item | undefined {
-    if (rootItem !== undefined) {
-      for (const item of rootItem) {
-        if (item.__internalID === internalId) {
-          return item;
-        }
+  getItemByInternalId(internalId: string, rootItem: Item[]): Item | undefined {
+    for (const item of rootItem) {
+      if (item.__internalID === internalId) {
+        return item;
+      }
+      if (editorTools.nonEmptyArray(item.item)) {
         const result = this.getItemByInternalId(internalId, item.item);
         if (result !== undefined) {
           return result;
@@ -104,10 +112,11 @@ class ItemTools {
       if (item.linkId === linkId) {
         return item;
       }
-      if (item.item === undefined) continue;
-      const result = this.getItemByLinkId(linkId, item.item);
-      if (result !== undefined) {
-        return result;
+      if (editorTools.nonEmptyArray(item.item)) {
+        const result = this.getItemByLinkId(linkId, item.item);
+        if (result !== undefined) {
+          return result;
+        }
       }
     }
     return undefined;

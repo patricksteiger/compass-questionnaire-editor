@@ -279,7 +279,7 @@
                     ? `${$t('views.editor.originalText')}: ${
                         selectedItem.__oldText
                       }`
-                    : ''
+                    : 'Text'
                 "
               >
                 <template v-slot:error>
@@ -1536,11 +1536,13 @@
                 />
               </q-list>
             </div>
-            <q-separator color="primary" />
-            <div class="q-ma-md text-h5 text-primary">
-              {{ $t("tutorial.advanced") }}
+            <div v-if="selectedItem !== undefined">
+              <q-separator color="primary" />
+              <div class="q-ma-md text-h5 text-primary">
+                {{ $t("tutorial.advanced") }}
+              </div>
+              <q-separator color="primary" />
             </div>
-            <q-separator color="primary" />
             <div
               class="row items-center justify-between text-bold text-h5 q-mb-md"
               v-if="selectedItem !== undefined"
@@ -3496,12 +3498,14 @@ export default defineComponent({
       }
 
       // Check if sourceItem is the parent for target -> Not allowed
-      const itemNodeChild = this.itemTools.getItemByInternalId(
-        targetItem.__internalID,
-        sourceItem.item,
-      );
-      if (itemNodeChild !== undefined) {
-        return;
+      if (editorTools.nonEmptyArray(sourceItem.item)) {
+        const childItem = this.itemTools.getItemByInternalId(
+          targetItem.__internalID,
+          sourceItem.item,
+        );
+        if (childItem !== undefined) {
+          return;
+        }
       }
 
       // Can only drag on active items that aren't of type display
