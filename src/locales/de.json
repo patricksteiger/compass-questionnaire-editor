@@ -224,10 +224,11 @@
       "hidden": "Hidden kann nur im Element-Baum verändert werden."
     },
     "info": {
-      "enableWhen": "Mehr informationen über EnableWhen.",
-      "extension": "Mehr informationen über Extension.",
-      "modifierExtension": "Mehr informationen über ModifierExtension.",
-      "text": "Mehr informationen über Text."
+      "enableWhen": "Mehr Informationen über EnableWhen.",
+      "extension": "Mehr Informationen über Extension.",
+      "modifierExtension": "Mehr Informationen über ModifierExtension.",
+      "text": "Mehr Informationen über Text.",
+      "itemTypes": "Mehr Informationen über Elementtypen."
     }
   }
 }

@@ -4,8 +4,8 @@
   </q-btn>
 
   <q-dialog v-model="showDialog">
-    <q-card>
-      <q-card-section class="row items-center">
+    <q-card full-width>
+      <q-card-section style="max-height: 80vh" class="scroll">
         <div class="row q-mb-md">
           <q-avatar icon="info" color="blue" text-color="white" />
           <div class="text-h5 q-ml-md q-mt-sm text-primary">

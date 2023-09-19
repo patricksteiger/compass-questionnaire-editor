@@ -189,9 +189,12 @@
 
       <!-- Editor: question selected -->
       <template v-slot:after>
+        <div v-if="selectedItem === undefined" class="q-mt-md">
+          Item types overview: <cxInfoItemTypes />
+        </div>
         <q-tab-panels v-model="selected">
           <q-tab-panel :name="selected">
-            <div>
+            <div v-if="selectedItem !== undefined">
               <!-- back Las selected Item -->
               <q-btn
                 color="primary"
@@ -2738,6 +2741,7 @@ import cxTooltip from "@/components/helper/cxTooltip.vue";
 import cxInfoEnableWhen from "@/components/helper/cxInfoEnableWhen.vue";
 import cxInfoExtension from "@/components/helper/cxInfoExtension.vue";
 import cxInfoModifierExtension from "@/components/helper/cxInfoModifierExtension.vue";
+import cxInfoItemTypes from "@/components/helper/cxInfoItemTypes.vue";
 import { i18n, defaultLanguage } from "@/i18n";
 import {
   AnswerOption,
@@ -2776,6 +2780,7 @@ export default defineComponent({
     cxInfoEnableWhen,
     cxInfoExtension,
     cxInfoModifierExtension,
+    cxInfoItemTypes,
   },
   emits: {
     switchToElements(language: Language): boolean {

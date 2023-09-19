@@ -386,14 +386,14 @@ class QuestionnaireTools {
       allowsAnswerValueSet(item.type) &&
       item.answerValueSet
     ) {
-      return `${whitespace}{{ AnswerValueSet: ${item.answerValueSet} }}\n`;
+      return `${whitespace}[[ AnswerValueSet: ${item.answerValueSet} ]]\n`;
     } else if (
       !item.__answerValueSetCheck &&
       allowsAnswerOption(item.type) &&
       editorTools.nonEmptyArray(item.answerOption)
     ) {
-      const unselected = `${whitespace}(O) `;
-      const selected = `${whitespace}(X) `;
+      const unselected = `${whitespace}[ ] `;
+      const selected = `${whitespace}[X] `;
       let result = "";
       for (const opt of item.answerOption) {
         const listing = opt.initialSelected ? selected : unselected;

@@ -30,6 +30,7 @@
                 label="Div"
                 v-model="textDiv"
                 :rules="[questionnaireTools.containsNonWhitespace]"
+                type="textarea"
                 autogrow
                 clearable
                 @clear="textDiv = ''"

@@ -227,7 +227,8 @@
       "enableWhen": "More information about EnableWhen.",
       "extension": "More information about Extension.",
       "modifierExtension": "More information about ModifierExtension.",
-      "text": "More information about Text."
+      "text": "More information about Text.",
+      "itemTypes": "More information about Item types."
     }
   }
 }
