@@ -47,6 +47,60 @@
         />
       </q-dialog>
 
+      <!-- Contact -->
+      <div class="q-my-md">
+        <q-list bordered padding>
+          <q-expansion-item expand-separator>
+            <template v-slot:header>
+              <cxExpansionItemHeader
+                icon="contacts"
+                title="Contact"
+                :tooltip="$t('tutorial.contact')"
+              />
+            </template>
+            <q-list bordered separator dense padding class="rounded-borders">
+              <q-item
+                v-for="(contactDetail, index) in contact"
+                :key="`set_${index}`"
+              >
+                <q-item-section>
+                  <q-input
+                    label="Name"
+                    v-model="contactDetail.name"
+                    clearable
+                  />
+                  <cxContactDetail
+                    :contactDetail="contactDetail"
+                    v-on:addContactPoint="
+                      (p: ContactPoint) => contactDetail.telecom.push(p)
+                    "
+                    v-on:removeContactPoint="
+                      (i: number) => contactDetail.telecom.splice(i, 1)
+                    "
+                  />
+                </q-item-section>
+                <q-btn
+                  flat
+                  icon="highlight_off"
+                  color="grey-6"
+                  @click="$store.commit('removeContactDetail', index)"
+                />
+              </q-item>
+            </q-list>
+            <q-btn
+              icon="add"
+              padding="none xl"
+              color="primary"
+              fab
+              label="ContactDetail"
+              @click="
+                $store.commit('addContactDetail', { name: '', telecom: [] })
+              "
+            />
+          </q-expansion-item>
+        </q-list>
+      </div>
+
       <q-list class="q-mt-md" padding bordered>
         <div class="text-h6">FHIR Resource metadata:</div>
         <div>
@@ -306,7 +360,7 @@
                 </q-toolbar>
                 <cxCoding
                   :coding="selectedCoding"
-                  v-on:addCoding="(_coding) => (securityLayout = false)"
+                  v-on:addCoding="(_coding: Coding) => (securityLayout = false)"
                 />
               </q-page>
             </q-page-container>
@@ -322,7 +376,7 @@
                 </q-toolbar>
                 <cxCoding
                   :coding="selectedCoding"
-                  v-on:addCoding="(_coding) => (tagLayout = false)"
+                  v-on:addCoding="(_coding: Coding) => (tagLayout = false)"
                 />
               </q-page>
             </q-page-container>
@@ -447,11 +501,7 @@
                       :options="derivedFromExtensionValues"
                       v-model="questionnaire._derivedFrom[index].__value"
                       clearable
-                      @clear="
-                        () => {
-                          questionnaire._derivedFrom[index].__value = null;
-                        }
-                      "
+                      @clear="questionnaire._derivedFrom[index].__value = null"
                     >
                       <template v-slot:prepend>
                         <div>{{ index + 1 }}</div>
@@ -478,7 +528,7 @@
                   flat
                   icon="highlight_off"
                   color="grey-6"
-                  @click="() => $store.commit('removeDerivedFrom', index)"
+                  @click="$store.commit('removeDerivedFrom', index)"
                 />
               </q-item>
             </q-list>
@@ -488,7 +538,7 @@
               padding="none xl"
               color="primary"
               fab
-              @click="() => $store.commit('addEmptyDerivedFrom')"
+              @click="$store.commit('addEmptyDerivedFrom')"
             />
           </q-expansion-item>
         </q-list>
@@ -757,7 +807,9 @@
               <div>
                 <cxCoding
                   :coding="currentUsageContext.code"
-                  v-on:addCoding="(_coding) => (useContextLayout = false)"
+                  v-on:addCoding="
+                    (_coding: Coding) => (useContextLayout = false)
+                  "
                 />
               </div>
               <q-toolbar class="bg-primary text-white shadow-2">
@@ -847,7 +899,9 @@
               <div v-else-if="currentUsageContext.__type === 'quantity'">
                 <cxQuantity
                   :quantity="currentUsageContext.valueQuantity"
-                  v-on:addQuantity="(_quantity) => (useContextLayout = false)"
+                  v-on:addQuantity="
+                    (_quantity: Quantity) => (useContextLayout = false)
+                  "
                 />
               </div>
               <div v-else-if="currentUsageContext.__type === 'range'">
@@ -855,21 +909,23 @@
                 <cxSimpleQuantity
                   :simpleQuantity="(currentUsageContext.valueRange.low ??= {})"
                   v-on:addSimpleQuantity="
-                    (_quantity) => (useContextLayout = false)
+                    (_quantity: Quantity) => (useContextLayout = false)
                   "
                 />
                 High:
                 <cxSimpleQuantity
                   :simpleQuantity="(currentUsageContext.valueRange.high ??= {})"
                   v-on:addSimpleQuantity="
-                    (_quantity) => (useContextLayout = false)
+                    (_quantity: Quantity) => (useContextLayout = false)
                   "
                 />
               </div>
               <div v-else-if="currentUsageContext.__type === 'reference'">
                 <cxReference
                   :reference="currentUsageContext.valueReference"
-                  v-on:addReference="(_reference) => (useContextLayout = false)"
+                  v-on:addReference="
+                    (_reference: Reference) => (useContextLayout = false)
+                  "
                 />
               </div>
               <div v-else>
@@ -900,6 +956,7 @@ import { resourceTypes } from "@/utils/resourceType";
 import cxCode from "@/components/cxCode.vue";
 import cxExtension from "@/components/cxExtension.vue";
 import cxCoding from "@/components/datatypes/cxCoding.vue";
+import cxContactDetail from "@/components/datatypes/cxContactDetail.vue";
 import cxIdentifier from "@/components/datatypes/cxIdentifier.vue";
 import cxQuantity from "@/components/datatypes/cxQuantity.vue";
 import cxSimpleQuantity from "@/components/datatypes/cxSimpleQuantity.vue";
@@ -913,7 +970,6 @@ import cxConfirmDialog from "@/components/cxConfirmDialog.vue";
 import {
   Coding,
   DerivedFromExtension,
-  derivedFromExtensionUrl,
   DerivedFromExtensionValue,
   derivedFromExtensionValues,
   Extension,
@@ -924,6 +980,13 @@ import {
   UsageContext,
   UseContextType,
   useContextTypes,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Quantity,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Reference,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ContactPoint,
+  ContactDetail,
 } from "@/types";
 import { questionnaireTools } from "@/utils/questionnaire";
 
@@ -932,6 +995,7 @@ export default defineComponent({
     cxCode,
     cxExtension,
     cxCoding,
+    cxContactDetail,
     cxIdentifier,
     cxQuantity,
     cxSimpleQuantity,
@@ -948,9 +1012,10 @@ export default defineComponent({
       () => store.getters.getQuestionnaireImportedJSON,
     );
     const currentUsageContext = ref<UsageContext | undefined>(undefined);
-    const url: typeof derivedFromExtensionUrl = derivedFromExtensionUrl;
     const selectedCoding = ref<Coding | undefined>(undefined);
+    const contact = ref<ContactDetail[]>(questionnaire.value.contact);
     return {
+      contact,
       dateTools,
       editorTools,
       questionnaireTools,
@@ -963,7 +1028,6 @@ export default defineComponent({
       useContextLayout: ref(false),
       fabUseContext: ref(true),
       useContextTypes,
-      url,
       derivedFromExtensionValues,
       getQuestionnaireExtensions,
       narrativeStatuses,

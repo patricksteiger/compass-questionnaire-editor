@@ -1,5 +1,5 @@
 <template>
-  <q-icon left :name="icon" size="sm" />
+  <q-icon class="q-mt-xs" left :name="icon" size="sm" />
   <q-item-section>
     {{ title }}
   </q-item-section>

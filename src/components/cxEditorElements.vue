@@ -108,7 +108,7 @@
             :inputTooltip="$t('tutorial.date')"
             :label="$t('components.navigationBar.metadataItems.date')"
             :value="date"
-            v-on:update="(value) => (date = value)"
+            v-on:update="(value: string) => (date = value)"
           />
         </div>
         <div class="row justify-between">
@@ -116,13 +116,13 @@
             inputClass="col-4"
             :label="$t('components.navigationBar.metadataItems.approvalDate')"
             :value="approvalDate"
-            v-on:update="(value) => (approvalDate = value)"
+            v-on:update="(value: string) => (approvalDate = value)"
           />
           <cxDate
             inputClass="col-4"
             :label="$t('components.navigationBar.metadataItems.lastReviewDate')"
             :value="lastReviewDate"
-            v-on:update="(value) => (lastReviewDate = value)"
+            v-on:update="(value: string) => (lastReviewDate = value)"
           />
         </div>
         <q-separator />
@@ -132,59 +132,6 @@
           <cxTooltip :text="$t('tutorial.effectivePeriod')" />
         </div>
       </q-list>
-
-      <!-- Contact -->
-      <div class="q-my-md">
-        <q-list bordered padding>
-          <q-expansion-item expand-separator>
-            <template v-slot:header>
-              <cxExpansionItemHeader
-                icon="contacts"
-                title="Contact"
-                :tooltip="$t('tutorial.contact')"
-              />
-            </template>
-            <q-list bordered separator dense padding class="rounded-borders">
-              <q-item
-                v-for="(contactDetail, index) in contact"
-                :key="`set_${index}`"
-              >
-                <q-item-section>
-                  <q-input
-                    label="Name"
-                    v-model="contactDetail.name"
-                    clearable
-                  />
-                  <cxContactDetail
-                    :contactDetail="contactDetail"
-                    v-on:addContactPoint="(p) => contactDetail.telecom.push(p)"
-                    v-on:removeContactPoint="
-                      (i) => contactDetail.telecom.splice(i, 1)
-                    "
-                  />
-                </q-item-section>
-                <q-btn
-                  flat
-                  icon="highlight_off"
-                  color="grey-6"
-                  @click="() => $store.commit('removeContactDetail', index)"
-                />
-              </q-item>
-            </q-list>
-            <q-btn
-              icon="add"
-              padding="none xl"
-              color="primary"
-              fab
-              label="ContactDetail"
-              @click="
-                () =>
-                  $store.commit('addContactDetail', { name: '', telecom: [] })
-              "
-            />
-          </q-expansion-item>
-        </q-list>
-      </div>
 
       <div>
         <q-input
@@ -229,7 +176,7 @@
                 type="textarea"
                 autogrow
                 clearable
-                @clear="() => (copyrightLabel = '')"
+                @clear="copyrightLabel = ''"
               />
             </div>
 
@@ -240,7 +187,7 @@
                 type="textarea"
                 autogrow
                 clearable
-                @clear="() => (copyright = '')"
+                @clear="copyright = ''"
               />
             </div>
           </q-expansion-item>
@@ -252,9 +199,8 @@
 <script lang="ts">
 import { mapGetters } from "vuex";
 import { computed, defineComponent, ref } from "vue";
-import { Identifier, Questionnaire, status, ContactDetail } from "@/types";
+import { Identifier, Questionnaire, status } from "@/types";
 import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
-import cxContactDetail from "@/components/datatypes/cxContactDetail.vue";
 import cxPeriod from "@/components/datatypes/cxPeriod.vue";
 import cxDate from "@/components/datatypes/cxDate.vue";
 import cxDateTime from "@/components/datatypes/cxDateTime.vue";
@@ -271,7 +217,6 @@ import { questionnaireTools } from "@/utils/questionnaire";
 export default defineComponent({
   components: {
     cxPeriod,
-    cxContactDetail,
     cxDate,
     cxDateTime,
     cxExpansionItemHeader,
@@ -284,9 +229,7 @@ export default defineComponent({
     const versionAlgorithmCoding = ref<VersionAlgorithmCode | null>(
       questionnaire.value.versionAlgorithmCoding?.code ?? null,
     );
-    const contact = ref<ContactDetail[]>(questionnaire.value.contact);
     return {
-      contact,
       dateTools,
       questionnaireTools,
       statusOptions: status,
