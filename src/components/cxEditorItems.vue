@@ -189,8 +189,15 @@
 
       <!-- Editor: question selected -->
       <template v-slot:after>
-        <div v-if="selectedItem === undefined" class="q-mt-md">
-          Item types overview: <cxInfoItemTypes />
+        <div
+          v-if="selectedItem === undefined"
+          class="q-mt-md q-ml-md row items-center text-caption text-grey-8 non-selectable"
+          style="width: 100%"
+        >
+          <span>
+            <cxInfoItemTypes />
+            {{ $t("tutorial.info.itemTypes") }}
+          </span>
         </div>
         <q-tab-panels v-model="selected">
           <q-tab-panel :name="selected">
@@ -205,13 +212,13 @@
               />
             </div>
             <div
-              class="row items-center justify-between text-caption text-grey-8 non-selectable"
-              style="width: 100%"
               v-if="selectedItem !== undefined"
+              class="row items-center text-caption text-grey-8 non-selectable"
+              style="width: 100%"
             >
               <span>
+                <cxInfoItemTypes />
                 Type: {{ selectedItem.type }}
-                <cxTooltip :text="$t('tutorial.type')" />
               </span>
             </div>
             <!-- LinkId field -->
@@ -726,7 +733,7 @@
                                   "
                                   :value="(answerOption.valueDate ??= '')"
                                   v-on:update="
-                                    (value) => {
+                                    (value: string) => {
                                       answerOption.valueDate = value;
                                       saveState();
                                     }
@@ -777,7 +784,7 @@
                                   :inputTooltip="$t('tutorial.valid.dateTime')"
                                   :value="(answerOption.valueDateTime ??= '')"
                                   v-on:update="
-                                    (value) => {
+                                    (value: string) => {
                                       answerOption.valueDateTime = value;
                                       saveState();
                                     }
@@ -845,7 +852,7 @@
                                   "
                                   :value="(answerOption.valueTime ??= '')"
                                   v-on:update="
-                                    (value) => {
+                                    (value: string) => {
                                       answerOption.valueTime = value;
                                       saveState();
                                     }
@@ -1780,7 +1787,8 @@
             <cxAttachment
               :attachment="chosenEnableWhen.answerAttachment"
               v-on:addAttachment="
-                (_attachment) => setAttachmentAnswer(chosenEnableWhen)
+                (_attachment: Attachment) =>
+                  setAttachmentAnswer(chosenEnableWhen)
               "
             />
           </div>
@@ -1955,7 +1963,7 @@
                   :inputTooltip="$t('tutorial.valid.date')"
                   :value="(chosenEnableWhen.answerDate ??= '')"
                   v-on:update="
-                    (value) => {
+                    (value: string) => {
                       chosenEnableWhen!.answerDate = value;
                       saveState();
                     }
@@ -2025,7 +2033,7 @@
                   label="DateTime"
                   :value="(chosenEnableWhen.answerDateTime ??= '')"
                   v-on:update="
-                    (value) => {
+                    (value: string) => {
                       chosenEnableWhen!.answerDateTime = value;
                       saveState();
                     }
@@ -2096,7 +2104,7 @@
                   label="Time"
                   :value="(chosenEnableWhen.answerTime ??= '')"
                   v-on:update="
-                    (value) => {
+                    (value: string) => {
                       chosenEnableWhen!.answerTime = value;
                       saveState();
                     }
@@ -2756,6 +2764,8 @@ import {
   answerConstraints,
   Extension,
   Initial,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Attachment,
 } from "@/types";
 import { Language, languages } from "@/store";
 import { itemTools } from "@/utils/item";

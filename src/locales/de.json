@@ -178,7 +178,6 @@
   "tutorial": {
     "answerChoice": "Fragen die vordefinierte Antworten mit AnswerOption erlauben, um Single- und Multiple-Choice-Fragen zu implementieren. Coding, String und URL erlauben zusätzlich AnswerValueSet.",
     "validationHub": "Fehler und Warnungen anzeigen.",
-    "type": "Type repräsentiert ein Display, eine Gruppiernug von Fragen oder eine Frage. Der Type einer Frage diktiert welche Daten als Antworten vom Endbenutzer zu dieser Frage aufgenommen werden.",
     "linkId": "LinkId identifiziert die Frage eindeutig und wird benutzt um Antworten und EnableWhen der entpsrechenden Frage zuzuordnen.",
     "text": "Fragetext der dem Endbenutzer angezeigt wird.",
     "prefix": "Präfix für den Fragetext, z.B. 1.a).",

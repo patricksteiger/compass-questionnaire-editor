@@ -178,7 +178,6 @@
   "tutorial": {
     "answerChoice": "Questions allowing pre-defined answers via AnswerOption for single- and multiple-choice functionality. Coding, String and URL additionally allow AnswerValueSet.",
     "validationHub": "Check for errors and warnings.",
-    "type": "Type of the item represents a display, grouping of items or a question. The type of a question dictates what data is captured as answers to this question from the end-user.",
     "linkId": "LinkId uniquely identifies the question in the questionnaire and is used to link collected answers and EnableWhen to the corresponding question.",
     "text": "Question text displayed to the end-user.",
     "prefix": "Prefix for the question text, e.g. 1.a).",

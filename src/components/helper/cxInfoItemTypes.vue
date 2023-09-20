@@ -26,17 +26,17 @@
       </p>
       <p class="text-bold">Coding</p>
       <p>
-        A coding defines a code from an optional system and version.
-        Additionally, it allows a display, which is the value actually shown to
-        the end-user. Splitting code and display allows a code shared across
-        multiple language versions for machine processing, while still
+        A coding defines a "code" from an optional "system" and "version".
+        Additionally, it allows a "display", which is the value actually shown
+        to the end-user. Splitting "code" and "display" allows a code shared
+        across multiple language versions for machine processing, while still
         displaying a value in the needed language to the end-user. It is
         generally used to present the end-user with multiple answer choices.
       </p>
       <p class="text-bold">Quantity</p>
       <p>
         A quantity consists of a "value"-element containing the numeric value,
-        "code"- and "unit"-element to represent the unit, and a system for the
+        "code"- and "unit"-element to represent the unit, and a "system" for the
         "code"-element. "unit" is the human-readable version of "code". A common
         system is the UCUM code system.<br />An example for representing "10
         counts per minute" in UCUM:<br />"value"=10,<br />"unit"="counts per
@@ -51,7 +51,10 @@
         size of the uploaded data should always be considered.
       </p>
       <p class="text-bold">Reference</p>
-      <p>A reference references another FHIR resource.</p>
+      <p>
+        A reference references another FHIR resource. For more information check
+        the FHIR documentation.
+      </p>
     </template>
   </cxInfoLayout>
 </template>
