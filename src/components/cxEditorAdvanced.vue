@@ -964,7 +964,7 @@ import cxReference from "@/components/datatypes/cxReference.vue";
 import cxExpansionItemHeader from "@/components/helper/cxExpansionItemHeader.vue";
 import cxTooltip from "@/components/helper/cxTooltip.vue";
 import cxInfoExtension from "@/components/helper/cxInfoExtension.vue";
-import cxInfoModifierExtension from "@/components/helper/cxInfoExtension.vue";
+import cxInfoModifierExtension from "@/components/helper/cxInfoModifierExtension.vue";
 import cxInfoText from "@/components/helper/cxInfoText.vue";
 import cxConfirmDialog from "@/components/cxConfirmDialog.vue";
 import {

@@ -93,7 +93,7 @@ export class ErrorChecker {
       };
       itemErrors.push(error);
     }
-    if (item.item !== undefined) {
+    if (editorTools.nonEmptyArray(item.item)) {
       for (const element of item.item) {
         this.item(element, itemErrors);
       }
@@ -563,7 +563,25 @@ export class ErrorChecker {
     this.approvalDate(this.questionnaire.approvalDate, errors);
     this.lastReviewDate(this.questionnaire.lastReviewDate, errors);
     this.effectivePeriod(this.questionnaire.effectivePeriod, errors);
+    return errors;
+  }
+
+  private advanced(): string[] {
+    const errors: string[] = [];
     this.contact(this.questionnaire.contact, errors);
+    this.id(this.questionnaire.id, errors);
+    this.implicitRules(this.questionnaire.implicitRules, errors);
+    this.meta(this.questionnaire.meta, errors);
+    this.extension(this.questionnaire.extension, errors, "extension");
+    this.extension(
+      this.questionnaire.modifierExtension,
+      errors,
+      "modifierExtension",
+    );
+    this.identifier(this.questionnaire.identifier, errors);
+    this.derivedFrom(this.questionnaire.derivedFrom, errors);
+    this.useContext(this.questionnaire.useContext, errors);
+    this.code(this.questionnaire.code, errors);
     return errors;
   }
 
@@ -611,24 +629,6 @@ export class ErrorChecker {
     if (endMsg !== true) {
       errors.push(`effectivePeriod.end: ${endMsg}`);
     }
-  }
-
-  private advanced(): string[] {
-    const errors: string[] = [];
-    this.id(this.questionnaire.id, errors);
-    this.identifier(this.questionnaire.identifier, errors);
-    this.implicitRules(this.questionnaire.implicitRules, errors);
-    this.meta(this.questionnaire.meta, errors);
-    this.derivedFrom(this.questionnaire.derivedFrom, errors);
-    this.extension(this.questionnaire.extension, errors, "extension");
-    this.extension(
-      this.questionnaire.modifierExtension,
-      errors,
-      "modifierExtension",
-    );
-    this.code(this.questionnaire.code, errors);
-    this.useContext(this.questionnaire.useContext, errors);
-    return errors;
   }
 
   private identifier(identifier: Identifier[], errors: string[]) {

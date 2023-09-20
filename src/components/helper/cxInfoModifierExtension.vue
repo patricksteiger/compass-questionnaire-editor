@@ -13,7 +13,7 @@
         extensions should be avoided in general. For more information check the
         <a
           target="_blank"
-          href="https://hl7.org/fhir/extensions/extensions-Questionnaire.html/"
+          href="https://hl7.org/fhir/R5/extensibility.html#modifierExtension"
           >Modifier Extensions Documentation</a
         >.
       </p>

@@ -13,7 +13,7 @@
           </div>
         </div>
         <div>
-          <slot name="content"></slot>
+          <slot name="content" />
         </div>
       </q-card-section>
       <q-card-actions align="right">

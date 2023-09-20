@@ -58,7 +58,7 @@
                   :label="getExtensionLabel(extension)"
                   :value="extension.valueDate"
                   v-on:update="
-                    (value) => {
+                    (value: string) => {
                       extension.valueDate = value;
                       saveState();
                     }
@@ -71,7 +71,7 @@
                   :label="getExtensionLabel(extension)"
                   :value="extension.valueDateTime"
                   v-on:update="
-                    (value) => {
+                    (value: string) => {
                       extension.valueDateTime = value;
                       saveState();
                     }
@@ -84,7 +84,7 @@
                   :label="getExtensionLabel(extension)"
                   :value="extension.valueTime"
                   v-on:update="
-                    (value) => {
+                    (value: string) => {
                       extension.valueTime = value;
                       saveState();
                     }
@@ -425,7 +425,7 @@
                               :label="getExtensionLabel(extension)"
                               :value="extension.valueDate"
                               v-on:update="
-                                (value) => {
+                                (value: string) => {
                                   extension.valueDate = value;
                                   saveState();
                                 }
@@ -441,7 +441,7 @@
                               :label="getExtensionLabel(extension)"
                               :value="extension.valueDateTime"
                               v-on:update="
-                                (value) => {
+                                (value: string) => {
                                   extension.valueDateTime = value;
                                   saveState();
                                 }
@@ -457,7 +457,7 @@
                               :label="getExtensionLabel(extension)"
                               :value="extension.valueTime"
                               v-on:update="
-                                (value) => {
+                                (value: string) => {
                                   extension.valueTime = value;
                                   saveState();
                                 }
